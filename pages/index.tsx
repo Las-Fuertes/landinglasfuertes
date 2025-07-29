@@ -1,6 +1,7 @@
 import React from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
+import { useTranslation } from '../hooks/useTranslation';
 import ComingSoon from '../components/coming-soon/coming-soon';
 
 interface HomeProps {
@@ -8,11 +9,13 @@ interface HomeProps {
 }
 
 export default function Home({ timestamp }: HomeProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <Head>
-        <title>Las Fuertes</title>
-        <meta name="description" content="Amazing landing page with SSR" />
+        <title>{t('meta.title')}</title>
+        <meta name="description" content={t('meta.description')} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -23,7 +26,6 @@ export default function Home({ timestamp }: HomeProps) {
   );
 }
 
-// This function runs on the server for each request
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {

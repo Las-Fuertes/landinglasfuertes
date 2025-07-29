@@ -2,12 +2,14 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface HomeProps {
   timestamp: string;
 }
 
 export default function ComingSoon({ timestamp }: HomeProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -66,8 +68,8 @@ export default function ComingSoon({ timestamp }: HomeProps) {
   return (
     <>
       <Head>
-        <title>Las Fuertes - Algo fuerte está en camino</title>
-        <meta name="description" content="Estamos construyendo un espacio para que la Educación Menstrual Integral (EMI) marque un nuevo hito en Colombia." />
+        <title>{t('meta.title')}</title>
+        <meta name="description" content={t('meta.description')} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -93,76 +95,70 @@ export default function ComingSoon({ timestamp }: HomeProps) {
 
           <div className="mb-6 lg:mb-12 transform -rotate-1 space-y-1 text-center">
               <h1 className="text-brand-yellow text-[40px] lg:text-[82px] -mb-6 lg:-mb-16 font-bold">
-                Algo fuerte está
+                {t('hero.mainTitle1')}
               </h1>
               <h1 className="text-brand-yellow text-[40px] lg:text-[82px] mb-2 font-bold">
-                en camino
+                {t('hero.mainTitle2')}
               </h1>
             </div>
 
             <div className="transform space-y-1 text-center mb-[10vh] font-semibold lg:font-normal">
               <div className="inline-block bg-brand-yellow px-2 lg:px-4 py-0">
                 <p className="text-brand-blue text-[16px] lg:text-[40px] leading-1">
-                  Aunque aún no puedas verlo, lo que viene
+                  {t('hero.subtitle1')}
                 </p>
               </div>
               <div className="inline-block bg-brand-yellow px-6 lg:px-10 py-0">
                 <p className="text-brand-blue text-[16px] lg:text-[40px]">
-                  será una sorpresa increíble.
+                  {t('hero.subtitle2')}
                 </p>
               </div>
             </div>
 
-            <div className="text-white lg:space-y-4 max-w-xl mx-auto text-left lg:text-center">
-              <p className="text-md lg:text-xl leading-relaxed">
-                Estamos construyendo un espacio para que la{' '}
-                <span className="font-bold italic">
-                  Educación Menstrual Integral (EMI)
-                </span>{' '}
-                marque un nuevo hito en&nbsp;Colombia.
+            <div className="text-white space-y-6 lg:space-y-4 max-w-xl mx-auto text-left lg:text-center">
+              <p className="text-lg lg:text-xl leading-relaxed">
+                {t('content.intro', { emi: t('content.emi') })}
               </p>
 
-              <p className="text-base lg:text-lg leading-relaxed opacity-90 mb-4 lg:mb-0">
-                Desde 2021, Las Fuertes ha creado espacios seguros donde la
-                información rompe barreras de silencio y transforma vidas.
+              <p className="text-base lg:text-lg leading-relaxed opacity-90">
+                {t('content.since')}
               </p>
 
-              <p className="text-md lg:text-xl font-semibold">
-                Gracias por estar aquí. Síguenos y sé parte del cambio.
+              <p className="text-lg lg:text-xl font-semibold">
+                {t('content.thanks')}
               </p>
             </div>
 
             <div className="mt-12 text-center">
               <button
                 onClick={openModal}
-                className="bg-brand-pink rounded hover:bg-pink-400 text-white px-8 py-2 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 text-lg lg:text-xl"
+                className="bg-brand-pink rounded hover:bg-pink-400 text-white px-8 py-2 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 text-xl"
               >
-                Quiero ser parte del cambio
+                {t('cta.button')}
               </button>
               <p className="text-white text-sm opacity-75 mt-1">
-                Contáctanos y únete a la revolución de EMI
+                {t('cta.subtitle')}
               </p>
             </div>
           </div>
         </div>
 
         <div className="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm opacity-70 z-20">
-          {`Generado el ${new Date(timestamp).toLocaleString('es-CO')}`}
+          {`${t('timestamp')} ${new Date(timestamp).toLocaleString('es-CO')}`}
         </div>
 
         {/* Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
+            <div 
               className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
               onClick={closeModal}
             ></div>
-            {/* Modal Content */}
+            
             <div className="relative bg-white rounded shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-              {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <h2 className="text-2xl font-bold text-brand-blue">
-                  Contáctanos
+                  {t('modal.title')}
                 </h2>
                 <button
                   onClick={closeModal}
@@ -174,7 +170,6 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                 </button>
               </div>
 
-              {/* Content */}
               <div className="p-6">
                 {submitStatus === 'success' ? (
                   <div className="text-center">
@@ -184,28 +179,28 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                       </svg>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      ¡Mensaje enviado!
+                      {t('modal.success.title')}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Gracias por contactarnos. Te responderemos pronto.
+                      {t('modal.success.message')}
                     </p>
                     <button 
                       onClick={() => setSubmitStatus('idle')}
                       className="w-full bg-brand-pink rounded hover:bg-pink-400 text-white font-bold py-3 px-6 transition-colors text-xl"
                     >
-                      Enviar otro mensaje
+                      {t('modal.success.button')}
                     </button>
                   </div>
                 ) : (
                   <>
                     <p className="text-gray-600 mb-6 lg:text-center">
-                      Cuéntanos qué te interesa sobre Las Fuertes o la Educación Menstrual Integral
+                      {t('modal.description')}
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
                         <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-2">
-                          Nombre *
+                          {t('modal.form.name')} *
                         </label>
                         <input
                           type="text"
@@ -215,13 +210,13 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all"
-                          placeholder="¿Cómo te llamas?"
+                          placeholder={t('modal.form.namePlaceholder')}
                         />
                       </div>
 
                       <div>
                         <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
-                          Correo electrónico *
+                          {t('modal.form.email')} *
                         </label>
                         <input
                           type="email"
@@ -231,13 +226,13 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all"
-                          placeholder="tu@correo.com"
+                          placeholder={t('modal.form.emailPlaceholder')}
                         />
                       </div>
 
                       <div>
                         <label htmlFor="message" className="block text-gray-700 text-sm font-medium mb-2">
-                          Mensaje *
+                          {t('modal.form.message')} *
                         </label>
                         <textarea
                           id="message"
@@ -247,13 +242,13 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                           required
                           rows={4}
                           className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all resize-none"
-                          placeholder="Cuéntanos qué te interesa sobre Las Fuertes o EMI..."
+                          placeholder={t('modal.form.messagePlaceholder')}
                         />
                       </div>
 
                       {submitStatus === 'error' && (
                         <div className="bg-red-50 text-red-800 p-4 rounded-lg text-center">
-                          <p>Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.</p>
+                          <p>{t('modal.error')}</p>
                         </div>
                       )}
 
@@ -268,10 +263,10 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Enviando...
+                            {t('modal.form.sending')}
                           </span>
                         ) : (
-                          'Enviar mensaje'
+                          t('modal.form.submit')
                         )}
                       </button>
                     </form>

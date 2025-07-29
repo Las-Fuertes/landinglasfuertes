@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "title": "Las Fuertes - Something Powerful is Coming",
+    "description": "We are building a space for Comprehensive Menstrual Education (CME) to mark a new milestone in Colombia."
+  },
+  "hero": {
+    "mainTitle1": "Something powerful",
+    "mainTitle2": "is coming",
+    "subtitle1": "Even though you can't see it yet, what's coming",
+    "subtitle2": "will be an incredible surprise."
+  },
+  "content": {
+    "intro": "We are building a space for {emi} to mark a new milestone in Colombia.",
+    "emi": "Comprehensive Menstrual Education (CME)",
+    "since": "Since 2021, Las Fuertes has created safe spaces where information breaks down barriers of silence and transforms lives.",
+    "thanks": "Thank you for being here. Follow us and be part of the change."
+  },
+  "cta": {
+    "button": "I want to be part of the change",
+    "subtitle": "Contact us and join the CME revolution"
+  },
+  "modal": {
+    "title": "Contact Us",
+    "description": "Tell us what interests you about Las Fuertes or Comprehensive Menstrual Education",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "namePlaceholder": "What's your name?",
+      "emailPlaceholder": "your@email.com",
+      "messagePlaceholder": "Tell us what interests you about Las Fuertes or CME...",
+      "submit": "Send message",
+      "sending": "Sending..."
+    },
+    "success": {
+      "title": "Message sent!",
+      "message": "Thank you for contacting us. We'll get back to you soon.",
+      "button": "Send another message"
+    },
+    "error": "There was an error sending the message. Please try again."
+  },
+  "timestamp": "Generated on"
+}

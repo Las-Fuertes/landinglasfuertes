@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "title": "Las Fuertes - Quelque chose de puissant arrive",
+    "description": "Nous construisons un espace pour que l'Éducation Menstruelle Intégrale (EMI) marque un nouveau jalon en Colombie."
+  },
+  "hero": {
+    "mainTitle1": "Quelque chose de puissant",
+    "mainTitle2": "arrive",
+    "subtitle1": "Même si tu ne peux pas encore le voir, ce qui arrive",
+    "subtitle2": "sera une surprise incroyable."
+  },
+  "content": {
+    "intro": "Nous construisons un espace pour que l'{emi} marque un nouveau jalon en Colombie.",
+    "emi": "Éducation Menstruelle Intégrale (EMI)",
+    "since": "Depuis 2021, Las Fuertes a créé des espaces sûrs où l'information brise les barrières du silence et transforme les vies.",
+    "thanks": "Merci d'être ici. Suivez-nous et faites partie du changement."
+  },
+  "cta": {
+    "button": "Je veux faire partie du changement",
+    "subtitle": "Contactez-nous et rejoignez la révolution EMI"
+  },
+  "modal": {
+    "title": "Contactez-nous",
+    "description": "Dites-nous ce qui vous intéresse à propos de Las Fuertes ou de l'Éducation Menstruelle Intégrale",
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "message": "Message",
+      "namePlaceholder": "Comment vous appelez-vous ?",
+      "emailPlaceholder": "votre@email.com",
+      "messagePlaceholder": "Dites-nous ce qui vous intéresse à propos de Las Fuertes ou EMI...",
+      "submit": "Envoyer le message",
+      "sending": "Envoi en cours..."
+    },
+    "success": {
+      "title": "Message envoyé !",
+      "message": "Merci de nous avoir contactés. Nous vous répondrons bientôt.",
+      "button": "Envoyer un autre message"
+    },
+    "error": "Une erreur s'est produite lors de l'envoi du message. Veuillez réessayer."
+  },
+  "timestamp": "Généré le"
+}
