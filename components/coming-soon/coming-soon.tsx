@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface HomeProps {
   timestamp: string;
@@ -16,6 +16,11 @@ export default function ComingSoon({ timestamp }: HomeProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -62,6 +67,10 @@ export default function ComingSoon({ timestamp }: HomeProps) {
     setFormData({ name: '', email: '', message: '' });
     setSubmitStatus('idle');
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -146,11 +155,11 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         </div>
 
         <div className="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm opacity-70 z-20">
-          Generado el {new Date(timestamp).toLocaleString('es-CO')}
+          {isMounted && `Generado el ${new Date(timestamp).toLocaleString('es-CO')}`}
         </div>
 
         {/* Modal */}
-        {isModalOpen && (
+        {isMounted && isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
               className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
