@@ -91,7 +91,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
           <div className="max-w-4xl mx-auto text-center lg:text-left">
 
           <div className="mb-6 lg:mb-12 transform -rotate-1 space-y-1 text-center">
-              <h1 className="text-brand-yellow text-[40px] lg:text-[82px] -mb-6 lg:mb-8 font-bold">
+              <h1 className="text-brand-yellow text-[40px] lg:text-[82px] -mb-6 lg:-mb-16 font-bold">
                 Algo fuerte está
               </h1>
               <h1 className="text-brand-yellow text-[40px] lg:text-[82px] mb-2 font-bold">
