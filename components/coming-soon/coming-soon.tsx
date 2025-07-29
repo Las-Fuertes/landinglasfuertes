@@ -68,10 +68,6 @@ export default function ComingSoon({ timestamp }: HomeProps) {
     setSubmitStatus('idle');
   };
 
-  if (!isMounted) {
-    return null;
-  }
-
   return (
     <>
       <Head>
