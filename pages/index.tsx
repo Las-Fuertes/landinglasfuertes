@@ -17,16 +17,6 @@ export default function Home({ timestamp }: HomeProps) {
       </Head>
 
       <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        {/* Test simple */}
-        <div className="p-8">
-          <h1 className="text-brand-yellow text-[40px] font-bold">
-            Test Direct - {timestamp}
-          </h1>
-          <div className="bg-brand-yellow p-4 mt-4">
-            <p className="text-brand-blue">Esto debería verse amarillo con texto azul</p>
-          </div>
-        </div>
-        
         <ComingSoon timestamp={timestamp} />
       </main>
     </>
