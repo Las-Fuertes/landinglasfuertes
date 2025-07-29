@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Debug styles */
+.debug-tailwind {
+  --tw-text-opacity: 1;
+}
+
+/* Ensure brand colors are available */
+.text-brand-yellow {
+  color: #FFD700 !important;
+}
+
+.text-brand-blue {
+  color: #0413D8 !important;
+}
+
+.bg-brand-yellow {
+  background-color: #FFD700 !important;
+}
+
+.bg-brand-pink {
+  background-color: #FF74BA !important;
+}
