@@ -81,7 +81,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         <Image
           src="/images/hero-background-desktop-min.jpg"
           alt="Las Fuertes - Educación menstrual en la naturaleza"
-          fill
+            fill
           style={{ objectFit: 'cover' }}
           priority
           quality={85}
