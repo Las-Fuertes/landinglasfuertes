@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['DM Sans', 'sans-serif'],
+        sans: ['DM Sans', 'sans-serif'],
         'dm-sans': ['DM Sans', 'sans-serif'],
       },
       colors: {
@@ -20,4 +20,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
