@@ -13,7 +13,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -23,7 +23,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -47,7 +47,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
       } else {
         setSubmitStatus('error');
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -71,17 +71,17 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         <title>{t('meta.title')}</title>
         <meta name="description" content={t('meta.description')} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet" />
+        <link
+          rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>"
+        />
       </Head>
 
       <main className="min-h-screen relative overflow-hidden">
         <Image
           src="/images/hero-background-desktop-min.jpg"
           alt="Las Fuertes - Educación menstrual en la naturaleza"
-            fill
+          fill
           style={{ objectFit: 'cover' }}
           priority
           quality={85}
@@ -92,8 +92,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         />
         <div className="relative z-20 container mx-auto px-6 py-16 min-h-screen flex flex-col justify-center">
           <div className="max-w-4xl mx-auto text-center lg:text-left">
-
-          <div className="mb-6 lg:mb-12 transform -rotate-1 space-y-1 text-center">
+            <div className="mb-6 lg:mb-12 transform -rotate-1 space-y-1 text-center">
               <h1 className="text-brand-yellow text-[40px] lg:text-[82px] -mb-6 lg:-mb-16 font-bold">
                 {t('hero.mainTitle1')}
               </h1>
@@ -109,9 +108,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                 </p>
               </div>
               <div className="inline-block bg-brand-yellow px-6 lg:px-10 py-0">
-                <p className="text-brand-blue text-[16px] lg:text-[40px]">
-                  {t('hero.subtitle2')}
-                </p>
+                <p className="text-brand-blue text-[16px] lg:text-[40px]">{t('hero.subtitle2')}</p>
               </div>
             </div>
 
@@ -124,9 +121,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                 {t('content.since')}
               </p>
 
-              <p className="text-lg lg:text-xl font-semibold">
-                {t('content.thanks')}
-              </p>
+              <p className="text-lg lg:text-xl font-semibold">{t('content.thanks')}</p>
             </div>
 
             <div className="mt-12 text-center">
@@ -136,9 +131,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
               >
                 {t('cta.button')}
               </button>
-              <p className="text-white text-sm opacity-75 mt-1">
-                {t('cta.subtitle')}
-              </p>
+              <p className="text-white text-sm opacity-75 mt-1">{t('cta.subtitle')}</p>
             </div>
           </div>
         </div>
@@ -150,22 +143,25 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         {/* Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div 
+            <div
               className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
               onClick={closeModal}
             ></div>
-            
+
             <div className="relative bg-white rounded shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-brand-blue">
-                  {t('modal.title')}
-                </h2>
+                <h2 className="text-2xl font-bold text-brand-blue">{t('modal.title')}</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
                   </svg>
                 </button>
               </div>
@@ -174,17 +170,25 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                 {submitStatus === 'success' ? (
                   <div className="text-center">
                     <div className="text-green-600 mb-4">
-                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      <svg
+                        className="w-16 h-16 mx-auto"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
                       </svg>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                       {t('modal.success.title')}
                     </h3>
-                    <p className="text-gray-600 mb-6">
-                      {t('modal.success.message')}
-                    </p>
-                    <button 
+                    <p className="text-gray-600 mb-6">{t('modal.success.message')}</p>
+                    <button
                       onClick={() => setSubmitStatus('idle')}
                       className="w-full bg-brand-pink rounded hover:bg-pink-400 text-white font-bold py-3 px-6 transition-colors text-xl"
                     >
@@ -193,13 +197,14 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                   </div>
                 ) : (
                   <>
-                    <p className="text-gray-600 mb-6 lg:text-center">
-                      {t('modal.description')}
-                    </p>
+                    <p className="text-gray-600 mb-6 lg:text-center">{t('modal.description')}</p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
-                        <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-2">
+                        <label
+                          htmlFor="name"
+                          className="block text-gray-700 text-sm font-medium mb-2"
+                        >
                           {t('modal.form.name')} *
                         </label>
                         <input
@@ -215,7 +220,10 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                       </div>
 
                       <div>
-                        <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+                        <label
+                          htmlFor="email"
+                          className="block text-gray-700 text-sm font-medium mb-2"
+                        >
                           {t('modal.form.email')} *
                         </label>
                         <input
@@ -231,7 +239,10 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                       </div>
 
                       <div>
-                        <label htmlFor="message" className="block text-gray-700 text-sm font-medium mb-2">
+                        <label
+                          htmlFor="message"
+                          className="block text-gray-700 text-sm font-medium mb-2"
+                        >
                           {t('modal.form.message')} *
                         </label>
                         <textarea
@@ -259,9 +270,25 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                       >
                         {isSubmitting ? (
                           <span className="flex items-center justify-center">
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                             {t('modal.form.sending')}
                           </span>
