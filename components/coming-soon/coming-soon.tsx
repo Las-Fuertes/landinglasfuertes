@@ -1,8 +1,8 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { HeroImage } from '../app-image';
 
 interface HomeProps {
   timestamp: string;
@@ -78,17 +78,14 @@ export default function ComingSoon({ timestamp }: HomeProps) {
       </Head>
 
       <main className="min-h-screen relative overflow-hidden">
-        <Image
+        <HeroImage
           src="/images/hero-background-desktop-min.jpg"
           alt="Las Fuertes - Educación menstrual en la naturaleza"
           fill
-          style={{ objectFit: 'cover' }}
-          priority
-          quality={85}
           className="z-0"
-          sizes="100vw"
-          placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+          critical
+          overlayGradient
+          quality={85}
         />
         <div className="relative z-20 container mx-auto px-6 py-16 min-h-screen flex flex-col justify-center">
           <div className="max-w-4xl mx-auto text-center lg:text-left">
