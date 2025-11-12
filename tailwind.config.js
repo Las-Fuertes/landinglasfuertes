@@ -9,16 +9,8 @@ module.exports = {
   theme: {
     extend: {
       /* ================================
-         FONT FAMILY
-         ================================ */
-      fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-        'dm-sans': ['DM Sans', 'sans-serif'],
-      },
-
-      /* ================================
          COLORS
-         ================================ */
+        ========================= */
       colors: {
         primary: {
           blue: '#0413D8',

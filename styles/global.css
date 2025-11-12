@@ -10,34 +10,34 @@
      TYPOGRAPHY
      ============================================ */
   .heading-1 {
-    @apply font-dm-sans text-h1 font-normal leading-tight text-primary-black;
+    @apply text-h1 font-normal leading-tight text-primary-black;
   }
 
   .heading-2 {
-    @apply font-dm-sans text-h2 font-normal leading-tight text-primary-black;
+    @apply text-h2 font-normal leading-tight text-primary-black;
   }
 
   .heading-3 {
-    @apply font-dm-sans text-h3 font-normal leading-tight text-primary-black;
+    @apply text-h3 font-normal leading-tight text-primary-black;
   }
 
   .heading-4 {
-    @apply font-dm-sans text-h4 font-normal leading-tight text-primary-black;
+    @apply text-h4 font-normal leading-tight text-primary-black;
   }
 
   .text-body-lg {
-    @apply font-dm-sans text-p-lg font-normal leading-normal text-primary-black;
+    @apply text-p-lg font-normal leading-normal text-primary-black;
   }
 
   .text-body-sm {
-    @apply font-dm-sans text-p-sm font-normal leading-normal text-primary-black;
+    @apply text-p-sm font-normal leading-normal text-primary-black;
   }
 
   /* ============================================
      BUTTONS
      ============================================ */
   .btn-primary {
-    @apply font-dm-sans text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center 
+    @apply text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center 
     rounded cursor-pointer transition-all duration-200 
     bg-primary-blue text-white 
     hover:bg-primary-blue-hover 
@@ -45,7 +45,7 @@
   }
 
   .btn-secondary {
-    @apply font-dm-sans text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center 
+    @apply text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center 
     border border-primary-blue rounded cursor-pointer transition-all duration-200 
     bg-white text-primary-blue 
     hover:border-primary-blue-hover-secondary hover:text-primary-blue-hover-secondary 
@@ -58,7 +58,7 @@
   /* Text Inputs & Textarea */
   input:not([type='checkbox']):not([type='radio']),
   textarea {
-    @apply font-dm-sans text-p-lg w-full py-s px-m border border-gray-300 rounded outline-none 
+    @apply text-p-lg w-full py-s px-m border border-gray-300 rounded outline-none 
     transition-colors duration-200 text-primary-black bg-white
     focus:border-primary-blue placeholder:text-gray-400;
   }
