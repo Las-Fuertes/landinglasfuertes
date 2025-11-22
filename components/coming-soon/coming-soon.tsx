@@ -90,22 +90,22 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         <div className="relative z-20 container mx-auto px-6 py-16 min-h-screen flex flex-col justify-center">
           <div className="max-w-4xl mx-auto text-center lg:text-left">
             <div className="mb-6 lg:mb-12 transform -rotate-1 space-y-1 text-center">
-              <h1 className="text-brand-yellow text-[40px] lg:text-[82px] -mb-6 lg:-mb-16 font-bold">
+              <h1 className="text-yellow text-[40px] lg:text-[82px] -mb-6 lg:-mb-16 font-bold">
                 {t('hero.mainTitle1')}
               </h1>
-              <h1 className="text-brand-yellow text-[40px] lg:text-[82px] mb-2 font-bold">
+              <h1 className="text-yellow text-[40px] lg:text-[82px] mb-2 font-bold">
                 {t('hero.mainTitle2')}
               </h1>
             </div>
 
             <div className="transform space-y-1 text-center mb-[10vh] font-semibold lg:font-normal">
-              <div className="inline-block bg-brand-yellow px-2 lg:px-4 py-0">
-                <p className="text-brand-blue text-[16px] lg:text-[40px] leading-1">
+              <div className="inline-block bg-yellow px-2 lg:px-4 py-0">
+                <p className="text-blue text-[16px] lg:text-[40px] leading-1">
                   {t('hero.subtitle1')}
                 </p>
               </div>
-              <div className="inline-block bg-brand-yellow px-6 lg:px-10 py-0">
-                <p className="text-brand-blue text-[16px] lg:text-[40px]">{t('hero.subtitle2')}</p>
+              <div className="inline-block bg-yellow px-6 lg:px-10 py-0">
+                <p className="text-blue text-[16px] lg:text-[40px]">{t('hero.subtitle2')}</p>
               </div>
             </div>
 
@@ -124,7 +124,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
             <div className="mt-12 text-center">
               <button
                 onClick={openModal}
-                className="bg-brand-pink rounded hover:bg-pink-400 text-white px-8 py-2 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 text-xl"
+                className="bg-pink rounded hover:bg-pink-400 text-white px-8 py-2 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 text-xl"
               >
                 {t('cta.button')}
               </button>
@@ -147,7 +147,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
 
             <div className="relative bg-white rounded shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-brand-blue">{t('modal.title')}</h2>
+                <h2 className="text-2xl font-bold text-blue">{t('modal.title')}</h2>
                 <button
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -187,7 +187,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                     <p className="text-gray-600 mb-6">{t('modal.success.message')}</p>
                     <button
                       onClick={() => setSubmitStatus('idle')}
-                      className="w-full bg-brand-pink rounded hover:bg-pink-400 text-white font-bold py-3 px-6 transition-colors text-xl"
+                      className="w-full bg-pink rounded hover:bg-pink-400 text-white font-bold py-3 px-6 transition-colors text-xl"
                     >
                       {t('modal.success.button')}
                     </button>
@@ -263,7 +263,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-brand-pink hover:bg-pink-400 disabled:bg-pink-400 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 disabled:transform-none text-xl"
+                        className="w-full bg-pink hover:bg-pink-400 disabled:bg-pink-400 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 disabled:transform-none text-xl"
                       >
                         {isSubmitting ? (
                           <span className="flex items-center justify-center">

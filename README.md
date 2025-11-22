@@ -61,11 +61,26 @@ Language detection is automatic based on the browser's `Accept-Language` header.
 
 ## 🎨 Styling
 
-This project uses Tailwind CSS with custom brand colors:
+This project uses a hue-based Tailwind color system.
+Colors are organized by their base hue (blue, purple, red, etc.) and use numeric shade keys following Tailwind conventions.
 
-- Brand Blue: `#0413D8`
-- Brand Yellow: `#FFD700`
-- Brand Pink: `#FF74BA`
+To expand the palette, follow the same convention:
+
+- Add a DEFAULT hex for the hue
+
+- Optionally add numeric variants (100, 300, 700, 900, etc.)
+
+- Keep shade numbers consistent across hues (lighter → higher number OR vice-versa — whichever your team standardizes)
+
+Example:
+
+```json
+green: {
+  DEFAULT: '#00A676',
+  '700': '#33C79B',
+  '300': '#007456',
+},
+```
 
 Custom fonts:
 
