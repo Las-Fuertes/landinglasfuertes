@@ -26,9 +26,11 @@ export default function Home({ timestamp }: HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
+  const now = new Date();
+
   return {
     props: {
-      timestamp: new Date().toISOString(),
+      timestamp: now.toLocaleString('es-CO'),
     },
   };
 };
