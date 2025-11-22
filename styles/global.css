@@ -10,46 +10,46 @@
      TYPOGRAPHY
      ============================================ */
   .heading-1 {
-    @apply text-h1 font-normal leading-tight text-primary-black;
+    @apply text-h1 font-normal leading-tight text-black;
   }
 
   .heading-2 {
-    @apply text-h2 font-normal leading-tight text-primary-black;
+    @apply text-h2 font-normal leading-tight text-black;
   }
 
   .heading-3 {
-    @apply text-h3 font-normal leading-tight text-primary-black;
+    @apply text-h3 font-normal leading-tight text-black;
   }
 
   .heading-4 {
-    @apply text-h4 font-normal leading-tight text-primary-black;
+    @apply text-h4 font-normal leading-tight text-black;
   }
 
   .text-body-lg {
-    @apply text-p-lg font-normal leading-normal text-primary-black;
+    @apply text-p-lg font-normal leading-normal text-black;
   }
 
   .text-body-sm {
-    @apply text-p-sm font-normal leading-normal text-primary-black;
+    @apply text-p-sm font-normal leading-normal text-black;
   }
 
   /* ============================================
      BUTTONS
      ============================================ */
   .btn-primary {
-    @apply text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center 
-    rounded cursor-pointer transition-all duration-200 
-    bg-primary-blue text-white 
-    hover:bg-primary-blue-hover 
-    disabled:bg-primary-blue-disabled disabled:cursor-not-allowed;
+    @apply text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center
+    rounded cursor-pointer transition-all duration-200
+    bg-blue text-white
+    hover:bg-blue-hover
+    disabled:bg-blue-disabled disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center 
-    border border-primary-blue rounded cursor-pointer transition-all duration-200 
-    bg-white text-primary-blue 
-    hover:border-primary-blue-hover-secondary hover:text-primary-blue-hover-secondary 
-    disabled:border-primary-blue-disabled disabled:text-primary-blue-disabled disabled:cursor-not-allowed;
+    @apply text-p-lg min-w-[109px] h-10 px-5 inline-flex items-center justify-center
+    border border-blue rounded cursor-pointer transition-all duration-200
+    bg-white text-blue
+    hover:border-blue-hover-300 hover:text-blue-hover-300
+    disabled:border-blue-disabled disabled:text-blue-disabled disabled:cursor-not-allowed;
   }
 
   /* ============================================
@@ -58,24 +58,24 @@
   /* Text Inputs & Textarea */
   input:not([type='checkbox']):not([type='radio']),
   textarea {
-    @apply text-p-lg w-full py-s px-m border border-gray-300 rounded outline-none 
-    transition-colors duration-200 text-primary-black bg-white
-    focus:border-primary-blue placeholder:text-gray-400;
+    @apply text-p-lg w-full py-s px-m border border-gray-300 rounded outline-none
+    transition-colors duration-200 text-black bg-white
+    focus:border-blue placeholder:text-gray-400;
   }
 
   /* Error State */
   input.error,
   textarea.error {
-    @apply border-primary-pink pr-[35px] bg-no-repeat;
+    @apply border-pink pr-[35px] bg-no-repeat;
     background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 0L0 12H12L6 0Z' fill='%23F57087'/%3E%3C/svg%3E");
     background-position: right 12px center;
   }
 
   /* Checkbox */
   input[type='checkbox'] {
-    @apply appearance-none w-[18px] h-[18px] border-2 border-gray-300 rounded-[3px] cursor-pointer 
+    @apply appearance-none w-[18px] h-[18px] border-2 border-gray-300 rounded-[3px] cursor-pointer
     transition-all duration-200 bg-white shrink-0
-    checked:bg-primary-blue checked:border-primary-blue hover:border-primary-blue disabled:opacity-50 disabled:cursor-not-allowed;
+    checked:bg-blue checked:border-blue hover:border-blue disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   input[type='checkbox']:checked::after {
@@ -87,13 +87,13 @@
 
   /* Radio Button */
   input[type='radio'] {
-    @apply appearance-none w-[18px] h-[18px] border-2 border-gray-300 rounded-full cursor-pointer 
+    @apply appearance-none w-[18px] h-[18px] border-2 border-gray-300 rounded-full cursor-pointer
     transition-all duration-200 bg-white shrink-0
-    checked:border-primary-blue hover:border-primary-blue disabled:opacity-50 disabled:cursor-not-allowed;
+    checked:border-blue hover:border-blue disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   input[type='radio']:checked::after {
     content: '';
-    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary-blue;
+    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue;
   }
 }
