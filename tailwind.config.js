@@ -12,23 +12,28 @@ module.exports = {
          COLORS
         ========================= */
       colors: {
-        primary: {
-          blue: '#0413D8',
-          'blue-hover': '#1a2ae0',
-          'blue-disabled': '#b3b8f0',
-          'blue-hover-secondary': '#030fa5',
-          black: '#242424',
-          pink: '#F57087',
+        blue: {
+          DEFAULT: '#0413D8',
+          700: '#78C2FF', // light blue
+          300: '#030fa5', // dark blue
         },
-        secondary: {
-          'light-blue': '#78C2FF',
-          yellow: '#FFDD00',
-          orange: '#FF7E37',
+        purple: {
+          DEFAULT: '#b3b8f0',
         },
-        brand: {
-          blue: '#0413D8',
-          yellow: '#FFD700',
-          pink: '#FF74BA',
+        red: {
+          DEFAULT: '#F57087',
+        },
+        pink: {
+          DEFAULT: '#FF74BA',
+        },
+        yellow: {
+          DEFAULT: '#FFD700',
+        },
+        orange: {
+          DEFAULT: '#FF7E37',
+        },
+        black: {
+          DEFAULT: '#242424',
         },
       },
 
