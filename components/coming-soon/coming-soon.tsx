@@ -1,4 +1,3 @@
-import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -100,12 +99,12 @@ export default function ComingSoon({ timestamp }: HomeProps) {
 
             <div className="transform space-y-1 text-center mb-[10vh] font-semibold lg:font-normal">
               <div className="inline-block bg-yellow px-2 lg:px-4 py-0">
-                <p className="text-blue text-[16px] lg:text-[40px] leading-1">
+                <p className="text-blue text-[14px] lg:text-[38px] leading-1">
                   {t('hero.subtitle1')}
                 </p>
               </div>
               <div className="inline-block bg-yellow px-6 lg:px-10 py-0">
-                <p className="text-blue text-[16px] lg:text-[40px]">{t('hero.subtitle2')}</p>
+                <p className="text-blue text-[14px] lg:text-[38px]">{t('hero.subtitle2')}</p>
               </div>
             </div>
 
@@ -134,7 +133,7 @@ export default function ComingSoon({ timestamp }: HomeProps) {
         </div>
 
         <div className="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm opacity-70 z-20">
-          {`${t('timestamp')} ${new Date(timestamp).toLocaleString('es-CO')}`}
+          {`${t('timestamp')} ${timestamp}`}
         </div>
 
         {/* Modal */}
@@ -304,11 +303,3 @@ export default function ComingSoon({ timestamp }: HomeProps) {
     </>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    props: {
-      timestamp: new Date().toISOString(),
-    },
-  };
-};
