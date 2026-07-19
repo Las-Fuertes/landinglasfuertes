@@ -7,7 +7,29 @@
     "mainTitle1": "Something powerful",
     "mainTitle2": "is coming",
     "subtitle1": "Even though you can't see it yet, what's coming",
-    "subtitle2": "will be an incredible surprise."
+    "subtitle2": "will be an incredible surprise.",
+    "section1": {
+      "text1": "Half the world menstruates,",
+      "text2": "but **talking about menstruation**",
+      "text3": "**still costs a world.**"
+    },
+    "section2": {
+      "paragraph": "Silence, ignorance, and disinformation have for years created **habits, walls and barriers that float in violent and discriminatory realities for girls as they grow.**"
+    },
+    "section3": {
+      "title": "A topic so natural, historically ignored, why talk about it now?",
+      "text": "The dignity and rights of girls and adolescents are like seawater, they never expire, and in **Las Fuertes** we embark on this irreversible mission with a unique educational map, breaking down walls and barriers."
+    },
+    "skip": "Skip animation"
+  },
+  "welcome": {
+    "titleLine1": "Welcome to",
+    "titleLine2": "Las Fuertes",
+    "subtitle": "from Isla Fuerte, Colombia",
+    "body": "A space where **comprehensive menstrual education** becomes a tool for transformation; here we accompany girls and adolescents to know, understand, and **live their cycle with freedom and confidence.**",
+    "emiTitle": "Comprehensive menstrual education as a map for change",
+    "emiParagraph1": "From that attentive listening and the desire to move new tides, **EMI** is born—our **Comprehensive Menstrual Education** program.",
+    "emiParagraph2": "A living proposal, woven from experience in Isla Fuerte and other territories in Colombia; here we understood that menstrual education is not enough on its own: **we need a broad vision** of integrity that allows every girl to inhabit her body with freedom and pride."
   },
   "content": {
     "intro": "We are building a space for {emi} to mark a new milestone in Colombia.",
@@ -39,5 +61,21 @@
     },
     "error": "There was an error sending the message. Please try again."
   },
-  "timestamp": "Generated on"
+  "timestamp": "Generated on",
+  "principles": {
+    "title": "How we came to understand it:",
+    "prev": "Previous photo",
+    "next": "Next photo"
+  },
+  "donations": {
+    "titleLine1": "Leading change",
+    "titleLine2": "with comprehensive",
+    "titleLine3": "menstrual",
+    "titleLine4": "education",
+    "titleLine5": "requires",
+    "titleLine6": "committed crews",
+    "paragraph1": "Turn your money into **collective action**. More valuable than any investment because it takes us to new destinations while deepening our impact.",
+    "paragraph2": "Every contribution creates a wave... and your constant support shapes currents of change and new opportunities.",
+    "cta": "I WANT TO CONTRIBUTE"
+  }
 }

@@ -35,6 +35,10 @@ module.exports = {
         black: {
           DEFAULT: '#242424',
         },
+        beige: {
+          DEFAULT: '#FCF5E9',
+          light: '#FAF9F6',
+        },
       },
 
       /* ================================
@@ -59,6 +63,10 @@ module.exports = {
         l: '25px',
         xl: '40px',
         xxl: '65px',
+        /** Page grid: inset from viewport edge to grid content */
+        'page-margin': '40px',
+        /** Page grid: gutter between columns */
+        'grid-gutter': '25px',
       },
     },
   },

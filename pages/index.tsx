@@ -1,14 +1,20 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useTranslation } from '../hooks/useTranslation';
-import ComingSoon from '../components/coming-soon/coming-soon';
+import Hero from '../components/hero';
 
 interface HomeProps {
   timestamp: string;
 }
 
-export default function Home({ timestamp }: HomeProps) {
+export default function Home({ timestamp: _timestamp }: HomeProps) {
   const { t } = useTranslation();
+
+  const handleHeroComplete = () => {
+    // This will be called when the hero animation is skipped or completed
+    // You can add logic here to show the rest of the page content
+    console.log('Hero animation completed');
+  };
 
   return (
     <>
@@ -18,8 +24,8 @@ export default function Home({ timestamp }: HomeProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <ComingSoon timestamp={timestamp} />
+      <main className="min-h-screen">
+        <Hero onComplete={handleHeroComplete} />
       </main>
     </>
   );

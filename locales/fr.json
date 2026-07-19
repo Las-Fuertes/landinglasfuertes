@@ -9,6 +9,15 @@
     "subtitle1": "Même si tu ne peux pas encore le voir, ce qui arrive",
     "subtitle2": "sera une surprise incroyable."
   },
+  "welcome": {
+    "titleLine1": "Bienvenue à",
+    "titleLine2": "Las Fuertes",
+    "subtitle": "d'Isla Fuerte, Colombie",
+    "body": "Un espace où l'**éducation menstruelle intégrale** devient un outil de transformation ; ici nous accompagnons les filles et les adolescentes pour connaître, comprendre et **vivre leur cycle avec liberté et confiance.**",
+    "emiTitle": "L'éducation menstruelle intégrale comme carte du changement",
+    "emiParagraph1": "De cette écoute attentive et du désir de faire bouger de nouvelles marées naît **EMI**, notre programme d'**Éducation Menstruelle Intégrale.**",
+    "emiParagraph2": "Une proposition vivante, tissée depuis l'expérience à Isla Fuerte et dans d'autres territoires de Colombie ; nous avons compris ici que l'éducation menstruelle ne suffit pas à elle seule : **nous avons besoin d'une vision large** de l'intégrité qui permette à chaque fille d'habiter son corps avec liberté et fierté."
+  },
   "content": {
     "intro": "Nous construisons un espace pour que l'{emi} marque un nouveau jalon en Colombie.",
     "emi": "Éducation Menstruelle Intégrale (EMI)",
@@ -39,5 +48,21 @@
     },
     "error": "Une erreur s'est produite lors de l'envoi du message. Veuillez réessayer."
   },
-  "timestamp": "Généré le"
+  "timestamp": "Généré le",
+  "principles": {
+    "title": "Voici comment nous l'avons compris :",
+    "prev": "Photo précédente",
+    "next": "Photo suivante"
+  },
+  "donations": {
+    "titleLine1": "Conduire le changement",
+    "titleLine2": "avec l’éducation",
+    "titleLine3": "menstruelle",
+    "titleLine4": "intégrale",
+    "titleLine5": "demande",
+    "titleLine6": "des équipages engagés",
+    "paragraph1": "Transforme ton argent en **actions collectives**. Plus précieuses que n’importe quel investissement, elles nous mènent vers de nouveaux horizons en renforçant notre impact.",
+    "paragraph2": "Chaque contribution crée une vague... et ton soutien constant forme des courants de changement et de nouvelles opportunités.",
+    "cta": "JE VEUX CONTRIBUER"
+  }
 }

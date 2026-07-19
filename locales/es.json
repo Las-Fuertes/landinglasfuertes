@@ -7,7 +7,29 @@
     "mainTitle1": "Algo fuerte está",
     "mainTitle2": "en camino",
     "subtitle1": "Aunque aún no puedas verlo, lo que viene",
-    "subtitle2": "será una sorpresa increíble."
+    "subtitle2": "será una sorpresa increíble.",
+    "section1": {
+      "text1": "La mitad del mundo menstrua,",
+      "text2": "pero **hablar de menstruación**",
+      "text3": "**sigue costando un mundo.**"
+    },
+    "section2": {
+      "paragraph": "Silencio, desconocimiento y desinformación han creado por años **costumbres, muros y barreras que flotan en realidades violentas y discriminatorias de niñas en crecimiento.**"
+    },
+    "section3": {
+      "title": "Un tema tan natural, históricamente ignorado, ¿por qué hablar ahora?",
+      "text": "La dignidad y los derechos de niñas y adolescentes son como el agua de mar, nunca expiran, y en **Las Fuertes** nos embarcamos en esta misión sin retorno con un mapa educativo único, rompiendo muros y barreras."
+    },
+    "skip": "Saltar animación"
+  },
+  "welcome": {
+    "titleLine1": "Bienvenidx a",
+    "titleLine2": "Las Fuertes",
+    "subtitle": "de Isla Fuerte, Colombia",
+    "body": "Un espacio donde la **educación menstrual integral** se convierte en una herramienta de transformación, aquí acompañamos a niñas y adolescentes a conocer, comprender y **vivir su ciclo con libertad y confianza.**",
+    "emiTitle": "Educación menstrual integral como mapa de cambio",
+    "emiParagraph1": "De esa escucha atenta y del deseo de mover nuevas mareas, nace **EMI**, nuestro Programa de **Educación Menstrual Integral.**",
+    "emiParagraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integridad que permita a cada niña habitar su cuerpo con libertad y orgullo."
   },
   "content": {
     "intro": "Estamos construyendo un espacio para que la {emi} marque un nuevo hito en Colombia.",
@@ -39,5 +61,21 @@
     },
     "error": "Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo."
   },
-  "timestamp": "Generado el"
+  "timestamp": "Generado el",
+  "principles": {
+    "title": "Así lo comprendimos nosotras:",
+    "prev": "Foto anterior",
+    "next": "Foto siguiente"
+  },
+  "donations": {
+    "titleLine1": "Dirigir el cambio",
+    "titleLine2": "con educación",
+    "titleLine3": "menstrual",
+    "titleLine4": "integral",
+    "titleLine5": "requiere",
+    "titleLine6": "tripulantes comprometidos",
+    "paragraph1": "Convierte tu dinero en **acciones colectivas**. Más valiosas que cualquier inversión porque nos lleva a nuevos destinos profundizando nuestro impacto.",
+    "paragraph2": "Cada aporte crea una ola... aunque tu apoyo constante forma corrientes de cambio y nuevas oportunidades.",
+    "cta": "QUIERO APORTAR"
+  }
 }

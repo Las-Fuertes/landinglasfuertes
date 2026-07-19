@@ -84,7 +84,7 @@ green: {
 
 Custom fonts:
 
-- DM Sans (primary font)
+- Bricolage Grotesque (primary font)
 
 ## 📁 Project Structure
 

@@ -97,3 +97,32 @@
     @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue;
   }
 }
+
+/* Principles slider (Swiper effect-cards): default slide overflow:hidden clips deckled frames */
+.principles-swiper.swiper-cards .swiper-slide {
+  overflow: visible !important;
+}
+
+/* Por si quedan nodos .swiper-slide-shadow de un init previo */
+.principles-swiper .swiper-slide-shadow {
+  display: none !important;
+}
+
+/* Donation title chips: beige strips with rough paper-edge texture + slight tilt */
+.donation-title-chip {
+  position: relative;
+  display: inline-block;
+  padding: 0.05em 0.2em 0.12em;
+  margin-bottom: 0.08em;
+  transform: rotate(-1.2deg);
+  transform-origin: left bottom;
+}
+
+.donation-title-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: #fff5e8;
+  filter: url(#paper-texture);
+  z-index: -1;
+}
