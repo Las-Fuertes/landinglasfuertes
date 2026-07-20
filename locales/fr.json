@@ -92,7 +92,8 @@
       "transferTitle": "Tu préfères un virement ?",
       "transferNequi": "Nequi/Daviplata : {number}",
       "transferBancolombia": "Bancolombia : {account}",
-      "readyHint": "Ton paiement est prêt : utilise le bouton Bold pour le finaliser."
+      "readyHint": "Ton paiement est prêt : utilise le bouton Bold pour le finaliser.",
+      "international": "Hors de Colombie ? Tu peux donner avec une carte de crédit internationale (Visa ou Mastercard) ; ta banque convertit le montant dans ta devise."
     },
     "mensual": {
       "title": "Contribue chaque mois",
@@ -123,8 +124,8 @@
       "title": "Partage ce que tu sais, où que tu sois",
       "text": "Pas besoin d'être sur l'île ni d'être enseignant·e pour aider. Si tu as une compétence, tu as quelque chose à donner. Nous cherchons un soutien à distance en :",
       "role1": "Design graphique et réseaux sociaux",
-      "role2": "Traduction",
-      "role3": "Recherche de dons et de partenaires",
+      "role2": "Avocat·es et comptables",
+      "role3": "Trouver des dons et de nouveaux partenaires",
       "role4": "Préparation de matériels éducatifs",
       "commitment": "Flexible : tu décides du temps que tu peux donner.",
       "cta": "Je veux être bénévole",

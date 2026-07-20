@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import {
   BOLD_API_KEY,
@@ -124,123 +124,121 @@ export default function DonarDinero() {
         })}
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        {frequency === 'once' ? (
-          <motion.div
-            key="once"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="mt-6"
-          >
-            <p className="leading-relaxed text-black">{t('sumate.unica.text')}</p>
+      {/* Sin exit ni mode="wait": ver nota en como-ayudar.tsx (paneles vacíos). */}
+      {frequency === 'once' ? (
+        <motion.div
+          key="once"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="mt-6"
+        >
+          <p className="leading-relaxed text-black">{t('sumate.unica.text')}</p>
 
-            <fieldset className="mt-5">
-              <legend className="text-[0.9rem] font-bold text-black">
-                {t('sumate.unica.amountLabel')}
-              </legend>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {SUGGESTED_AMOUNTS_COP.map(amount => {
-                  const active = !customAmount && selectedAmount === amount;
-                  return (
-                    <motion.button
-                      key={amount}
-                      type="button"
-                      whileTap={{ scale: 0.95 }}
-                      aria-pressed={active}
-                      onClick={() => {
-                        setSelectedAmount(amount);
-                        setCustomAmount('');
-                        resetBoldButton();
-                      }}
-                      className={`rounded-full border px-4 py-2 text-[0.95rem] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 ${
-                        active
-                          ? 'border-blue bg-blue text-white'
-                          : 'border-black/20 bg-white text-black hover:border-blue'
-                      }`}
-                    >
-                      {formatCop(amount)}
-                    </motion.button>
-                  );
-                })}
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={MIN_AMOUNT_COP}
-                  step={1000}
-                  value={customAmount}
-                  onChange={e => {
-                    setCustomAmount(e.target.value);
-                    resetBoldButton();
-                  }}
-                  placeholder={t('sumate.unica.customPlaceholder')}
-                  aria-label={t('sumate.unica.customPlaceholder')}
-                  className="w-36 rounded-full border-black/20 text-[0.95rem] focus:border-blue focus:ring-blue"
-                />
-              </div>
-            </fieldset>
-
-            {validationError && (
-              <p role="alert" className="mt-3 text-[0.9rem] font-bold text-red">
-                {validationError}
-              </p>
-            )}
-            {status === 'error' && (
-              <p role="alert" className="mt-3 text-[0.9rem] font-bold text-red">
-                {t('sumate.unica.error')}
-              </p>
-            )}
-
-            <div className="mt-6">
-              {boldConfigured ? (
-                <CtaButton
-                  onClick={iniciarDonacion}
-                  disabled={status === 'loading'}
-                  className={status === 'ready' ? 'hidden' : ''}
-                >
-                  {status === 'loading' ? t('sumate.unica.loading') : t('sumate.unica.cta')}
-                </CtaButton>
-              ) : (
-                <DisabledCta>{t('sumate.unica.comingSoon')}</DisabledCta>
-              )}
-
-              {/* Aquí Bold inyecta su botón de pago embebido */}
-              <div ref={boldContainerRef} aria-live="polite" />
-              {status === 'ready' && (
-                <p className="mt-2 text-[0.9rem] text-black">{t('sumate.unica.readyHint')}</p>
-              )}
-
-              <p className="mt-2 text-[0.85rem] text-black/70">{t('sumate.unica.methods')}</p>
+          <fieldset className="mt-5">
+            <legend className="text-[0.9rem] font-bold text-black">
+              {t('sumate.unica.amountLabel')}
+            </legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SUGGESTED_AMOUNTS_COP.map(amount => {
+                const active = !customAmount && selectedAmount === amount;
+                return (
+                  <motion.button
+                    key={amount}
+                    type="button"
+                    whileTap={{ scale: 0.95 }}
+                    aria-pressed={active}
+                    onClick={() => {
+                      setSelectedAmount(amount);
+                      setCustomAmount('');
+                      resetBoldButton();
+                    }}
+                    className={`rounded-full border px-4 py-2 text-[0.95rem] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 ${
+                      active
+                        ? 'border-blue bg-blue text-white'
+                        : 'border-black/20 bg-white text-black hover:border-blue'
+                    }`}
+                  >
+                    {formatCop(amount)}
+                  </motion.button>
+                );
+              })}
+              <input
+                type="number"
+                inputMode="numeric"
+                min={MIN_AMOUNT_COP}
+                step={1000}
+                value={customAmount}
+                onChange={e => {
+                  setCustomAmount(e.target.value);
+                  resetBoldButton();
+                }}
+                placeholder={t('sumate.unica.customPlaceholder')}
+                aria-label={t('sumate.unica.customPlaceholder')}
+                className="w-36 rounded-full border-black/20 text-[0.95rem] focus:border-blue focus:ring-blue"
+              />
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="monthly"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="mt-6"
-          >
-            <p className="leading-relaxed text-black">{t('sumate.mensual.text')}</p>
-            <div className="mt-6">
-              {MP_SUBSCRIPTION_URL ? (
-                <CtaLink href={MP_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer">
-                  {t('sumate.mensual.cta')}
-                </CtaLink>
-              ) : (
-                <DisabledCta>{t('sumate.mensual.comingSoon')}</DisabledCta>
-              )}
-            </div>
-            {DIRECT_TRANSFER.nequi && (
-              <p className="mt-4 text-[0.9rem] leading-relaxed text-black/70">
-                {t('sumate.mensual.fallback', { number: DIRECT_TRANSFER.nequi })}
-              </p>
+          </fieldset>
+
+          {validationError && (
+            <p role="alert" className="mt-3 text-[0.9rem] font-bold text-red">
+              {validationError}
+            </p>
+          )}
+          {status === 'error' && (
+            <p role="alert" className="mt-3 text-[0.9rem] font-bold text-red">
+              {t('sumate.unica.error')}
+            </p>
+          )}
+
+          <div className="mt-6">
+            {boldConfigured ? (
+              <CtaButton
+                onClick={iniciarDonacion}
+                disabled={status === 'loading'}
+                className={status === 'ready' ? 'hidden' : ''}
+              >
+                {status === 'loading' ? t('sumate.unica.loading') : t('sumate.unica.cta')}
+              </CtaButton>
+            ) : (
+              <DisabledCta>{t('sumate.unica.comingSoon')}</DisabledCta>
             )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+            {/* Aquí Bold inyecta su botón de pago embebido */}
+            <div ref={boldContainerRef} aria-live="polite" />
+            {status === 'ready' && (
+              <p className="mt-2 text-[0.9rem] text-black">{t('sumate.unica.readyHint')}</p>
+            )}
+
+            <p className="mt-2 text-[0.85rem] text-black/70">{t('sumate.unica.methods')}</p>
+            <p className="mt-1 text-[0.85rem] text-black/70">{t('sumate.unica.international')}</p>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="monthly"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="mt-6"
+        >
+          <p className="leading-relaxed text-black">{t('sumate.mensual.text')}</p>
+          <div className="mt-6">
+            {MP_SUBSCRIPTION_URL ? (
+              <CtaLink href={MP_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer">
+                {t('sumate.mensual.cta')}
+              </CtaLink>
+            ) : (
+              <DisabledCta>{t('sumate.mensual.comingSoon')}</DisabledCta>
+            )}
+          </div>
+          {DIRECT_TRANSFER.nequi && (
+            <p className="mt-4 text-[0.9rem] leading-relaxed text-black/70">
+              {t('sumate.mensual.fallback', { number: DIRECT_TRANSFER.nequi })}
+            </p>
+          )}
+        </motion.div>
+      )}
 
       {(DIRECT_TRANSFER.nequi || DIRECT_TRANSFER.bancolombia) && frequency === 'once' && (
         <div className="mt-6 border-t border-black/10 pt-4 text-[0.9rem] leading-relaxed text-black">

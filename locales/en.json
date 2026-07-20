@@ -105,7 +105,8 @@
       "transferTitle": "Prefer a bank transfer?",
       "transferNequi": "Nequi/Daviplata: {number}",
       "transferBancolombia": "Bancolombia: {account}",
-      "readyHint": "Your payment is ready: use the Bold button to complete it."
+      "readyHint": "Your payment is ready: use the Bold button to complete it.",
+      "international": "Outside Colombia? You can donate with an international credit card (Visa or Mastercard); your bank converts the amount to your currency."
     },
     "mensual": {
       "title": "Give monthly",
@@ -136,8 +137,8 @@
       "title": "Share what you know, from wherever you are",
       "text": "You don't need to be on the island or be a teacher to help. If you have a skill, you have something to give. We're looking for remote support in:",
       "role1": "Graphic design and social media",
-      "role2": "Translation",
-      "role3": "Fundraising and partnerships",
+      "role2": "Lawyers and accountants",
+      "role3": "Finding donations and new partners",
       "role4": "Preparing educational materials",
       "commitment": "Flexible: you decide how much time you can give.",
       "cta": "I want to volunteer",

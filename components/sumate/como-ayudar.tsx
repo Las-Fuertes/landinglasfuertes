@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type ReactElement } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { HandCoins, Package, Clock } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import DonarDinero from './donar-dinero';
@@ -85,19 +85,19 @@ export default function ComoAyudar() {
 
       {/* Paso 2: panel de la categoría elegida */}
       <div className="mt-6 rounded-3xl border border-black/10 bg-white p-6 shadow-md md:mx-auto md:max-w-3xl md:p-10">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={category}
-            id={`panel-${category}`}
-            role="tabpanel"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.28, ease: 'easeOut' }}
-          >
-            <Panel />
-          </motion.div>
-        </AnimatePresence>
+        {/* Solo animación de entrada (sin exit ni mode="wait"): con clics rápidos
+            entre tabs, la fase de salida podía interrumpirse y dejar el panel
+            atascado en opacidad 0 (panel "vacío"). */}
+        <motion.div
+          key={category}
+          id={`panel-${category}`}
+          role="tabpanel"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: 'easeOut' }}
+        >
+          <Panel />
+        </motion.div>
       </div>
     </div>
   );
