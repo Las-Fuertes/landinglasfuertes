@@ -11,6 +11,7 @@ import { PageGrid } from '../layout/page-grid';
 import { WelcomeSection } from '../welcome';
 import { PrinciplesSection } from '../principles';
 import { DonationsSection } from '../donations';
+import { SumateSection } from '../sumate';
 import Image from 'next/image';
 
 if (typeof window !== 'undefined') {
@@ -294,6 +295,7 @@ export default function Hero({ onComplete }: HeroProps) {
         <WelcomeSection />
         <PrinciplesSection />
         <DonationsSection />
+        <SumateSection />
       </div>
     );
   }
@@ -675,6 +677,7 @@ export default function Hero({ onComplete }: HeroProps) {
       <WelcomeSection />
       <PrinciplesSection />
       <DonationsSection />
+      <SumateSection />
     </div>
   );
 }

@@ -1,0 +1,104 @@
+'use client';
+
+import { useState, type ReactElement } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { HandCoins, Package, Clock } from 'lucide-react';
+import { useTranslation } from '../../hooks/useTranslation';
+import DonarDinero from './donar-dinero';
+import DonarCosas from './donar-cosas';
+import DonarTiempo from './donar-tiempo';
+
+type Category = 'dinero' | 'cosas' | 'tiempo';
+
+const CATEGORIES: { id: Category; icon: typeof HandCoins }[] = [
+  { id: 'dinero', icon: HandCoins },
+  { id: 'cosas', icon: Package },
+  { id: 'tiempo', icon: Clock },
+];
+
+const PANELS: Record<Category, () => ReactElement> = {
+  dinero: DonarDinero,
+  cosas: DonarCosas,
+  tiempo: DonarTiempo,
+};
+
+/**
+ * Wizard de 2 pasos: primero eliges cómo ayudar (dinero / cosas / tiempo),
+ * luego ves el detalle de esa opción en un panel animado.
+ */
+export default function ComoAyudar() {
+  const { t } = useTranslation();
+  const [category, setCategory] = useState<Category>('dinero');
+  const Panel = PANELS[category];
+
+  return (
+    <div id="donar" className="scroll-mt-24">
+      <h3 className="text-center text-[1.6rem] font-bold leading-tight text-black">
+        {t('sumate.wizard.question')}
+      </h3>
+
+      {/* Paso 1: selector de categoría */}
+      <div
+        role="tablist"
+        aria-label={t('sumate.wizard.question')}
+        className="mt-6 grid grid-cols-3 gap-2 md:mx-auto md:max-w-2xl md:gap-grid-gutter"
+      >
+        {CATEGORIES.map(({ id, icon: Icon }) => {
+          const active = category === id;
+          return (
+            <motion.button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-controls={`panel-${id}`}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setCategory(id)}
+              className={`relative flex flex-col items-center gap-1.5 rounded-2xl border-2 px-2 py-4 text-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:py-5 ${
+                active
+                  ? 'border-blue bg-white shadow-md'
+                  : 'border-transparent bg-white/60 hover:border-black/10 hover:bg-white'
+              }`}
+            >
+              <Icon
+                className={`h-7 w-7 ${active ? 'text-blue' : 'text-black/60'}`}
+                strokeWidth={1.8}
+                aria-hidden
+              />
+              <span className={`text-[0.95rem] font-bold ${active ? 'text-blue' : 'text-black'}`}>
+                {t(`sumate.wizard.${id}`)}
+              </span>
+              <span className="hidden text-[0.8rem] leading-tight text-black/60 md:block">
+                {t(`sumate.wizard.${id}Hint`)}
+              </span>
+              {active && (
+                <motion.span
+                  layoutId="category-underline"
+                  className="absolute -bottom-2 left-1/2 h-1.5 w-8 -translate-x-1/2 rounded-full bg-blue"
+                  transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
+                />
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Paso 2: panel de la categoría elegida */}
+      <div className="mt-6 rounded-3xl border border-black/10 bg-white p-6 shadow-md md:mx-auto md:max-w-3xl md:p-10">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={category}
+            id={`panel-${category}`}
+            role="tabpanel"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+          >
+            <Panel />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}

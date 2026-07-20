@@ -81,13 +81,13 @@ export default function DonationsSection() {
           </p>
         </div>
         <div className="col-span-4 mt-4 max-w-xl md:col-span-12 md:mt-10 text-center">
-          <button
-            type="button"
-            className="inline-flex h-[3.25rem] items-center justify-center rounded-lg bg-white px-7 text-[clamp(1.05rem,2.4vw,1.5rem)] font-bold uppercase tracking-tight text-blue"
+          <a
+            href="#sumate"
+            className="inline-flex h-[3.25rem] items-center justify-center rounded-lg bg-white px-7 text-[clamp(1.05rem,2.4vw,1.5rem)] font-bold uppercase tracking-tight text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue"
             aria-label={t('donations.cta')}
           >
             {t('donations.cta')}
-          </button>
+          </a>
         </div>
       </PageGrid>
 

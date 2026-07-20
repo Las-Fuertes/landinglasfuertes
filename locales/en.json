@@ -77,5 +77,102 @@
     "paragraph1": "Turn your money into **collective action**. More valuable than any investment because it takes us to new destinations while deepening our impact.",
     "paragraph2": "Every contribution creates a wave... and your constant support shapes currents of change and new opportunities.",
     "cta": "I WANT TO CONTRIBUTE"
+  },
+  "sumate": {
+    "hero": {
+      "title": "Join Las Fuertes",
+      "subtitle": "Every girl on Isla Fuerte deserves tools to build her future. You can be part of that today, from wherever you are."
+    },
+    "proyecto": {
+      "label": "Our project right now",
+      "title": "Comprehensive Menstrual Education on Isla Fuerte",
+      "description": "Through EMI we support girls and teenagers on the island so they can understand and live their cycle with freedom and confidence. Your support becomes workshops, materials and safe spaces.",
+      "goalLabel": "Goal",
+      "raisedLabel": "Raised so far",
+      "cta": "Support this project"
+    },
+    "unica": {
+      "title": "Give once",
+      "text": "Your contribution turns directly into workshops, materials and opportunities for the girls on the island. You choose how much.",
+      "amountLabel": "Amount in Colombian pesos",
+      "customPlaceholder": "Other amount",
+      "cta": "Donate now",
+      "loading": "Preparing payment...",
+      "methods": "Card, PSE and Bancolombia button.",
+      "minError": "The minimum amount is {min}.",
+      "error": "We couldn't open the payment right now. You can try again or use a direct transfer.",
+      "comingSoon": "Coming soon",
+      "transferTitle": "Prefer a bank transfer?",
+      "transferNequi": "Nequi/Daviplata: {number}",
+      "transferBancolombia": "Bancolombia: {account}",
+      "readyHint": "Your payment is ready: use the Bold button to complete it."
+    },
+    "mensual": {
+      "title": "Give monthly",
+      "text": "A fixed monthly contribution gives stability to the foundation's programs. It's the most powerful way to help, because it lets us plan ahead.",
+      "cta": "I want to give monthly",
+      "comingSoon": "Coming soon",
+      "fallback": "Prefer Nequi? Set up a recurring payment from your app to {number}."
+    },
+    "especie": {
+      "title": "Your things can change a story",
+      "text": "On the island there are no tech shops or big stationery stores. What is no longer useful to you opens doors here. We receive:",
+      "item1": "Used laptops",
+      "item2": "Photo cameras",
+      "item3": "School supplies, notebooks and art materials",
+      "item4": "Children's and young adult books in Spanish",
+      "cta": "I want to donate in kind",
+      "whatsappMessage": "Hi, I want to make an in-kind donation to Las Fuertes."
+    },
+    "llegue": {
+      "title": "The Llegue-Llegue: shopping with purpose",
+      "text": "At our headquarters on Isla Fuerte we run the Llegue-Llegue, our mini second-hand clothing store of good quality. Every garment sold directly supports the foundation's programs.",
+      "cta": "Donate clothes to the Llegue-Llegue",
+      "locationLabel": "To shop, visit us at:",
+      "whatsappMessage": "Hi, I want to donate clothes for the Llegue-Llegue.",
+      "donateNote": "To shop you have to visit us on the island, but from anywhere you can donate clothes in good condition and give the store more stock."
+    },
+    "voluntariado": {
+      "title": "Share what you know, from wherever you are",
+      "text": "You don't need to be on the island or be a teacher to help. If you have a skill, you have something to give. We're looking for remote support in:",
+      "role1": "Graphic design and social media",
+      "role2": "Translation",
+      "role3": "Fundraising and partnerships",
+      "role4": "Preparing educational materials",
+      "commitment": "Flexible: you decide how much time you can give.",
+      "cta": "I want to volunteer",
+      "whatsappMessage": "Hi, I want to be a remote volunteer for Las Fuertes."
+    },
+    "difunde": {
+      "title": "Spread the word",
+      "text": "Can't donate yet? You can still help: follow us on Instagram, where we share everything we do; share our work; and tell someone who has an unused laptop or camera stored away.",
+      "cta": "Follow us on Instagram"
+    },
+    "whatsappUnavailable": "Very soon you'll be able to reach us here.",
+    "wizard": {
+      "question": "How do you want to help?",
+      "dinero": "With money",
+      "dineroHint": "From $5,000 COP, once or monthly",
+      "cosas": "With things",
+      "cosasHint": "Tech, supplies and clothes",
+      "tiempo": "With time",
+      "tiempoHint": "Remote volunteering",
+      "once": "One time",
+      "monthly": "Monthly"
+    }
+  },
+  "gracias": {
+    "approvedTitle": "Thank you for your donation!",
+    "approvedText": "Your contribution went through and will become workshops, materials and opportunities for the girls of Isla Fuerte. You'll receive Bold's receipt by email.",
+    "pendingTitle": "Your payment is being processed",
+    "pendingText": "Your transaction is pending confirmation (this is normal with PSE). Bold will send you the receipt once it's approved.",
+    "rejectedTitle": "The payment didn't go through",
+    "rejectedText": "Your transaction was declined or cancelled and nothing was charged. You can try again or write to us if you need help.",
+    "orderLabel": "Reference",
+    "retry": "Try again",
+    "back": "Back to home",
+    "share": "Follow us on Instagram",
+    "suscripcionTitle": "Thank you for joining monthly!",
+    "suscripcionText": "Your monthly contribution gives stability to Las Fuertes' programs and lets us plan ahead. Mercado Pago will email you the receipt for each charge, and you can manage or cancel your subscription from your Mercado Pago account at any time."
   }
 }

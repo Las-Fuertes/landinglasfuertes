@@ -77,5 +77,102 @@
     "paragraph1": "Convierte tu dinero en **acciones colectivas**. Más valiosas que cualquier inversión porque nos lleva a nuevos destinos profundizando nuestro impacto.",
     "paragraph2": "Cada aporte crea una ola... aunque tu apoyo constante forma corrientes de cambio y nuevas oportunidades.",
     "cta": "QUIERO APORTAR"
+  },
+  "sumate": {
+    "hero": {
+      "title": "Súmate a Las Fuertes",
+      "subtitle": "Cada niña de Isla Fuerte merece herramientas para construir su futuro. Tú puedes ser parte de eso hoy, desde donde estés."
+    },
+    "proyecto": {
+      "label": "Nuestro proyecto ahora mismo",
+      "title": "Educación Menstrual Integral en Isla Fuerte",
+      "description": "Con EMI acompañamos a niñas y adolescentes de la isla a conocer y vivir su ciclo con libertad y confianza. Tu apoyo se convierte en talleres, materiales y espacios seguros.",
+      "goalLabel": "Meta",
+      "raisedLabel": "Vamos en",
+      "cta": "Apoyar este proyecto"
+    },
+    "wizard": {
+      "question": "¿Cómo quieres ayudar?",
+      "dinero": "Con dinero",
+      "dineroHint": "Desde $5.000, una vez o cada mes",
+      "cosas": "Con cosas",
+      "cosasHint": "Tecnología, útiles y ropa",
+      "tiempo": "Con tiempo",
+      "tiempoHint": "Voluntariado remoto",
+      "once": "Una vez",
+      "monthly": "Cada mes"
+    },
+    "unica": {
+      "title": "Dona una vez",
+      "text": "Tu aporte se convierte directamente en talleres, materiales y oportunidades para las niñas de la isla. Tú eliges cuánto.",
+      "amountLabel": "Monto en pesos colombianos",
+      "customPlaceholder": "Otro monto",
+      "cta": "Donar ahora",
+      "loading": "Preparando pago...",
+      "readyHint": "Tu pago está listo: usa el botón de Bold para completarlo.",
+      "methods": "Tarjeta, PSE y Botón Bancolombia.",
+      "minError": "El monto mínimo es {min}.",
+      "error": "No pudimos abrir el pago en este momento. Puedes intentarlo de nuevo o usar la transferencia directa.",
+      "comingSoon": "Pronto disponible",
+      "transferTitle": "¿Prefieres transferir?",
+      "transferNequi": "Nequi/Daviplata: {number}",
+      "transferBancolombia": "Bancolombia: {account}"
+    },
+    "mensual": {
+      "title": "Aporta cada mes",
+      "text": "Con un aporte fijo mensual le das estabilidad a los programas de la fundación. Es la forma más poderosa de ayudar, porque nos permite planear a futuro.",
+      "cta": "Quiero aportar cada mes",
+      "comingSoon": "Pronto disponible",
+      "fallback": "¿Prefieres Nequi? Programa un pago recurrente desde tu app hacia {number}."
+    },
+    "especie": {
+      "title": "Tus cosas pueden cambiar una historia",
+      "text": "En la isla no hay tiendas de tecnología ni papelerías grandes. Lo que para ti ya no es útil, aquí abre puertas. Recibimos:",
+      "item1": "Computadores portátiles usados",
+      "item2": "Cámaras fotográficas",
+      "item3": "Útiles escolares, cuadernos y material de arte",
+      "item4": "Libros infantiles y juveniles en español",
+      "cta": "Quiero donar en especie",
+      "whatsappMessage": "Hola, quiero donar en especie a Las Fuertes."
+    },
+    "llegue": {
+      "title": "El Llegue-Llegue: compra con propósito",
+      "text": "En nuestra sede en Isla Fuerte tenemos el Llegue-Llegue, nuestra minitienda de ropa de segunda de buena calidad. Cada prenda que se vende apoya directamente los programas de la fundación.",
+      "donateNote": "Para comprar tienes que visitarnos en la isla, pero desde cualquier lugar puedes donar ropa en buen estado y darle más stock a la tienda.",
+      "cta": "Donar ropa al Llegue-Llegue",
+      "locationLabel": "Para comprar, visítanos en:",
+      "whatsappMessage": "Hola, quiero donar ropa para el Llegue-Llegue."
+    },
+    "voluntariado": {
+      "title": "Comparte lo que sabes, desde donde estés",
+      "text": "No necesitas estar en la isla ni ser profesora para ayudar. Si tienes una habilidad, tienes algo que dar. Buscamos apoyo remoto en:",
+      "role1": "Diseño gráfico y redes sociales",
+      "role2": "Traducción",
+      "role3": "Consecución de donaciones y aliados",
+      "role4": "Preparación de materiales educativos",
+      "commitment": "Flexible: tú defines cuánto tiempo puedes dar.",
+      "cta": "Quiero ser voluntaria/o",
+      "whatsappMessage": "Hola, quiero ser voluntaria/o remota/o de Las Fuertes."
+    },
+    "difunde": {
+      "title": "Difunde",
+      "text": "¿Todavía no puedes donar? También ayudas así: síguenos en Instagram, donde publicamos todo lo que hacemos; comparte nuestro trabajo; y cuéntale a alguien que tenga un computador o una cámara guardada sin usar.",
+      "cta": "Síguenos en Instagram"
+    },
+    "whatsappUnavailable": "Muy pronto podrás contactarnos por aquí."
+  },
+  "gracias": {
+    "suscripcionTitle": "¡Gracias por sumarte cada mes!",
+    "suscripcionText": "Tu aporte mensual le da estabilidad a los programas de Las Fuertes y nos permite planear a futuro. Mercado Pago te enviará el comprobante de cada cobro a tu correo, y puedes gestionar o cancelar tu suscripción desde tu cuenta de Mercado Pago cuando quieras.",
+    "approvedTitle": "¡Gracias por tu donación!",
+    "approvedText": "Tu aporte llegó bien y se convertirá en talleres, materiales y oportunidades para las niñas de Isla Fuerte. Recibirás el comprobante de Bold en tu correo.",
+    "pendingTitle": "Tu pago está en proceso",
+    "pendingText": "Tu transacción quedó pendiente de confirmación (esto es normal con PSE). Bold te enviará el comprobante cuando se apruebe.",
+    "rejectedTitle": "El pago no se completó",
+    "rejectedText": "Tu transacción fue rechazada o cancelada y no se hizo ningún cobro. Puedes intentarlo de nuevo o escribirnos si necesitas ayuda.",
+    "orderLabel": "Referencia",
+    "retry": "Intentar de nuevo",
+    "back": "Volver al inicio",
+    "share": "Síguenos en Instagram"
   }
 }

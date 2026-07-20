@@ -64,5 +64,102 @@
     "paragraph1": "Transforme ton argent en **actions collectives**. Plus précieuses que n’importe quel investissement, elles nous mènent vers de nouveaux horizons en renforçant notre impact.",
     "paragraph2": "Chaque contribution crée une vague... et ton soutien constant forme des courants de changement et de nouvelles opportunités.",
     "cta": "JE VEUX CONTRIBUER"
+  },
+  "sumate": {
+    "hero": {
+      "title": "Rejoins Las Fuertes",
+      "subtitle": "Chaque fille d'Isla Fuerte mérite des outils pour construire son avenir. Tu peux en faire partie dès aujourd'hui, où que tu sois."
+    },
+    "proyecto": {
+      "label": "Notre projet en ce moment",
+      "title": "Éducation Menstruelle Intégrale à Isla Fuerte",
+      "description": "Avec EMI, nous accompagnons les filles et adolescentes de l'île pour qu'elles comprennent et vivent leur cycle avec liberté et confiance. Ton soutien devient ateliers, matériels et espaces sûrs.",
+      "goalLabel": "Objectif",
+      "raisedLabel": "Déjà collecté",
+      "cta": "Soutenir ce projet"
+    },
+    "unica": {
+      "title": "Fais un don ponctuel",
+      "text": "Ta contribution se transforme directement en ateliers, matériels et opportunités pour les filles de l'île. Tu choisis le montant.",
+      "amountLabel": "Montant en pesos colombiens",
+      "customPlaceholder": "Autre montant",
+      "cta": "Faire un don",
+      "loading": "Préparation du paiement...",
+      "methods": "Carte, PSE et bouton Bancolombia.",
+      "minError": "Le montant minimum est de {min}.",
+      "error": "Impossible d'ouvrir le paiement pour le moment. Réessaie ou utilise le virement direct.",
+      "comingSoon": "Bientôt disponible",
+      "transferTitle": "Tu préfères un virement ?",
+      "transferNequi": "Nequi/Daviplata : {number}",
+      "transferBancolombia": "Bancolombia : {account}",
+      "readyHint": "Ton paiement est prêt : utilise le bouton Bold pour le finaliser."
+    },
+    "mensual": {
+      "title": "Contribue chaque mois",
+      "text": "Une contribution mensuelle fixe donne de la stabilité aux programmes de la fondation. C'est la façon la plus puissante d'aider, car elle nous permet de planifier l'avenir.",
+      "cta": "Je veux contribuer chaque mois",
+      "comingSoon": "Bientôt disponible",
+      "fallback": "Tu préfères Nequi ? Programme un paiement récurrent depuis ton app vers {number}."
+    },
+    "especie": {
+      "title": "Tes affaires peuvent changer une histoire",
+      "text": "Sur l'île, il n'y a ni magasins de technologie ni grandes papeteries. Ce qui ne te sert plus ouvre des portes ici. Nous recevons :",
+      "item1": "Ordinateurs portables d'occasion",
+      "item2": "Appareils photo",
+      "item3": "Fournitures scolaires, cahiers et matériel d'art",
+      "item4": "Livres pour enfants et jeunes en espagnol",
+      "cta": "Je veux donner en nature",
+      "whatsappMessage": "Bonjour, je veux faire un don en nature à Las Fuertes."
+    },
+    "llegue": {
+      "title": "Le Llegue-Llegue : acheter avec du sens",
+      "text": "Dans notre siège à Isla Fuerte se trouve le Llegue-Llegue, notre mini-boutique de vêtements de seconde main de bonne qualité. Chaque vêtement vendu soutient directement les programmes de la fondation.",
+      "cta": "Donner des vêtements au Llegue-Llegue",
+      "locationLabel": "Pour acheter, rends-nous visite :",
+      "whatsappMessage": "Bonjour, je veux donner des vêtements pour le Llegue-Llegue.",
+      "donateNote": "Pour acheter, il faut nous rendre visite sur l'île, mais où que tu sois, tu peux donner des vêtements en bon état pour renforcer le stock de la boutique."
+    },
+    "voluntariado": {
+      "title": "Partage ce que tu sais, où que tu sois",
+      "text": "Pas besoin d'être sur l'île ni d'être enseignant·e pour aider. Si tu as une compétence, tu as quelque chose à donner. Nous cherchons un soutien à distance en :",
+      "role1": "Design graphique et réseaux sociaux",
+      "role2": "Traduction",
+      "role3": "Recherche de dons et de partenaires",
+      "role4": "Préparation de matériels éducatifs",
+      "commitment": "Flexible : tu décides du temps que tu peux donner.",
+      "cta": "Je veux être bénévole",
+      "whatsappMessage": "Bonjour, je veux être bénévole à distance pour Las Fuertes."
+    },
+    "difunde": {
+      "title": "Fais passer le mot",
+      "text": "Tu ne peux pas encore donner ? Tu aides aussi comme ça : suis-nous sur Instagram, où nous publions tout ce que nous faisons ; partage notre travail ; et parle-nous à quelqu'un qui a un ordinateur ou un appareil photo inutilisé.",
+      "cta": "Suis-nous sur Instagram"
+    },
+    "whatsappUnavailable": "Très bientôt tu pourras nous contacter ici.",
+    "wizard": {
+      "question": "Comment veux-tu aider ?",
+      "dinero": "Avec de l'argent",
+      "dineroHint": "Dès 5 000 $ COP, une fois ou chaque mois",
+      "cosas": "Avec des objets",
+      "cosasHint": "Technologie, fournitures et vêtements",
+      "tiempo": "Avec du temps",
+      "tiempoHint": "Bénévolat à distance",
+      "once": "Une fois",
+      "monthly": "Chaque mois"
+    }
+  },
+  "gracias": {
+    "approvedTitle": "Merci pour ton don !",
+    "approvedText": "Ta contribution est bien arrivée et deviendra ateliers, matériels et opportunités pour les filles d'Isla Fuerte. Tu recevras le reçu de Bold par e-mail.",
+    "pendingTitle": "Ton paiement est en cours",
+    "pendingText": "Ta transaction est en attente de confirmation (c'est normal avec PSE). Bold t'enverra le reçu dès qu'elle sera approuvée.",
+    "rejectedTitle": "Le paiement n'a pas abouti",
+    "rejectedText": "Ta transaction a été refusée ou annulée et rien n'a été débité. Tu peux réessayer ou nous écrire si tu as besoin d'aide.",
+    "orderLabel": "Référence",
+    "retry": "Réessayer",
+    "back": "Retour à l'accueil",
+    "share": "Suis-nous sur Instagram",
+    "suscripcionTitle": "Merci de contribuer chaque mois !",
+    "suscripcionText": "Ta contribution mensuelle donne de la stabilité aux programmes de Las Fuertes et nous permet de planifier l'avenir. Mercado Pago t'enverra le reçu de chaque prélèvement par e-mail, et tu peux gérer ou annuler ta souscription depuis ton compte Mercado Pago à tout moment."
   }
 }
