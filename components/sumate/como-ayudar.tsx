@@ -16,11 +16,10 @@ const CATEGORIES: {
   icon: typeof HandCoins;
   border: string;
   text: string;
-  bg: string;
 }[] = [
-  { id: 'dinero', icon: HandCoins, border: 'border-blue', text: 'text-blue', bg: 'bg-blue' },
-  { id: 'cosas', icon: Package, border: 'border-orange', text: 'text-orange', bg: 'bg-orange' },
-  { id: 'tiempo', icon: Clock, border: 'border-pink', text: 'text-pink', bg: 'bg-pink' },
+  { id: 'dinero', icon: HandCoins, border: 'border-blue', text: 'text-blue' },
+  { id: 'cosas', icon: Package, border: 'border-orange', text: 'text-orange' },
+  { id: 'tiempo', icon: Clock, border: 'border-pink', text: 'text-pink' },
 ];
 
 const PANELS: Record<Category, () => ReactElement> = {
@@ -50,7 +49,7 @@ export default function ComoAyudar() {
         aria-label={t('sumate.wizard.question')}
         className="mt-6 grid grid-cols-3 gap-2 md:mx-auto md:max-w-2xl md:gap-grid-gutter"
       >
-        {CATEGORIES.map(({ id, icon: Icon, border, text, bg }) => {
+        {CATEGORIES.map(({ id, icon: Icon, border, text }) => {
           const active = category === id;
           return (
             <motion.button
@@ -80,13 +79,6 @@ export default function ComoAyudar() {
               <span className="hidden text-[0.85rem] leading-tight text-black/60 md:block">
                 {t(`sumate.wizard.${id}Hint`)}
               </span>
-              {active && (
-                <motion.span
-                  layoutId="category-underline"
-                  className={`absolute -bottom-2 left-1/2 h-1.5 w-8 -translate-x-1/2 rounded-full ${bg}`}
-                  transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
-                />
-              )}
             </motion.button>
           );
         })}

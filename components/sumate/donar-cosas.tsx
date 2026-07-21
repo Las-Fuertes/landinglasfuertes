@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Laptop, Camera, Backpack, BookOpen, Shirt, MapPin } from 'lucide-react';
+import { Laptop, Camera, Backpack, BookOpen, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { SEDE_LOCATION, buildWhatsAppHref } from './sumate.data';
 import { CtaLink, DisabledCta } from './ui';
@@ -64,8 +64,7 @@ export default function DonarCosas() {
       {/* Llegue-Llegue */}
       <div className="mt-10 rounded-3xl bg-blue p-6 md:p-8">
         <p className="text-center">
-          <span className="donation-title-chip inline-flex items-center gap-2 text-[0.85rem] font-bold uppercase tracking-wide text-blue">
-            <Shirt className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+          <span className="donation-title-chip text-[0.85rem] font-bold uppercase tracking-wide text-blue">
             Llegue-Llegue
           </span>
         </p>

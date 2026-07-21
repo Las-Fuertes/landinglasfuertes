@@ -99,8 +99,6 @@ export default function Hero({ onComplete }: HeroProps) {
       // ───────── PUNTO VIAJERO (CV1) ─────────
       // CV1 se queda QUIETO en su sitio (viewport 50%, 47%) durante toda S1 y "aterriza" haciendo crossfade
       // a un círculo REAL del techo de S2 (.s2-landing), que ya hace scroll con la sección y se queda atrás.
-      const vh = () => window.innerHeight;
-      const REST_FILTER = 'hue-rotate(0deg) saturate(1) brightness(1)';
 
       // CV1 es GRANDE en S1 y ENCOGE a su tamaño base (44px = .s2-landing) justo cuando .s2-landing sube
       // hasta la posición de CV1 (47%). Así, al relevar, ambos coinciden en tamaño (sin salto).
@@ -204,34 +202,8 @@ export default function Hero({ onComplete }: HeroProps) {
         );
       }
 
-      // Tramo FINAL de S3: las burbujas suben y se tiñen de azul marino. Animación DISPARADA al llegar
-      // al final (no pegada al scroll), reproducida una sola vez. Color por hue-rotate NEGATIVO
-      // (rojo→morado→azul, NUNCA verde) y rápido al inicio de la subida.
-      const NAVY = 'hue-rotate(-140deg) saturate(1.3) brightness(0.8)';
-      const riseTL = gsap.timeline({ paused: true });
-      riseTL.fromTo(
-        '.s3-bubble',
-        { filter: REST_FILTER },
-        { filter: NAVY, duration: 0.4, ease: 'power1.out' },
-        0
-      );
-      riseTL.to(
-        '.s3-bubble',
-        { y: () => -0.6 * vh(), opacity: 0, duration: 2.8, ease: 'power1.in' },
-        0
-      );
-
-      // El pez koi queda estático como decoración (su animación de salida/entrada se retiró).
-      ScrollTrigger.create({
-        trigger: section3Ref.current,
-        start: 'bottom 70%', // un poco más tarde, para que no suban demasiado pronto
-        onEnter: () => {
-          riseTL.play();
-        },
-        onLeaveBack: () => {
-          riseTL.reverse();
-        },
-      });
+      // Las burbujas (.s3-bubble) y el pez koi quedan estáticos como decoración:
+      // sus animaciones de subida/salida se retiraron.
     }, containerRef);
 
     return () => ctx.revert();
