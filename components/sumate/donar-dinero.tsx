@@ -88,7 +88,7 @@ export default function DonarDinero() {
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-md">
       {/* Toggle Una vez / Cada mes */}
       <div
         role="tablist"
@@ -133,36 +133,40 @@ export default function DonarDinero() {
           transition={{ duration: 0.25 }}
           className="mt-6"
         >
-          <p className="leading-relaxed text-black">{t('sumate.unica.text')}</p>
+          <p className="text-center leading-relaxed text-black">{t('sumate.unica.text')}</p>
 
-          <fieldset className="mt-5">
-            <legend className="text-[0.9rem] font-bold text-black">
+          <fieldset className="mt-6">
+            <legend className="mx-auto text-center text-[0.95rem] font-bold uppercase tracking-wide text-black/70">
               {t('sumate.unica.amountLabel')}
             </legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {SUGGESTED_AMOUNTS_COP.map(amount => {
+            {/* Montos como chips grandes, con la rotación juguetona de los chips del sitio */}
+            <div className="mt-3 grid grid-cols-3 gap-2 md:gap-3">
+              {SUGGESTED_AMOUNTS_COP.map((amount, i) => {
                 const active = !customAmount && selectedAmount === amount;
+                const tilt = i % 2 === 0 ? '-rotate-1' : 'rotate-1';
                 return (
                   <motion.button
                     key={amount}
                     type="button"
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.94 }}
                     aria-pressed={active}
                     onClick={() => {
                       setSelectedAmount(amount);
                       setCustomAmount('');
                       resetBoldButton();
                     }}
-                    className={`rounded-full border px-4 py-2 text-[0.95rem] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 ${
+                    className={`rounded-2xl border-2 px-2 py-4 text-[1.05rem] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:text-[1.2rem] ${
                       active
-                        ? 'border-blue bg-blue text-white'
-                        : 'border-black/20 bg-white text-black hover:border-blue'
+                        ? `border-blue bg-blue text-white shadow-md ${tilt}`
+                        : 'border-black/10 bg-beige-light text-black hover:border-blue'
                     }`}
                   >
                     {formatCop(amount)}
                   </motion.button>
                 );
               })}
+            </div>
+            <div className="relative mt-3">
               <input
                 type="number"
                 inputMode="numeric"
@@ -175,18 +179,22 @@ export default function DonarDinero() {
                 }}
                 placeholder={t('sumate.unica.customPlaceholder')}
                 aria-label={t('sumate.unica.customPlaceholder')}
-                className="w-36 rounded-full border-black/20 text-[0.95rem] focus:border-blue focus:ring-blue"
+                className={`h-14 w-full rounded-2xl border-2 px-4 text-center text-[1.05rem] font-bold transition focus:ring-0 ${
+                  customAmount
+                    ? 'border-blue bg-white text-blue'
+                    : 'border-black/10 bg-beige-light text-black focus:border-blue'
+                }`}
               />
             </div>
           </fieldset>
 
           {validationError && (
-            <p role="alert" className="mt-3 text-[0.9rem] font-bold text-red">
+            <p role="alert" className="mt-3 text-center text-[0.9rem] font-bold text-red">
               {validationError}
             </p>
           )}
           {status === 'error' && (
-            <p role="alert" className="mt-3 text-[0.9rem] font-bold text-red">
+            <p role="alert" className="mt-3 text-center text-[0.9rem] font-bold text-red">
               {t('sumate.unica.error')}
             </p>
           )}
@@ -196,22 +204,30 @@ export default function DonarDinero() {
               <CtaButton
                 onClick={iniciarDonacion}
                 disabled={status === 'loading'}
-                className={status === 'ready' ? 'hidden' : ''}
+                className={`h-14 text-[1.15rem] md:w-full ${status === 'ready' ? 'hidden' : ''}`}
               >
-                {status === 'loading' ? t('sumate.unica.loading') : t('sumate.unica.cta')}
+                {status === 'loading'
+                  ? t('sumate.unica.loading')
+                  : `${t('sumate.unica.cta')} · ${amountCop >= MIN_AMOUNT_COP ? formatCop(amountCop) : ''}`}
               </CtaButton>
             ) : (
               <DisabledCta>{t('sumate.unica.comingSoon')}</DisabledCta>
             )}
 
             {/* Aquí Bold inyecta su botón de pago embebido */}
-            <div ref={boldContainerRef} aria-live="polite" />
+            <div ref={boldContainerRef} aria-live="polite" className="[&_button]:w-full" />
             {status === 'ready' && (
-              <p className="mt-2 text-[0.9rem] text-black">{t('sumate.unica.readyHint')}</p>
+              <p className="mt-2 text-center text-[0.9rem] text-black">
+                {t('sumate.unica.readyHint')}
+              </p>
             )}
 
-            <p className="mt-2 text-[0.85rem] text-black/70">{t('sumate.unica.methods')}</p>
-            <p className="mt-1 text-[0.85rem] text-black/70">{t('sumate.unica.international')}</p>
+            <p className="mt-4 border-t border-black/10 pt-3 text-center text-[0.85rem] text-black/60">
+              {t('sumate.unica.methods')}
+            </p>
+            <p className="mt-1 text-center text-[0.85rem] text-black/60">
+              {t('sumate.unica.international')}
+            </p>
           </div>
         </motion.div>
       ) : (
@@ -222,10 +238,15 @@ export default function DonarDinero() {
           transition={{ duration: 0.25 }}
           className="mt-6"
         >
-          <p className="leading-relaxed text-black">{t('sumate.mensual.text')}</p>
+          <p className="text-center leading-relaxed text-black">{t('sumate.mensual.text')}</p>
           <div className="mt-6">
             {MP_SUBSCRIPTION_URL ? (
-              <CtaLink href={MP_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer">
+              <CtaLink
+                href={MP_SUBSCRIPTION_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-14 text-[1.15rem] md:w-full"
+              >
                 {t('sumate.mensual.cta')}
               </CtaLink>
             ) : (
@@ -233,7 +254,7 @@ export default function DonarDinero() {
             )}
           </div>
           {DIRECT_TRANSFER.nequi && (
-            <p className="mt-4 text-[0.9rem] leading-relaxed text-black/70">
+            <p className="mt-4 text-center text-[0.9rem] leading-relaxed text-black/70">
               {t('sumate.mensual.fallback', { number: DIRECT_TRANSFER.nequi })}
             </p>
           )}

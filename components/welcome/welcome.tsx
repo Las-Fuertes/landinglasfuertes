@@ -67,14 +67,17 @@ export default function WelcomeSection() {
       </PageGrid>
 
       <PageGrid>
-        <div className="col-span-4 mx-auto w-full max-w-md text-center md:col-span-12">
-          <h2 id="welcome-title" className="text-[40px] font-bold leading-none text-black">
+        <div className="col-span-4 mx-auto w-full max-w-md text-center md:col-span-12 md:max-w-2xl">
+          <h2
+            id="welcome-title"
+            className="text-[40px] font-bold leading-none text-black md:text-[52px]"
+          >
             <span className="block">{t('welcome.titleLine1')}</span>
             <span className="block">{t('welcome.titleLine2')}</span>
           </h2>
 
           <p
-            className={`${homemadeApple.className} mt-7 text-[clamp(1rem,4vw,1.125rem)] font-normal leading-snug text-blue`}
+            className={`${homemadeApple.className} mt-7 text-[clamp(1rem,4vw,1.125rem)] font-normal leading-snug text-blue lg:text-[1.4rem]`}
           >
             {t('welcome.subtitle')}
           </p>
@@ -89,15 +92,19 @@ export default function WelcomeSection() {
             />
           </div>
 
-          <p className="mt-8 text-left text-[16px] font-normal leading-tight text-black">
+          <p className="mt-8 text-left text-[16px] font-normal leading-tight text-black md:text-center md:text-[19px] md:leading-snug lg:text-[22px]">
             {renderTextWithBold(t('welcome.body'))}
           </p>
         </div>
       </PageGrid>
 
-      {/* Full width: section has no horizontal padding; grid uses 40px inset above */}
+      {/* Full width: section has no horizontal padding; grid uses 40px inset above.
+          Capped on desktop so the illustration doesn't blow up on wide screens. */}
       <div className="relative mt-10 w-full">
-        <div className="relative w-full" style={{ aspectRatio: '390 / 244' }}>
+        <div
+          className="relative mx-auto w-full max-w-[1400px] lg:max-w-[720px]"
+          style={{ aspectRatio: '390 / 244' }}
+        >
           <Image
             src="/images/welcome/beach-woman.png"
             alt=""
@@ -126,15 +133,15 @@ export default function WelcomeSection() {
             </div>
             <h3
               id="welcome-emi-title"
-              className="mt-6 text-center text-[clamp(1.25rem,4vw,1.75rem)] font-bold leading-tight text-black md:mt-8"
+              className="mt-6 text-center text-[clamp(1.25rem,4vw,1.75rem)] font-bold leading-tight text-black md:mt-8 lg:text-[2rem]"
             >
               {t('welcome.emiTitle')}
             </h3>
           </div>
-          <p className="mt-6 text-left text-[16px] font-normal leading-tight text-black md:mt-8">
+          <p className="mx-auto mt-6 max-w-3xl text-left text-[16px] font-normal leading-tight text-black md:mt-8 md:text-[18px] md:leading-snug lg:text-[20px]">
             {renderTextWithBold(t('welcome.emiParagraph1'))}
           </p>
-          <p className="mt-4 text-left text-[16px] font-normal leading-tight text-black">
+          <p className="mx-auto mt-4 max-w-3xl text-left text-[16px] font-normal leading-tight text-black md:text-[18px] md:leading-snug lg:text-[20px]">
             {renderTextWithBold(t('welcome.emiParagraph2'))}
           </p>
         </div>

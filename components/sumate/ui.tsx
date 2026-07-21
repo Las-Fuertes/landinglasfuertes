@@ -22,10 +22,11 @@ export function SumateCard({
 export function CtaLink({
   children,
   className = '',
+  colorClassName = 'bg-blue text-white hover:bg-blue-300',
   ...rest
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { children: ReactNode }) {
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { children: ReactNode; colorClassName?: string }) {
   return (
-    <a className={`${CTA_BASE} bg-blue text-white hover:bg-blue-300 ${className}`.trim()} {...rest}>
+    <a className={`${CTA_BASE} ${colorClassName} ${className}`.trim()} {...rest}>
       {children}
     </a>
   );
@@ -47,10 +48,14 @@ export function CtaButton({
   );
 }
 
-/** CTA deshabilitado con microcopy cuando falta configuración ("Pronto disponible"). */
+/** CTA deshabilitado con microcopy cuando falta configuración ("Pronto disponible").
+ *  Sin altura fija: el microcopy puede ocupar dos líneas en mobile. */
 export function DisabledCta({ children }: { children: ReactNode }) {
   return (
-    <span aria-disabled="true" className={`${CTA_BASE} cursor-not-allowed bg-black/20 text-white`}>
+    <span
+      aria-disabled="true"
+      className="inline-flex min-h-[3.25rem] w-full cursor-not-allowed items-center justify-center rounded-lg bg-black/20 px-7 py-3 text-center text-[1.05rem] font-bold uppercase leading-snug tracking-tight text-white md:w-auto"
+    >
       {children}
     </span>
   );

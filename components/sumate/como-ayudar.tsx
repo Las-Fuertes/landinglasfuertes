@@ -10,10 +10,17 @@ import DonarTiempo from './donar-tiempo';
 
 type Category = 'dinero' | 'cosas' | 'tiempo';
 
-const CATEGORIES: { id: Category; icon: typeof HandCoins }[] = [
-  { id: 'dinero', icon: HandCoins },
-  { id: 'cosas', icon: Package },
-  { id: 'tiempo', icon: Clock },
+/* Cada categoría toma un acento de la paleta lúdica del sitio (sol, flor, conchas). */
+const CATEGORIES: {
+  id: Category;
+  icon: typeof HandCoins;
+  border: string;
+  text: string;
+  bg: string;
+}[] = [
+  { id: 'dinero', icon: HandCoins, border: 'border-blue', text: 'text-blue', bg: 'bg-blue' },
+  { id: 'cosas', icon: Package, border: 'border-orange', text: 'text-orange', bg: 'bg-orange' },
+  { id: 'tiempo', icon: Clock, border: 'border-pink', text: 'text-pink', bg: 'bg-pink' },
 ];
 
 const PANELS: Record<Category, () => ReactElement> = {
@@ -33,7 +40,7 @@ export default function ComoAyudar() {
 
   return (
     <div id="donar" className="scroll-mt-24">
-      <h3 className="text-center text-[1.6rem] font-bold leading-tight text-black">
+      <h3 className="text-center text-[1.6rem] font-bold leading-tight text-black md:text-[2rem]">
         {t('sumate.wizard.question')}
       </h3>
 
@@ -43,7 +50,7 @@ export default function ComoAyudar() {
         aria-label={t('sumate.wizard.question')}
         className="mt-6 grid grid-cols-3 gap-2 md:mx-auto md:max-w-2xl md:gap-grid-gutter"
       >
-        {CATEGORIES.map(({ id, icon: Icon }) => {
+        {CATEGORIES.map(({ id, icon: Icon, border, text, bg }) => {
           const active = category === id;
           return (
             <motion.button
@@ -56,25 +63,27 @@ export default function ComoAyudar() {
               onClick={() => setCategory(id)}
               className={`relative flex flex-col items-center gap-1.5 rounded-2xl border-2 px-2 py-4 text-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:py-5 ${
                 active
-                  ? 'border-blue bg-white shadow-md'
+                  ? `${border} bg-white shadow-md`
                   : 'border-transparent bg-white/60 hover:border-black/10 hover:bg-white'
               }`}
             >
               <Icon
-                className={`h-7 w-7 ${active ? 'text-blue' : 'text-black/60'}`}
+                className={`h-7 w-7 md:h-9 md:w-9 ${active ? text : 'text-black/60'}`}
                 strokeWidth={1.8}
                 aria-hidden
               />
-              <span className={`text-[0.95rem] font-bold ${active ? 'text-blue' : 'text-black'}`}>
+              <span
+                className={`text-[0.95rem] font-bold md:text-[1.1rem] ${active ? text : 'text-black'}`}
+              >
                 {t(`sumate.wizard.${id}`)}
               </span>
-              <span className="hidden text-[0.8rem] leading-tight text-black/60 md:block">
+              <span className="hidden text-[0.85rem] leading-tight text-black/60 md:block">
                 {t(`sumate.wizard.${id}Hint`)}
               </span>
               {active && (
                 <motion.span
                   layoutId="category-underline"
-                  className="absolute -bottom-2 left-1/2 h-1.5 w-8 -translate-x-1/2 rounded-full bg-blue"
+                  className={`absolute -bottom-2 left-1/2 h-1.5 w-8 -translate-x-1/2 rounded-full ${bg}`}
                   transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
                 />
               )}

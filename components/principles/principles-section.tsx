@@ -45,7 +45,7 @@ export default function PrinciplesSection() {
         <div className="col-span-4 md:col-span-12">
           <h2
             id="principles-title"
-            className="text-left text-[32px] font-bold leading-tight text-black"
+            className="text-left text-[32px] font-bold leading-tight text-black lg:text-[40px]"
           >
             {t('principles.title')}
           </h2>
@@ -64,15 +64,14 @@ export default function PrinciplesSection() {
 
             <div
               ref={sliderViewportRef}
-              className="min-h-0 min-w-0 w-full max-w-full flex-1 px-0 sm:px-1"
+              className="min-h-0 min-w-0 w-full max-w-full flex-1 px-0 sm:px-1 md:max-w-[460px] lg:max-w-[520px]"
             >
               <Swiper
                 modules={[EffectCards, Navigation, Autoplay]}
                 effect="cards"
                 cardsEffect={{ slideShadows: false }}
                 grabCursor
-                loop
-                loopAdditionalSlides={2}
+                rewind
                 speed={500}
                 navigation={{
                   prevEl: prevRef.current,

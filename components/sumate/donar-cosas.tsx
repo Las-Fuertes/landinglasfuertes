@@ -1,12 +1,16 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import { Laptop, Camera, Backpack, BookOpen, Shirt, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { SEDE_LOCATION, buildWhatsAppHref } from './sumate.data';
 import { CtaLink, DisabledCta } from './ui';
 
-const ITEM_KEYS = [
-  'sumate.especie.item1',
-  'sumate.especie.item2',
-  'sumate.especie.item3',
-  'sumate.especie.item4',
+const ITEMS = [
+  { key: 'sumate.especie.item1', icon: Laptop },
+  { key: 'sumate.especie.item2', icon: Camera },
+  { key: 'sumate.especie.item3', icon: Backpack },
+  { key: 'sumate.especie.item4', icon: BookOpen },
 ] as const;
 
 export default function DonarCosas() {
@@ -15,42 +19,79 @@ export default function DonarCosas() {
   const ropaHref = buildWhatsAppHref(t('sumate.llegue.whatsappMessage'));
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
-      <div>
-        <h4 className="text-[1.15rem] font-bold leading-tight text-black">
-          {t('sumate.especie.title')}
-        </h4>
-        <p className="mt-3 leading-relaxed text-black">{t('sumate.especie.text')}</p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 leading-relaxed text-black">
-          {ITEM_KEYS.map(key => (
-            <li key={key}>{t(key)}</li>
-          ))}
-        </ul>
-        <div className="mt-5">
-          {especieHref ? (
-            <CtaLink href={especieHref} target="_blank" rel="noopener noreferrer">
-              {t('sumate.especie.cta')}
-            </CtaLink>
-          ) : (
-            <DisabledCta>{t('sumate.whatsappUnavailable')}</DisabledCta>
-          )}
-        </div>
+    <div className="mx-auto max-w-xl">
+      {/* Donación en especie */}
+      <h4 className="text-center text-[1.3rem] font-bold leading-tight text-black md:text-[1.5rem]">
+        {t('sumate.especie.title')}
+      </h4>
+      <p className="mt-3 text-center leading-relaxed text-black">{t('sumate.especie.text')}</p>
+
+      <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 md:gap-3">
+        {ITEMS.map(({ key, icon: Icon }, i) => (
+          <motion.div
+            key={key}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.06, duration: 0.35 }}
+            className={`flex items-center gap-3 rounded-2xl border-2 border-black/5 bg-beige-light px-4 py-3.5 ${
+              i % 2 === 0 ? '-rotate-1' : 'rotate-1'
+            }`}
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange/15">
+              <Icon className="h-5 w-5 text-orange" strokeWidth={2} aria-hidden />
+            </span>
+            <span className="text-[0.95rem] font-bold leading-snug text-black">{t(key)}</span>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="border-t border-black/10 pt-8 md:border-l md:border-t-0 md:pl-8 md:pt-0">
-        <h4 className="text-[1.15rem] font-bold leading-tight text-black">
+      <div className="mt-6 text-center">
+        {especieHref ? (
+          <CtaLink
+            href={especieHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            colorClassName="bg-orange text-white hover:bg-orange/85"
+          >
+            {t('sumate.especie.cta')}
+          </CtaLink>
+        ) : (
+          <DisabledCta>{t('sumate.whatsappUnavailable')}</DisabledCta>
+        )}
+      </div>
+
+      {/* Llegue-Llegue */}
+      <div className="mt-10 rounded-3xl bg-blue p-6 md:p-8">
+        <p className="text-center">
+          <span className="donation-title-chip inline-flex items-center gap-2 text-[0.85rem] font-bold uppercase tracking-wide text-blue">
+            <Shirt className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+            Llegue-Llegue
+          </span>
+        </p>
+        <h4 className="mt-3 text-center text-[1.3rem] font-bold leading-tight text-white">
           {t('sumate.llegue.title')}
         </h4>
-        <p className="mt-3 leading-relaxed text-black">{t('sumate.llegue.text')}</p>
-        <p className="mt-3 leading-relaxed text-black">{t('sumate.llegue.donateNote')}</p>
-        <p className="mt-3 text-[0.95rem] text-black/70">
-          <strong>{t('sumate.llegue.locationLabel')}</strong> {SEDE_LOCATION}
+        <p className="mt-3 text-center leading-relaxed text-white/90">{t('sumate.llegue.text')}</p>
+        <p className="mt-3 text-center leading-relaxed text-white/90">
+          {t('sumate.llegue.donateNote')}
         </p>
-        <div className="mt-5">
+        <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[0.9rem] text-white/80">
+          <MapPin className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+          <span>
+            <strong>{t('sumate.llegue.locationLabel')}</strong> {SEDE_LOCATION}
+          </span>
+        </p>
+        <div className="mt-6 text-center">
           {ropaHref ? (
-            <CtaLink href={ropaHref} target="_blank" rel="noopener noreferrer">
+            <a
+              href={ropaHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-[3.25rem] w-full items-center justify-center rounded-lg bg-white px-7 text-center text-[1.05rem] font-bold uppercase tracking-tight text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue md:w-auto"
+            >
               {t('sumate.llegue.cta')}
-            </CtaLink>
+            </a>
           ) : (
             <DisabledCta>{t('sumate.whatsappUnavailable')}</DisabledCta>
           )}

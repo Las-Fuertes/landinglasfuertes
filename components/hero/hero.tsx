@@ -99,7 +99,6 @@ export default function Hero({ onComplete }: HeroProps) {
       // ───────── PUNTO VIAJERO (CV1) ─────────
       // CV1 se queda QUIETO en su sitio (viewport 50%, 47%) durante toda S1 y "aterriza" haciendo crossfade
       // a un círculo REAL del techo de S2 (.s2-landing), que ya hace scroll con la sección y se queda atrás.
-      const vw = () => window.innerWidth;
       const vh = () => window.innerHeight;
       const REST_FILTER = 'hue-rotate(0deg) saturate(1) brightness(1)';
 
@@ -222,53 +221,15 @@ export default function Hero({ onComplete }: HeroProps) {
         0
       );
 
-      // El pez koi nada hacia la IZQUIERDA y se va junto con las burbujas. Al devolverse, NO revierte
-      // por la izquierda: reaparece entrando DESDE LA DERECHA (su lado natural) y nada de vuelta.
-      const koiAway = () => {
-        const tl = gsap.timeline({ delay: 0.35 });
-        // Nada hacia la izquierda + SUBE un poco (para que no se corte abajo) + gira fuerte (más horizontal).
-        // Sin fade: sale de cuadro nadando.
-        tl.to(
-          '.koi',
-          {
-            x: () => -1.3 * vw(),
-            y: () => -0.14 * vh(),
-            rotation: 85,
-            duration: 1.6,
-            ease: 'power1.in',
-            overwrite: 'auto',
-          },
-          0
-        );
-        // CRECE desde la mitad de la animación (sensación más realista).
-        tl.fromTo('.koi', { scale: 1 }, { scale: 1.4, duration: 0.8, ease: 'power1.out' }, 0.8);
-        return tl;
-      };
-      const koiBackFromRight = () =>
-        gsap.fromTo(
-          '.koi',
-          { x: () => 1.3 * vw(), y: () => -0.14 * vh(), rotation: 85, scale: 1.4 },
-          {
-            x: 0,
-            y: 0,
-            rotation: 0,
-            scale: 1,
-            duration: 1.2,
-            ease: 'power2.out',
-            overwrite: 'auto',
-          }
-        );
-
+      // El pez koi queda estático como decoración (su animación de salida/entrada se retiró).
       ScrollTrigger.create({
         trigger: section3Ref.current,
         start: 'bottom 70%', // un poco más tarde, para que no suban demasiado pronto
         onEnter: () => {
           riseTL.play();
-          koiAway();
         },
         onLeaveBack: () => {
           riseTL.reverse();
-          koiBackFromRight();
         },
       });
     }, containerRef);
@@ -291,7 +252,7 @@ export default function Hero({ onComplete }: HeroProps) {
 
   if (skipAnimation) {
     return (
-      <div className="min-h-screen bg-beige">
+      <div className="min-h-screen overflow-x-hidden bg-beige">
         <WelcomeSection />
         <PrinciplesSection />
         <DonationsSection />
@@ -405,7 +366,7 @@ export default function Hero({ onComplete }: HeroProps) {
           <PageGrid>
             <div className="col-span-4 md:col-span-12">
               <h1
-                className="ml-auto max-w-2xl text-right text-[16px] font-normal leading-tight text-gray-900"
+                className="ml-auto max-w-2xl text-right text-[16px] font-normal leading-tight text-gray-900 lg:text-[24px] lg:leading-snug"
                 style={{ marginTop: 0, marginBottom: 0 }}
               >
                 {renderTextWithBold(t('hero.section1.text1'))}
@@ -573,8 +534,8 @@ export default function Hero({ onComplete }: HeroProps) {
         </div>
 
         <PageGrid className="relative z-10 pt-4">
-          <div className="col-span-4 max-w-md md:col-span-12">
-            <h2 className="text-left text-[16px] font-normal leading-snug text-gray-900">
+          <div className="col-span-4 max-w-md md:col-span-12 lg:max-w-xl">
+            <h2 className="text-left text-[16px] font-normal leading-snug text-gray-900 lg:text-[24px]">
               {renderTextWithBold(t('hero.section2.paragraph'))}
             </h2>
           </div>
@@ -588,9 +549,8 @@ export default function Hero({ onComplete }: HeroProps) {
         style={{ opacity: 0 }}
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          {/* blue-fish-vertical (pez koi): abajo-derecha, VERTICAL en reposo. Asoma ~18% por la derecha
-              (lo recorta la SECCIÓN con su overflow-hidden, no una caja propia). Al animar (koiAway) se
-              mueve a la izquierda → SALE completo → se va. Así no se recorta cuando se mueve. */}
+          {/* blue-fish-vertical (pez koi): abajo-derecha, estático como decoración.
+              Asoma ~18% por la derecha (lo recorta la SECCIÓN con su overflow-hidden). */}
           <div
             className="koi absolute right-0 bottom-[calc(3%_-_40px)]"
             style={{
@@ -600,21 +560,13 @@ export default function Hero({ onComplete }: HeroProps) {
           >
             {/* Recorte EN REPOSO: empuja el pez ~18% fuera por la derecha (lo recorta la sección) */}
             <div className="relative h-full w-full translate-x-[18%]">
-              {/* Nado sutil en reposo (leve balanceo + flotación) */}
-              <motion.div
-                className="relative h-full w-full"
-                style={{ transformOrigin: '50% 85%' }}
-                animate={{ rotate: [0, 2.5, 0, -2.5, 0], y: [0, -5, 0, 4, 0], x: [0, 3, 0, -3, 0] }}
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <Image
-                  src="/images/hero/blue-fish-vertical.svg"
-                  alt=""
-                  fill
-                  sizes="400px"
-                  className="object-contain object-right-bottom"
-                />
-              </motion.div>
+              <Image
+                src="/images/hero/blue-fish-vertical.svg"
+                alt=""
+                fill
+                sizes="400px"
+                className="object-contain object-right-bottom"
+              />
             </div>
           </div>
 
@@ -663,11 +615,11 @@ export default function Hero({ onComplete }: HeroProps) {
 
         {/* Texto — alineado a la izquierda, centrado verticalmente */}
         <PageGrid className="relative z-10">
-          <div className="col-span-4 max-w-md md:col-span-12">
-            <h2 className="mb-4 text-left text-[16px] font-bold leading-snug text-gray-900">
+          <div className="col-span-4 max-w-md md:col-span-12 lg:max-w-xl">
+            <h2 className="mb-4 text-left text-[16px] font-bold leading-snug text-gray-900 lg:text-[26px]">
               {t('hero.section3.title')}
             </h2>
-            <p className="text-left text-[16px] font-normal leading-snug text-gray-900">
+            <p className="text-left text-[16px] font-normal leading-snug text-gray-900 lg:text-[22px]">
               {renderTextWithBold(t('hero.section3.text'))}
             </p>
           </div>
