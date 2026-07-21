@@ -10,6 +10,11 @@ export const MP_SUBSCRIPTION_URL = process.env.NEXT_PUBLIC_MP_SUBSCRIPTION_URL ?
 export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
 export const INSTAGRAM_HANDLE = process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE ?? '';
 
+/** Donaciones desde Estados Unidos (deducibles de impuestos allá) vía el
+ *  aliado Caring for Colombia (501c3) en Give Lively. Soporta única y mensual. */
+export const GIVE_LIVELY_URL =
+  'https://secure.givelively.org/donate/foundation-caring-for-colombia-ltd/fundacion-las-fuertes';
+
 /** Montos sugeridos para donación única (COP). */
 export const SUGGESTED_AMOUNTS_COP = [20000, 50000, 100000];
 

@@ -7,7 +7,20 @@
     "mainTitle1": "Quelque chose de puissant",
     "mainTitle2": "arrive",
     "subtitle1": "Même si tu ne peux pas encore le voir, ce qui arrive",
-    "subtitle2": "sera une surprise incroyable."
+    "subtitle2": "sera une surprise incroyable.",
+    "section1": {
+      "text1": "La moitié du monde a ses règles,",
+      "text2": "mais **parler de menstruation**",
+      "text3": "**coûte encore un monde.**"
+    },
+    "section2": {
+      "paragraph": "Le silence, la méconnaissance et la désinformation ont créé pendant des années **des coutumes, des murs et des barrières qui flottent dans des réalités violentes et discriminatoires pour des filles en pleine croissance.**"
+    },
+    "section3": {
+      "title": "Un sujet si naturel, historiquement ignoré : pourquoi en parler maintenant ?",
+      "text": "La dignité et les droits des filles et des adolescentes sont comme l'eau de mer, ils n'expirent jamais, et chez **Las Fuertes** nous embarquons dans cette mission sans retour avec une carte éducative unique, en brisant murs et barrières."
+    },
+    "skip": "Passer l'animation"
   },
   "welcome": {
     "titleLine1": "Bienvenue à",
@@ -46,7 +59,8 @@
       "message": "Merci de nous avoir contactés. Nous vous répondrons bientôt.",
       "button": "Envoyer un autre message"
     },
-    "error": "Une erreur s'est produite lors de l'envoi du message. Veuillez réessayer."
+    "error": "Une erreur s'est produite lors de l'envoi du message. Veuillez réessayer.",
+    "close": "Fermer"
   },
   "timestamp": "Généré le",
   "principles": {
@@ -85,15 +99,13 @@
       "customPlaceholder": "Autre montant",
       "cta": "Faire un don",
       "loading": "Préparation du paiement...",
-      "methods": "Carte, PSE et bouton Bancolombia.",
       "minError": "Le montant minimum est de {min}.",
       "error": "Impossible d'ouvrir le paiement pour le moment. Réessaie ou utilise le virement direct.",
       "comingSoon": "Bientôt disponible",
       "transferTitle": "Tu préfères un virement ?",
       "transferNequi": "Nequi/Daviplata : {number}",
       "transferBancolombia": "Bancolombia : {account}",
-      "readyHint": "Ton paiement est prêt : utilise le bouton Bold pour le finaliser.",
-      "international": "Hors de Colombie ? Tu peux donner avec une carte de crédit internationale (Visa ou Mastercard) ; ta banque convertit le montant dans ta devise."
+      "readyHint": "Ton paiement est prêt : finalise-le avec le bouton Bold. Tu peux payer par carte de crédit ou de débit (y compris les cartes internationales), PSE ou le bouton Bancolombia."
     },
     "mensual": {
       "title": "Contribue chaque mois",
@@ -148,6 +160,11 @@
       "tiempoHint": "Bénévolat à distance",
       "once": "Une fois",
       "monthly": "Chaque mois"
+    },
+    "usa": {
+      "title": "Tu fais un don depuis les États-Unis ?",
+      "text": "Uniquement si tu es aux USA : tu peux donner en dollars —une fois ou chaque mois— via notre partenaire Caring for Colombia, et ton don y est déductible des impôts. Depuis tout autre pays ? Utilise le formulaire ci-dessus avec ta carte internationale.",
+      "cta": "Donner depuis les USA"
     }
   },
   "gracias": {
@@ -162,6 +179,24 @@
     "back": "Retour à l'accueil",
     "share": "Suis-nous sur Instagram",
     "suscripcionTitle": "Merci de contribuer chaque mois !",
-    "suscripcionText": "Ta contribution mensuelle donne de la stabilité aux programmes de Las Fuertes et nous permet de planifier l'avenir. Mercado Pago t'enverra le reçu de chaque prélèvement par e-mail, et tu peux gérer ou annuler ta souscription depuis ton compte Mercado Pago à tout moment."
+    "suscripcionText": "Ta contribution mensuelle donne de la stabilité aux programmes de Las Fuertes et nous permet de planifier l'avenir. Mercado Pago t'enverra le reçu de chaque prélèvement par e-mail, et tu peux gérer ou annuler ta souscription depuis ton compte Mercado Pago à tout moment.",
+    "shareCta": "Parles-en à tes amis",
+    "shareText": "Je viens de soutenir Las Fuertes, une fondation qui accompagne les filles d'Isla Fuerte avec l'Éducation Menstruelle Intégrale. Rejoins le mouvement :",
+    "copied": "Lien copié !"
+  },
+  "footer": {
+    "tagline": "Éducation Menstruelle Intégrale depuis Isla Fuerte, Colombie.",
+    "navTitle": "Explorer",
+    "navWelcome": "Bienvenue",
+    "navPrinciples": "Nos principes",
+    "navSumate": "Rejoins-nous",
+    "helpTitle": "Envie d'aider ?",
+    "contact": "Contacte-nous",
+    "followUs": "Suis-nous sur Instagram",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombie",
+    "madeWith": "Fait avec amour depuis l'île."
+  },
+  "lang": {
+    "label": "Langue"
   }
 }

@@ -2,10 +2,12 @@
 
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { sendGAEvent } from '@next/third-parties/google';
 import { useTranslation } from '../../hooks/useTranslation';
 import {
   BOLD_API_KEY,
   DIRECT_TRANSFER,
+  GIVE_LIVELY_URL,
   MIN_AMOUNT_COP,
   MP_SUBSCRIPTION_URL,
   SUGGESTED_AMOUNTS_COP,
@@ -43,6 +45,7 @@ export default function DonarDinero() {
       return;
     }
 
+    sendGAEvent('event', 'donacion_unica_click', { monto: amountCop });
     setStatus('loading');
     try {
       const orderId = `lasfuertes-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -107,18 +110,11 @@ export default function DonarDinero() {
                 setFrequency(freq);
                 resetBoldButton();
               }}
-              className="relative flex-1 rounded-full px-4 py-2 text-[0.95rem] font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+              className={`flex-1 rounded-full px-4 py-2 text-[0.95rem] font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
+                active ? 'bg-blue text-white' : 'text-black hover:text-blue'
+              }`}
             >
-              {active && (
-                <motion.span
-                  layoutId="frequency-pill"
-                  className="absolute inset-0 rounded-full bg-blue"
-                  transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
-                />
-              )}
-              <span className={`relative z-10 ${active ? 'text-white' : 'text-black'}`}>
-                {t(`sumate.wizard.${freq === 'once' ? 'once' : 'monthly'}`)}
-              </span>
+              {t(`sumate.wizard.${freq === 'once' ? 'once' : 'monthly'}`)}
             </button>
           );
         })}
@@ -140,7 +136,8 @@ export default function DonarDinero() {
               {t('sumate.unica.amountLabel')}
             </legend>
             {/* Montos como chips grandes, con la rotación juguetona de los chips del sitio */}
-            <div className="mt-3 grid grid-cols-3 gap-2 md:gap-3">
+            {/* En pantallas ultra angostas (<350px) los chips se apilan para no recortar cifras */}
+            <div className="mt-3 grid grid-cols-1 gap-2 min-[350px]:grid-cols-3 md:gap-3">
               {SUGGESTED_AMOUNTS_COP.map((amount, i) => {
                 const active = !customAmount && selectedAmount === amount;
                 const tilt = i % 2 === 0 ? '-rotate-1' : 'rotate-1';
@@ -155,13 +152,14 @@ export default function DonarDinero() {
                       setCustomAmount('');
                       resetBoldButton();
                     }}
-                    className={`rounded-2xl border-2 px-2 py-4 text-[1.05rem] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:text-[1.2rem] ${
+                    className={`whitespace-nowrap rounded-2xl border-2 px-1 py-4 text-[clamp(0.75rem,3.6vw,1.05rem)] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:text-[1.2rem] ${
                       active
                         ? `border-blue bg-blue text-white shadow-md ${tilt}`
                         : 'border-black/10 bg-beige-light text-black hover:border-blue'
                     }`}
                   >
-                    {formatCop(amount)}
+                    {/* Sin espacio tras el $: en pantallas angostas cada píxel cuenta */}
+                    {formatCop(amount).replace(/\s/g, '')}
                   </motion.button>
                 );
               })}
@@ -216,18 +214,12 @@ export default function DonarDinero() {
 
             {/* Aquí Bold inyecta su botón de pago embebido */}
             <div ref={boldContainerRef} aria-live="polite" className="[&_button]:w-full" />
+            {/* El hint (con los métodos de pago) solo aparece cuando el botón de Bold está listo */}
             {status === 'ready' && (
-              <p className="mt-2 text-center text-[0.9rem] text-black">
+              <p className="mt-2 text-center text-[0.9rem] leading-relaxed text-black/70">
                 {t('sumate.unica.readyHint')}
               </p>
             )}
-
-            <p className="mt-4 border-t border-black/10 pt-3 text-center text-[0.85rem] text-black/60">
-              {t('sumate.unica.methods')}
-            </p>
-            <p className="mt-1 text-center text-[0.85rem] text-black/60">
-              {t('sumate.unica.international')}
-            </p>
           </div>
         </motion.div>
       ) : (
@@ -245,6 +237,7 @@ export default function DonarDinero() {
                 href={MP_SUBSCRIPTION_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => sendGAEvent('event', 'suscripcion_click', {})}
                 className="h-14 text-[1.15rem] md:w-full"
               >
                 {t('sumate.mensual.cta')}
@@ -272,6 +265,29 @@ export default function DonarDinero() {
           )}
         </div>
       )}
+
+      {/* Donantes en Estados Unidos: Give Lively vía Caring for Colombia (501c3).
+          SOLO aplica para USA (deducción de impuestos allá); desde otros países
+          el camino es la tarjeta internacional del widget. */}
+      <div className="mt-6 rounded-2xl border-2 border-blue/15 bg-beige-light p-4 min-[380px]:p-5">
+        <p className="text-center text-[1rem] font-bold text-black">
+          <span aria-hidden>🇺🇸</span> {t('sumate.usa.title')}
+        </p>
+        <p className="mt-2 text-center text-[0.9rem] leading-relaxed text-black/70">
+          {t('sumate.usa.text')}
+        </p>
+        <div className="mt-4 text-center">
+          <a
+            href={GIVE_LIVELY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => sendGAEvent('event', 'usa_givelively_click', {})}
+            className="inline-flex h-12 w-full items-center justify-center rounded-lg border-2 border-blue bg-white px-6 text-[0.95rem] font-bold uppercase tracking-tight text-blue transition hover:bg-blue hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:w-auto"
+          >
+            {t('sumate.usa.cta')}
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

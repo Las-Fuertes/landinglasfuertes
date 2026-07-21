@@ -37,6 +37,12 @@ export default function Hero({ onComplete }: HeroProps) {
 
   // Check if user has visited before
   useEffect(() => {
+    // Con movimiento reducido activo, la intro GSAP se salta por completo:
+    // el usuario ve directamente la versión estática del sitio.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setSkipAnimation(true);
+      return;
+    }
     const hasVisited = localStorage.getItem('las-fuertes-visited');
     if (hasVisited) {
       setShowSkip(true);
@@ -44,6 +50,25 @@ export default function Hero({ onComplete }: HeroProps) {
       localStorage.setItem('las-fuertes-visited', 'true');
     }
   }, []);
+
+  // Ocultar "Saltar animación" definitivamente al llegar a "Bienvenidx a Las Fuertes":
+  // desde ahí la intro ya terminó y el botón no tiene sentido.
+  useEffect(() => {
+    if (skipAnimation) return;
+    const welcome = document.getElementById('welcome-title');
+    if (!welcome) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShowSkip(false);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    io.observe(welcome);
+    return () => io.disconnect();
+  }, [skipAnimation]);
 
   // Primer scroll en la página: fade out del indicador SCROLL (solo en memoria; vuelve al refrescar)
   useEffect(() => {

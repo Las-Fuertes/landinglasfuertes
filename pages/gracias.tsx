@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { CheckCircle2, Clock3, HeartHandshake, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock3, HeartHandshake, Share2, XCircle } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { instagramHref } from '../components/sumate/sumate.data';
 import { CtaLink } from '../components/sumate/ui';
@@ -19,6 +20,23 @@ type Outcome = 'approved' | 'pending' | 'rejected' | 'suscripcion';
 export default function Gracias() {
   const { t } = useTranslation();
   const router = useRouter();
+  const [copied, setCopied] = useState(false);
+
+  async function share() {
+    const url = window.location.origin;
+    const text = t('gracias.shareText');
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Las Fuertes', text, url });
+      } catch {
+        // usuario canceló el share nativo: no hacer nada
+      }
+      return;
+    }
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  }
 
   const status = String(router.query['bold-tx-status'] ?? '').toLowerCase();
   const orderId =
@@ -73,11 +91,27 @@ export default function Gracias() {
             {outcome === 'rejected' ? (
               <CtaLink href="/#donar">{t('gracias.retry')}</CtaLink>
             ) : (
-              igHref && (
-                <CtaLink href={igHref} target="_blank" rel="noopener noreferrer">
-                  {t('gracias.share')}
-                </CtaLink>
-              )
+              <>
+                {/* Momento de máxima emoción: convertir al donante en difusor */}
+                <button
+                  type="button"
+                  onClick={share}
+                  className="inline-flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-lg bg-blue px-7 text-[1.05rem] font-bold uppercase tracking-tight text-white transition hover:bg-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:w-auto"
+                >
+                  <Share2 className="h-5 w-5" aria-hidden />
+                  {copied ? t('gracias.copied') : t('gracias.shareCta')}
+                </button>
+                {igHref && (
+                  <a
+                    href={igHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg px-4 py-2 font-bold text-blue underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+                  >
+                    {t('gracias.share')}
+                  </a>
+                )}
+              </>
             )}
             <Link
               href="/"

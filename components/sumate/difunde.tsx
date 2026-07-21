@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { sendGAEvent } from '@next/third-parties/google';
 import { useTranslation } from '../../hooks/useTranslation';
 import { INSTAGRAM_HANDLE, instagramHref } from './sumate.data';
 import { CtaLink } from './ui';
@@ -26,7 +27,12 @@ export default function Difunde() {
       </p>
       {href && (
         <div className="mt-6">
-          <CtaLink href={href} target="_blank" rel="noopener noreferrer">
+          <CtaLink
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => sendGAEvent('event', 'instagram_click', { origen: 'difunde' })}
+          >
             {t('sumate.difunde.cta')}{' '}
             {INSTAGRAM_HANDLE.startsWith('@') ? INSTAGRAM_HANDLE : `@${INSTAGRAM_HANDLE}`}
           </CtaLink>

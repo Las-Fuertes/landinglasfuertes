@@ -85,7 +85,7 @@ export default function ComoAyudar() {
       </div>
 
       {/* Paso 2: panel de la categoría elegida */}
-      <div className="mt-6 rounded-3xl border border-black/10 bg-white p-6 shadow-md md:mx-auto md:max-w-3xl md:p-10">
+      <div className="mt-6 rounded-3xl border border-black/10 bg-white p-4 shadow-md min-[380px]:p-6 md:mx-auto md:max-w-3xl md:p-10">
         {/* Solo animación de entrada (sin exit ni mode="wait"): con clics rápidos
             entre tabs, la fase de salida podía interrumpirse y dejar el panel
             atascado en opacidad 0 (panel "vacío"). */}

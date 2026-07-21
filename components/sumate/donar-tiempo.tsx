@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { sendGAEvent } from '@next/third-parties/google';
 import { Palette, Scale, HeartHandshake, NotebookPen, Globe } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { buildWhatsAppHref } from './sumate.data';
@@ -60,6 +61,7 @@ export default function DonarTiempo() {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => sendGAEvent('event', 'voluntariado_click', {})}
             colorClassName="bg-pink text-white hover:bg-pink/85"
           >
             {t('sumate.voluntariado.cta')}

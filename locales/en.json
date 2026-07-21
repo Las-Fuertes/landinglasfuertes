@@ -59,7 +59,8 @@
       "message": "Thank you for contacting us. We'll get back to you soon.",
       "button": "Send another message"
     },
-    "error": "There was an error sending the message. Please try again."
+    "error": "There was an error sending the message. Please try again.",
+    "close": "Close"
   },
   "timestamp": "Generated on",
   "principles": {
@@ -98,15 +99,13 @@
       "customPlaceholder": "Other amount",
       "cta": "Donate now",
       "loading": "Preparing payment...",
-      "methods": "Card, PSE and Bancolombia button.",
       "minError": "The minimum amount is {min}.",
       "error": "We couldn't open the payment right now. You can try again or use a direct transfer.",
       "comingSoon": "Coming soon",
       "transferTitle": "Prefer a bank transfer?",
       "transferNequi": "Nequi/Daviplata: {number}",
       "transferBancolombia": "Bancolombia: {account}",
-      "readyHint": "Your payment is ready: use the Bold button to complete it.",
-      "international": "Outside Colombia? You can donate with an international credit card (Visa or Mastercard); your bank converts the amount to your currency."
+      "readyHint": "Your payment is ready: complete it with the Bold button. You can pay with credit or debit card (including international cards), PSE or the Bancolombia button."
     },
     "mensual": {
       "title": "Give monthly",
@@ -161,6 +160,11 @@
       "tiempoHint": "Remote volunteering",
       "once": "One time",
       "monthly": "Monthly"
+    },
+    "usa": {
+      "title": "Donating from the United States?",
+      "text": "Only if you're in the USA: you can give in dollars —once or monthly— through our partner Caring for Colombia, and your donation is tax-deductible there. Giving from any other country? Use the form above with your international card.",
+      "cta": "Donate from the USA"
     }
   },
   "gracias": {
@@ -175,6 +179,24 @@
     "back": "Back to home",
     "share": "Follow us on Instagram",
     "suscripcionTitle": "Thank you for joining monthly!",
-    "suscripcionText": "Your monthly contribution gives stability to Las Fuertes' programs and lets us plan ahead. Mercado Pago will email you the receipt for each charge, and you can manage or cancel your subscription from your Mercado Pago account at any time."
+    "suscripcionText": "Your monthly contribution gives stability to Las Fuertes' programs and lets us plan ahead. Mercado Pago will email you the receipt for each charge, and you can manage or cancel your subscription from your Mercado Pago account at any time.",
+    "shareCta": "Tell your friends",
+    "shareText": "I just supported Las Fuertes, a foundation providing Comprehensive Menstrual Education to girls on Isla Fuerte. Join in:",
+    "copied": "Link copied!"
+  },
+  "footer": {
+    "tagline": "Comprehensive Menstrual Education from Isla Fuerte, Colombia.",
+    "navTitle": "Explore",
+    "navWelcome": "Welcome",
+    "navPrinciples": "Our principles",
+    "navSumate": "Join us",
+    "helpTitle": "Want to help?",
+    "contact": "Contact us",
+    "followUs": "Follow us on Instagram",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
+    "madeWith": "Made with love from the island."
+  },
+  "lang": {
+    "label": "Language"
   }
 }

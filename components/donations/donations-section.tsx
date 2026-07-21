@@ -49,7 +49,7 @@ export default function DonationsSection() {
           <div className="relative max-w-[44rem]">
             <h2
               id="donations-title"
-              className="max-w-[26rem] text-[38px] font-bold leading-[1.22] tracking-tight text-blue md:max-w-[40rem] md:text-[48px]"
+              className="max-w-[26rem] text-[clamp(1.75rem,9.7vw,2.375rem)] font-bold leading-[1.22] tracking-tight text-blue md:max-w-[40rem] md:text-[48px]"
             >
               {TITLE_LINE_KEYS.map(key => (
                 <span key={key} className="block">

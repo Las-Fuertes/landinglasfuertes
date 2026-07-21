@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { sendGAEvent } from '@next/third-parties/google';
 import { Laptop, Camera, Backpack, BookOpen, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { SEDE_LOCATION, buildWhatsAppHref } from './sumate.data';
@@ -52,6 +53,7 @@ export default function DonarCosas() {
             href={especieHref}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => sendGAEvent('event', 'especie_whatsapp_click', {})}
             colorClassName="bg-orange text-white hover:bg-orange/85"
           >
             {t('sumate.especie.cta')}
@@ -87,6 +89,7 @@ export default function DonarCosas() {
               href={ropaHref}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => sendGAEvent('event', 'lleguellegue_click', {})}
               className="inline-flex h-[3.25rem] w-full items-center justify-center rounded-lg bg-white px-7 text-center text-[1.05rem] font-bold uppercase tracking-tight text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue md:w-auto"
             >
               {t('sumate.llegue.cta')}
