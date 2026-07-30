@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { Instagram, MessageCircle } from 'lucide-react';
 import { sendGAEvent } from '@next/third-parties/google';
 import { PageGrid } from './page-grid';
@@ -17,9 +18,15 @@ const NAV_LINKS = [
 
 export default function Footer() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [contactOpen, setContactOpen] = useState(false);
   const igHref = instagramHref();
   const year = new Date().getFullYear();
+
+  // TEMPORAL: en el modo reducido (sin ?show=all) las secciones de Bienvenida y
+  // Principios no existen en la página; solo se enlaza a Súmate.
+  const showAll = router.asPath.includes('show=all');
+  const navLinks = showAll ? NAV_LINKS : NAV_LINKS.filter(l => l.href === '#sumate');
 
   return (
     <footer className="relative overflow-hidden bg-blue pb-8 pt-12 md:pt-16">
@@ -45,7 +52,7 @@ export default function Footer() {
             {t('footer.navTitle')}
           </p>
           <ul className="mt-3 space-y-2">
-            {NAV_LINKS.map(({ key, href }) => (
+            {navLinks.map(({ key, href }) => (
               <li key={key}>
                 <a
                   href={href}

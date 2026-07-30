@@ -1,6 +1,9 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useTranslation } from '../hooks/useTranslation';
 import Hero from '../components/hero';
+import { DonationsSection } from '../components/donations';
+import { SumateSection } from '../components/sumate';
 import Footer from '../components/layout/footer';
 import LanguageSwitcher from '../components/layout/language-switcher';
 
@@ -8,7 +11,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? '';
 
 export default function Home() {
   const { t, locale } = useTranslation();
+  const router = useRouter();
   const ogImage = `${SITE_URL}/images/hero-background-desktop-min.jpg`;
+
+  // TEMPORAL: mientras se termina de trabajar la primera parte del sitio,
+  // solo se muestra desde "Dirigir el cambio..." en adelante.
+  // Con ?show=all se ve la experiencia completa. Quitar cuando esté lista.
+  const showAll = router.asPath.includes('show=all');
 
   return (
     <>
@@ -34,7 +43,14 @@ export default function Home() {
       <LanguageSwitcher />
 
       <main className="min-h-screen">
-        <Hero />
+        {showAll ? (
+          <Hero />
+        ) : (
+          <div className="min-h-screen overflow-x-hidden bg-beige pt-16">
+            <DonationsSection />
+            <SumateSection />
+          </div>
+        )}
       </main>
 
       <Footer />
