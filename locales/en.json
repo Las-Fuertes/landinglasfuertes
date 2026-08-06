@@ -79,6 +79,51 @@
     "paragraph2": "Every contribution creates a wave... and your constant support shapes currents of change and new opportunities.",
     "cta": "I WANT TO CONTRIBUTE"
   },
+  "educationMap": {
+    "title": "How our educational map becomes the route toward conscious integral development",
+    "actions": {
+      "back": "Back",
+      "next": "Next route",
+      "finish": "Finish",
+      "close": "Close"
+    },
+    "a11y": {
+      "openRoute": "Open the {name} route",
+      "step": "Route {n} of {total}: {name}"
+    },
+    "routes": {
+      "talleres": {
+        "name": "Workshops (EMI)",
+        "age": "Ages: 11 to 13",
+        "body": "It is always about them. We create safe spaces where, through workshops and a method of our own, menstrual education becomes a bridge to new opportunities.",
+        "imageAlt": "Three girls point at a poster about internal reproductive anatomy during a workshop."
+      },
+      "clubes": {
+        "name": "Reading and\nfun clubs",
+        "age": "Ages: 6 to 11",
+        "body": "We create more spaces for self-knowledge so they can grow up safe and free. Through recreational and educational activities, we help girls and teenagers build their confidence.",
+        "imageAlt": "A group of girls works around outdoor tables at a reading club."
+      },
+      "ruta": {
+        "name": "My route, my\ndestination",
+        "age": "Ages: 12 to 14",
+        "body": "Las Fuertes Junior keep discovering their talents, skills and areas for growth, strengthening their self-esteem and the way they see themselves. With that self-knowledge as a foundation, we support them in making conscious decisions about their short, medium and long term future.",
+        "imageAlt": "A group of girls and teenagers holds up their new backpacks and smiles."
+      },
+      "chiquifuertes": {
+        "name": "ChiquiFuertes",
+        "age": "Ages: 5 to 10",
+        "body": "Girls discovering their first territory: their body. Through play and drawing we spark their imagination, teamwork and self-knowledge, planting the skills to grow up strong, creative and free.",
+        "imageAlt": "Two girls draw and colour while sitting on a mat."
+      },
+      "voces": {
+        "name": "Sovereign Voices:\nYouth Leadership",
+        "age": "Ages: 14 +",
+        "body": "Going beyond puberty is essential to nurture the value of community work as a tool for individual and collective transformation. At Las Fuertes we stop being a single voice and weave a network of dozens.",
+        "imageAlt": "Two teenagers and a Las Fuertes facilitator sit together for a portrait."
+      }
+    }
+  },
   "sumate": {
     "hero": {
       "title": "Join Las Fuertes",

@@ -128,6 +128,83 @@
 }
 
 /* ================================
+   MAPA EDUCATIVO
+   ================================ */
+
+/* Chips del mapa: mismo papel rasgado y misma inclinación que los títulos de
+   "Dirigir el cambio", pero sin `z-index: -1`. El modal se anima con transform,
+   y eso crea un contexto de apilamiento donde una capa negativa desaparece. */
+.map-chip {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  padding: 0.08em 0.34em 0.16em;
+  transform: rotate(-1.2deg);
+  transform-origin: left bottom;
+}
+
+.map-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #242424;
+  filter: url(#map-rough-edge);
+}
+
+.map-chip > * {
+  position: relative;
+  z-index: 1;
+}
+
+.map-chip--pink::before {
+  background-color: #ff74ba;
+}
+
+.map-chip--flat {
+  transform: none;
+}
+
+/* Latido de los puntos del mapa. En CSS y no en framer-motion: una animación
+   pura de transform + opacity se resuelve en el compositor, mientras que la de
+   framer correría en el mismo hilo que ya está escribiendo el recorrido en cada
+   frame. Además el bloque de reduced-motion de más abajo ya la neutraliza. */
+@keyframes map-hotspot-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.65;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}
+
+.map-hotspot-pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #ff74ba;
+  /* El rosa sobre el azul del mar da ~1.5:1; el filo blanco lo hace perceptible. */
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.75);
+  border-radius: 9999px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+  animation: map-hotspot-pulse 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation-delay: calc(var(--map-hotspot-index, 0) * 0.22s);
+}
+
+.map-hotspot-pulse--late {
+  animation-delay: calc(var(--map-hotspot-index, 0) * 0.22s + 1.3s);
+}
+
+/* ================================
    REDUCED MOTION
    ================================ */
 @media (prefers-reduced-motion: reduce) {

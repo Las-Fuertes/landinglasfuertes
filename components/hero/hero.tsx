@@ -11,6 +11,7 @@ import { PageGrid } from '../layout/page-grid';
 import { WelcomeSection } from '../welcome';
 import { PrinciplesSection } from '../principles';
 import { DonationsSection } from '../donations';
+import { EducationMapSection } from '../education-map';
 import { SumateSection } from '../sumate';
 import Image from 'next/image';
 
@@ -249,17 +250,18 @@ export default function Hero({ onComplete }: HeroProps) {
 
   if (skipAnimation) {
     return (
-      <div className="min-h-screen overflow-x-hidden bg-beige">
+      <div className="min-h-screen overflow-x-clip bg-beige">
         <WelcomeSection />
         <PrinciplesSection />
         <DonationsSection />
+        <EducationMapSection />
         <SumateSection />
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="relative bg-beige overflow-x-hidden">
+    <div ref={containerRef} className="relative bg-beige overflow-x-clip">
       {/* Skip Button */}
       {showSkip && (
         <motion.button
@@ -626,6 +628,7 @@ export default function Hero({ onComplete }: HeroProps) {
       <WelcomeSection />
       <PrinciplesSection />
       <DonationsSection />
+      <EducationMapSection />
       <SumateSection />
     </div>
   );
