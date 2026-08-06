@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useTranslation } from '../hooks/useTranslation';
 import Hero from '../components/hero';
 import { DonationsSection } from '../components/donations';
+import { EducationMapSection } from '../components/education-map';
 import { SumateSection } from '../components/sumate';
 import Footer from '../components/layout/footer';
 import LanguageSwitcher from '../components/layout/language-switcher';
@@ -46,8 +47,9 @@ export default function Home() {
         {showAll ? (
           <Hero />
         ) : (
-          <div className="min-h-screen overflow-x-hidden bg-beige pt-16">
+          <div className="min-h-screen overflow-x-clip bg-beige pt-16">
             <DonationsSection />
+            <EducationMapSection />
             <SumateSection />
           </div>
         )}

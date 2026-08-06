@@ -79,6 +79,51 @@
     "paragraph2": "Cada aporte crea una ola... aunque tu apoyo constante forma corrientes de cambio y nuevas oportunidades.",
     "cta": "QUIERO APORTAR"
   },
+  "educationMap": {
+    "title": "Cómo hacemos de nuestro mapa educativo la ruta hacia el desarrollo integral consciente",
+    "actions": {
+      "back": "Atrás",
+      "next": "Siguiente ruta",
+      "finish": "Terminar",
+      "close": "Cerrar"
+    },
+    "a11y": {
+      "openRoute": "Abrir la ruta {name}",
+      "step": "Ruta {n} de {total}: {name}"
+    },
+    "routes": {
+      "talleres": {
+        "name": "Talleres (EMI)",
+        "age": "Edades: 11 a 13 años",
+        "body": "Siempre se trata de ellas. Creamos espacios seguros donde, a través de talleres y un método propio, la educación menstrual se convierte en un puente hacia nuevas oportunidades.",
+        "imageAlt": "Tres niñas señalan un cartel sobre el aparato genital interno durante un taller."
+      },
+      "clubes": {
+        "name": "Clubes de lectura\ny diversión",
+        "age": "Edades: 6 a 11 años",
+        "body": "Creamos más espacios de autoconocimiento para crecer seguras y libres. A través de actividades recreativas y didácticas, ayudamos a niñas y adolescentes a fortalecer su confianza.",
+        "imageAlt": "Un grupo de niñas trabaja alrededor de mesas al aire libre en un club de lectura."
+      },
+      "ruta": {
+        "name": "Mi ruta mi\ndestino",
+        "age": "Edades: 12 a 14 años",
+        "body": "Las Fuertes Junior siguen descubriendo sus talentos, habilidades y áreas de crecimiento para fortalecer su autoestima y cómo se perciben. Con ese autoconocimiento como base, las acompañamos a tomar decisiones conscientes sobre su futuro a corto, mediano y largo plazo.",
+        "imageAlt": "Un grupo de niñas y adolescentes levanta sus morrales nuevos y sonríe."
+      },
+      "chiquifuertes": {
+        "name": "ChiquiFuertes",
+        "age": "Edades: 5 a 10 años",
+        "body": "Niñas que descubren su primer territorio: su cuerpo. A través del juego y el dibujo, estimulamos su imaginación, el trabajo en equipo y el autoconocimiento, sembrando habilidades para crecer fuertes, creativas y libres.",
+        "imageAlt": "Dos niñas dibujan y colorean sentadas sobre una estera."
+      },
+      "voces": {
+        "name": "Voces Soberanas:\nLiderazgo Juvenil",
+        "age": "Edades: 14 años +",
+        "body": "Ir más allá de la pubertad es esencial para fomentar el valor del trabajo comunitario como herramienta de transformación individual y colectiva. En Las Fuertes dejamos de ser una sola voz, para tejer una red de decenas.",
+        "imageAlt": "Dos adolescentes y una facilitadora de Las Fuertes posan sentadas juntas."
+      }
+    }
+  },
   "sumate": {
     "hero": {
       "title": "Súmate a Las Fuertes",
