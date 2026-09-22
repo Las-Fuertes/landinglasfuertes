@@ -18,8 +18,13 @@ export interface Capa {
   inset?: string;
   rotate?: number;
   inner?: { width: number; height: number };
-  /** Segundos de espera antes de entrar (solo en `despues` con fundido, y en `extras`). */
+  /** Segundos de espera antes de entrar (en `despues` y en `extras`). */
   delay?: number;
+  /**
+   * Patrón de encendido, solo en los bloques con `entrada: 'parpadeo'`. `titilar` es la lámpara
+   * que chispea varias veces antes de enganchar; `encender` prende de golpe y ya, sin pestañear.
+   */
+  anim?: 'titilar' | 'encender';
 }
 
 export interface Bloque {
@@ -34,12 +39,15 @@ export interface Bloque {
    * Cómo cambia de estado: `subir` es un barrido de abajo arriba sobre todo el lienzo que
    * descubre `despues` y recorta `antes` (el agua de la piscina); `llenar` es el mismo barrido
    * pero dentro de la caja de cada capa (el líquido de la copa); `fundido` funde cada capa de
-   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez; `florecer` descubre
+   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez; `parpadeo` las enciende
+   * a golpes, sin fundido, como un tubo que arranca mal (las lámparas); `florecer` descubre
    * `despues` en un círculo que crece desde el centro (el color de la persona).
    */
-  entrada: 'subir' | 'llenar' | 'fundido' | 'florecer';
-  /** Capas que están en los dos estados y no cambian. */
+  entrada: 'subir' | 'llenar' | 'fundido' | 'parpadeo' | 'florecer';
+  /** Capas que están en los dos estados y no cambian, por debajo de lo que se anima. */
   base?: Capa[];
+  /** Como `base`, pero por delante de lo que se anima. */
+  frente?: Capa[];
   /** Capas que solo están en el estado "antes". */
   antes: Capa[];
   /** Capas que solo están en el estado "después". */
@@ -50,63 +58,62 @@ export interface Bloque {
 
 const P = '/images/impacto/';
 
-/** Bloque 1: la piscina que se llena. Antes `1102:162`, después `1102:286`. */
+/**
+ * Bloque 1: la piscina que se llena. Antes `1102:162`, después `1102:286`.
+ *
+ * La piscina vacía se dibuja ya con los colores finales y **no cambia**: lo único que se anima es
+ * el agua subiendo, y detrás los flotadores. En Figma el estado "antes" es la misma piscina en
+ * gris, pero encadenar gris -> blanco -> agua hacía tres cambios donde el sentido pide uno
+ * (petición de Johan, 2026-09-22; ver D25).
+ *
+ * Por eso las capas del frame "después" vienen partidas en dos: los rellenos azules son el agua
+ * (`agua-*`) y los trazos oscuros, el borde de cada plano de la piscina (`contorno-*`), que va
+ * por delante del agua igual que en el diseño.
+ */
 const PISCINA: Bloque = {
   id: 'piscina',
   figma: { antes: '1102:162', despues: '1102:286' },
   lienzo: { top: 197, height: 168 },
   texto: 503,
   entrada: 'subir',
-  antes: [
-    {
-      src: `${P}piscina/antes-fondo.svg`,
-      box: { left: 9, top: 205, width: 370, height: 151 },
-      inset: '-0.36% -0.44% -0.51% 0',
-    },
-    {
-      src: `${P}piscina/antes-pared-izq.svg`,
-      box: { left: 40, top: 229, width: 108, height: 72 },
-      inset: '-1.38% -0.73% -0.95% -0.17%',
-    },
-    {
-      src: `${P}piscina/antes-pared-der.svg`,
-      box: { left: 148, top: 229, width: 202, height: 115 },
-      inset: '-0.46% -0.95% -0.67% -0.5%',
-    },
-    {
-      src: `${P}piscina/antes-suelo.svg`,
-      box: { left: 115, top: 289, width: 159, height: 67 },
-      inset: '-1.12% -1.02% -1.15% -0.12%',
-    },
-    {
-      src: `${P}piscina/antes-borde.svg`,
-      box: { left: -10, top: 197, width: 409, height: 168 },
-      inset: '-0.15% -0.2% -0.23% 0',
-    },
-    {
-      src: `${P}piscina/antes-escalera.svg`,
-      box: { left: 68.74, top: 213.22, width: 26.777, height: 51.559 },
-      inset: '-1.12% -2.57% 0 -2.68%',
-    },
-  ],
-  despues: [
+  base: [
     {
       src: `${P}piscina/despues-fondo.svg`,
       box: { left: 9, top: 205, width: 370, height: 151 },
       inset: '-0.18% -0.22% -0.26% 0',
     },
+  ],
+  antes: [],
+  despues: [
     {
-      src: `${P}piscina/despues-pared-izq.svg`,
+      src: `${P}piscina/agua-pared-izq.svg`,
       box: { left: 40, top: 229, width: 108, height: 72 },
       inset: '-1.38% -0.73% -0.95% -0.17%',
     },
     {
-      src: `${P}piscina/despues-pared-der.svg`,
+      src: `${P}piscina/agua-pared-der.svg`,
       box: { left: 148, top: 229, width: 202, height: 115 },
       inset: '-0.46% -0.95% -0.67% -0.5%',
     },
     {
-      src: `${P}piscina/despues-suelo.svg`,
+      src: `${P}piscina/agua-suelo.svg`,
+      box: { left: 115, top: 289, width: 159, height: 67 },
+      inset: '-1.12% -1.02% -1.15% -0.12%',
+    },
+  ],
+  frente: [
+    {
+      src: `${P}piscina/contorno-pared-izq.svg`,
+      box: { left: 40, top: 229, width: 108, height: 72 },
+      inset: '-1.38% -0.73% -0.95% -0.17%',
+    },
+    {
+      src: `${P}piscina/contorno-pared-der.svg`,
+      box: { left: 148, top: 229, width: 202, height: 115 },
+      inset: '-0.46% -0.95% -0.67% -0.5%',
+    },
+    {
+      src: `${P}piscina/contorno-suelo.svg`,
       box: { left: 115, top: 289, width: 159, height: 67 },
       inset: '-1.12% -1.02% -1.15% -0.12%',
     },
@@ -151,7 +158,7 @@ const LUCES: Bloque = {
   figma: { antes: '1102:322', despues: '1102:363' },
   lienzo: { top: 93, height: 406 },
   texto: 549,
-  entrada: 'fundido',
+  entrada: 'parpadeo',
   base: [
     { src: `${P}luces/postes.svg`, box: LUCES_BOX, inset: LUCES_INSET },
     // La cabeza de la lámpara derecha solo está en el frame "antes"; en el "después" la tapa el
@@ -164,8 +171,17 @@ const LUCES: Bloque = {
   ],
   antes: [],
   despues: [
-    { src: `${P}luces/cono-izq.svg`, box: LUCES_BOX, inset: LUCES_INSET },
-    { src: `${P}luces/cono-der.svg`, box: LUCES_BOX, inset: LUCES_INSET, delay: 0.45 },
+    // Solo la izquierda chispea. Engancha a los 1.14 s (el 76% de su animación de 1.5 s) y la
+    // derecha prende limpia 100 ms después, sin pestañear: así se lee como una que arranca mal
+    // y otra que la sigue, no como dos lámparas averiadas.
+    { src: `${P}luces/cono-izq.svg`, box: LUCES_BOX, inset: LUCES_INSET, anim: 'titilar' },
+    {
+      src: `${P}luces/cono-der.svg`,
+      box: LUCES_BOX,
+      inset: LUCES_INSET,
+      anim: 'encender',
+      delay: 1.24,
+    },
   ],
 };
 

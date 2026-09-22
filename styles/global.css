@@ -260,7 +260,8 @@
 /* Bloques de impacto: las capas "después" entran cuando el bloque recibe `data-encendido`.
    `--subir` es un barrido de abajo arriba (el agua que llena la piscina): el "después" se
    descubre y el "antes" se recorta con el mismo reloj, así nunca se ven los dos a la vez.
-   `--fundido` cruza las opacidades. Los extras rematan con un rebote, uno tras otro. */
+   `--fundido` cruza las opacidades. `--parpadeo` las enciende a golpes. Los extras rematan con
+   un rebote, uno tras otro. */
 .impacto-antes--subir,
 .impacto-despues--subir {
   transition: clip-path 1.6s cubic-bezier(0.65, 0, 0.35, 1);
@@ -303,6 +304,7 @@
 .impacto-antes--fundido,
 .impacto-despues--fundido .impacto-capa {
   transition: opacity 0.9s ease;
+  transition-delay: var(--delay, 0s);
 }
 
 .impacto-despues--fundido .impacto-capa {
@@ -315,6 +317,70 @@
 
 .impacto-bloque[data-encendido] .impacto-antes--fundido {
   opacity: 0;
+}
+
+/* Las lámparas de la calle no se funden: chispean y enganchan. Los keyframes van con
+   `steps(1, end)`, que mantiene el valor de cada tramo hasta el siguiente, así que no hay ni un
+   frame de opacidad intermedia. Solo la izquierda titubea; la derecha entra de un golpe 100 ms
+   después de que la primera se queda fija.
+
+   El keyframe del 100% es obligatorio aunque repita el valor: sin él, el 100% implícito toma el
+   `opacity: 0` de la regla de base y las dos lámparas se apagan al terminar la animación. */
+@keyframes impacto-lampara-titilar {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  18% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 0;
+  }
+  44% {
+    opacity: 1;
+  }
+  52% {
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 0;
+  }
+  76%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* La segunda lámpara no pestañea: prende y se queda. El fotograma único la deja encendida
+   durante toda la fase activa, y como el relleno es solo `forwards`, antes de que pase su
+   retraso la animación no aplica y manda el `opacity: 0` de la regla de base. El resultado es un
+   encendido seco en el momento exacto del retraso. */
+@keyframes impacto-lampara-encender {
+  0%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.impacto-despues--parpadeo .impacto-capa {
+  opacity: 0;
+}
+
+.impacto-bloque[data-encendido] .impacto-despues--parpadeo .impacto-capa--titilar {
+  animation: impacto-lampara-titilar 1.5s steps(1, end) var(--delay, 0s) forwards;
+}
+
+.impacto-bloque[data-encendido] .impacto-despues--parpadeo .impacto-capa--encender {
+  animation: impacto-lampara-encender 0.01s steps(1, end) var(--delay, 0s) forwards;
 }
 
 .impacto-extra {
@@ -332,7 +398,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .impacto-extra {
+  /* El bloque general de arriba deja la duración en casi cero, pero no toca los retrasos: sin
+     esto, una lámpara seguiría esperando su turno más de un segundo. */
+  .impacto-extra,
+  .impacto-capa {
     transition-delay: 0s !important;
+    animation-delay: 0s !important;
   }
 }

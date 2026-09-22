@@ -67,6 +67,25 @@ mientras se construye (D18).
 
 ## Bitácora
 
+### 2026-09-22 (décima tanda): publicado, y las lámparas chispean
+
+- **Mergeado a `main`**: PR #8, merge `f779cf2`. Entraron los 10 commits que faltaban (la
+  Introducción en tablet/desktop, Quiénes somos, el script de captura y la sección de impacto
+  entera). Producción despliega desde `main`, así que la sección ya está publicada **sin que
+  Johan la haya revisado**; él pidió el merge para no perder nada.
+- Verificado antes de mergear que no se perdía nada: el worktree `21-sep-round-2` no tenía nada
+  sin commitear y sus tres commits son la base de la rama. El checkout de `~/Sites/personal/`
+  quedó actualizado con `git pull`.
+- **Animación de las lámparas rehecha a petición de Johan** (D24): ya no se funden, chispean.
+  Solo la izquierda parpadea (cuatro veces, engancha a los 1.14 s) y la derecha prende limpia
+  100 ms después. `steps(1, end)`, sin un solo frame de opacidad intermedia.
+- **Bug encontrado y corregido en el camino:** sin un keyframe explícito al 100%, las dos
+  lámparas se apagaban al terminar la animación. Se vio en la captura del estado final.
+- **La piscina dejó de cambiar de gris a blanco** (D25), también a petición de Johan: la piscina
+  se dibuja una vez con sus colores finales y lo único que se anima es el agua subiendo y los
+  flotadores. Las capas se partieron por color (`agua-*` y `contorno-*`) y el modelo de bloque
+  ganó `frente`, las capas fijas que van por delante de lo que se anima.
+
 ### 2026-09-22 (novena tanda, madrugada): los 4 bloques de impacto
 
 - **Pieza 4 construida en mobile**, un commit por bloque: piscina `43b551b`, lámparas `a5f659f`,

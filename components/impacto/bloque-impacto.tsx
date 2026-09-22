@@ -26,7 +26,8 @@ function CapaImg({
 }) {
   const { box, inset, rotate, inner } = capa;
   const style = {
-    transitionDelay: delay ? `${delay}s` : undefined,
+    // Va como variable para que sirva igual a la transición y a la animación de la capa.
+    ['--delay' as string]: delay ? `${delay}s` : undefined,
     left: `${(box.left / ANCHO) * 100}%`,
     top: `${((box.top - top) / height) * 100}%`,
     width: `${(box.width / ANCHO) * 100}%`,
@@ -92,11 +93,13 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         {bloque.base?.map(capa => (
           <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
         ))}
-        <div className={`impacto-antes impacto-antes--${bloque.entrada} absolute inset-0`}>
-          {bloque.antes.map(capa => (
-            <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
-          ))}
-        </div>
+        {bloque.antes.length > 0 && (
+          <div className={`impacto-antes impacto-antes--${bloque.entrada} absolute inset-0`}>
+            {bloque.antes.map(capa => (
+              <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
+            ))}
+          </div>
+        )}
         <div className={`impacto-despues impacto-despues--${bloque.entrada} absolute inset-0`}>
           {bloque.despues.map(capa => (
             <CapaImg
@@ -104,11 +107,14 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
               capa={capa}
               top={lienzo.top}
               height={lienzo.height}
-              className="impacto-capa"
+              className={`impacto-capa${capa.anim ? ` impacto-capa--${capa.anim}` : ''}`}
               delay={capa.delay}
             />
           ))}
         </div>
+        {bloque.frente?.map(capa => (
+          <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
+        ))}
         {bloque.extras?.map((capa, i) => (
           <div
             key={`${capa.src}-${i}`}

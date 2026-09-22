@@ -461,10 +461,10 @@ Otros ajustes de criterio:
   en cada idioma, porque el chip es `inline-block` y si una linea no cabe se parte por dentro, que
   se ve mal (paso en frances con "6 territoires desormais").
 - Cada bloque tiene su propia forma de cambiar de estado (`entrada` en `bloques.data.ts`):
-  `subir` (la piscina: barrido sincronizado de los dos estados), `fundido` (las lamparas, cada
-  cono con su retraso), `llenar` (la copa: barrido dentro de la caja del liquido) y `florecer`
-  (la persona: circulo que crece desde el centro). Los `extras` (flotadores, brillos) rematan con
-  un rebote escalonado. Todo CSS, disparado por `data-encendido` con `useInView` al 60%.
+  `subir` (la piscina: barrido de abajo arriba, ver D25), `parpadeo` (las lamparas, ver D24), `llenar` (la copa: barrido dentro de la caja del liquido) y `florecer` (la persona:
+  circulo que crece desde el centro). Queda ademas `fundido`, el cruce de opacidades generico,
+  que hoy no usa ningun bloque. Los `extras` (flotadores, brillos) rematan con un rebote
+  escalonado. Todo CSS, disparado por `data-encendido` con `useInView` al 60%.
 
 ---
 
@@ -476,3 +476,96 @@ descargado y el barrido no descubria nada. Se verifico con `getComputedStyle` po
 `clip-path` transicionaba bien y los `<img>` tenian `complete: false`. Con `loading="eager"` en
 las capas de los bloques (son SVG de 3 a 150 KB) se resolvio. El mapa no lo sufre porque es SVG
 inline.
+
+---
+
+## D24. Las lamparas no se funden: chispean
+
+**Pedido de Johan el 2026-09-22:** "cuando se prenden las luces de la calle, no prenden
+inmediatamente, podemos hacer un parpadeo de luces de una de ellas y luego que prendan las dos
+casi de inmediato, las luces no tienen fade-in/out".
+
+Tenia razon: un fundido de opacidad es lo que hace una pantalla, no una lampara de sodio. Se
+cambio la `entrada` del bloque de `fundido` a `parpadeo`, con dos keyframes en
+`styles/global.css` y `animation-timing-function: steps(1, end)`, que mantiene el valor de cada
+tramo hasta el siguiente: **no existe ni un frame de opacidad intermedia.**
+
+Coreografia medida en el navegador (opacidad real de cada cono, leida cada 50 ms):
+
+| ms           | Izquierda | Derecha   |
+| ------------ | --------- | --------- |
+| 0 - 180      | apagada   | apagada   |
+| 180 - 270    | ENCENDIDA | apagada   |
+| 270 - 450    | apagada   | apagada   |
+| 450 - 540    | ENCENDIDA | apagada   |
+| 540 - 660    | apagada   | apagada   |
+| 660 - 780    | ENCENDIDA | apagada   |
+| 780 - 930    | apagada   | apagada   |
+| 930 - 1020   | ENCENDIDA | apagada   |
+| 1020 - 1140  | apagada   | apagada   |
+| 1140 en ade. | ENCENDIDA | -         |
+| 1330 - 1420  | -         | ENCENDIDA |
+| 1420 - 1510  | -         | apagada   |
+| 1510 en ade. | ENCENDIDA | ENCENDIDA |
+
+O sea: la izquierda titubea cuatro veces antes de enganchar, y la derecha entra de un golpe
+justo despues, con un solo pestaneo. El patron de cada capa se declara en los datos
+(`anim: 'titilar' | 'encender'` en `bloques.data.ts`), no por posicion en el arreglo.
+
+### La trampa: el keyframe del 100% es obligatorio
+
+Primera version: los keyframes terminaban en `76% { opacity: 1 }` sin declarar el `100%`. **Las
+dos lamparas se apagaban al terminar la animacion**, aunque estuviera `forwards`. La razon es que
+el `100%` implicito no repite el ultimo valor: toma el valor subyacente de la propiedad, que aqui
+es el `opacity: 0` de la regla de base. Se vio en la captura del estado final, no antes.
+
+Cualquier keyframe de este archivo que arranque desde un estado de base tiene que cerrar su
+ultimo valor explicitamente.
+
+### Reduced motion
+
+El bloque general del final de `global.css` deja la duracion en casi cero, pero **no toca los
+retrasos**, asi que la lampara derecha seguia esperando 1.2 s. Se anadio `animation-delay` y
+`transition-delay` a cero para `.impacto-capa` y `.impacto-extra`. Verificado con
+`Emulation.setEmulatedMedia`: con `prefers-reduced-motion: reduce` los cuatro bloques llegan a su
+estado final de inmediato (lamparas en opacidad 1, piscina y copa con el recorte abierto, persona
+con el circulo completo).
+
+---
+
+## D25. La piscina no cambia de estado: solo sube el agua
+
+**Pedido de Johan el 2026-09-22:** "veo que es algo gris antes de que se llene, luego pasa a ser
+blanco y azul del agua de la piscina, y por ultimo los flotadores, podemos evitar que la piscina
+cambie de gris a blanco y simplemente sea blanco por defecto".
+
+Tenia razon y el problema era de fondo, no de tiempos: el bloque encadenaba **tres cambios**
+(gris -> blanco -> agua -> flotadores) cuando lo que la cifra cuenta es uno solo, que se llena.
+El gris venia de tomar el frame "antes" de Figma tal cual, y ahi la piscina entera esta dibujada
+en gris.
+
+**Lo que se hizo:** el estado "antes" desaparecio del bloque. La piscina se dibuja una sola vez,
+ya con los colores finales, y **no cambia nunca**; lo unico que se anima es el agua subiendo, y
+detras los flotadores.
+
+Para eso, las capas del frame "despues" se partieron por color de relleno, que es lo mismo que se
+hizo con el mapa (D8):
+
+| Relleno              | Que es             | Archivo          | Cuando se ve |
+| -------------------- | ------------------ | ---------------- | ------------ |
+| `#2CA0FF`, `#78C2FF` | el agua            | `agua-*.svg`     | se anima     |
+| `#3D3B3B`, negro     | el borde del plano | `contorno-*.svg` | siempre      |
+
+**El apilado importa**: los contornos van por **delante** del agua, como en el diseno, para que
+el filo de cada plano de la piscina se vea desde el primer momento aunque este vacia. Por eso el
+modelo de bloque gano `frente`, capas fijas que se pintan **despues** de lo que se anima (`base`
+son las fijas de debajo). Orden final: fondo -> agua -> contornos, borde y escalera ->
+flotadores.
+
+Se borraron los seis SVG del estado gris (`antes-*.svg`) y los tres que mezclaban agua y contorno
+(`despues-pared-izq`, `despues-pared-der`, `despues-suelo`), que ya no usa nadie. Estan en el
+historial si alguna vez se quiere volver al estado gris.
+
+**Nota para los otros bloques:** este mismo razonamiento aplicaria a la copa, que tambien viene
+de un frame "antes" en gris. Hoy no se toco porque Johan no lo pidio, pero si lo pide, es el
+mismo procedimiento: partir el SVG por color y dejar fija la estructura.
