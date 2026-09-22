@@ -76,6 +76,9 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         style={{ aspectRatio: `${ANCHO} / ${lienzo.height}` }}
         aria-hidden="true"
       >
+        {bloque.base?.map(capa => (
+          <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
+        ))}
         <div className={`impacto-antes impacto-antes--${bloque.entrada} absolute inset-0`}>
           {bloque.antes.map(capa => (
             <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
@@ -83,7 +86,13 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         </div>
         <div className={`impacto-despues impacto-despues--${bloque.entrada} absolute inset-0`}>
           {bloque.despues.map(capa => (
-            <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
+            <div
+              key={capa.src}
+              className="impacto-capa absolute inset-0"
+              style={{ transitionDelay: `${capa.delay ?? 0}s` }}
+            >
+              <CapaImg capa={capa} top={lienzo.top} height={lienzo.height} />
+            </div>
           ))}
         </div>
         {bloque.extras?.map((capa, i) => (
@@ -97,7 +106,13 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         ))}
       </div>
 
-      <div style={{ paddingLeft: k(46), paddingRight: k(40), marginTop: k(138) }}>
+      <div
+        style={{
+          paddingLeft: k(46),
+          paddingRight: k(20),
+          marginTop: k(bloque.texto - lienzo.top - lienzo.height),
+        }}
+      >
         <h3
           className="font-bold leading-tight tracking-[-0.04em] text-black"
           style={{ fontSize: k(30) }}

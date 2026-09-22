@@ -283,15 +283,15 @@
 }
 
 .impacto-antes--fundido,
-.impacto-despues--fundido {
+.impacto-despues--fundido .impacto-capa {
   transition: opacity 0.9s ease;
 }
 
-.impacto-despues--fundido {
+.impacto-despues--fundido .impacto-capa {
   opacity: 0;
 }
 
-.impacto-bloque[data-encendido] .impacto-despues--fundido {
+.impacto-bloque[data-encendido] .impacto-despues--fundido .impacto-capa {
   opacity: 1;
 }
 

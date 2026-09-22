@@ -18,6 +18,8 @@ export interface Capa {
   inset?: string;
   rotate?: number;
   inner?: { width: number; height: number };
+  /** Segundos de espera antes de entrar (solo en `despues` con fundido, y en `extras`). */
+  delay?: number;
 }
 
 export interface Bloque {
@@ -26,9 +28,19 @@ export interface Bloque {
   figma: { antes: string; despues: string };
   /** Franja del frame que ocupa la ilustración; las capas se posicionan dentro de ella. */
   lienzo: { top: number; height: number };
-  /** Cómo entran las capas de `despues`: subiendo como agua, o en fundido. */
+  /** Dónde empieza el título en el frame; el aire hasta la ilustración sale de aquí. */
+  texto: number;
+  /**
+   * Cómo cambia de estado: `subir` es un barrido de abajo arriba que descubre `despues` y
+   * recorta `antes` (el agua de la piscina); `fundido` funde cada capa de `despues` por su
+   * cuenta, con su `delay`, y apaga `antes` a la vez.
+   */
   entrada: 'subir' | 'fundido';
+  /** Capas que están en los dos estados y no cambian. */
+  base?: Capa[];
+  /** Capas que solo están en el estado "antes". */
   antes: Capa[];
+  /** Capas que solo están en el estado "después". */
   despues: Capa[];
   /** Capas que aparecen al final, una a una, con un pequeño rebote. */
   extras?: Capa[];
@@ -41,6 +53,7 @@ const PISCINA: Bloque = {
   id: 'piscina',
   figma: { antes: '1102:162', despues: '1102:286' },
   lienzo: { top: 197, height: 168 },
+  texto: 503,
   entrada: 'subir',
   antes: [
     {
@@ -128,4 +141,30 @@ const PISCINA: Bloque = {
   ],
 };
 
-export const BLOQUES: Bloque[] = [PISCINA];
+/** Bloque 2: las lámparas que se encienden. Antes `1102:322`, después `1102:363`. */
+const LUCES_BOX = { left: 30, top: 93, width: 360, height: 406 };
+const LUCES_INSET = '0 -0.23% -0.14% -0.25%';
+const LUCES: Bloque = {
+  id: 'luces',
+  figma: { antes: '1102:322', despues: '1102:363' },
+  lienzo: { top: 93, height: 406 },
+  texto: 549,
+  entrada: 'fundido',
+  base: [
+    { src: `${P}luces/postes.svg`, box: LUCES_BOX, inset: LUCES_INSET },
+    // La cabeza de la lámpara derecha solo está en el frame "antes"; en el "después" la tapa el
+    // cono. Se deja siempre, que es lo que se ve en los dos.
+    {
+      src: `${P}luces/cabeza.svg`,
+      box: { left: 342, top: 195, width: 40, height: 26.5 },
+      inset: '-2.22% -1.81% -4.1% -4.12%',
+    },
+  ],
+  antes: [],
+  despues: [
+    { src: `${P}luces/cono-izq.svg`, box: LUCES_BOX, inset: LUCES_INSET },
+    { src: `${P}luces/cono-der.svg`, box: LUCES_BOX, inset: LUCES_INSET, delay: 0.45 },
+  ],
+};
+
+export const BLOQUES: Bloque[] = [PISCINA, LUCES];
