@@ -3,6 +3,9 @@
     "title": "Las Fuertes - Quelque chose de puissant arrive",
     "description": "Nous construisons un espace pour que l'Éducation Menstruelle Intégrale (EMI) marque un nouveau jalon en Colombie."
   },
+  "intro": {
+    "label": "Introduction"
+  },
   "hero": {
     "mainTitle1": "Quelque chose de puissant",
     "mainTitle2": "arrive",
@@ -10,17 +13,16 @@
     "subtitle2": "sera une surprise incroyable.",
     "section1": {
       "text1": "La moitié du monde a ses règles,",
-      "text2": "mais **parler de menstruation**",
+      "text2": "mais ==parler de menstruation==",
       "text3": "**coûte encore un monde.**"
     },
     "section2": {
       "paragraph": "Le silence, la méconnaissance et la désinformation ont créé pendant des années **des coutumes, des murs et des barrières qui flottent dans des réalités violentes et discriminatoires pour des filles en pleine croissance.**"
     },
     "section3": {
-      "title": "Un sujet si naturel, historiquement ignoré : pourquoi en parler maintenant ?",
+      "title": "Un sujet si naturel, historiquement ignoré : ==pourquoi en parler maintenant ?==",
       "text": "La dignité et les droits des filles et des adolescentes sont comme l'eau de mer, ils n'expirent jamais, et chez **Las Fuertes** nous embarquons dans cette mission sans retour avec une carte éducative unique, en brisant murs et barrières."
-    },
-    "skip": "Passer l'animation"
+    }
   },
   "welcome": {
     "titleLine1": "Bienvenue à",

@@ -3,6 +3,9 @@
     "title": "Las Fuertes - Algo fuerte está en camino",
     "description": "Estamos construyendo un espacio para que la Educación Menstrual Integral (EMI) marque un nuevo hito en Colombia."
   },
+  "intro": {
+    "label": "Introducción"
+  },
   "hero": {
     "mainTitle1": "Algo fuerte está",
     "mainTitle2": "en camino",
@@ -10,17 +13,16 @@
     "subtitle2": "será una sorpresa increíble.",
     "section1": {
       "text1": "La mitad del mundo menstrua,",
-      "text2": "pero **hablar de menstruación**",
+      "text2": "pero ==hablar de menstruación==",
       "text3": "**sigue costando un mundo.**"
     },
     "section2": {
       "paragraph": "Silencio, desconocimiento y desinformación han creado por años **costumbres, muros y barreras que flotan en realidades violentas y discriminatorias de niñas en crecimiento.**"
     },
     "section3": {
-      "title": "Un tema tan natural, históricamente ignorado, ¿por qué hablar ahora?",
+      "title": "Un tema tan natural, históricamente ignorado, ==¿por qué hablar ahora?==",
       "text": "La dignidad y los derechos de niñas y adolescentes son como el agua de mar, nunca expiran, y en **Las Fuertes** nos embarcamos en esta misión sin retorno con un mapa educativo único, rompiendo muros y barreras."
-    },
-    "skip": "Saltar animación"
+    }
   },
   "welcome": {
     "titleLine1": "Bienvenidx a",
