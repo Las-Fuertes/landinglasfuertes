@@ -55,20 +55,26 @@ mientras se construye (D18).
 
 ## Lo que falta, en orden
 
-1. **Las dos preguntas de contenido** (abajo, 5 y 6): Ibagué y el "2XX". Son una línea de copy
-   cada una, pero las decide Johan y ya están publicadas como están.
-2. **Los bloques en desktop se ven flacos.** Verificado con captura a 1280 el 2026-09-22: cada
-   bloque es una columna de 546 px (390 x 1.4) centrada en una pantalla de 1280, así que queda
-   mucho vacío a los lados y la ilustración se lee pequeña. Es consecuencia directa de D7
-   (escalar en vez de recomponer) y no está mal implementado, pero pide una decisión: o se
-   ensancha la ilustración en desktop, o se pone el texto al lado en vez de debajo. El mapa sí
-   aguanta bien a 1280.
-3. **La copa cambia de gris a color**, el mismo problema que tenía la piscina y que se resolvió
-   en D25. El procedimiento está escrito ahí: partir el SVG por color y dejar fija la estructura.
-4. **Quiénes somos nunca se revisó en los 3 breakpoints** y en desktop mide ~3400 px de alto
-   (D21). Johan decide si vale una rejilla.
-5. **Tablet (768) de los bloques**: sin mirar. Solo se verificó el mapa.
-6. Limpieza opcional: las claves de copy de la Introducción siguen con prefijo `hero.` (D11).
+1. **Los bloques de impacto en desktop se ven flacos.** Cada bloque es una columna de 546 px
+   (390 x 1.4) centrada en una pantalla de 1280 o más, así que queda mucho vacío a los lados y la
+   ilustración se lee pequeña. Es consecuencia de D7 (escalar en vez de recomponer). **Johan lo
+   deja a la espera de feedback de diseño** (2026-09-22); no se toca por iniciativa propia.
+2. **Quiénes somos en desktop**: Johan propuso (2026-09-22) ensancharlo y repartir las fichas de
+   forma más abierta, en vez de la columna de ~3400 px de alto que hay hoy (D21). Pendiente de
+   acordar la forma exacta.
+3. **Tablet (768) de los bloques de impacto**: sin mirar. Solo se verificó el mapa a ese ancho.
+4. Limpieza opcional: las claves de copy de la Introducción siguen con prefijo `hero.` (D11).
+
+### Resuelto el 2026-09-22
+
+- **Las cifras ya son reales**: 7 territorios (entra Ibagué) y 550 niñas, adolescentes y mujeres.
+  Se acabaron los dos placeholders del diseño.
+- **El paso 2 de la intro en pantallas anchas** (D26): el horizonte ya llega al borde y el reflejo
+  del agua recupera su intensidad.
+- **La copa NO tenía el problema de la piscina.** Se dijo que sí sin comprobarlo; verificado con
+  capturas del estado inicial y final, el cuerpo de la copa es el mismo gris en los dos (es el
+  color de la silicona en el diseño, no un estado "apagado"). Lo único que cambia es el líquido
+  y los destellos, que es lo que se quiere. No hay nada que arreglar.
 
 ## Preguntas abiertas
 
