@@ -11,9 +11,22 @@ const k = (px: number) => `calc(${px}px * var(--k))`;
 const ANCHO = 390;
 
 /** Una capa en porcentaje del lienzo de su bloque (mismo esquema que la Introducción, D13). */
-function CapaImg({ capa, top, height }: { capa: Capa; top: number; height: number }) {
+function CapaImg({
+  capa,
+  top,
+  height,
+  className = '',
+  delay,
+}: {
+  capa: Capa;
+  top: number;
+  height: number;
+  className?: string;
+  delay?: number;
+}) {
   const { box, inset, rotate, inner } = capa;
   const style = {
+    transitionDelay: delay ? `${delay}s` : undefined,
     left: `${(box.left / ANCHO) * 100}%`,
     top: `${((box.top - top) / height) * 100}%`,
     width: `${(box.width / ANCHO) * 100}%`,
@@ -31,7 +44,7 @@ function CapaImg({ capa, top, height }: { capa: Capa; top: number; height: numbe
   );
   if (rotate && inner) {
     return (
-      <div className="absolute flex items-center justify-center" style={style}>
+      <div className={`absolute flex items-center justify-center ${className}`} style={style}>
         <div
           className="relative flex-none"
           style={{
@@ -46,7 +59,7 @@ function CapaImg({ capa, top, height }: { capa: Capa; top: number; height: numbe
     );
   }
   return (
-    <div className="absolute" style={style}>
+    <div className={`absolute ${className}`} style={style}>
       {conInset}
     </div>
   );
@@ -86,18 +99,19 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         </div>
         <div className={`impacto-despues impacto-despues--${bloque.entrada} absolute inset-0`}>
           {bloque.despues.map(capa => (
-            <div
+            <CapaImg
               key={capa.src}
-              className="impacto-capa absolute inset-0"
-              style={{ transitionDelay: `${capa.delay ?? 0}s` }}
-            >
-              <CapaImg capa={capa} top={lienzo.top} height={lienzo.height} />
-            </div>
+              capa={capa}
+              top={lienzo.top}
+              height={lienzo.height}
+              className="impacto-capa"
+              delay={capa.delay}
+            />
           ))}
         </div>
         {bloque.extras?.map((capa, i) => (
           <div
-            key={capa.src}
+            key={`${capa.src}-${i}`}
             className="impacto-extra absolute inset-0"
             style={{ ['--i' as string]: i }}
           >
@@ -119,7 +133,10 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         >
           {renderTextWithMarks(t(`impacto.bloques.${bloque.id}.title`))}
         </h3>
-        <p className="leading-normal text-black" style={{ fontSize: k(16), marginTop: k(10) }}>
+        <p
+          className="leading-normal text-black"
+          style={{ fontSize: k(16), marginTop: k(10), maxWidth: k(297) }}
+        >
           {t(`impacto.bloques.${bloque.id}.text`)}
         </p>
       </div>

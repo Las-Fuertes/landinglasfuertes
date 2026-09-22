@@ -282,6 +282,15 @@
   clip-path: inset(0 0 100% 0);
 }
 
+.impacto-despues--llenar .impacto-capa {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.impacto-bloque[data-encendido] .impacto-despues--llenar .impacto-capa {
+  clip-path: inset(0 0 0 0);
+}
+
 .impacto-antes--fundido,
 .impacto-despues--fundido .impacto-capa {
   transition: opacity 0.9s ease;

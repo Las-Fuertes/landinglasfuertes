@@ -31,11 +31,12 @@ export interface Bloque {
   /** Dónde empieza el título en el frame; el aire hasta la ilustración sale de aquí. */
   texto: number;
   /**
-   * Cómo cambia de estado: `subir` es un barrido de abajo arriba que descubre `despues` y
-   * recorta `antes` (el agua de la piscina); `fundido` funde cada capa de `despues` por su
-   * cuenta, con su `delay`, y apaga `antes` a la vez.
+   * Cómo cambia de estado: `subir` es un barrido de abajo arriba sobre todo el lienzo que
+   * descubre `despues` y recorta `antes` (el agua de la piscina); `llenar` es el mismo barrido
+   * pero dentro de la caja de cada capa (el líquido de la copa); `fundido` funde cada capa de
+   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez.
    */
-  entrada: 'subir' | 'fundido';
+  entrada: 'subir' | 'llenar' | 'fundido';
   /** Capas que están en los dos estados y no cambian. */
   base?: Capa[];
   /** Capas que solo están en el estado "antes". */
@@ -167,4 +168,59 @@ const LUCES: Bloque = {
   ],
 };
 
-export const BLOQUES: Bloque[] = [PISCINA, LUCES];
+/** Bloque 3: la copa menstrual que se llena. Antes `1103:544`, después `1103:558`. */
+const COPA: Bloque = {
+  id: 'copa',
+  figma: { antes: '1103:544', despues: '1103:558' },
+  lienzo: { top: 39, height: 404 },
+  texto: 518,
+  entrada: 'llenar',
+  base: [
+    {
+      src: `${P}copa/cuerpo.svg`,
+      box: { left: 82.9, top: 172.14, width: 214.84, height: 270.455 },
+      rotate: -1.04,
+      inner: { width: 210.054, height: 266.703 },
+      inset: '-0.24% 0 -0.23% -0.23%',
+    },
+    {
+      src: `${P}copa/borde.svg`,
+      box: { left: 76.31, top: 139, width: 224.849, height: 53.04 },
+      rotate: -1.04,
+      inner: { width: 224, height: 49 },
+      inset: '-1.41% -0.32% -1.16% -0.31%',
+    },
+  ],
+  antes: [],
+  despues: [
+    {
+      src: `${P}copa/liquido.svg`,
+      box: { left: 118, top: 267, width: 135.5, height: 89.251 },
+      inset: '-0.8% -1.07% -0.74% -0.68%',
+    },
+  ],
+  extras: [
+    {
+      src: `${P}copa/brillo-c.svg`,
+      box: { left: 176, top: 39, width: 19, height: 33 },
+      inset: '-0.42% -8.65% -0.13% -1.02%',
+    },
+    {
+      src: `${P}copa/brillo-a.svg`,
+      box: { left: 239, top: 95, width: 22, height: 38.5 },
+      inset: '-0.36% -7.43% -0.11% -0.85%',
+    },
+    {
+      src: `${P}copa/brillo-c.svg`,
+      box: { left: 76, top: 106, width: 19, height: 33 },
+      inset: '-0.42% -8.65% -0.13% -1.02%',
+    },
+    {
+      src: `${P}copa/brillo-b.svg`,
+      box: { left: 293, top: 267, width: 21, height: 36 },
+      inset: '-0.39% -7.9% -0.12% -0.89%',
+    },
+  ],
+};
+
+export const BLOQUES: Bloque[] = [PISCINA, LUCES, COPA];
