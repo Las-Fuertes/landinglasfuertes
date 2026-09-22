@@ -3,6 +3,9 @@
     "title": "Las Fuertes - Something Powerful is Coming",
     "description": "We are building a space for Comprehensive Menstrual Education (CME) to mark a new milestone in Colombia."
   },
+  "intro": {
+    "label": "Introduction"
+  },
   "hero": {
     "mainTitle1": "Something powerful",
     "mainTitle2": "is coming",
@@ -10,17 +13,16 @@
     "subtitle2": "will be an incredible surprise.",
     "section1": {
       "text1": "Half the world menstruates,",
-      "text2": "but **talking about menstruation**",
+      "text2": "but ==talking about menstruation==",
       "text3": "**still costs a world.**"
     },
     "section2": {
       "paragraph": "Silence, ignorance, and disinformation have for years created **habits, walls and barriers that float in violent and discriminatory realities for girls as they grow.**"
     },
     "section3": {
-      "title": "A topic so natural, historically ignored, why talk about it now?",
+      "title": "A topic so natural, historically ignored, ==why talk about it now?==",
       "text": "The dignity and rights of girls and adolescents are like seawater, they never expire, and in **Las Fuertes** we embark on this irreversible mission with a unique educational map, breaking down walls and barriers."
-    },
-    "skip": "Skip animation"
+    }
   },
   "welcome": {
     "titleLine1": "Welcome to",

@@ -155,29 +155,6 @@ export default function EducationMapSection() {
       style={{ overflowAnchor: 'none' }}
       aria-labelledby="education-map-title"
     >
-      {/* Filtro de borde rasgado: lo usan los chips y el marco del modal.
-          Vive acá y no en otra sección para no depender de que esa esté montada. */}
-      <svg width="0" height="0" className="absolute" aria-hidden="true">
-        <defs>
-          <filter id="map-rough-edge" x="-3%" y="-3%" width="106%" height="106%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.028"
-              numOctaves="4"
-              seed="7"
-              result="noise"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="noise"
-              scale="6"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
       {/* El encabezado conserva el beige de la página; el azul empieza en el mapa. */}
       <div className="bg-beige pb-10 pt-12 md:pb-14 md:pt-16">
         <PageGrid>
