@@ -38,6 +38,12 @@
       },
       "cierre": "==6 territoires== ==désormais plus forts==",
       "texto": "Depuis Isla Fuerte, des vagues de changement qui gagnent toute la Colombie."
+    },
+    "bloques": {
+      "piscina": {
+        "title": "==2XX filles,== ==adolescentes et== ==femmes en ateliers==",
+        "text": "Ensemble, nous remplirions une piscine d'environ 802 m² en apprenant sur nous-mêmes."
+      }
     }
   },
   "welcome": {

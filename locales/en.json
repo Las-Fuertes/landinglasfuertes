@@ -38,6 +38,12 @@
       },
       "cierre": "==6 territories now== ==stronger==",
       "texto": "From Isla Fuerte, carrying waves of change across Colombia."
+    },
+    "bloques": {
+      "piscina": {
+        "title": "==2XX girls,== ==teenagers and== ==women in workshops==",
+        "text": "Together we'd fill a pool of about 802 m² learning about ourselves."
+      }
     }
   },
   "welcome": {

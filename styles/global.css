@@ -256,3 +256,65 @@
     transition-delay: 0s !important;
   }
 }
+
+/* Bloques de impacto: las capas "después" entran cuando el bloque recibe `data-encendido`.
+   `--subir` es un barrido de abajo arriba (el agua que llena la piscina): el "después" se
+   descubre y el "antes" se recorta con el mismo reloj, así nunca se ven los dos a la vez.
+   `--fundido` cruza las opacidades. Los extras rematan con un rebote, uno tras otro. */
+.impacto-antes--subir,
+.impacto-despues--subir {
+  transition: clip-path 1.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.impacto-despues--subir {
+  clip-path: inset(100% 0 0 0);
+}
+
+.impacto-antes--subir {
+  clip-path: inset(0 0 0 0);
+}
+
+.impacto-bloque[data-encendido] .impacto-despues--subir {
+  clip-path: inset(0 0 0 0);
+}
+
+.impacto-bloque[data-encendido] .impacto-antes--subir {
+  clip-path: inset(0 0 100% 0);
+}
+
+.impacto-antes--fundido,
+.impacto-despues--fundido {
+  transition: opacity 0.9s ease;
+}
+
+.impacto-despues--fundido {
+  opacity: 0;
+}
+
+.impacto-bloque[data-encendido] .impacto-despues--fundido {
+  opacity: 1;
+}
+
+.impacto-bloque[data-encendido] .impacto-antes--fundido {
+  opacity: 0;
+}
+
+.impacto-extra {
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(1.3s + var(--i, 0) * 0.12s);
+}
+
+.impacto-bloque[data-encendido] .impacto-extra {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impacto-extra {
+    transition-delay: 0s !important;
+  }
+}
