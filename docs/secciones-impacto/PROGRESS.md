@@ -1,22 +1,29 @@
 # Estado vivo: reconstrucción del primer tramo
 
-> **En producción desde el 2026-09-21.** La Introducción y la eliminación del gate `?show=all` se
-> mergearon a `main` en `c2c6627` (PR #6). Lo que sigue se construye sobre eso.
+> **En producción (`main` = `2ef6879`, PR #7):** la Introducción con el paso 1 en los 3 breakpoints y
+> los pasos 2 y 3 solo en mobile. **Commiteado y sin publicar, en la rama `21-sep-round-2-2`:**
+> los pasos 2 y 3 en tablet y desktop, Quiénes somos completa, el script de captura, los docs y la
+> sección de impacto completa (mapa + 4 bloques). Johan dio por buena la Introducción; Quiénes
+> somos la vio y pidió cerrar la sesión sin más ajustes; **la sección de impacto no la ha visto
+> todavía**: se construyó entera de noche, por su pedido, y es lo primero que tiene que revisar.
 
-Última actualización: 2026-09-21.
-Rama de trabajo: `17-sep-Landing-remake`. Punta al empezar: `92fda5e`, igual que `origin/main`.
+Última actualización: 2026-09-21 (madrugada del 22).
+Rama de trabajo: `21-sep-round-2-2`, en el worktree
+`~/orca/workspaces/landinglasfuertes/21-sep-round-2-2/`. Es la continuación de `21-sep-round-2`
+(misma historia; aquella rama quedó tres commits atrás y ya no se usa). Todo está commiteado;
+Johan pidió el 2026-09-21 por la noche que se commitee seguido.
 
 ## Dónde vamos
 
-| #   | Pieza                      | Mobile  | Tablet | Desktop | Estado                              |
-| --- | -------------------------- | ------- | ------ | ------- | ----------------------------------- |
-| 0   | State layer (docs)         | -       | -      | -       | **Hecho**                           |
-| 0.5 | Refactor de composición    | -       | -      | -       | **Hecho**                           |
-| 1   | Introducción estática      | **[x]** | [ ]    | [ ]     | **Mobile hecho, falta visto bueno** |
-| 2   | Quiénes somos              | [ ]     | [ ]    | [ ]     | Pendiente                           |
-| 3   | Mapa de impacto            | [ ]     | [ ]    | [ ]     | Pendiente                           |
-| 4   | Bloques de impacto         | [ ]     | [ ]    | [ ]     | Pendiente                           |
-| B   | Quitar el gate `?show=all` | -       | -      | -       | **Hecho** (adelantado, ver D3)      |
+| #   | Pieza                      | Mobile  | Tablet  | Desktop | Estado                                |
+| --- | -------------------------- | ------- | ------- | ------- | ------------------------------------- |
+| 0   | State layer (docs)         | -       | -       | -       | **Hecho**                             |
+| 0.5 | Refactor de composición    | -       | -       | -       | **Hecho**                             |
+| 1   | Introducción estática      | **[x]** | **[x]** | **[x]** | **Hecha en los 3, falta visto bueno** |
+| 2   | Quiénes somos              | [ ]     | [ ]     | [ ]     | Pendiente                             |
+| 3   | Mapa de impacto            | **[x]** | [~]     | [~]     | Mobile hecho; tablet/desktop escalan  |
+| 4   | Bloques de impacto         | **[x]** | [~]     | [~]     | Mobile hecho; tablet/desktop escalan  |
+| B   | Quitar el gate `?show=all` | -       | -       | -       | **Hecho** (adelantado, ver D3)        |
 
 Regla: una pieza a la vez, y dentro de cada una mobile -> validar con Johan -> tablet -> desktop.
 No se empieza la siguiente sin aprobación en los 3 breakpoints. Cada pieza entrega el copy en
@@ -30,21 +37,21 @@ Introducción -> Impacto -> Welcome -> Principles -> Donaciones -> Mapa educativ
 
 ## Siguiente paso concreto
 
-**Pasos 2 y 3 en tablet y desktop.** Hoy caen a la variante mobile en todos los anchos, que es
-correcto pero no es el diseño. Faltan cuatro frames:
+0. **Que Johan mire la sección de impacto** (`localhost:3000/#impacto`, entre la Introducción y
+   Welcome) y responda las dos preguntas abiertas (5 y 6). Lo que decide él: el aire de 120 px
+   entre bloques (D22), el orden y velocidad de las animaciones, y si Ibagué entra.
+1. **Que Johan mire Quiénes somos en los 3 breakpoints** (`localhost:3000/#quienes-somos`, está
+   justo antes del footer). Dos cosas que decide él: si en desktop la columna de 3400 px le parece
+   demasiado larga (D21) y si el encuadre de alguna foto no le gusta (`focus` en
+   `quienes-somos.data.ts`). La Introducción ya la dio por buena.
+2. **Publicar** cuando lo pida: todo está commiteado en la rama `21-sep-round-2-2`, 10 commits por
+   encima de `main`. PR contra `main`, merge. `gh auth switch --user johanmendezb` antes de `gh`.
+3. Verificar tablet y desktop de la sección de impacto con captura contra criterio (no hay frame):
+   a 1280 el mapa y el cierre se ven bien escalados con `--k` 1.4; los bloques no se miraron.
+4. Limpieza opcional: el "2XX" del bloque de la piscina cuando Johan dé el número.
 
-| Paso | Tablet      | Desktop     |
-| ---- | ----------- | ----------- |
-| 2    | `1168:1446` | `1168:1264` |
-| 3    | `1177:1593` | `1174:1556` |
-
-Procedimiento, ya probado con el paso 1 (ver D17): sacar la escala y el desplazamiento comparando
-tres capas de control con `get_metadata`, que es mucho más barato que `get_design_context`, y
-añadir la variante a `STEP_2_VARIANTS` / `STEP_3_VARIANTS` en `components/intro/intro.data.ts`.
-**Verificar la hipótesis afín con sus propias capas antes de darla por buena.**
-
-Después, verificar con capturas:
-`/dev-revision?anclas=intro-paso-2-desktop&w=1280&h=832`
+Antes de transcribir cualquier frame, volver a pedir su `get_metadata`: los frames se mueven
+mientras se construye (D18).
 
 ## Preguntas abiertas
 
@@ -52,9 +59,88 @@ Después, verificar con capturas:
    Tampoco se toca `public/images/hero/`.
 2. **Las claves de copy siguen con prefijo `hero.`** aunque el componente ahora sea `intro`. Ver
    D11. Limpieza opcional.
-3. **Resolución de las fotos del equipo**: 512px de lado largo, se revisa en la Pieza 2.
+3. ~~Resolución de las fotos del equipo~~ **Resuelto (D10 ampliada):** vienen a 4096 px, no 512.
+4. **Quiénes somos en desktop es una columna de ~3400 px** (D21). Johan decide si vale una rejilla.
+5. **Mapa de impacto: el diseño tiene 7 etiquetas y el título dice "6 territorios"** (D8 ampliada).
+   ¿Entra Ibagué? Preguntar antes de construir.
+6. **Bloque de la piscina: "2XX niñas"** es un placeholder del diseño. Hace falta el número real.
 
 ## Bitácora
+
+### 2026-09-22 (novena tanda, madrugada): los 4 bloques de impacto
+
+- **Pieza 4 construida en mobile**, un commit por bloque: piscina `43b551b`, lámparas `a5f659f`,
+  copa `9f48b33`, persona `af44c52`. Modelo de datos en `components/impacto/bloques.data.ts`
+  (capas `base`/`antes`/`despues`/`extras`, medidas en px del frame; `entrada` por bloque) y
+  componente `bloque-impacto.tsx`. CSS en `styles/global.css`, sección "MAPA DE IMPACTO".
+- Cada bloque cambia de estado a su manera (D22): agua que sube, luces que se encienden una tras
+  otra, copa que se llena, persona que toma color desde el centro.
+- **Trampa que costó una hora (D23):** las capas "después" no se descargaban porque `next/image`
+  las deja lazy y Chrome no pide una imagen recortada por `clip-path`. `loading="eager"`.
+- Assets en `public/images/impacto/{piscina,luces,copa,persona}/`, todos por svgo. Las lámparas
+  vinieron como un solo grupo y se partieron a mano en postes / cono izquierdo / cono derecho
+  (script en el chat, no guardado: es cortar los `<g id>` hijos y repetir la cabecera del svg).
+- Copy de los 4 bloques en es/en/fr, con las líneas de los chips elegidas a mano por idioma. El
+  "2XX" de la piscina sigue siendo placeholder (pregunta 6).
+- Verificado con capturas a 390 de cada bloque (estado final y a mitad de animación) contra sus
+  frames "después"; mapa a 1280 y 768; `type-check`, `lint` y `build` limpios.
+
+### 2026-09-21 (octava tanda, de noche): mapa de impacto
+
+- **Commiteado todo lo de las tandas 6 y 7** en tres commits (`a35ec31`, `aedceab`, `68b4d67`) y
+  el trabajo siguió en el worktree `21-sep-round-2-2`, que Orca abrió al lado del anterior.
+- **Pieza 3 construida en mobile** (`components/impacto/`), montada en `pages/index.tsx` entre
+  la Introducción y Welcome. Commit `bab6bfb`.
+- Mapeo path -> territorio derivado por color y escrito en `docs/PATTERNS.md` y en
+  `components/impacto/mapa.data.ts`. El export de Figma pesaba 812 KB; sin los trazos
+  convertidos a relleno y con svgo queda en 36 KB inline.
+- Encendido en cascada desde Isla Fuerte hacia afuera, CSS puro con `--i` por territorio y
+  `useInView` de framer-motion para disparar una sola vez. Reduced-motion respetado.
+- El título lleva salto de línea manual en el diseño; el copy lo escribe como `\n` y el
+  componente lo parte en `<span class="block">`.
+- En francés el cierre se partió en "==6 territoires== ==désormais plus forts==" porque el chip
+  es `inline-block` y si una línea no cabe se parte por dentro (chip de dos líneas, feo).
+- Verificado con capturas a 390 en es/en/fr contra `1102:60`; `type-check` y `lint` limpios.
+- `scripts/captura.js` tiene ahora `--tras` (ms entre el scroll al ancla y la captura) para
+  esperar el final de una animación que arranca en viewport.
+- Tablet y desktop solo escalan con `--k` (1.25 / 1.4), sin verificar con captura todavía.
+
+### 2026-09-21 (séptima tanda): Quiénes somos
+
+- **Pieza 2 construida en los 3 breakpoints** (`components/quienes-somos/`), montada en
+  `pages/index.tsx` justo antes del footer. Copy en `quienesSomos.*` de los tres idiomas.
+- Va en flujo con una variable `--k` por breakpoint, no sobre lienzo (D21). Nueve fotos en
+  `public/images/quienes-somos/` a 640 px, más un anillo SVG.
+- **Herramienta nueva de captura: `scripts/captura.js`.** Habla con Chrome por DevTools Protocol
+  (usa el `ws` compilado de Next, sin instalar nada) y fija el viewport exacto. Nació porque Chrome
+  con `--virtual-time-budget` empezó a devolver capturas grises o en blanco de forma intermitente y
+  el banco de iframes dejó de ser fiable. Es lo que hay que usar de ahora en adelante.
+- **Trampa encontrada:** un `npm run build` deja artefactos de producción en `.next` y el dev server
+  que lo comparte se pone raro (páginas que no hidratan). Antes de arrancar `npm run dev` después
+  de un build: `rm -rf .next`.
+- El dev server de la rama corre en **:3000** (regla de Johan). Si el puerto lo tiene otro
+  worktree, se mata ese proceso.
+- Verificado con capturas a 390 (es/en/fr), 768 y 1280 contra el frame; `type-check`, `lint`,
+  `prettier` y `build` limpios.
+
+### 2026-09-21 (sexta tanda): pasos 2 y 3 en tablet y desktop
+
+- **La Introducción está completa en los 3 breakpoints.** Pasos 2 y 3 tienen variante propia de
+  tablet (`1168:1446`, `1177:1593`) y desktop (`1168:1264`, `1174:1556`).
+- **La hipótesis afín se cumple por grupos, no por paso** (ampliación de D17). El modelo de datos
+  acepta ahora varios grupos por paso, cada uno con su escala y desplazamiento por breakpoint:
+  `IntroStep.groups` + `IntroVariant.groups` en `components/intro/intro.data.ts`. Los pasos se
+  declaran en `INTRO_STEPS`; `STEP_*_VARIANTS` y `STEP_1_CLUSTER` ya no existen.
+- **Los frames mobile habían cambiado en Figma** (D18): lienzo de 700 en vez de 833, texto del paso
+  3 unos 90 px más arriba, nube por delante del sol. Se actualizó mobile para seguir el diseño.
+- **Assets nuevos** en `public/images/intro/`: `paso2-espiral.svg` (la espiral del sol grande) y
+  `paso3-ola-1168/1169/1171.svg` (olas sueltas de tablet y desktop), pasados por svgo.
+  `paso2-horizonte.svg` se **reemplazó** por el export de tablet (D19): el de mobile traía piezas
+  lilas que en mobile quedaban fuera de pantalla.
+- `pages/dev-revision.tsx`: alto por defecto 700, `flex:none` en los iframes (antes se encogían y un
+  iframe de 768 caía a la variante mobile) y param `lang` para capturar en `en` y `fr`.
+- Verificado con capturas a 390 (es/en), 768 y 1280 (es, más fr en el paso 3) contra sus frames;
+  `type-check`, `lint`, `prettier` y `build` limpios.
 
 ### 2026-09-21 (quinta tanda): publicado
 

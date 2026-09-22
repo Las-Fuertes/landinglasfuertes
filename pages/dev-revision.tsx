@@ -15,6 +15,8 @@ import type { GetStaticProps } from 'next';
  *   /dev-revision?anclas=intro-paso-1,intro-paso-2,intro-paso-3
  *   /dev-revision?anclas=intro-paso-1&w=768     (tablet)
  *   /dev-revision?anclas=intro-paso-1&w=1280&h=900  (desktop)
+ *   /dev-revision?anclas=intro-paso-3&lang=fr       (otro idioma)
+ *   /dev-revision?anclas=quienes-somos&y=1200       (empieza 1200 px más abajo del ancla)
  */
 export default function DevRevision() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -26,12 +28,17 @@ export default function DevRevision() {
     const q = new URLSearchParams(window.location.search);
     const anclas = (q.get('anclas') || '').split(',').filter(Boolean);
     const width = q.get('w') || '390';
-    const height = q.get('h') || '833';
+    const height = q.get('h') || '700';
+    const lang = q.get('lang') || '';
+    // Para secciones más altas que la ventana: se capturan por tramos.
+    const desplazamiento = Number(q.get('y') || 0);
 
     const marcos = anclas.map(ancla => {
       const frame = document.createElement('iframe');
-      frame.src = '/';
-      frame.style.cssText = `width:${width}px;height:${height}px;border:0;background:#fff`;
+      frame.src = `/${lang}`;
+      // `flex:none`: si los marcos no caben en la ventana, flex los encogería y un iframe
+      // pedido a 768 px acabaría por debajo de `md`, mostrando la variante mobile.
+      frame.style.cssText = `flex:none;width:${width}px;height:${height}px;border:0;background:#fff`;
       // El desplazamiento se aplica tarde a propósito: las capas son imágenes y hasta
       // que no resuelven su alto, la posición del ancla todavía no es la definitiva.
       frame.onload = () => {
@@ -39,7 +46,8 @@ export default function DevRevision() {
           const doc = frame.contentDocument;
           const win = frame.contentWindow;
           const el = doc?.getElementById(ancla.trim());
-          if (el && win) win.scrollTo(0, el.getBoundingClientRect().top + win.scrollY);
+          if (el && win)
+            win.scrollTo(0, el.getBoundingClientRect().top + win.scrollY + desplazamiento);
         }, 2500);
       };
       host.appendChild(frame);

@@ -3,16 +3,12 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithMarks } from '../../lib/render-text-with-bold';
 import {
-  STEP_1_CLUSTER,
-  STEP_1_VARIANTS,
-  STEP_2_VARIANTS,
-  STEP_3_VARIANTS,
+  INTRO_STEPS,
+  type Breakpoint,
   type GroupTransform,
   type IntroLayer,
   type IntroVariant,
 } from './intro.data';
-
-type Breakpoint = 'mobile' | 'tablet' | 'desktop';
 
 /** Cada breakpoint se muestra en su rango y se oculta fuera de él. */
 const VISIBILIDAD: Record<Breakpoint, string> = {
@@ -27,9 +23,11 @@ const VISIBILIDAD: Record<Breakpoint, string> = {
  */
 const ANCHO_MAXIMO: Record<Breakpoint, number> = { mobile: 430, tablet: 1024, desktop: 1280 };
 
+const SIN_TRANSFORMAR: GroupTransform = { scale: 1, dx: 0, dy: 0 };
+
 /** Aplica la transformación del grupo a una capa definida en el lienzo mobile. */
 function transformar(layer: IntroLayer, g: GroupTransform): IntroLayer {
-  if (g.scale === 1 && g.dx === 0 && g.dy === 0) return layer;
+  if (g === SIN_TRANSFORMAR) return layer;
   return {
     ...layer,
     box: {
@@ -98,18 +96,18 @@ function Capa({ layer, canvas }: { layer: IntroLayer; canvas: { width: number; h
 function Paso({
   ancla,
   variant,
-  cluster = [],
+  groups,
   breakpoint,
 }: {
   /** Id único por breakpoint, para poder capturar cada uno por separado. */
   ancla: string;
   variant: IntroVariant;
-  /** Capas compartidas, definidas en el lienzo mobile y transformadas al vuelo. */
-  cluster?: IntroLayer[];
+  /** Grupos de capas compartidos, definidos en el lienzo mobile y transformados al vuelo. */
+  groups: Record<string, IntroLayer[]>;
   breakpoint: Breakpoint;
 }) {
   const { t } = useTranslation();
-  const { canvas, group, own, texts } = variant;
+  const { canvas, own, texts } = variant;
   const maxW = ANCHO_MAXIMO[breakpoint];
 
   const pct = (v: number, eje: 'width' | 'height') => `${(v / canvas[eje]) * 100}%`;
@@ -119,9 +117,12 @@ function Paso({
 
   const capas: ReactNode[] = [];
   own.forEach((l, i) => capas.push(<Capa key={`own-${i}`} layer={l} canvas={canvas} />));
-  cluster.forEach((l, i) =>
-    capas.push(<Capa key={`grp-${i}`} layer={transformar(l, group)} canvas={canvas} />)
-  );
+  Object.entries(groups).forEach(([nombre, layers]) => {
+    const g = variant.groups?.[nombre] ?? SIN_TRANSFORMAR;
+    layers.forEach((l, i) =>
+      capas.push(<Capa key={`${nombre}-${i}`} layer={transformar(l, g)} canvas={canvas} />)
+    );
+  });
 
   return (
     <div
@@ -159,29 +160,21 @@ function Paso({
 export default function IntroSection() {
   const { t } = useTranslation();
 
-  const pasos = [
-    { id: 'intro-paso-1', variants: STEP_1_VARIANTS, cluster: STEP_1_CLUSTER },
-    { id: 'intro-paso-2', variants: STEP_2_VARIANTS, cluster: undefined },
-    { id: 'intro-paso-3', variants: STEP_3_VARIANTS, cluster: undefined },
-  ];
-
   return (
     <section aria-label={t('intro.label')} className="relative w-full">
       {(['mobile', 'tablet', 'desktop'] as const).map(bp => (
         <div key={bp} className={VISIBILIDAD[bp]}>
-          {pasos.map(paso => {
-            // Si un paso todavía no tiene variante propia para este breakpoint, se
-            // muestra la de mobile. Así se puede avanzar paso por paso.
-            const variant = paso.variants[bp] ?? paso.variants.mobile;
-            if (!variant) return null;
-            const esPropia = Boolean(paso.variants[bp]);
+          {INTRO_STEPS.map(paso => {
+            // Si un paso no tiene variante propia para este breakpoint, se muestra
+            // la de mobile. Así se puede avanzar paso por paso sin romper nada.
+            const propia = paso.variants[bp];
             return (
               <Paso
                 key={paso.id}
                 ancla={bp === 'mobile' ? paso.id : `${paso.id}-${bp}`}
-                variant={variant}
-                cluster={paso.cluster}
-                breakpoint={esPropia ? bp : 'mobile'}
+                variant={propia ?? paso.variants.mobile}
+                groups={paso.groups}
+                breakpoint={propia ? bp : 'mobile'}
               />
             );
           })}

@@ -24,6 +24,40 @@
       "text": "La dignité et les droits des filles et des adolescentes sont comme l'eau de mer, ils n'expirent jamais, et chez **Las Fuertes** nous embarquons dans cette mission sans retour avec une carte éducative unique, en brisant murs et barrières."
     }
   },
+  "impacto": {
+    "title": "Voici l'impact\nen action",
+    "mapa": {
+      "territorios": {
+        "islaFuerte": "Isla Fuerte",
+        "cordoba": "Córdoba",
+        "bolivar": "Bolívar",
+        "atlantico": "Atlántico",
+        "guajira": "Guajira",
+        "ibague": "Ibagué",
+        "bogota": "Bogotá D.C"
+      },
+      "cierre": "==6 territoires== ==désormais plus forts==",
+      "texto": "Depuis Isla Fuerte, des vagues de changement qui gagnent toute la Colombie."
+    },
+    "bloques": {
+      "piscina": {
+        "title": "==2XX filles,== ==adolescentes et== ==femmes en ateliers==",
+        "text": "Ensemble, nous remplirions une piscine d'environ 802 m² en apprenant sur nous-mêmes."
+      },
+      "luces": {
+        "title": "==La compréhension des== ==règles comme cycle== ==naturel est passée== ==de 45 % à 95 %==",
+        "text": "Désormais, elles voient clairement ce qui a toujours été là."
+      },
+      "copa": {
+        "title": "==Plus de 50== ==écoproduits== ==remis pour la== ==gestion menstruelle==",
+        "text": "Soit au moins 6 kg de déchets évités par utilisatrice et par an."
+      },
+      "persona": {
+        "title": "==8 sur 10 se connaissent== ==mieux grâce aux== ==ateliers==",
+        "text": "Las Fuertes a 5 étoiles"
+      }
+    }
+  },
   "welcome": {
     "titleLine1": "Bienvenue à",
     "titleLine2": "Las Fuertes",
@@ -212,6 +246,17 @@
       "title": "Tu fais un don depuis les États-Unis ?",
       "text": "Uniquement si tu es aux USA : tu peux donner en dollars —une fois ou chaque mois— via notre partenaire Caring for Colombia, et ton don y est déductible des impôts. Depuis tout autre pays ? Utilise le formulaire ci-dessus avec ta carte internationale.",
       "cta": "Donner depuis les USA"
+    }
+  },
+  "quienesSomos": {
+    "title": "Qui sommes-nous ?",
+    "text": "Nous sommes un récif de femmes, de bénévoles et d'alliées qui grandit depuis Bogotá vers les territoires oubliés de Colombie. Nous construisons des espaces où la connaissance du corps ne se murmure pas, elle se partage, où l'éducation menstruelle intégrale n'est pas un luxe mais un droit. Et où chaque adolescente trouve sa propre voix pour naviguer dans sa vie avec clarté, confiance et liberté.",
+    "roles": {
+      "coordinadora": "Coordinatrice du réseau ASE",
+      "fundadora": "Fondatrice et Directrice générale",
+      "cofundadora": "Cofondatrice et Directrice créative",
+      "projectManager": "Cheffe de projet",
+      "disenadora": "Graphiste"
     }
   },
   "gracias": {

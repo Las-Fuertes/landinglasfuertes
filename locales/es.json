@@ -24,6 +24,40 @@
       "text": "La dignidad y los derechos de niñas y adolescentes son como el agua de mar, nunca expiran, y en **Las Fuertes** nos embarcamos en esta misión sin retorno con un mapa educativo único, rompiendo muros y barreras."
     }
   },
+  "impacto": {
+    "title": "Así se ve el\nimpacto en acción",
+    "mapa": {
+      "territorios": {
+        "islaFuerte": "Isla Fuerte",
+        "cordoba": "Córdoba",
+        "bolivar": "Bolívar",
+        "atlantico": "Atlántico",
+        "guajira": "Guajira",
+        "ibague": "Ibagué",
+        "bogota": "Bogotá D.C"
+      },
+      "cierre": "==6 territorios ahora== ==más fuertes==",
+      "texto": "Desde Isla Fuerte llevando olas de cambio a Colombia."
+    },
+    "bloques": {
+      "piscina": {
+        "title": "==2XX niñas,== ==adolescentes y== ==mujeres en talleres==",
+        "text": "Juntas llenamos aprox. una piscina de 802 m2 aprendiendo de nosotras."
+      },
+      "luces": {
+        "title": "==La comprensión de la== ==menstruación como== ==ciclo natural pasó== ==del 45% al 95%==",
+        "text": "Ahora ellas ven claro lo que siempre estuvo ahí."
+      },
+      "copa": {
+        "title": "==Más de 50== ==ecoproductos== ==entregados para== ==gestión menstrual==",
+        "text": "Reduciendo al menos 6 kg de residuos por usuaria al año."
+      },
+      "persona": {
+        "title": "==8 de 10 se conocen== ==más con lo explorado== ==en los talleres==",
+        "text": "Las Fuertes tienen 5 estrellas"
+      }
+    }
+  },
   "welcome": {
     "titleLine1": "Bienvenidx a",
     "titleLine2": "Las Fuertes",
@@ -212,6 +246,17 @@
       "title": "¿Donas desde Estados Unidos?",
       "text": "Solo si estás en USA: puedes donar en dólares —una vez o cada mes— a través de nuestro aliado Caring for Colombia, y tu donación es deducible de impuestos allá. ¿Donas desde cualquier otro país? Usa el formulario de arriba con tu tarjeta internacional.",
       "cta": "Donar desde USA"
+    }
+  },
+  "quienesSomos": {
+    "title": "¿Quiénes somos?",
+    "text": "Somos un arrecife de mujeres, voluntarias y aliadas que crece desde Bogotá para los territorios olvidados de Colombia. Construimos espacios donde el conocimiento del cuerpo no se susurra, se comparte, donde la educación menstrual integral no es un lujo, es un derecho. Y donde cada adolescente encuentra su propia voz para navegar su vida con claridad, confianza y libertad.",
+    "roles": {
+      "coordinadora": "Coordinadora Red ASE",
+      "fundadora": "Fundadora y Directora general",
+      "cofundadora": "Co-Fundadora y Directora creativa",
+      "projectManager": "Project Manager",
+      "disenadora": "Diseñadora Gráfica"
     }
   },
   "gracias": {

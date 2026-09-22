@@ -24,6 +24,40 @@
       "text": "The dignity and rights of girls and adolescents are like seawater, they never expire, and in **Las Fuertes** we embark on this irreversible mission with a unique educational map, breaking down walls and barriers."
     }
   },
+  "impacto": {
+    "title": "This is what impact\nin action looks like",
+    "mapa": {
+      "territorios": {
+        "islaFuerte": "Isla Fuerte",
+        "cordoba": "Córdoba",
+        "bolivar": "Bolívar",
+        "atlantico": "Atlántico",
+        "guajira": "Guajira",
+        "ibague": "Ibagué",
+        "bogota": "Bogotá D.C"
+      },
+      "cierre": "==6 territories now== ==stronger==",
+      "texto": "From Isla Fuerte, carrying waves of change across Colombia."
+    },
+    "bloques": {
+      "piscina": {
+        "title": "==2XX girls,== ==teenagers and== ==women in workshops==",
+        "text": "Together we'd fill a pool of about 802 m² learning about ourselves."
+      },
+      "luces": {
+        "title": "==Understanding of== ==menstruation as a== ==natural cycle went== ==from 45% to 95%==",
+        "text": "Now they see clearly what was always there."
+      },
+      "copa": {
+        "title": "==Over 50== ==eco-products== ==delivered for== ==menstrual care==",
+        "text": "Cutting at least 6 kg of waste per user every year."
+      },
+      "persona": {
+        "title": "==8 out of 10 know== ==themselves better after== ==the workshops==",
+        "text": "Las Fuertes has 5 stars"
+      }
+    }
+  },
   "welcome": {
     "titleLine1": "Welcome to",
     "titleLine2": "Las Fuertes",
@@ -212,6 +246,17 @@
       "title": "Donating from the United States?",
       "text": "Only if you're in the USA: you can give in dollars —once or monthly— through our partner Caring for Colombia, and your donation is tax-deductible there. Giving from any other country? Use the form above with your international card.",
       "cta": "Donate from the USA"
+    }
+  },
+  "quienesSomos": {
+    "title": "Who are we?",
+    "text": "We are a reef of women, volunteers and allies growing from Bogotá toward Colombia's forgotten territories. We build spaces where knowledge of the body is not whispered but shared, where comprehensive menstrual education is not a luxury but a right. And where every adolescent finds her own voice to navigate her life with clarity, confidence and freedom.",
+    "roles": {
+      "coordinadora": "ASE Network Coordinator",
+      "fundadora": "Founder and General Director",
+      "cofundadora": "Co-Founder and Creative Director",
+      "projectManager": "Project Manager",
+      "disenadora": "Graphic Designer"
     }
   },
   "gracias": {

@@ -1,11 +1,13 @@
 import Head from 'next/head';
 import { useTranslation } from '../hooks/useTranslation';
 import { IntroSection } from '../components/intro';
+import { ImpactoSection } from '../components/impacto';
 import { WelcomeSection } from '../components/welcome';
 import { PrinciplesSection } from '../components/principles';
 import { DonationsSection } from '../components/donations';
 import { EducationMapSection } from '../components/education-map';
 import { SumateSection } from '../components/sumate';
+import { QuienesSomosSection } from '../components/quienes-somos';
 import Footer from '../components/layout/footer';
 import LanguageSwitcher from '../components/layout/language-switcher';
 
@@ -43,11 +45,13 @@ export default function Home() {
       <main className="min-h-screen">
         <div className="relative min-h-screen overflow-x-clip bg-beige">
           <IntroSection />
+          <ImpactoSection />
           <WelcomeSection />
           <PrinciplesSection />
           <DonationsSection />
           <EducationMapSection />
           <SumateSection />
+          <QuienesSomosSection />
         </div>
       </main>
 
