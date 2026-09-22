@@ -55,6 +55,12 @@ mientras se construye (D18).
 
 ## Lo que falta, en orden
 
+0. **La Introducción pasa a ser una secuencia con scroll.** Pedido por Johan el 2026-09-22 y
+   marcado por él como muy importante: la intro se queda fija en pantalla y el scroll no desplaza
+   el contenido, cambia de paso, con una salida (las piezas se van, el texto se desvanece) y una
+   entrada por cada cambio; reversible hacia arriba. **Se arranca en un chat nuevo**, con el
+   prompt de `CONTINUAR.md`. Ojo: esto ya existió con GSAP + ScrollTrigger y se quitó a propósito
+   (D6); el código viejo está en el commit `92fda5e`.
 1. **Los bloques de impacto en desktop se ven flacos.** Cada bloque es una columna de 546 px
    (390 x 1.4) centrada en una pantalla de 1280 o más, así que queda mucho vacío a los lados y la
    ilustración se lee pequeña. Es consecuencia de D7 (escalar en vez de recomponer). **Johan lo
