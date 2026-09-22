@@ -53,6 +53,23 @@ Introducción -> Impacto -> Welcome -> Principles -> Donaciones -> Mapa educativ
 Antes de transcribir cualquier frame, volver a pedir su `get_metadata`: los frames se mueven
 mientras se construye (D18).
 
+## Lo que falta, en orden
+
+1. **Las dos preguntas de contenido** (abajo, 5 y 6): Ibagué y el "2XX". Son una línea de copy
+   cada una, pero las decide Johan y ya están publicadas como están.
+2. **Los bloques en desktop se ven flacos.** Verificado con captura a 1280 el 2026-09-22: cada
+   bloque es una columna de 546 px (390 x 1.4) centrada en una pantalla de 1280, así que queda
+   mucho vacío a los lados y la ilustración se lee pequeña. Es consecuencia directa de D7
+   (escalar en vez de recomponer) y no está mal implementado, pero pide una decisión: o se
+   ensancha la ilustración en desktop, o se pone el texto al lado en vez de debajo. El mapa sí
+   aguanta bien a 1280.
+3. **La copa cambia de gris a color**, el mismo problema que tenía la piscina y que se resolvió
+   en D25. El procedimiento está escrito ahí: partir el SVG por color y dejar fija la estructura.
+4. **Quiénes somos nunca se revisó en los 3 breakpoints** y en desktop mide ~3400 px de alto
+   (D21). Johan decide si vale una rejilla.
+5. **Tablet (768) de los bloques**: sin mirar. Solo se verificó el mapa.
+6. Limpieza opcional: las claves de copy de la Introducción siguen con prefijo `hero.` (D11).
+
 ## Preguntas abiertas
 
 1. ~~GSAP sin uso~~ **Resuelto (D16): se queda.** Vienen transiciones y animaciones más adelante.
