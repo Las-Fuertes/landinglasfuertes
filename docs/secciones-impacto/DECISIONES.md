@@ -420,3 +420,59 @@ D10 decia que las fotos venian a 512 px de lado largo. Al bajar el nodo completo
 imagenes, dos por persona**: una pequena (240 a 512 px) y una grande (de 584 hasta 4096 px). Se
 usaron las grandes, reducidas a 640 px de lado largo con `sips` a calidad 82 (`next/image` sirve
 webp/avif al tamano que toque). No hace falta pedirle originales a Johan.
+
+### Ampliacion a D8 (2026-09-22, madrugada, al construir el mapa)
+
+Construido tal como se decidio, con estos detalles que no estaban previstos:
+
+- El export del grupo de departamentos pesaba **812 KB** porque Figma convierte el trazo de cada
+  departamento en un path de relleno cream (720 KB de los 812). Se tiraron esos 33 paths y se
+  reemplazaron por `stroke` de 1 px en el `<g>` padre: **36 KB inline**. El mapeo esta en
+  `docs/PATTERNS.md` y en `components/impacto/mapa.data.ts`.
+- `Vector_31` era un duplicado exacto de `Vector_32` (Bogota) en gris; se descarto.
+- Se construyo con las **7 etiquetas del diseno** (incluida Ibague) y el titulo "6 territorios" tal
+  cual. La pregunta a Johan sigue abierta; cambiar cualquiera de las dos cosas es una linea.
+- El diseno escribe "Bólivar"; en la web va **"Bolívar"**, que es la grafia correcta.
+- El encendido va **en CSS puro** (transicion de `fill` y de opacidad, con `--i` por territorio) y
+  lo dispara `useInView` de framer-motion una sola vez. Orden: Isla Fuerte, Cordoba, Bolivar,
+  Atlantico, Guajira, Ibague, Bogota, o sea "desde Isla Fuerte hacia afuera", como dice el copy.
+- Los colores del diseno (`#B3B3B3`, `#FF60AD`) no estaban en la paleta: el gris entro como `ash`
+  en `tailwind.config.js` y el rosa se resolvio con `pink` (`#FF74BA`), que es el de la marca.
+
+---
+
+## D22. Los bloques de impacto van en flujo con un aire fijo entre ellos
+
+En Figma cada bloque es una pantalla completa de 390x833 con la ilustracion arriba y el texto
+abajo, y mucho aire muerto por encima y por debajo. Apilar cuatro pantallas tal cual habria dejado
+huecos de 350 px entre bloques.
+
+**Lo que se hizo:** dentro de cada bloque se conserva el ritmo del frame (la distancia entre la
+ilustracion y el titulo sale de `texto - lienzo`, en `bloques.data.ts`) y **entre bloques se deja
+un aire fijo de 120 px** (escalado por `--k`), igual que entre el mapa y el primer bloque. Es una
+decision de criterio, no del diseno: si Johan quiere cada bloque a pantalla completa, es un numero
+en `impacto-section.tsx`.
+
+Otros ajustes de criterio:
+
+- El area de texto de los bloques va de 46 px (izquierda) a 20 px (derecha) del lienzo de 390. Con
+  el margen simetrico de 40 el chip "La comprension de la" no cabia y se partia por dentro.
+- Los titulos se escriben con un chip por linea (`==...== ==...==`) y las lineas se eligen a mano
+  en cada idioma, porque el chip es `inline-block` y si una linea no cabe se parte por dentro, que
+  se ve mal (paso en frances con "6 territoires desormais").
+- Cada bloque tiene su propia forma de cambiar de estado (`entrada` en `bloques.data.ts`):
+  `subir` (la piscina: barrido sincronizado de los dos estados), `fundido` (las lamparas, cada
+  cono con su retraso), `llenar` (la copa: barrido dentro de la caja del liquido) y `florecer`
+  (la persona: circulo que crece desde el centro). Los `extras` (flotadores, brillos) rematan con
+  un rebote escalonado. Todo CSS, disparado por `data-encendido` con `useInView` al 60%.
+
+---
+
+## D23. Las capas de los bloques cargan `eager`
+
+`next/image` deja las imagenes en `loading="lazy"` y **Chrome no pide una imagen lazy que esta
+recortada por `clip-path`**, asi que las capas "despues" arrancaban su animacion sin haberse
+descargado y el barrido no descubria nada. Se verifico con `getComputedStyle` por DevTools: el
+`clip-path` transicionaba bien y los `<img>` tenian `complete: false`. Con `loading="eager"` en
+las capas de los bloques (son SVG de 3 a 150 KB) se resolvio. El mapa no lo sufre porque es SVG
+inline.

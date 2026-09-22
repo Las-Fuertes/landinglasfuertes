@@ -2,9 +2,10 @@
 
 > **En producción (`main` = `2ef6879`, PR #7):** la Introducción con el paso 1 en los 3 breakpoints y
 > los pasos 2 y 3 solo en mobile. **Commiteado y sin publicar, en la rama `21-sep-round-2-2`:**
-> los pasos 2 y 3 en tablet y desktop, Quiénes somos completa, el script de captura, los docs y el
-> mapa de impacto. Johan dio por buena la Introducción; Quiénes somos la vio y pidió cerrar la
-> sesión sin más ajustes; el mapa y los bloques de impacto no los ha visto todavía.
+> los pasos 2 y 3 en tablet y desktop, Quiénes somos completa, el script de captura, los docs y la
+> sección de impacto completa (mapa + 4 bloques). Johan dio por buena la Introducción; Quiénes
+> somos la vio y pidió cerrar la sesión sin más ajustes; **la sección de impacto no la ha visto
+> todavía**: se construyó entera de noche, por su pedido, y es lo primero que tiene que revisar.
 
 Última actualización: 2026-09-21 (madrugada del 22).
 Rama de trabajo: `21-sep-round-2-2`, en el worktree
@@ -21,7 +22,7 @@ Johan pidió el 2026-09-21 por la noche que se commitee seguido.
 | 1   | Introducción estática      | **[x]** | **[x]** | **[x]** | **Hecha en los 3, falta visto bueno** |
 | 2   | Quiénes somos              | [ ]     | [ ]     | [ ]     | Pendiente                             |
 | 3   | Mapa de impacto            | **[x]** | [~]     | [~]     | Mobile hecho; tablet/desktop escalan  |
-| 4   | Bloques de impacto         | [ ]     | [ ]     | [ ]     | Pendiente                             |
+| 4   | Bloques de impacto         | **[x]** | [~]     | [~]     | Mobile hecho; tablet/desktop escalan  |
 | B   | Quitar el gate `?show=all` | -       | -       | -       | **Hecho** (adelantado, ver D3)        |
 
 Regla: una pieza a la vez, y dentro de cada una mobile -> validar con Johan -> tablet -> desktop.
@@ -36,20 +37,18 @@ Introducción -> Impacto -> Welcome -> Principles -> Donaciones -> Mapa educativ
 
 ## Siguiente paso concreto
 
-0. **Pieza 4: los 4 bloques de impacto** (en curso, ver bitácora de la octava tanda). Frames
-   antes/después: piscina `1102:162`/`1102:286`, segundo `1102:322`/`1102:363`, tercero
-   `1103:544`/`1103:558`, cuarto `1102:400`/`1102:414`.
+0. **Que Johan mire la sección de impacto** (`localhost:3000/#impacto`, entre la Introducción y
+   Welcome) y responda las dos preguntas abiertas (5 y 6). Lo que decide él: el aire de 120 px
+   entre bloques (D22), el orden y velocidad de las animaciones, y si Ibagué entra.
 1. **Que Johan mire Quiénes somos en los 3 breakpoints** (`localhost:3000/#quienes-somos`, está
    justo antes del footer). Dos cosas que decide él: si en desktop la columna de 3400 px le parece
    demasiado larga (D21) y si el encuadre de alguna foto no le gusta (`focus` en
    `quienes-somos.data.ts`). La Introducción ya la dio por buena.
-2. **Publicar** cuando lo pida: todo lo de la sexta y séptima tanda está sin commitear en el
-   worktree `21-sep-round-2`. Commit, PR contra `main`, merge. `gh auth switch --user johanmendezb`
-   antes de `gh`.
-3. **Pieza 3: Mapa de impacto** (`1102:3` antes de animar, `1102:60` después). Es la pieza dura:
-   SVG inline con 6 territorios animables (D8), y el mapeo path -> territorio hay que derivarlo por
-   color de relleno y dejarlo escrito en PATTERNS.md.
-4. Pieza 4: los 4 bloques de impacto.
+2. **Publicar** cuando lo pida: todo está commiteado en la rama `21-sep-round-2-2`, 10 commits por
+   encima de `main`. PR contra `main`, merge. `gh auth switch --user johanmendezb` antes de `gh`.
+3. Verificar tablet y desktop de la sección de impacto con captura contra criterio (no hay frame):
+   a 1280 el mapa y el cierre se ven bien escalados con `--k` 1.4; los bloques no se miraron.
+4. Limpieza opcional: el "2XX" del bloque de la piscina cuando Johan dé el número.
 
 Antes de transcribir cualquier frame, volver a pedir su `get_metadata`: los frames se mueven
 mientras se construye (D18).
@@ -67,6 +66,24 @@ mientras se construye (D18).
 6. **Bloque de la piscina: "2XX niñas"** es un placeholder del diseño. Hace falta el número real.
 
 ## Bitácora
+
+### 2026-09-22 (novena tanda, madrugada): los 4 bloques de impacto
+
+- **Pieza 4 construida en mobile**, un commit por bloque: piscina `43b551b`, lámparas `a5f659f`,
+  copa `9f48b33`, persona `af44c52`. Modelo de datos en `components/impacto/bloques.data.ts`
+  (capas `base`/`antes`/`despues`/`extras`, medidas en px del frame; `entrada` por bloque) y
+  componente `bloque-impacto.tsx`. CSS en `styles/global.css`, sección "MAPA DE IMPACTO".
+- Cada bloque cambia de estado a su manera (D22): agua que sube, luces que se encienden una tras
+  otra, copa que se llena, persona que toma color desde el centro.
+- **Trampa que costó una hora (D23):** las capas "después" no se descargaban porque `next/image`
+  las deja lazy y Chrome no pide una imagen recortada por `clip-path`. `loading="eager"`.
+- Assets en `public/images/impacto/{piscina,luces,copa,persona}/`, todos por svgo. Las lámparas
+  vinieron como un solo grupo y se partieron a mano en postes / cono izquierdo / cono derecho
+  (script en el chat, no guardado: es cortar los `<g id>` hijos y repetir la cabecera del svg).
+- Copy de los 4 bloques en es/en/fr, con las líneas de los chips elegidas a mano por idioma. El
+  "2XX" de la piscina sigue siendo placeholder (pregunta 6).
+- Verificado con capturas a 390 de cada bloque (estado final y a mitad de animación) contra sus
+  frames "después"; mapa a 1280 y 768; `type-check`, `lint` y `build` limpios.
 
 ### 2026-09-21 (octava tanda, de noche): mapa de impacto
 
