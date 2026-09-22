@@ -34,9 +34,10 @@ export interface Bloque {
    * Cómo cambia de estado: `subir` es un barrido de abajo arriba sobre todo el lienzo que
    * descubre `despues` y recorta `antes` (el agua de la piscina); `llenar` es el mismo barrido
    * pero dentro de la caja de cada capa (el líquido de la copa); `fundido` funde cada capa de
-   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez.
+   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez; `florecer` descubre
+   * `despues` en un círculo que crece desde el centro (el color de la persona).
    */
-  entrada: 'subir' | 'llenar' | 'fundido';
+  entrada: 'subir' | 'llenar' | 'fundido' | 'florecer';
   /** Capas que están en los dos estados y no cambian. */
   base?: Capa[];
   /** Capas que solo están en el estado "antes". */
@@ -223,4 +224,16 @@ const COPA: Bloque = {
   ],
 };
 
-export const BLOQUES: Bloque[] = [PISCINA, LUCES, COPA];
+/** Bloque 4: la persona que toma color. Antes `1102:400`, después `1102:414`. */
+const PERSONA_BOX = { left: -3.46, top: 197, width: 392.544, height: 247 };
+const PERSONA: Bloque = {
+  id: 'persona',
+  figma: { antes: '1102:400', despues: '1102:414' },
+  lienzo: { top: 197, height: 247 },
+  texto: 536,
+  entrada: 'florecer',
+  antes: [{ src: `${P}persona/antes.svg`, box: PERSONA_BOX, inset: '-0.19% 0 0 0' }],
+  despues: [{ src: `${P}persona/despues.svg`, box: PERSONA_BOX, inset: '-0.19% 0 0 0' }],
+};
+
+export const BLOQUES: Bloque[] = [PISCINA, LUCES, COPA, PERSONA];

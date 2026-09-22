@@ -291,6 +291,15 @@
   clip-path: inset(0 0 0 0);
 }
 
+.impacto-despues--florecer {
+  clip-path: circle(0% at 50% 60%);
+  transition: clip-path 1.8s cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+.impacto-bloque[data-encendido] .impacto-despues--florecer {
+  clip-path: circle(75% at 50% 60%);
+}
+
 .impacto-antes--fundido,
 .impacto-despues--fundido .impacto-capa {
   transition: opacity 0.9s ease;
