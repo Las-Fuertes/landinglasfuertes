@@ -459,7 +459,8 @@ Otros ajustes de criterio:
   el margen simetrico de 40 el chip "La comprension de la" no cabia y se partia por dentro.
 - Los titulos se escriben con un chip por linea (`==...== ==...==`) y las lineas se eligen a mano
   en cada idioma, porque el chip es `inline-block` y si una linea no cabe se parte por dentro, que
-  se ve mal (paso en frances con "6 territoires desormais").
+  se ve mal (paso en frances con "6 territoires desormais"). **Elegirlas bien importa mas de lo
+  que parece: ver D28.**
 - Cada bloque tiene su propia forma de cambiar de estado (`entrada` en `bloques.data.ts`):
   `subir` (la piscina: barrido de abajo arriba, ver D25), `parpadeo` (las lamparas, ver D24), `llenar` (la copa: barrido dentro de la caja del liquido) y `florecer` (la persona:
   circulo que crece desde el centro). Queda ademas `fundido`, el cruce de opacidades generico,
@@ -640,3 +641,38 @@ arrecife: dispersarlas ilustra el texto, no solo lo acomoda.
    (`--sangra`, `--nombre`), no como `style` en linea: un `style` en linea no lo puede pisar una
    clase de breakpoint, y en desktop hay que anular el sangrado y bajar el nombre de 30 a 26 px
    para que quepa en una columna de 356 px.
+
+---
+
+## D28. Las lineas de los chips se eligen por ancho medido, no a ojo
+
+**Pedido de Johan el 2026-09-22:** "en espanol lo veo todo bien pero en otros idiomas sobra
+espacio y se ve raro".
+
+Tenia razon. La columna de texto de un bloque mide **324 px** (390 menos 46 de margen izquierdo y
+20 del derecho) y cada chip es tan ancho como su texto, asi que un corte de linea desafortunado
+deja un chip diminuto flotando con un hueco enorme al lado. Medidos los 17 chips de los cuatro
+bloques en los tres idiomas con `getBoundingClientRect`, salieron dos casos malos, los dos fuera
+del espanol:
+
+| Idioma | Bloque  | Antes                  | Despues       |
+| ------ | ------- | ---------------------- | ------------- |
+| en     | copa    | **127**, 204, 193, 227 | 203, 250, 227 |
+| en     | persona | 240, **326**, 225      | 240, 269, 297 |
+| fr     | persona | **326**, 243, **122**  | 161, 278, 260 |
+
+El "Over 50" de 127 px y el "ateliers" de 122 eran los que se veian raros; los de 326 se pasaban
+de la caja por un par de pixeles.
+
+**Como se corrige:** se reescribe el corte de linea, y si hace falta la traduccion misma, hasta
+que los chips de un bloque queden en una franja parecida y ninguno baje de ~200 px ni pase de 324.
+En ingles la copa paso de "Over 50 / eco-products / delivered for / menstrual care" a
+"More than 50 / eco-products for / menstrual care": tres chips parejos en vez de cuatro desiguales.
+
+**Intento fallido, anotado para no repetirlo:** tambien reparti de otra forma la copa en frances y
+quedo peor (160, 269, 221, 184, en zigzag) que el original (160, 186, 198, 291, en escalera
+ascendente, como el espanol). Se revirtio. **La forma que busca el diseno es una escalera, no
+chips iguales**; lo que rompe la pieza es un chip corto aislado, no que crezcan.
+
+La herramienta para esto es un sondeo por DevTools que imprime el ancho de cada chip por idioma;
+el procedimiento esta en `docs/PATTERNS.md`.

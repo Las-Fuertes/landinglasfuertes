@@ -167,6 +167,28 @@ Las anclas de la Introducción son `intro-paso-N` en mobile y `intro-paso-N-tabl
 6. **Si el puerto 3000 ya responde, puede ser el dev server de OTRO worktree.** Compruébalo con
    `lsof -p <pid> | grep cwd` y levanta el tuyo en otro puerto (`npx next dev -p 3111`).
 
+### Medir los chips de un título antes de dar por buena una traducción
+
+Un chip (`.map-chip`) es tan ancho como su texto, así que el corte de línea decide la forma del
+bloque negro. Para comprobarlo en los tres idiomas sin ir a ojo, se lee el ancho real de cada uno
+por el protocolo de DevTools, con la misma mecánica de `scripts/captura.js`, evaluando en la
+página:
+
+```js
+document
+  .querySelectorAll('#impacto h3')
+  .forEach(h3 =>
+    console.log(
+      [...h3.querySelectorAll('.map-chip')]
+        .map(c => Math.round(c.getBoundingClientRect().width) + ' ' + c.textContent)
+        .join(' | ')
+    )
+  );
+```
+
+La columna útil de un bloque mide 324 px en mobile. Un chip por debajo de ~200 px se ve como un
+recorte suelto y deja un hueco; por encima de 324 se parte por dentro. Ver D28.
+
 ## Animación
 
 - **Entrada al hacer scroll**: `FadeIn` (framer-motion, `whileInView`, `once: true`, fade + 28px
