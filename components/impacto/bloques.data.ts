@@ -18,8 +18,13 @@ export interface Capa {
   inset?: string;
   rotate?: number;
   inner?: { width: number; height: number };
-  /** Segundos de espera antes de entrar (solo en `despues` con fundido, y en `extras`). */
+  /** Segundos de espera antes de entrar (en `despues` y en `extras`). */
   delay?: number;
+  /**
+   * Patrón de encendido, solo en los bloques con `entrada: 'parpadeo'`. `titilar` es la lámpara
+   * que chispea varias veces antes de enganchar; `encender` es el golpe corto de la otra.
+   */
+  anim?: 'titilar' | 'encender';
 }
 
 export interface Bloque {
@@ -34,10 +39,11 @@ export interface Bloque {
    * Cómo cambia de estado: `subir` es un barrido de abajo arriba sobre todo el lienzo que
    * descubre `despues` y recorta `antes` (el agua de la piscina); `llenar` es el mismo barrido
    * pero dentro de la caja de cada capa (el líquido de la copa); `fundido` funde cada capa de
-   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez; `florecer` descubre
+   * `despues` por su cuenta, con su `delay`, y apaga `antes` a la vez; `parpadeo` las enciende
+   * a golpes, sin fundido, como un tubo que arranca mal (las lámparas); `florecer` descubre
    * `despues` en un círculo que crece desde el centro (el color de la persona).
    */
-  entrada: 'subir' | 'llenar' | 'fundido' | 'florecer';
+  entrada: 'subir' | 'llenar' | 'fundido' | 'parpadeo' | 'florecer';
   /** Capas que están en los dos estados y no cambian. */
   base?: Capa[];
   /** Capas que solo están en el estado "antes". */
@@ -151,7 +157,7 @@ const LUCES: Bloque = {
   figma: { antes: '1102:322', despues: '1102:363' },
   lienzo: { top: 93, height: 406 },
   texto: 549,
-  entrada: 'fundido',
+  entrada: 'parpadeo',
   base: [
     { src: `${P}luces/postes.svg`, box: LUCES_BOX, inset: LUCES_INSET },
     // La cabeza de la lámpara derecha solo está en el frame "antes"; en el "después" la tapa el
@@ -164,8 +170,16 @@ const LUCES: Bloque = {
   ],
   antes: [],
   despues: [
-    { src: `${P}luces/cono-izq.svg`, box: LUCES_BOX, inset: LUCES_INSET },
-    { src: `${P}luces/cono-der.svg`, box: LUCES_BOX, inset: LUCES_INSET, delay: 0.45 },
+    // La de la izquierda chispea sola un rato; la de la derecha entra de golpe justo cuando la
+    // primera engancha, así que acaban encendidas casi a la vez.
+    { src: `${P}luces/cono-izq.svg`, box: LUCES_BOX, inset: LUCES_INSET, anim: 'titilar' },
+    {
+      src: `${P}luces/cono-der.svg`,
+      box: LUCES_BOX,
+      inset: LUCES_INSET,
+      anim: 'encender',
+      delay: 1.2,
+    },
   ],
 };
 

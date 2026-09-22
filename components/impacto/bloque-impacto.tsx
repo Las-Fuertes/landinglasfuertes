@@ -26,7 +26,8 @@ function CapaImg({
 }) {
   const { box, inset, rotate, inner } = capa;
   const style = {
-    transitionDelay: delay ? `${delay}s` : undefined,
+    // Va como variable para que sirva igual a la transición y a la animación de la capa.
+    ['--delay' as string]: delay ? `${delay}s` : undefined,
     left: `${(box.left / ANCHO) * 100}%`,
     top: `${((box.top - top) / height) * 100}%`,
     width: `${(box.width / ANCHO) * 100}%`,
@@ -104,7 +105,7 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
               capa={capa}
               top={lienzo.top}
               height={lienzo.height}
-              className="impacto-capa"
+              className={`impacto-capa${capa.anim ? ` impacto-capa--${capa.anim}` : ''}`}
               delay={capa.delay}
             />
           ))}
