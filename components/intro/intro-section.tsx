@@ -43,7 +43,16 @@ function transformar(layer: IntroLayer, g: GroupTransform): IntroLayer {
   };
 }
 
-function Capa({ layer, canvas }: { layer: IntroLayer; canvas: { width: number; height: number } }) {
+function Capa({
+  layer,
+  canvas,
+  sangra = false,
+}: {
+  layer: IntroLayer;
+  canvas: { width: number; height: number };
+  /** La capa se estira hasta los bordes de la pantalla, anclada por su borde inferior. */
+  sangra?: boolean;
+}) {
   const { box, rotate, inner, inset, opacity, flipY } = layer;
   const pct = (v: number, eje: 'width' | 'height') => `${(v / canvas[eje]) * 100}%`;
 
@@ -58,17 +67,25 @@ function Capa({ layer, canvas }: { layer: IntroLayer; canvas: { width: number; h
     img
   );
 
-  return (
-    <div
-      className="absolute"
-      style={{
+  // Una capa que sangra conserva su proporción y se ancla por abajo, para que la línea donde
+  // el horizonte toca el agua no se mueva cuando la pantalla crece. El 104% deja un poco de
+  // margen para que el filo del trazo nunca quede justo en el borde.
+  const caja = sangra
+    ? {
+        left: 'calc(50% - 52vw)',
+        bottom: pct(canvas.height - (box.top + box.height), 'height'),
+        width: '104vw',
+        height: `calc(104vw * ${(box.height / box.width).toFixed(5)})`,
+      }
+    : {
         left: pct(box.left, 'width'),
         top: pct(box.top, 'height'),
         width: pct(box.width, 'width'),
         height: pct(box.height, 'height'),
-        opacity,
-      }}
-    >
+      };
+
+  return (
+    <div className="absolute" style={{ ...caja, opacity }}>
       {rotate !== undefined && inner ? (
         <div className="flex h-full w-full items-center justify-center">
           <div
@@ -115,19 +132,30 @@ function Paso({
   const fuente = (px: number) =>
     `min(${(px / canvas.width) * 100}vw, ${(px / canvas.width) * maxW}px)`;
 
+  const sangran = new Set(variant.sangra ?? []);
   const capas: ReactNode[] = [];
   own.forEach((l, i) => capas.push(<Capa key={`own-${i}`} layer={l} canvas={canvas} />));
   Object.entries(groups).forEach(([nombre, layers]) => {
     const g = variant.groups?.[nombre] ?? SIN_TRANSFORMAR;
     layers.forEach((l, i) =>
-      capas.push(<Capa key={`${nombre}-${i}`} layer={transformar(l, g)} canvas={canvas} />)
+      capas.push(
+        <Capa
+          key={`${nombre}-${i}`}
+          layer={transformar(l, g)}
+          canvas={canvas}
+          sangra={sangran.has(nombre)}
+        />
+      )
     );
   });
 
   return (
     <div
       id={ancla}
-      className="relative mx-auto w-full overflow-hidden"
+      // Solo el paso que tiene capas que sangran deja pasar algo por los lados; los demás
+      // siguen recortando en el lienzo, tal como estaban. Arriba y abajo se recorta siempre,
+      // para que un paso no invada al siguiente.
+      className={`relative mx-auto w-full ${sangran.size > 0 ? 'overflow-y-clip' : 'overflow-hidden'}`}
       style={{ maxWidth: maxW, aspectRatio: `${canvas.width} / ${canvas.height}` }}
     >
       {capas}
@@ -161,7 +189,7 @@ export default function IntroSection() {
   const { t } = useTranslation();
 
   return (
-    <section aria-label={t('intro.label')} className="relative w-full">
+    <section aria-label={t('intro.label')} className="relative w-full overflow-x-clip">
       {(['mobile', 'tablet', 'desktop'] as const).map(bp => (
         <div key={bp} className={VISIBILIDAD[bp]}>
           {INTRO_STEPS.map(paso => {

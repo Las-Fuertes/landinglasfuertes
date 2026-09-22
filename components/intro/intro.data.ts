@@ -173,13 +173,14 @@ const PASO_2_HORIZONTE: IntroLayer[] = [
 
 /** El reflejo del sol en el agua y las olas pequeñas del horizonte. */
 const PASO_2_AGUA: IntroLayer[] = [
-  // El mismo círculo rojo del sitio, girado y casi transparente: hace de mancha difusa en el agua.
+  // El reflejo difuso del sol en el agua. El PNG ya es un gris neutro con su propia
+  // transparencia en el alfa (102,102,102 al 18%), así que NO lleva `opacity` encima: con el
+  // 0.2 que tenía antes quedaba cinco veces más pálido que el diseño.
   {
     src: `${P}paso2-sol.png`,
     box: { left: 147, top: 261, width: 79.011, height: 79.405 },
     rotate: -165,
     inner: { width: 64.394, height: 64.952 },
-    opacity: 0.2,
     flipY: true,
   },
   {
@@ -381,6 +382,12 @@ export interface IntroText {
 export interface IntroVariant {
   canvas: { width: number; height: number };
   /**
+   * Grupos que se estiran hasta el borde de la pantalla en vez de cortarse en el lienzo. Se usa
+   * en desktop, donde el lienzo se congela a 1280 y en una pantalla más ancha el horizonte
+   * quedaba flotando, con los cantos cortados a media pantalla.
+   */
+  sangra?: string[];
+  /**
    * Escala y desplazamiento de cada grupo compartido del paso, respecto al lienzo
    * mobile. En mobile se omite: los grupos se pintan tal cual.
    */
@@ -530,6 +537,7 @@ const PASO_2: IntroStep = {
     },
     desktop: {
       canvas: DESKTOP,
+      sangra: ['horizonte'],
       groups: {
         horizonte: { scale: 1.1234, dx: 758.25, dy: 113.38 },
         agua: { scale: 1.3192, dx: 359, dy: 74.93 },

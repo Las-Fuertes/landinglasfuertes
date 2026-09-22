@@ -569,3 +569,39 @@ historial si alguna vez se quiere volver al estado gris.
 **Nota para los otros bloques:** este mismo razonamiento aplicaria a la copa, que tambien viene
 de un frame "antes" en gris. Hoy no se toco porque Johan no lo pidio, pero si lo pide, es el
 mismo procedimiento: partir el SVG por color y dejar fija la estructura.
+
+---
+
+## D26. El paso 2 de la intro: el horizonte sangra hasta el borde de la pantalla
+
+**Pedido de Johan el 2026-09-22:** desktop no lo ve listo, "más que todo la parte 2 de la intro".
+
+A 1280, que es el ancho del frame de Figma, el paso 2 calcaba el diseño. El problema aparecia
+**más ancho**: el lienzo de desktop se congela en 1280 (`ANCHO_MAXIMO`), asi que en una pantalla
+de 1920 la ilustracion queda centrada en una caja de 1280 y `overflow-hidden` cortaba el horizonte
+justo ahi. El resultado era una franja de arena flotando en mitad de la pantalla, con los cantos
+cortados a la vista, y crema a los lados. Nadie lo habia visto porque toda la verificacion se
+hizo a 1280 exactos.
+
+**Lo que se hizo**, dos cosas:
+
+1. **`sangra` en la variante** (`IntroVariant.sangra`, lista de grupos). Un grupo que sangra se
+   estira a `104vw`, conserva su proporcion y **se ancla por su borde inferior**, de modo que la
+   linea donde el horizonte toca el agua no se mueve cuando la pantalla crece. Hoy solo lo usa
+   `horizonte` en el desktop del paso 2.
+2. **El recorte del lienzo pasa a ser solo vertical** (`overflow-y-clip`) **y unicamente en los
+   pasos que tienen `sangra`.** Los demas siguen con `overflow-hidden` exactamente como estaban:
+   se probo primero en todos los pasos de desktop y destapaba la cola del garabato del paso 1,
+   que el diseno corta. Arriba y abajo se recorta siempre, para que un paso no invada al
+   siguiente. La seccion lleva `overflow-x-clip` para que lo que sangra no genere scroll lateral.
+
+### De paso: el reflejo del agua estaba cinco veces mas palido
+
+La mancha difusa del sol en el agua (`paso2-sol.png`) llevaba `opacity: 0.2` encima. Medido pixel
+a pixel contra el render de Figma: el diseno oscurece el fondo en 27 niveles y nosotros en 5. El
+PNG **ya es un gris neutro (102,102,102) con su propia transparencia al 18% en el alfa**, asi que
+la opacidad extra sobraba. Quitada, el reflejo coincide con el diseno.
+
+**Leccion que vale para todo el rediseno:** verificar solo al ancho exacto del frame de Figma no
+basta. Los frames son 390, 1024 y 1280; las pantallas reales son mas anchas. Hay que mirar
+tambien a 1512 y 1920, que es donde se ve si algo se congela mal.
