@@ -51,3 +51,34 @@ continuar están en `docs/secciones-impacto/`. Empieza por ahí:
 - `main` está protegido: se llega por PR, nunca por push directo.
 - No agregues dependencias nuevas sin preguntar.
 - Colores y espaciados por nombre de Tailwind, nunca hex ni px sueltos. Ver `docs/PATTERNS.md`.
+
+## Dónde vive el repo en esta máquina
+
+El repo está repartido en varios worktrees de git y eso despista:
+
+- `~/Sites/personal/landinglasfuertes` — el checkout principal, con `main` cargado.
+- `~/orca/workspaces/landinglasfuertes/<rama>/` — los worktrees de trabajo, uno por rama.
+
+Un cambio hecho en un worktree **no se ve en el checkout de `main`** hasta que se mergea y se hace
+`git pull` ahí. Si alguien dice "no veo nada", casi siempre es esto.
+
+## Publicar
+
+`main` despliega solo a producción. Hoy no tiene protección de rama ni rulesets en GitHub, pero el
+camino sigue siendo rama, PR y merge: llega igual de rápido y deja historial.
+
+**Antes de usar `gh`, cambia de cuenta.** En esta máquina hay dos sesiones y la que queda activa
+sola no es la correcta:
+
+```bash
+gh auth switch --user johanmendezb
+```
+
+El push en sí no usa ese token: el remoto es un alias SSH (`git@github.com-personal:...`). La cuenta
+de `gh` solo decide quién figura en el PR.
+
+La identidad de los commits en este repo es `Johaneto <johan@beu.app>`, consistente con todo el
+historial. No la cambies sin preguntar.
+
+`husky` y `lint-staged` corren en cada commit: formatean lo que esté en el índice y usan un stash
+propio que limpian solos.

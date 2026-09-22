@@ -42,8 +42,11 @@ LAS CINCO REGLAS QUE MÁS CUESTAN SI SE SALTAN
    animada y `public/images/hero/` también, pero se quedan: vienen transiciones y animaciones más
    adelante.
 
-5. No hagas commits ni push a menos que se pidan en ese mismo mensaje. `main` está protegido y se
-   llega por PR. No agregues dependencias sin preguntar.
+5. No hagas commits ni push a menos que se pidan en ese mismo mensaje. Cuando se pidan: `main`
+   despliega a producción y hoy NO tiene regla de PR en GitHub, pero igual se va por rama, PR y
+   merge, que llega igual y deja rastro. Antes de usar `gh`, cambia de cuenta:
+   `gh auth switch --user johanmendezb` (la que queda activa sola es otra).
+   No agregues dependencias sin preguntar.
 
 CONTEXTO ÚTIL QUE YA NO HAY QUE REDESCUBRIR
 
