@@ -160,7 +160,11 @@ Las anclas de la Introducción son `intro-paso-N` en mobile y `intro-paso-N-tabl
 4. **Chrome headless a veces devuelve una captura gris de 4-5 KB** (la página cargó pero el efecto
    que monta los iframes no llegó a correr) o en blanco justo después de que el dev server
    recompile. No es un bug de la página: repite la captura. Un `ls -la` del PNG lo delata.
-5. **Si el puerto 3000 ya responde, puede ser el dev server de OTRO worktree.** Compruébalo con
+5. **Si el dev server muestra `Can't resolve '@vercel/turbopack-next/internal/font/google/font'`
+   y la página no renderiza**, es caché rancia de Turbopack, no un error del código. Se cura con
+   `rm -rf .next node_modules/.cache` y arrancar de nuevo. Sale sobre todo después de alternar
+   `npm run build` y `npm run dev`.
+6. **Si el puerto 3000 ya responde, puede ser el dev server de OTRO worktree.** Compruébalo con
    `lsof -p <pid> | grep cwd` y levanta el tuyo en otro puerto (`npx next dev -p 3111`).
 
 ## Animación

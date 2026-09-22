@@ -37,30 +37,43 @@ function Foto({ integrante, index }: { integrante: Integrante; index: number }) 
 
 function Persona({ integrante, index }: { integrante: Integrante; index: number }) {
   const { t } = useTranslation();
-  const { name, role, side, bleed = 0 } = integrante;
+  const { name, role, side, bleed = 0, dispersion } = integrante;
   const centrado = side === 'center';
 
-  const sangrado: CSSProperties =
-    side === 'left'
-      ? { marginLeft: k(-bleed) }
-      : side === 'right'
-        ? { marginRight: k(-bleed) }
-        : {};
+  // El sangrado y el desplazamiento viajan como variables CSS para poder anularlos o aplicarlos
+  // solo en desktop: un `style` en línea no lo puede pisar una clase de breakpoint.
+  const vars = {
+    '--sangra': k(-bleed),
+    '--dx': `${dispersion?.dx ?? 0}px`,
+    '--dy': `${dispersion?.dy ?? 0}px`,
+  } as CSSProperties;
 
   return (
     <li
-      className={`flex items-center gap-l ${centrado ? 'flex-col text-center' : ''} ${side === 'right' ? 'flex-row-reverse' : ''}`}
+      className={`equipo-ficha flex items-center gap-l lg:flex-col lg:items-center lg:gap-0 lg:text-center ${centrado ? 'flex-col text-center' : ''} ${side === 'right' ? 'flex-row-reverse' : ''}`}
+      style={vars}
     >
-      <div style={sangrado}>
+      <div
+        className={
+          side === 'left'
+            ? 'ml-[var(--sangra)] lg:ml-0'
+            : side === 'right'
+              ? 'mr-[var(--sangra)] lg:mr-0'
+              : ''
+        }
+      >
         <Foto integrante={integrante} index={index} />
       </div>
       {/* El nombre no se parte nunca; en el diseño el chip se acerca al borde más que el
-          resto del texto, por eso el bloque se sale un poco del margen hacia su lado. */}
-      <div className={`min-w-0 flex-1 ${side === 'left' ? '-mr-l' : ''}`}>
+          resto del texto, por eso el bloque se sale un poco del margen hacia su lado. En
+          desktop la ficha es una columna centrada y ese sangrado sobra. */}
+      <div
+        className={`min-w-0 flex-1 lg:mt-m lg:w-full lg:flex-none ${side === 'left' ? '-mr-l lg:mr-0' : ''}`}
+      >
         <span className="map-chip whitespace-nowrap">
           <span
             className="font-bold text-white"
-            style={{ fontSize: k(21.3), letterSpacing: '-0.04em' }}
+            style={{ fontSize: 'var(--nombre)', letterSpacing: '-0.04em' }}
           >
             {name}
           </span>
@@ -84,9 +97,11 @@ export default function QuienesSomosSection() {
     <section
       id="quienes-somos"
       aria-labelledby="quienes-somos-title"
-      className="w-full overflow-x-clip bg-cream pb-xl pt-xxl [--k:1] md:[--k:1.25] lg:[--k:1.4]"
+      // El aire de abajo en desktop cuenta con el desplazamiento de la última fila: `transform`
+      // no ocupa espacio, así que sin esto la ficha más baja se metía debajo del footer.
+      className="w-full overflow-x-clip bg-cream pb-xl pt-xxl lg:pb-[140px] [--ancho:calc(390px*var(--k))] [--k:1] [--nombre:calc(21.3px*var(--k))] md:[--k:1.25] lg:[--ancho:1200px] lg:[--k:1.4] lg:[--nombre:26px]"
     >
-      <div className="mx-auto w-full px-page-margin" style={{ maxWidth: k(390) }}>
+      <div className="mx-auto w-full px-page-margin" style={{ maxWidth: 'var(--ancho)' }}>
         <FadeIn>
           <h2
             id="quienes-somos-title"
@@ -95,12 +110,17 @@ export default function QuienesSomosSection() {
           >
             {t('quienesSomos.title')}
           </h2>
-          <p className="mt-l leading-normal text-black" style={{ fontSize: k(16) }}>
+          {/* En desktop la banda es ancha, pero un párrafo de 1200 px no se lee: se acota. */}
+          <p
+            className="mt-l leading-normal text-black lg:mx-auto lg:max-w-[760px] lg:text-center"
+            style={{ fontSize: k(16) }}
+          >
             {t('quienesSomos.text')}
           </p>
         </FadeIn>
 
-        <ul className="mt-xxl flex flex-col gap-s">
+        {/* Desktop: rejilla de 3 en la que ninguna ficha queda alineada con otra (D27). */}
+        <ul className="mt-xxl flex flex-col gap-s lg:grid lg:grid-cols-3 lg:gap-x-l lg:gap-y-xxl">
           {INTEGRANTES.map((integrante, i) => (
             <FadeIn key={integrante.slug} delay={0.05}>
               <Persona integrante={integrante} index={i} />
