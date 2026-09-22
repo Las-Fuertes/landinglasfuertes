@@ -47,6 +47,7 @@ Definidos en `tailwind.config.js`. **Se usan por nombre (`bg-blue`, `text-red`),
 | `black`         | `#242424`                                                  |
 | `beige`         | `#FCF5E9` (fondo del sitio)                                |
 | `beige-light`   | `#FAF9F6`                                                  |
+| `cream`         | `#FFEBC6` (fondo de "Quiénes somos")                       |
 
 ## Tipografía y espaciado
 
@@ -110,7 +111,25 @@ en `pages/_app.tsx` vía `components/layout/rough-edge-filter.tsx`, y no dentro 
 
 ## Verificación visual antes de entregar
 
-El repo no trae navegador de pruebas, pero Chrome sirve de verificador sin instalar nada:
+**La herramienta es `scripts/captura.js`.** Habla con el Chrome de la máquina por el protocolo de
+DevTools (usa el `ws` que Next trae compilado, no instala nada), fija el viewport al ancho exacto y
+desplaza hasta el ancla:
+
+```bash
+npm run dev   # en :3000
+node scripts/captura.js --ancla quienes-somos --w 390 --h 1240 --out /tmp/q.png
+node scripts/captura.js --ancla intro-paso-2-desktop --w 1280 --h 832 --lang fr --out /tmp/p2.png
+node scripts/captura.js --ancla quienes-somos --w 390 --h 1240 --y 1240 --out /tmp/q2.png  # 2.º tramo
+```
+
+Si el PNG pesa menos de 10 KB, algo salió mal (ancla inexistente o página sin hidratar): míralo.
+
+**Antes de arrancar `npm run dev` después de un `npm run build`, borra `.next`.** El build deja
+artefactos de producción ahí y el dev server que los hereda sirve páginas que no hidratan.
+
+Lo que sigue es el método anterior, con Chrome a pelo y el banco de iframes. Sigue funcionando pero
+se volvió intermitente (capturas grises o en blanco sin causa visible); úsalo solo si el script no
+sirve:
 
 ```bash
 npm run dev
@@ -121,15 +140,28 @@ npm run dev
   "http://localhost:3000/dev-revision?anclas=intro-paso-1,intro-paso-2"
 ```
 
-`pages/dev-revision.tsx` monta un iframe por ancla, del ancho que se le pida (`w`, `h`), y lo
+`pages/dev-revision.tsx` monta un iframe por ancla, del ancho que se le pida (`w`, `h`, por
+defecto 390x700), en el idioma que se le pida (`lang=en`, `lang=fr`; sin él, español), y lo
 desplaza hasta ese elemento. Solo existe en desarrollo: en producción la ruta es 404.
 
-**Dos trampas que cuestan tiempo:**
+Las anclas de la Introducción son `intro-paso-N` en mobile y `intro-paso-N-tablet` /
+`intro-paso-N-desktop` en los otros dos anchos.
+
+**Trampas que cuestan tiempo:**
 
 1. **No uses `--force-device-scale-factor` junto con `--window-size`.** Le cambia el viewport CSS a
    Chrome y la captura sale recortada, como si el layout estuviera roto cuando no lo está.
 2. **El banco tiene que servirse desde la propia app.** Un HTML en `file://` no puede tocar el
    iframe de `localhost` por política de mismo origen, y el desplazamiento falla en silencio.
+3. **La ventana tiene que ser más ancha que la suma de los iframes.** Si no caben, no se ve el
+   sobrante; y antes de que los iframes llevaran `flex:none`, flex los encogía y un iframe pedido a
+   768 caía por debajo de `md` y mostraba la variante mobile sin avisar. Para tablet y desktop,
+   una ancla por captura.
+4. **Chrome headless a veces devuelve una captura gris de 4-5 KB** (la página cargó pero el efecto
+   que monta los iframes no llegó a correr) o en blanco justo después de que el dev server
+   recompile. No es un bug de la página: repite la captura. Un `ls -la` del PNG lo delata.
+5. **Si el puerto 3000 ya responde, puede ser el dev server de OTRO worktree.** Compruébalo con
+   `lsof -p <pid> | grep cwd` y levanta el tuyo en otro puerto (`npx next dev -p 3111`).
 
 ## Animación
 

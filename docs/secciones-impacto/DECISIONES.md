@@ -130,6 +130,28 @@ de departamento. El mapeo `path -> territorio` se deriva comparando el frame "an
 (`1102:3`) con el "después" (`1102:60`) por color de relleno, y se documenta en `PATTERNS.md` en
 cuanto se sepa, porque volver a derivarlo cuesta caro.
 
+### Ampliacion (2026-09-21, noche, al leer los frames antes de cerrar la sesion)
+
+Lo que hay dentro del frame "despues" (`1102:60`, 390x828), leido con `get_metadata`:
+
+- Un vector grande (`1102:109`, 350x476) que es la silueta completa del pais, y un grupo
+  (`1102:110`) con **33 vectores**, uno por departamento, todos llamados `Vector`.
+- **Siete etiquetas, no seis:** Isla Fuerte, Atlantico, Guajira, Bolivar, Cordoba, **Ibague** y
+  Bogota D.C. Cada etiqueta es un rectangulo (`Rectangle 112` a `118`) mas un texto: es el chip
+  rasgado del sitio otra vez (`.map-chip`), en dos tamanos (alto 29 y alto 16-21).
+- El titulo del cierre dice "**6 territorios** ahora mas fuertes". Con siete etiquetas en el mapa
+  no cuadra: **hay que preguntarle a Johan** si Ibague entra (y el titulo pasa a 7) o si sobra.
+- En el frame "antes" (`1102:3`) el mapa es todo gris (`#919191` segun D10) y sin etiquetas; en el
+  "despues" los territorios estan en rosa (`pink`, `#FF74BA`) con su etiqueta. La animacion es
+  ese paso: los departamentos se encienden en rosa y aparecen las etiquetas.
+- Arriba del titulo hay una flor pequena (`Group 163`, 41x40), decorativa.
+- **El bloque de la piscina (`1102:286`) tiene un numero de relleno: "2XX ninas, adolescentes y
+  mujeres en talleres".** El dato real lo tiene que dar Johan; hasta entonces se deja un
+  placeholder visible, no un numero inventado.
+- El sitio ya tiene un mapa de Colombia en `components/education-map/` (imagen avif con puntos
+  que laten, filtro rasgado, respeto a `prefers-reduced-motion`). No es el mismo mapa ni sirve
+  tal cual, pero sus patrones (chips, latido en CSS, reduced-motion) si.
+
 ---
 
 ## D9. El copy se escribe en los tres idiomas a la vez
@@ -303,3 +325,98 @@ la ilustracion a la izquierda. No es el mismo layout escalado.
 La caja de texto de desktop mide 402 px en Figma, pero ahi "pero" mas el chip se pasan por unos
 4 px y el renglon se parte, dando 5 lineas en vez de 3. Se subio a 440 px, que mantiene las 3 lineas
 del diseno y sigue cabiendo de sobra en el lienzo.
+
+### Ampliacion (2026-09-21, al hacer los pasos 2 y 3)
+
+**La hipotesis afin se cumple, pero por grupos, no por paso entero.** En el paso 2 el diseno de
+tablet y desktop escala el horizonte (x1.04 / x1.12), el agua con el reflejo del sol (x1.32 en
+ambos) y el barco (x1.34 / x1.17) cada uno por su lado. En el paso 3 el barco con la persona y las
+olas comparten escala (x1.185) pero las olas van corridas 1 px en x y 1.75 px en y. Dentro de cada
+grupo el error sigue siendo menor a 0.05 px, asi que el modelo de datos paso a aceptar **varios
+grupos por paso, cada uno con su transformacion por breakpoint** (`IntroStep.groups` y
+`IntroVariant.groups` en `components/intro/intro.data.ts`). El paso 1 quedo como un unico grupo
+`burbujas`, sin cambio visual.
+
+Lo que no se comparte va en `own`, transcrito en px del lienzo de ese breakpoint: el sol, la nube y
+el garabato del paso 3 (cada uno con escala propia), cuatro olas sueltas que tablet y desktop anaden
+a los lados del barco, y en el paso 2 el sol grande con una espiral nueva.
+
+---
+
+## D18. Los frames mobile cambiaron en Figma: lienzo de 700 y texto del paso 3 mas arriba
+
+Al abrir los frames mobile el 2026-09-21 por la tarde, los tres miden **390x700**, no 390x833 como
+se transcribio por la manana, y en el paso 3 el titulo baja de y=545 a **y=458** y el parrafo de
+y=654 a **y=550**. El paso 2 no cambio de posiciones. Ademas, en el paso 3 la nube va **por
+delante** del sol (el orden de capas de Figma es sol, nube, garabato).
+
+**Que se hizo:** el lienzo mobile de los tres pasos paso a 700 (menos aire muerto bajo cada paso), el
+texto del paso 3 se movio a su sitio nuevo y se corrigio el apilado sol/nube. `dev-revision` toma
+700 de alto por defecto.
+
+**Por que importa:** el diseno se mueve mientras se construye. Antes de dar un breakpoint por bueno
+hay que volver a pedir `get_metadata` del frame, no fiarse de lo transcrito horas antes.
+
+---
+
+## D19. El horizonte del paso 2 se sirve desde el export de tablet
+
+El SVG del horizonte bajado del frame mobile traia dos piezas del extremo izquierdo en azul al 18%
+y lavanda (`#D2D4F8`). En mobile no se veian porque el grupo empieza en x=-687 y esas piezas quedan
+fuera del lienzo; en tablet y desktop el horizonte entra casi completo y aparecian como una mancha
+lila donde el diseno muestra arena.
+
+El mismo grupo en el frame de tablet (`1168:1527`) las trae en `#DCC19D`, el tono de arena del
+resto. Se reemplazo `public/images/intro/paso2-horizonte.svg` por ese export, con su `inset`
+propio (`-2.68% -0.17% -2.63% -0.19%`). Mobile no cambia: esa parte sigue fuera de pantalla.
+
+**Leccion:** un asset compartido entre breakpoints se baja del frame donde **mas** se ve, no del
+primero que se construye.
+
+---
+
+## D20. El sol del paso 2 en tablet y desktop es el sol del paso 3, reescalado
+
+En Figma, "Group 235" del paso 2 mobile es una sola capa con sol y espiral (107x93). En tablet y
+desktop el sol es otro nodo, de 106.86x111.6, que resulta ser exactamente el sol del paso 3
+(74x77.28) a escala 1.444 y con la misma rotacion de -2.61 grados; la espiral es un vector nuevo
+(`Vector 1285`) puesto a su derecha. Se reutiliza `paso3-sol.svg` y se anade `paso2-espiral.svg`.
+El sol pequeno de adorno del paso 1 en tablet y desktop es el mismo sol a escala 0.6547.
+
+---
+
+## D21. Quiénes somos se construye en flujo, no sobre un lienzo
+
+A diferencia de la Introducción (capas en porcentaje sobre un lienzo fijo), el equipo va como una
+lista normal de HTML: título, párrafo y nueve filas, cada una con la foto a un lado y el nombre con
+el cargo al otro (o la foto sola con el nombre debajo, en las dos "centradas").
+
+**Por qué:** los cargos cambian de largo entre idiomas y la lista puede crecer o cambiar de orden;
+un lienzo de coordenadas obligaría a retocar posiciones cada vez. Las medidas del diseño (diámetro
+de cada foto, cuánto se sale del margen) viven en `components/quienes-somos/quienes-somos.data.ts`
+y se multiplican por una variable CSS `--k` (1 en mobile, 1.25 en tablet, 1.4 en desktop), que es
+la forma de aplicar D7 sin recomponer nada.
+
+Consecuencia visible: **en desktop la sección mide unos 3400 px de alto** porque sigue siendo una
+columna. Si Johan la quiere más corta habría que salirse de D7 (una rejilla de 2 o 3 columnas); es
+un cambio pequeño en el componente, pero lo decide él.
+
+Otras piezas:
+
+- **El nombre es el chip rasgado de siempre** (`.map-chip`, D12) con `whitespace-nowrap`: en el
+  diseño el chip se acerca más al borde que el resto del texto, así que el bloque de texto de las
+  filas con foto a la izquierda se sale 25 px del margen derecho.
+- **El anillo de las fotos es un solo SVG** (`public/images/quienes-somos/anillo.svg`). En Figma hay
+  siete elipses dibujadas a mano de 44 KB cada una, todas el mismo trazo a distinto tamaño. Se
+  usa una, estirada al diámetro de cada foto y girada un ángulo distinto por persona para que no
+  se note la repetición.
+- **Las fotos se recortan con `border-radius`**, no con la máscara de Figma: el anillo tapa el borde
+  y el resultado es el mismo. El encuadre de cada una va en `focus` (object-position).
+- **Fondo `bg-cream`** (`#FFEBC6`), color nuevo en `tailwind.config.js`: no existía en la paleta.
+
+### Ampliacion a D10: las fotos del equipo NO miden 512 px
+
+D10 decia que las fotos venian a 512 px de lado largo. Al bajar el nodo completo llegan **18
+imagenes, dos por persona**: una pequena (240 a 512 px) y una grande (de 584 hasta 4096 px). Se
+usaron las grandes, reducidas a 640 px de lado largo con `sips` a calidad 82 (`next/image` sirve
+webp/avif al tamano que toque). No hace falta pedirle originales a Johan.
