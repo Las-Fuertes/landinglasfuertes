@@ -81,6 +81,10 @@ mientras se construye (D18).
   100 ms después. `steps(1, end)`, sin un solo frame de opacidad intermedia.
 - **Bug encontrado y corregido en el camino:** sin un keyframe explícito al 100%, las dos
   lámparas se apagaban al terminar la animación. Se vio en la captura del estado final.
+- **La piscina dejó de cambiar de gris a blanco** (D25), también a petición de Johan: la piscina
+  se dibuja una vez con sus colores finales y lo único que se anima es el agua subiendo y los
+  flotadores. Las capas se partieron por color (`agua-*` y `contorno-*`) y el modelo de bloque
+  ganó `frente`, las capas fijas que van por delante de lo que se anima.
 
 ### 2026-09-22 (novena tanda, madrugada): los 4 bloques de impacto
 

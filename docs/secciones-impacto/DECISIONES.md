@@ -461,8 +461,7 @@ Otros ajustes de criterio:
   en cada idioma, porque el chip es `inline-block` y si una linea no cabe se parte por dentro, que
   se ve mal (paso en frances con "6 territoires desormais").
 - Cada bloque tiene su propia forma de cambiar de estado (`entrada` en `bloques.data.ts`):
-  `subir` (la piscina: barrido sincronizado de los dos estados), `parpadeo` (las lamparas, ver
-  D24), `llenar` (la copa: barrido dentro de la caja del liquido) y `florecer` (la persona:
+  `subir` (la piscina: barrido de abajo arriba, ver D25), `parpadeo` (las lamparas, ver D24), `llenar` (la copa: barrido dentro de la caja del liquido) y `florecer` (la persona:
   circulo que crece desde el centro). Queda ademas `fundido`, el cruce de opacidades generico,
   que hoy no usa ningun bloque. Los `extras` (flotadores, brillos) rematan con un rebote
   escalonado. Todo CSS, disparado por `data-encendido` con `useInView` al 60%.
@@ -531,3 +530,42 @@ retrasos**, asi que la lampara derecha seguia esperando 1.2 s. Se anadio `animat
 `Emulation.setEmulatedMedia`: con `prefers-reduced-motion: reduce` los cuatro bloques llegan a su
 estado final de inmediato (lamparas en opacidad 1, piscina y copa con el recorte abierto, persona
 con el circulo completo).
+
+---
+
+## D25. La piscina no cambia de estado: solo sube el agua
+
+**Pedido de Johan el 2026-09-22:** "veo que es algo gris antes de que se llene, luego pasa a ser
+blanco y azul del agua de la piscina, y por ultimo los flotadores, podemos evitar que la piscina
+cambie de gris a blanco y simplemente sea blanco por defecto".
+
+Tenia razon y el problema era de fondo, no de tiempos: el bloque encadenaba **tres cambios**
+(gris -> blanco -> agua -> flotadores) cuando lo que la cifra cuenta es uno solo, que se llena.
+El gris venia de tomar el frame "antes" de Figma tal cual, y ahi la piscina entera esta dibujada
+en gris.
+
+**Lo que se hizo:** el estado "antes" desaparecio del bloque. La piscina se dibuja una sola vez,
+ya con los colores finales, y **no cambia nunca**; lo unico que se anima es el agua subiendo, y
+detras los flotadores.
+
+Para eso, las capas del frame "despues" se partieron por color de relleno, que es lo mismo que se
+hizo con el mapa (D8):
+
+| Relleno              | Que es             | Archivo          | Cuando se ve |
+| -------------------- | ------------------ | ---------------- | ------------ |
+| `#2CA0FF`, `#78C2FF` | el agua            | `agua-*.svg`     | se anima     |
+| `#3D3B3B`, negro     | el borde del plano | `contorno-*.svg` | siempre      |
+
+**El apilado importa**: los contornos van por **delante** del agua, como en el diseno, para que
+el filo de cada plano de la piscina se vea desde el primer momento aunque este vacia. Por eso el
+modelo de bloque gano `frente`, capas fijas que se pintan **despues** de lo que se anima (`base`
+son las fijas de debajo). Orden final: fondo -> agua -> contornos, borde y escalera ->
+flotadores.
+
+Se borraron los seis SVG del estado gris (`antes-*.svg`) y los tres que mezclaban agua y contorno
+(`despues-pared-izq`, `despues-pared-der`, `despues-suelo`), que ya no usa nadie. Estan en el
+historial si alguna vez se quiere volver al estado gris.
+
+**Nota para los otros bloques:** este mismo razonamiento aplicaria a la copa, que tambien viene
+de un frame "antes" en gris. Hoy no se toco porque Johan no lo pidio, pero si lo pide, es el
+mismo procedimiento: partir el SVG por color y dejar fija la estructura.

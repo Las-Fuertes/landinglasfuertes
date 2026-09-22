@@ -93,11 +93,13 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         {bloque.base?.map(capa => (
           <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
         ))}
-        <div className={`impacto-antes impacto-antes--${bloque.entrada} absolute inset-0`}>
-          {bloque.antes.map(capa => (
-            <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
-          ))}
-        </div>
+        {bloque.antes.length > 0 && (
+          <div className={`impacto-antes impacto-antes--${bloque.entrada} absolute inset-0`}>
+            {bloque.antes.map(capa => (
+              <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
+            ))}
+          </div>
+        )}
         <div className={`impacto-despues impacto-despues--${bloque.entrada} absolute inset-0`}>
           {bloque.despues.map(capa => (
             <CapaImg
@@ -110,6 +112,9 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
             />
           ))}
         </div>
+        {bloque.frente?.map(capa => (
+          <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
+        ))}
         {bloque.extras?.map((capa, i) => (
           <div
             key={`${capa.src}-${i}`}

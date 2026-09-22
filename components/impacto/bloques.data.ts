@@ -44,8 +44,10 @@ export interface Bloque {
    * `despues` en un círculo que crece desde el centro (el color de la persona).
    */
   entrada: 'subir' | 'llenar' | 'fundido' | 'parpadeo' | 'florecer';
-  /** Capas que están en los dos estados y no cambian. */
+  /** Capas que están en los dos estados y no cambian, por debajo de lo que se anima. */
   base?: Capa[];
+  /** Como `base`, pero por delante de lo que se anima. */
+  frente?: Capa[];
   /** Capas que solo están en el estado "antes". */
   antes: Capa[];
   /** Capas que solo están en el estado "después". */
@@ -56,63 +58,62 @@ export interface Bloque {
 
 const P = '/images/impacto/';
 
-/** Bloque 1: la piscina que se llena. Antes `1102:162`, después `1102:286`. */
+/**
+ * Bloque 1: la piscina que se llena. Antes `1102:162`, después `1102:286`.
+ *
+ * La piscina vacía se dibuja ya con los colores finales y **no cambia**: lo único que se anima es
+ * el agua subiendo, y detrás los flotadores. En Figma el estado "antes" es la misma piscina en
+ * gris, pero encadenar gris -> blanco -> agua hacía tres cambios donde el sentido pide uno
+ * (petición de Johan, 2026-09-22; ver D25).
+ *
+ * Por eso las capas del frame "después" vienen partidas en dos: los rellenos azules son el agua
+ * (`agua-*`) y los trazos oscuros, el borde de cada plano de la piscina (`contorno-*`), que va
+ * por delante del agua igual que en el diseño.
+ */
 const PISCINA: Bloque = {
   id: 'piscina',
   figma: { antes: '1102:162', despues: '1102:286' },
   lienzo: { top: 197, height: 168 },
   texto: 503,
   entrada: 'subir',
-  antes: [
-    {
-      src: `${P}piscina/antes-fondo.svg`,
-      box: { left: 9, top: 205, width: 370, height: 151 },
-      inset: '-0.36% -0.44% -0.51% 0',
-    },
-    {
-      src: `${P}piscina/antes-pared-izq.svg`,
-      box: { left: 40, top: 229, width: 108, height: 72 },
-      inset: '-1.38% -0.73% -0.95% -0.17%',
-    },
-    {
-      src: `${P}piscina/antes-pared-der.svg`,
-      box: { left: 148, top: 229, width: 202, height: 115 },
-      inset: '-0.46% -0.95% -0.67% -0.5%',
-    },
-    {
-      src: `${P}piscina/antes-suelo.svg`,
-      box: { left: 115, top: 289, width: 159, height: 67 },
-      inset: '-1.12% -1.02% -1.15% -0.12%',
-    },
-    {
-      src: `${P}piscina/antes-borde.svg`,
-      box: { left: -10, top: 197, width: 409, height: 168 },
-      inset: '-0.15% -0.2% -0.23% 0',
-    },
-    {
-      src: `${P}piscina/antes-escalera.svg`,
-      box: { left: 68.74, top: 213.22, width: 26.777, height: 51.559 },
-      inset: '-1.12% -2.57% 0 -2.68%',
-    },
-  ],
-  despues: [
+  base: [
     {
       src: `${P}piscina/despues-fondo.svg`,
       box: { left: 9, top: 205, width: 370, height: 151 },
       inset: '-0.18% -0.22% -0.26% 0',
     },
+  ],
+  antes: [],
+  despues: [
     {
-      src: `${P}piscina/despues-pared-izq.svg`,
+      src: `${P}piscina/agua-pared-izq.svg`,
       box: { left: 40, top: 229, width: 108, height: 72 },
       inset: '-1.38% -0.73% -0.95% -0.17%',
     },
     {
-      src: `${P}piscina/despues-pared-der.svg`,
+      src: `${P}piscina/agua-pared-der.svg`,
       box: { left: 148, top: 229, width: 202, height: 115 },
       inset: '-0.46% -0.95% -0.67% -0.5%',
     },
     {
-      src: `${P}piscina/despues-suelo.svg`,
+      src: `${P}piscina/agua-suelo.svg`,
+      box: { left: 115, top: 289, width: 159, height: 67 },
+      inset: '-1.12% -1.02% -1.15% -0.12%',
+    },
+  ],
+  frente: [
+    {
+      src: `${P}piscina/contorno-pared-izq.svg`,
+      box: { left: 40, top: 229, width: 108, height: 72 },
+      inset: '-1.38% -0.73% -0.95% -0.17%',
+    },
+    {
+      src: `${P}piscina/contorno-pared-der.svg`,
+      box: { left: 148, top: 229, width: 202, height: 115 },
+      inset: '-0.46% -0.95% -0.67% -0.5%',
+    },
+    {
+      src: `${P}piscina/contorno-suelo.svg`,
       box: { left: 115, top: 289, width: 159, height: 67 },
       inset: '-1.12% -1.02% -1.15% -0.12%',
     },
