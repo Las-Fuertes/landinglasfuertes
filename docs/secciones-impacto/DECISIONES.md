@@ -605,3 +605,38 @@ la opacidad extra sobraba. Quitada, el reflejo coincide con el diseno.
 **Leccion que vale para todo el rediseno:** verificar solo al ancho exacto del frame de Figma no
 basta. Los frames son 390, 1024 y 1280; las pantallas reales son mas anchas. Hay que mirar
 tambien a 1512 y 1920, que es donde se ve si algo se congela mal.
+
+---
+
+## D27. Quienes somos en desktop: rejilla de 3 dispersa, no una columna
+
+**Pedido de Johan el 2026-09-22:** "podemos dejar una version para desktop un poco mas ancha y
+dispersamos las cards de forma mas abierta y creativa"; al concretar, "haz el zigzag, pueden ser
+3 filas, ninguna va alineada a otra para que siga el mismo patron de disparcimiento".
+
+Hasta ahora desktop era la columna de mobile escalada (D7 y D21): **1812 px de alto hoy, frente a
+unos 3400 antes**, o sea cuatro pantallas de scroll para leer nueve nombres. Ademas el propio copy
+de la seccion dice "somos un arrecife de mujeres", y una lista vertical es justo lo contrario de un
+arrecife: dispersarlas ilustra el texto, no solo lo acomoda.
+
+**Lo que se hizo, solo en `lg` (>=1024). Mobile y tablet no se tocan.**
+
+- La banda pasa de 546 px (390 x 1.4) a **1200 px**, y el parrafo de entrada se acota a 760 px,
+  porque una linea de 1200 px no se lee.
+- Las nueve fichas van en una **rejilla de 3 columnas** y cada ficha se convierte en columna:
+  foto arriba, chip del nombre y cargo debajo, centrados. En mobile siguen siendo foto a un lado
+  y nombre al otro.
+- **Cada ficha se corre de su casilla** con un desplazamiento propio (`Integrante.dispersion`, en
+  px). Dentro de una fila no se repite ningun desplazamiento vertical y dentro de una columna
+  ninguno horizontal: **no hay dos fichas alineadas entre si**, que era la condicion de Johan.
+
+### Dos detalles que costaron
+
+1. **El desplazamiento va en `transform`, que no ocupa espacio.** La rejilla sigue repartiendo el
+   alto de forma pareja (bien: no deja huecos raros), pero la ficha mas baja se salia del bloque
+   y **quedaba debajo del footer**. Por eso desktop lleva 140 px de aire abajo, calculados sobre
+   el desplazamiento mayor.
+2. **El sangrado de las fotos y el tamano del nombre viajan como variables CSS**
+   (`--sangra`, `--nombre`), no como `style` en linea: un `style` en linea no lo puede pisar una
+   clase de breakpoint, y en desktop hay que anular el sangrado y bajar el nombre de 30 a 26 px
+   para que quepa en una columna de 356 px.

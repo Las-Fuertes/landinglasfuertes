@@ -406,3 +406,16 @@
     animation-delay: 0s !important;
   }
 }
+
+/* ================================
+   QUIÉNES SOMOS
+   ================================ */
+
+/* En desktop el equipo deja de ser una columna y pasa a una rejilla de 3 donde cada ficha se
+   corre de su casilla (D27). El desplazamiento va en `transform`, que no ocupa espacio, así que
+   la rejilla sigue repartiendo el alto de forma pareja y solo cambia lo que se ve. */
+@media (min-width: 1024px) {
+  .equipo-ficha {
+    transform: translate(var(--dx, 0px), var(--dy, 0px));
+  }
+}

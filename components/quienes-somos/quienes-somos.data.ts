@@ -20,6 +20,12 @@ export interface Integrante {
   bleed?: number;
   /** Encuadre de la foto dentro del círculo, cuando el centro no sirve. */
   focus?: string;
+  /**
+   * Solo en desktop: cuánto se corre la ficha de su casilla en la rejilla de 3, en px. Es lo que
+   * rompe la cuadrícula (D27): dentro de una fila no se repite ningún desplazamiento vertical y
+   * dentro de una columna ninguno horizontal, así que no hay dos fichas alineadas entre sí.
+   */
+  dispersion?: { dx: number; dy: number };
 }
 
 export const INTEGRANTES: Integrante[] = [
@@ -31,6 +37,7 @@ export const INTEGRANTES: Integrante[] = [
     size: 188,
     bleed: 47,
     focus: '50% 35%',
+    dispersion: { dx: -34, dy: 0 },
   },
   {
     slug: 'paola-segnini',
@@ -40,6 +47,7 @@ export const INTEGRANTES: Integrante[] = [
     size: 153,
     bleed: 25,
     focus: '50% 30%',
+    dispersion: { dx: 18, dy: 64 },
   },
   {
     slug: 'lina-lievano',
@@ -49,6 +57,7 @@ export const INTEGRANTES: Integrante[] = [
     size: 201.5,
     bleed: 61,
     focus: '50% 35%',
+    dispersion: { dx: -12, dy: -28 },
   },
   {
     slug: 'karol-lopez',
@@ -57,6 +66,7 @@ export const INTEGRANTES: Integrante[] = [
     side: 'center',
     size: 201.5,
     focus: '58% 50%',
+    dispersion: { dx: 26, dy: 38 },
   },
   {
     slug: 'vanessa-cortes',
@@ -66,6 +76,7 @@ export const INTEGRANTES: Integrante[] = [
     size: 169,
     bleed: 61,
     focus: '40% 30%',
+    dispersion: { dx: -40, dy: -18 },
   },
   {
     slug: 'erika-cely',
@@ -74,6 +85,7 @@ export const INTEGRANTES: Integrante[] = [
     side: 'center',
     size: 201.5,
     focus: '50% 45%',
+    dispersion: { dx: 14, dy: 82 },
   },
   {
     slug: 'adriana-chavarro',
@@ -83,6 +95,7 @@ export const INTEGRANTES: Integrante[] = [
     size: 159.5,
     bleed: 40,
     focus: '50% 30%',
+    dispersion: { dx: -22, dy: 16 },
   },
   {
     slug: 'alejandra-villarraga',
@@ -92,6 +105,7 @@ export const INTEGRANTES: Integrante[] = [
     size: 152,
     bleed: 53,
     focus: '50% 40%',
+    dispersion: { dx: 34, dy: -30 },
   },
   {
     slug: 'karina-cely',
@@ -101,5 +115,6 @@ export const INTEGRANTES: Integrante[] = [
     size: 203,
     bleed: 69,
     focus: '50% 30%',
+    dispersion: { dx: -6, dy: 58 },
   },
 ];

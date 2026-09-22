@@ -59,11 +59,8 @@ mientras se construye (D18).
    (390 x 1.4) centrada en una pantalla de 1280 o más, así que queda mucho vacío a los lados y la
    ilustración se lee pequeña. Es consecuencia de D7 (escalar en vez de recomponer). **Johan lo
    deja a la espera de feedback de diseño** (2026-09-22); no se toca por iniciativa propia.
-2. **Quiénes somos en desktop**: Johan propuso (2026-09-22) ensancharlo y repartir las fichas de
-   forma más abierta, en vez de la columna de ~3400 px de alto que hay hoy (D21). Pendiente de
-   acordar la forma exacta.
-3. **Tablet (768) de los bloques de impacto**: sin mirar. Solo se verificó el mapa a ese ancho.
-4. Limpieza opcional: las claves de copy de la Introducción siguen con prefijo `hero.` (D11).
+2. **Tablet (768) de los bloques de impacto**: sin mirar. Solo se verificó el mapa a ese ancho.
+3. Limpieza opcional: las claves de copy de la Introducción siguen con prefijo `hero.` (D11).
 
 ### Resuelto el 2026-09-22
 
@@ -71,6 +68,8 @@ mientras se construye (D18).
   Se acabaron los dos placeholders del diseño.
 - **El paso 2 de la intro en pantallas anchas** (D26): el horizonte ya llega al borde y el reflejo
   del agua recupera su intensidad.
+- **Quiénes somos en desktop** (D27): rejilla de 3 dispersa, ninguna ficha alineada con otra. De
+  ~3400 px de alto a 1812. Mobile y tablet siguen igual.
 - **La copa NO tenía el problema de la piscina.** Se dijo que sí sin comprobarlo; verificado con
   capturas del estado inicial y final, el cuerpo de la copa es el mismo gris en los dos (es el
   color de la silicona en el diseño, no un estado "apagado"). Lo único que cambia es el líquido
