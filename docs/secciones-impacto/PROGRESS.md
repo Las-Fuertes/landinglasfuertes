@@ -1,5 +1,8 @@
 # Estado vivo: reconstrucción del primer tramo
 
+> **En producción desde el 2026-09-21.** La Introducción y la eliminación del gate `?show=all` se
+> mergearon a `main` en `c2c6627` (PR #6). Lo que sigue se construye sobre eso.
+
 Última actualización: 2026-09-21.
 Rama de trabajo: `17-sep-Landing-remake`. Punta al empezar: `92fda5e`, igual que `origin/main`.
 
@@ -52,6 +55,16 @@ Después, verificar con capturas:
 3. **Resolución de las fotos del equipo**: 512px de lado largo, se revisa en la Pieza 2.
 
 ## Bitácora
+
+### 2026-09-21 (quinta tanda): publicado
+
+- **Mergeado a `main`** en tres commits: la capa de estado en `docs/`, la ruta de revisión visual y
+  la reconstrucción de la Introducción. PR #6, merge `c2c6627`. Producción despliega desde `main`.
+- Descubierto que `gh` arrancaba con la cuenta equivocada (`johaneto-tikin` en vez de
+  `johanmendezb`). Documentado en `CLAUDE.md`, sección "Publicar".
+- Descubierto que `main` **ya no tiene** regla de PR ni rulesets en GitHub. Se usó PR igualmente.
+- **Sale a producción con los pasos 2 y 3 en variante mobile a todos los anchos**, o sea una columna
+  estrecha centrada en desktop. Es deliberado y Johan lo sabe; es lo primero que hay que cerrar.
 
 ### 2026-09-21 (cuarta tanda): Pieza 1 en tablet y desktop
 
