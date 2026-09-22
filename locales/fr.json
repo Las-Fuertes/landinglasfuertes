@@ -24,6 +24,22 @@
       "text": "La dignité et les droits des filles et des adolescentes sont comme l'eau de mer, ils n'expirent jamais, et chez **Las Fuertes** nous embarquons dans cette mission sans retour avec une carte éducative unique, en brisant murs et barrières."
     }
   },
+  "impacto": {
+    "title": "Voici l'impact\nen action",
+    "mapa": {
+      "territorios": {
+        "islaFuerte": "Isla Fuerte",
+        "cordoba": "Córdoba",
+        "bolivar": "Bolívar",
+        "atlantico": "Atlántico",
+        "guajira": "Guajira",
+        "ibague": "Ibagué",
+        "bogota": "Bogotá D.C"
+      },
+      "cierre": "==6 territoires désormais== ==plus forts==",
+      "texto": "Depuis Isla Fuerte, des vagues de changement qui gagnent toute la Colombie."
+    }
+  },
   "welcome": {
     "titleLine1": "Bienvenue à",
     "titleLine2": "Las Fuertes",

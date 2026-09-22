@@ -217,3 +217,42 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ================================
+   MAPA DE IMPACTO
+   ================================ */
+
+/* Los territorios se encienden en cascada cuando el mapa entra en viewport: el componente pone
+   `data-encendido` en `.impacto-mapa` y cada path lleva su turno en `--i`. Va en CSS, no en
+   framer-motion, para que sea una transición de relleno pura; el bloque de reduced-motion de
+   arriba deja la duración en 0 y aquí se quita también el escalonado. */
+.impacto-territorio {
+  fill: theme('colors.ash.DEFAULT');
+  transition: fill 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.28s);
+}
+
+.impacto-mapa[data-encendido] .impacto-territorio {
+  fill: theme('colors.pink.DEFAULT');
+}
+
+.impacto-etiqueta {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.28s + 0.35s);
+}
+
+.impacto-mapa[data-encendido] .impacto-etiqueta {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impacto-territorio,
+  .impacto-etiqueta {
+    transition-delay: 0s !important;
+  }
+}

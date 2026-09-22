@@ -12,7 +12,9 @@
  *   node scripts/captura.js --ancla quienes-somos --w 390 --h 1240 --y 1240   (segundo tramo)
  *
  * Opciones: --url (por defecto http://localhost:3000), --lang (es|en|fr), --y (px extra
- * de desplazamiento desde el ancla), --espera (ms tras cargar, por defecto 3000).
+ * de desplazamiento desde el ancla), --espera (ms tras cargar, por defecto 3000), --tras (ms
+ * entre desplazarse al ancla y capturar, por defecto 1200; súbelo para ver el final de una
+ * animación que arranca al entrar en viewport).
  */
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -37,6 +39,7 @@ const w = Number(args.w || 390);
 const h = Number(args.h || 700);
 const y = Number(args.y || 0);
 const espera = Number(args.espera || 3000);
+const tras = Number(args.tras || 1200);
 const out = args.out || `/tmp/captura-${args.ancla || 'home'}-${w}.png`;
 
 const chrome = spawn(CHROME, [
@@ -110,7 +113,7 @@ async function capturar(browserWs) {
     ).then(({ result }) => {
       if (result?.result?.value !== 'ok') throw new Error(`Ancla no encontrada: ${args.ancla}`);
     });
-    await dormir(1200);
+    await dormir(tras);
   }
   const { result: shot } = await enviar('Page.captureScreenshot', { format: 'png' }, s);
   fs.writeFileSync(out, Buffer.from(shot.data, 'base64'));

@@ -24,6 +24,22 @@
       "text": "The dignity and rights of girls and adolescents are like seawater, they never expire, and in **Las Fuertes** we embark on this irreversible mission with a unique educational map, breaking down walls and barriers."
     }
   },
+  "impacto": {
+    "title": "This is what impact\nin action looks like",
+    "mapa": {
+      "territorios": {
+        "islaFuerte": "Isla Fuerte",
+        "cordoba": "Córdoba",
+        "bolivar": "Bolívar",
+        "atlantico": "Atlántico",
+        "guajira": "Guajira",
+        "ibague": "Ibagué",
+        "bogota": "Bogotá D.C"
+      },
+      "cierre": "==6 territories now== ==stronger==",
+      "texto": "From Isla Fuerte, carrying waves of change across Colombia."
+    }
+  },
   "welcome": {
     "titleLine1": "Welcome to",
     "titleLine2": "Las Fuertes",

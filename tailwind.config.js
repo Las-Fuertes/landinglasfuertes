@@ -43,6 +43,10 @@ module.exports = {
         cream: {
           DEFAULT: '#FFEBC6',
         },
+        /** Gris de los departamentos apagados en el mapa de impacto. */
+        ash: {
+          DEFAULT: '#B3B3B3',
+        },
       },
 
       /* ================================
