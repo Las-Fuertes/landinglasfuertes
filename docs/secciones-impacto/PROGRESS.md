@@ -77,8 +77,8 @@ mientras se construye (D18).
   sin commitear y sus tres commits son la base de la rama. El checkout de `~/Sites/personal/`
   quedó actualizado con `git pull`.
 - **Animación de las lámparas rehecha a petición de Johan** (D24): ya no se funden, chispean.
-  La izquierda titubea cuatro veces y engancha a los 1.14 s; la derecha entra de un golpe a los
-  1.33 s con un solo pestaneo. `steps(1, end)`, sin un solo frame de opacidad intermedia.
+  Solo la izquierda parpadea (cuatro veces, engancha a los 1.14 s) y la derecha prende limpia
+  100 ms después. `steps(1, end)`, sin un solo frame de opacidad intermedia.
 - **Bug encontrado y corregido en el camino:** sin un keyframe explícito al 100%, las dos
   lámparas se apagaban al terminar la animación. Se vio en la captura del estado final.
 

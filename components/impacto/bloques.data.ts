@@ -22,7 +22,7 @@ export interface Capa {
   delay?: number;
   /**
    * Patrón de encendido, solo en los bloques con `entrada: 'parpadeo'`. `titilar` es la lámpara
-   * que chispea varias veces antes de enganchar; `encender` es el golpe corto de la otra.
+   * que chispea varias veces antes de enganchar; `encender` prende de golpe y ya, sin pestañear.
    */
   anim?: 'titilar' | 'encender';
 }
@@ -170,15 +170,16 @@ const LUCES: Bloque = {
   ],
   antes: [],
   despues: [
-    // La de la izquierda chispea sola un rato; la de la derecha entra de golpe justo cuando la
-    // primera engancha, así que acaban encendidas casi a la vez.
+    // Solo la izquierda chispea. Engancha a los 1.14 s (el 76% de su animación de 1.5 s) y la
+    // derecha prende limpia 100 ms después, sin pestañear: así se lee como una que arranca mal
+    // y otra que la sigue, no como dos lámparas averiadas.
     { src: `${P}luces/cono-izq.svg`, box: LUCES_BOX, inset: LUCES_INSET, anim: 'titilar' },
     {
       src: `${P}luces/cono-der.svg`,
       box: LUCES_BOX,
       inset: LUCES_INSET,
       anim: 'encender',
-      delay: 1.2,
+      delay: 1.24,
     },
   ],
 };
