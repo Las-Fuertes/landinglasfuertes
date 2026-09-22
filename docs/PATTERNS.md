@@ -183,6 +183,34 @@ Las anclas de la Introducción son `intro-paso-N` en mobile y `intro-paso-N-tabl
 - Las imágenes se renderizan con `next/image`. Existe además `components/app-image/`, un wrapper
   con caché propia; mira su `README.md` antes de usarlo.
 
+## Mapa de impacto: mapeo path -> territorio
+
+Derivado el 2026-09-21 comparando el color de relleno del frame "después" (`1102:60`) y escrito en
+`components/impacto/mapa.data.ts`. **No hace falta volver a sacarlo.** Los 33 vectores de Figma
+se llaman todos `Vector`; en el export del grupo `1102:110` salen numerados `Vector_1..33` en el
+mismo orden que el árbol de `get_metadata`:
+
+| Figma       | Nodo       | Territorio      |
+| ----------- | ---------- | --------------- |
+| `Vector_1`  | `1102:111` | Guajira         |
+| `Vector_2`  | `1102:112` | Atlántico       |
+| `Vector_13` | `1102:123` | Córdoba         |
+| `Vector_25` | `1102:135` | Bolívar         |
+| `Vector_30` | `1102:140` | Ibagué (Tolima) |
+| `Vector_32` | `1102:142` | Bogotá D.C.     |
+| `Group 183` | `1102:144` | Isla Fuerte     |
+
+`Vector_31` (`1102:141`) es un duplicado exacto de `Vector_32` en gris y se descartó. El export de
+Figma trae además un path cream por departamento que es el trazo convertido a relleno (720 KB de
+los 812 del archivo); se tiró y se reemplazó por `stroke` de 1 px en el `<g>` padre. Colores del
+diseño: gris `#B3B3B3` (`ash` en Tailwind), rosa `#FF60AD` (se usa `pink`, `#FF74BA`).
+
+El encendido es CSS puro (`.impacto-territorio` y `.impacto-etiqueta` en `styles/global.css`):
+cada path y cada chip llevan su turno en `--i` y el contenedor recibe `data-encendido` cuando
+`useInView` (framer-motion, `once`) lo ve. Reduced-motion quita duración y escalonado.
+
+Para capturar el estado final: `node scripts/captura.js --ancla impacto --w 390 --h 828 --tras 4500`.
+
 ## Patrón de componente
 
 - Archivo en kebab-case dentro de una carpeta por sección: `components/<seccion>/<nombre>.tsx`.

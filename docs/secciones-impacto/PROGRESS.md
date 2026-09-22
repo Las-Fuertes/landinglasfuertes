@@ -1,15 +1,16 @@
 # Estado vivo: reconstrucción del primer tramo
 
 > **En producción (`main` = `2ef6879`, PR #7):** la Introducción con el paso 1 en los 3 breakpoints y
-> los pasos 2 y 3 solo en mobile. **Sin publicar, en el worktree `21-sep-round-2`:** los pasos 2 y 3
-> en tablet y desktop, Quiénes somos completa, el script de captura y los docs de esta sesión.
-> Johan dio por buena la Introducción; Quiénes somos la vio y pidió cerrar la sesión sin más
-> ajustes.
+> los pasos 2 y 3 solo en mobile. **Commiteado y sin publicar, en la rama `21-sep-round-2-2`:**
+> los pasos 2 y 3 en tablet y desktop, Quiénes somos completa, el script de captura, los docs y el
+> mapa de impacto. Johan dio por buena la Introducción; Quiénes somos la vio y pidió cerrar la
+> sesión sin más ajustes; el mapa y los bloques de impacto no los ha visto todavía.
 
-Última actualización: 2026-09-21 (noche).
-Rama de trabajo: `21-sep-round-2`, creada desde `main` en `2ef6879` (PR #7). Los pasos 2 y 3 en
-tablet y desktop están **sin commitear** en el worktree
-`~/orca/workspaces/landinglasfuertes/21-sep-round-2/`.
+Última actualización: 2026-09-21 (madrugada del 22).
+Rama de trabajo: `21-sep-round-2-2`, en el worktree
+`~/orca/workspaces/landinglasfuertes/21-sep-round-2-2/`. Es la continuación de `21-sep-round-2`
+(misma historia; aquella rama quedó tres commits atrás y ya no se usa). Todo está commiteado;
+Johan pidió el 2026-09-21 por la noche que se commitee seguido.
 
 ## Dónde vamos
 
@@ -19,7 +20,7 @@ tablet y desktop están **sin commitear** en el worktree
 | 0.5 | Refactor de composición    | -       | -       | -       | **Hecho**                             |
 | 1   | Introducción estática      | **[x]** | **[x]** | **[x]** | **Hecha en los 3, falta visto bueno** |
 | 2   | Quiénes somos              | [ ]     | [ ]     | [ ]     | Pendiente                             |
-| 3   | Mapa de impacto            | [ ]     | [ ]     | [ ]     | Pendiente                             |
+| 3   | Mapa de impacto            | **[x]** | [~]     | [~]     | Mobile hecho; tablet/desktop escalan  |
 | 4   | Bloques de impacto         | [ ]     | [ ]     | [ ]     | Pendiente                             |
 | B   | Quitar el gate `?show=all` | -       | -       | -       | **Hecho** (adelantado, ver D3)        |
 
@@ -35,6 +36,9 @@ Introducción -> Impacto -> Welcome -> Principles -> Donaciones -> Mapa educativ
 
 ## Siguiente paso concreto
 
+0. **Pieza 4: los 4 bloques de impacto** (en curso, ver bitácora de la octava tanda). Frames
+   antes/después: piscina `1102:162`/`1102:286`, segundo `1102:322`/`1102:363`, tercero
+   `1103:544`/`1103:558`, cuarto `1102:400`/`1102:414`.
 1. **Que Johan mire Quiénes somos en los 3 breakpoints** (`localhost:3000/#quienes-somos`, está
    justo antes del footer). Dos cosas que decide él: si en desktop la columna de 3400 px le parece
    demasiado larga (D21) y si el encuadre de alguna foto no le gusta (`focus` en
@@ -63,6 +67,26 @@ mientras se construye (D18).
 6. **Bloque de la piscina: "2XX niñas"** es un placeholder del diseño. Hace falta el número real.
 
 ## Bitácora
+
+### 2026-09-21 (octava tanda, de noche): mapa de impacto
+
+- **Commiteado todo lo de las tandas 6 y 7** en tres commits (`a35ec31`, `aedceab`, `68b4d67`) y
+  el trabajo siguió en el worktree `21-sep-round-2-2`, que Orca abrió al lado del anterior.
+- **Pieza 3 construida en mobile** (`components/impacto/`), montada en `pages/index.tsx` entre
+  la Introducción y Welcome. Commit `bab6bfb`.
+- Mapeo path -> territorio derivado por color y escrito en `docs/PATTERNS.md` y en
+  `components/impacto/mapa.data.ts`. El export de Figma pesaba 812 KB; sin los trazos
+  convertidos a relleno y con svgo queda en 36 KB inline.
+- Encendido en cascada desde Isla Fuerte hacia afuera, CSS puro con `--i` por territorio y
+  `useInView` de framer-motion para disparar una sola vez. Reduced-motion respetado.
+- El título lleva salto de línea manual en el diseño; el copy lo escribe como `\n` y el
+  componente lo parte en `<span class="block">`.
+- En francés el cierre se partió en "==6 territoires== ==désormais plus forts==" porque el chip
+  es `inline-block` y si una línea no cabe se parte por dentro (chip de dos líneas, feo).
+- Verificado con capturas a 390 en es/en/fr contra `1102:60`; `type-check` y `lint` limpios.
+- `scripts/captura.js` tiene ahora `--tras` (ms entre el scroll al ancla y la captura) para
+  esperar el final de una animación que arranca en viewport.
+- Tablet y desktop solo escalan con `--k` (1.25 / 1.4), sin verificar con captura todavía.
 
 ### 2026-09-21 (séptima tanda): Quiénes somos
 
