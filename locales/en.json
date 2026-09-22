@@ -214,6 +214,17 @@
       "cta": "Donate from the USA"
     }
   },
+  "quienesSomos": {
+    "title": "Who are we?",
+    "text": "We are a reef of women, volunteers and allies growing from Bogotá toward Colombia's forgotten territories. We build spaces where knowledge of the body is not whispered but shared, where comprehensive menstrual education is not a luxury but a right. And where every adolescent finds her own voice to navigate her life with clarity, confidence and freedom.",
+    "roles": {
+      "coordinadora": "ASE Network Coordinator",
+      "fundadora": "Founder and General Director",
+      "cofundadora": "Co-Founder and Creative Director",
+      "projectManager": "Project Manager",
+      "disenadora": "Graphic Designer"
+    }
+  },
   "gracias": {
     "approvedTitle": "Thank you for your donation!",
     "approvedText": "Your contribution went through and will become workshops, materials and opportunities for the girls of Isla Fuerte. You'll receive Bold's receipt by email.",

@@ -6,6 +6,7 @@ import { PrinciplesSection } from '../components/principles';
 import { DonationsSection } from '../components/donations';
 import { EducationMapSection } from '../components/education-map';
 import { SumateSection } from '../components/sumate';
+import { QuienesSomosSection } from '../components/quienes-somos';
 import Footer from '../components/layout/footer';
 import LanguageSwitcher from '../components/layout/language-switcher';
 
@@ -48,6 +49,7 @@ export default function Home() {
           <DonationsSection />
           <EducationMapSection />
           <SumateSection />
+          <QuienesSomosSection />
         </div>
       </main>
 

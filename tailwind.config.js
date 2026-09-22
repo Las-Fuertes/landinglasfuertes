@@ -39,6 +39,10 @@ module.exports = {
           DEFAULT: '#FCF5E9',
           light: '#FAF9F6',
         },
+        /** Fondo de "Quiénes somos": un beige más amarillo que el del sitio. */
+        cream: {
+          DEFAULT: '#FFEBC6',
+        },
       },
 
       /* ================================

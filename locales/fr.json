@@ -214,6 +214,17 @@
       "cta": "Donner depuis les USA"
     }
   },
+  "quienesSomos": {
+    "title": "Qui sommes-nous ?",
+    "text": "Nous sommes un récif de femmes, de bénévoles et d'alliées qui grandit depuis Bogotá vers les territoires oubliés de Colombie. Nous construisons des espaces où la connaissance du corps ne se murmure pas, elle se partage, où l'éducation menstruelle intégrale n'est pas un luxe mais un droit. Et où chaque adolescente trouve sa propre voix pour naviguer dans sa vie avec clarté, confiance et liberté.",
+    "roles": {
+      "coordinadora": "Coordinatrice du réseau ASE",
+      "fundadora": "Fondatrice et Directrice générale",
+      "cofundadora": "Cofondatrice et Directrice créative",
+      "projectManager": "Cheffe de projet",
+      "disenadora": "Graphiste"
+    }
+  },
   "gracias": {
     "approvedTitle": "Merci pour ton don !",
     "approvedText": "Ta contribution est bien arrivée et deviendra ateliers, matériels et opportunités pour les filles d'Isla Fuerte. Tu recevras le reçu de Bold par e-mail.",

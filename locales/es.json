@@ -214,6 +214,17 @@
       "cta": "Donar desde USA"
     }
   },
+  "quienesSomos": {
+    "title": "¿Quiénes somos?",
+    "text": "Somos un arrecife de mujeres, voluntarias y aliadas que crece desde Bogotá para los territorios olvidados de Colombia. Construimos espacios donde el conocimiento del cuerpo no se susurra, se comparte, donde la educación menstrual integral no es un lujo, es un derecho. Y donde cada adolescente encuentra su propia voz para navegar su vida con claridad, confianza y libertad.",
+    "roles": {
+      "coordinadora": "Coordinadora Red ASE",
+      "fundadora": "Fundadora y Directora general",
+      "cofundadora": "Co-Fundadora y Directora creativa",
+      "projectManager": "Project Manager",
+      "disenadora": "Diseñadora Gráfica"
+    }
+  },
   "gracias": {
     "suscripcionTitle": "¡Gracias por sumarte cada mes!",
     "suscripcionText": "Tu aporte mensual le da estabilidad a los programas de Las Fuertes y nos permite planear a futuro. Mercado Pago te enviará el comprobante de cada cobro a tu correo, y puedes gestionar o cancelar tu suscripción desde tu cuenta de Mercado Pago cuando quieras.",
