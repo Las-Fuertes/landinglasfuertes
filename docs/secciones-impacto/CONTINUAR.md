@@ -9,15 +9,19 @@ previo de la conversación.
 Trabajamos en la web de Fundación Las Fuertes, una organización de educación menstrual integral.
 Es un Next.js 16 con Pages Router (carpeta `pages/`, NO App Router), TypeScript y Tailwind 3.
 
-El primer tramo de la página ya está reconstruido y **publicado**: la Introducción de 3 pasos, la
-sección "Así se ve el impacto en acción" (mapa de Colombia que se enciende + 4 bloques animados) y
-"Quiénes somos". Todo está en `main` y en producción.
+El primer tramo de la página está reconstruido, **aprobado por Johan y publicado**: la Introducción
+de 3 pasos, la sección "Así se ve el impacto en acción" (mapa de Colombia que se enciende + 4
+bloques animados) y "Quiénes somos". Todo está en `main` y en producción.
 
-EL TRABAJO DE ESTA SESIÓN: LA INTRODUCCIÓN PASA A SER UNA SECUENCIA CON SCROLL
+EL TRABAJO DE ESTA SESIÓN: AÑADIR LAS TRANSICIONES DE LA INTRODUCCIÓN
 
-Hoy los 3 pasos de la Introducción son tres bloques estáticos, uno debajo del otro: al hacer
-scroll el contenido sube como en cualquier página. Johan quiere otra cosa, descrita con sus
-palabras (2026-09-22):
+**Lo que hay construido está bien y no se rediseña.** Las 3 partes de la Introducción son el
+diseño nuevo, se hicieron el 2026-09-21, Johan las revisó y las dio por buenas. No se tocan la
+composición, ni los assets, ni el copy, ni las medidas. Lo único que falta es **cómo se pasa de
+una parte a la siguiente**, que era el paso que quedaba pendiente del rediseño.
+
+Hoy las 3 partes son tres bloques estáticos, uno debajo del otro: al hacer scroll el contenido
+sube como en cualquier página. Johan quiere esto, en sus palabras (2026-09-22):
 
   "llego al hero, veo la primera parte de la intro, y cuando hago scroll, necesito que haya una
   transición a la segunda parte, las piezas se van y el texto hace un fade out y luego llegan las
@@ -27,62 +31,69 @@ palabras (2026-09-22):
   repite de nuevo"
 
 O sea: la Introducción se queda fija ocupando la pantalla mientras el scroll avanza, y **el scroll
-no desplaza el contenido: cambia de paso**. Cada cambio es una salida (las piezas se van y el
-texto se desvanece) seguida de una entrada. Al terminar el paso 3 la página sigue normal hacia
-Impacto; y hacia arriba el recorrido se deshace, paso 3 -> 2 -> 1, tantas veces como se quiera.
+no desplaza el contenido: cambia de parte**. Cada cambio es una salida (las piezas se van y el
+texto se desvanece) seguida de una entrada. Al terminar la parte 3 la página sigue normal hacia
+Impacto; y hacia arriba el recorrido se deshace, 3 -> 2 -> 1, tantas veces como se quiera.
 
 Johan dijo explícitamente que esta parte es muy importante. **Antes de construir, acuerda con él
 la mecánica**: cuánto scroll cuesta cada paso, si el cambio es continuo (ligado a la posición del
-scroll) o por tramos (un gesto = un paso completo), y qué hace en móvil.
+scroll) o por tramos (un gesto = un paso completo), cómo entran y salen las piezas (¿todas a la
+vez?, ¿por grupos?, ¿hacia dónde?) y qué hace en móvil.
 
 ANTES DE TOCAR NADA, lee en este orden:
   1. CLAUDE.md                              qué es el proyecto y cómo se corre
   2. docs/secciones-impacto/PROGRESS.md     el estado vivo y lo que falta
   3. docs/secciones-impacto/DECISIONES.md   qué se decidió y por qué. Para ESTA tarea mandan
-                                            D6, D13, D16, D17 (con su ampliación) y D26
+                                            D13, D16, D17 (con su ampliación) y D26
   4. docs/PATTERNS.md                       convenciones, y la sección "Animación"
 
-LO QUE TIENES QUE SABER ANTES DE DISEÑAR LA SOLUCIÓN
+UN AVISO PARA NO PERDER EL TIEMPO
 
-1. **Esto ya existió y se quitó a propósito.** La Introducción original era exactamente eso: tres
-   secciones animadas con GSAP + ScrollTrigger. Se eliminó al reconstruirla (D6) junto con el
-   botón de saltar animación y el `localStorage` de visitante. **El código viejo sigue en el
-   commit `92fda5e`, en `components/hero/hero.tsx`**: léelo antes de inventar nada, porque
-   resuelve el mismo problema sobre esta misma página. Hoy no queda ni una línea de ScrollTrigger
-   en el repo.
+En el historial vas a encontrar una intro vieja con GSAP + ScrollTrigger (commit `92fda5e`,
+`components/hero/hero.tsx`), que también se movía con el scroll. **Es de un diseño anterior que ya
+no existe: no la restaures, no la tomes como base y no copies su estructura.** Se eliminó a
+propósito (D6) junto con el botón de saltar animación y el `localStorage` de visitante, y hoy no
+queda ni una línea de ScrollTrigger en el repo. Se menciona solo para que no la "descubras"
+pensando que es un atajo. El punto de partida es lo que hay hoy en `components/intro/`.
 
-2. **GSAP sigue instalado y permitido** (D16: Johan pidió no desinstalarlo justo porque venían
-   animaciones). `framer-motion` es el patrón por defecto del sitio y también sabe hacer esto.
-   Elige con criterio y deja escrito el porqué.
+Lo que sí se conserva de aquella época: **GSAP sigue instalado y permitido** (D16, Johan pidió no
+desinstalarlo justo porque venían estas animaciones). `framer-motion` es el patrón por defecto del
+sitio y también sabe hacer esto. Elige con criterio y deja escrito el porqué.
 
-3. **Hay tres juegos de pasos montados a la vez, no uno.** `components/intro/intro-section.tsx`
-   renderiza los 3 pasos por cada breakpoint (9 bloques) y esconde los que no tocan con clases
+LO QUE TIENES QUE SABER DE LO QUE HAY HOY
+
+1. **Hay tres juegos de partes montados a la vez, no uno.** `components/intro/intro-section.tsx`
+   renderiza las 3 partes por cada breakpoint (9 bloques) y esconde las que no tocan con clases
    (`md:hidden`, `hidden md:block lg:hidden`, `hidden lg:block`). Cualquier cosa que mida alturas
    o fije posiciones tiene que contar con que 6 de esos 9 bloques están ocultos pero existen en el
    DOM. Es la trampa más probable de esta tarea.
 
-4. **Cada paso es un lienzo con capas en porcentaje** (D13): las capas viven en
+2. **Cada parte es un lienzo con capas en porcentaje** (D13): las capas viven en
    `components/intro/intro.data.ts` en px del lienzo de Figma y el componente las pasa a
    porcentaje. Lienzos: mobile 390x700, tablet 1024x1366, desktop 1280x832. Tablet y desktop
-   reutilizan las capas de mobile con una transformación afín por grupos (D17), así que animar
-   "las piezas" es animar esos grupos, no imágenes sueltas.
+   reutilizan las capas de mobile con una transformación afín **por grupos** (D17): en el paso 2,
+   por ejemplo, el horizonte, el agua y el barco son grupos distintos. Eso es justo lo que
+   necesitas para animar "las piezas": el grupo es la unidad natural de entrada y salida, no la
+   imagen suelta.
 
-5. **Las anclas existen y son las que usa la herramienta de captura**: `intro-paso-1`,
+3. **Las anclas existen y son las que usa la herramienta de captura**: `intro-paso-1`,
    `intro-paso-2`, `intro-paso-3` en mobile, y con sufijo `-tablet` / `-desktop` en los otros dos
    anchos. Si el nuevo montaje las cambia, actualiza `docs/PATTERNS.md`.
 
-6. **Una capa puede sangrar hasta el borde de la pantalla** (D26, `IntroVariant.sangra`): el paso 2
+4. **Una capa puede sangrar hasta el borde de la pantalla** (D26, `IntroVariant.sangra`): el paso 2
    en desktop lo usa para el horizonte. Si cambias el contenedor o su recorte, compruébalo a 1920,
    no solo a 1280.
 
 LO QUE NO SE PUEDE ROMPER
 
+- **El resultado visual de cada parte.** Está aprobado: al final de cada transición, lo que se ve
+  tiene que ser exactamente lo que se ve hoy. Compáralo con una captura antes y después.
 - **`prefers-reduced-motion`.** Todo el sitio lo respeta. Con movimiento reducido la Introducción
-  tiene que ser navegable sin secuencia: lo más probable es caer a los 3 pasos estáticos de hoy.
+  tiene que ser navegable sin secuencia: lo más probable es caer a las 3 partes estáticas de hoy.
   Se verifica con `Emulation.setEmulatedMedia` por DevTools; hay ejemplos en la bitácora.
 - **Que se pueda salir.** Una sección que se apropia del scroll atrapa a quien usa teclado, lector
-  de pantalla o un trackpad que manda eventos raros. Piensa en teclado (tab, flechas, av pág) y en
-  qué pasa si alguien llega con `#impacto` en la URL.
+  de pantalla o un trackpad que manda eventos en ráfaga. Piensa en teclado (tab, flechas, av pág)
+  y en qué pasa si alguien llega con `#impacto` en la URL.
 - **Los tres idiomas** (`locales/es.json`, `en.json`, `fr.json`). El copy ya está; si añades algo,
   va en los tres.
 
@@ -94,7 +105,7 @@ CÓMO SE VERIFICA (no se entrega nada sin mirarlo)
 npm run dev   # en :3000
 node scripts/captura.js --ancla intro-paso-2-desktop --w 1280 --h 832 --out /tmp/p2.png
 node scripts/captura.js --ancla impacto --w 390 --h 828 --tras 4500 --out /tmp/i.png
-````
+```
 
 `--tras` son los ms entre el desplazamiento y la captura: sirve para ver el final de una animación.
 Un PNG de menos de 10 KB es una captura fallida. Para una secuencia con scroll vas a necesitar
@@ -133,7 +144,5 @@ LO QUE QUEDA PENDIENTE, APARTE DE ESTO
   espera de feedback de diseño: no se toca por iniciativa propia.
 - El tablet (768) de los bloques de impacto no lo ha mirado nadie.
 - Limpieza opcional: las claves de copy de la Introducción siguen con prefijo `hero.` (D11).
-
 ```
-
-```
+````
