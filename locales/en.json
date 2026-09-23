@@ -4,7 +4,8 @@
     "description": "We are building a space for Comprehensive Menstrual Education (CME) to mark a new milestone in Colombia."
   },
   "intro": {
-    "label": "Introduction"
+    "label": "Introduction",
+    "saltar": "Skip animation"
   },
   "hero": {
     "mainTitle1": "Something powerful",

@@ -4,7 +4,8 @@
     "description": "Estamos construyendo un espacio para que la Educación Menstrual Integral (EMI) marque un nuevo hito en Colombia."
   },
   "intro": {
-    "label": "Introducción"
+    "label": "Introducción",
+    "saltar": "Saltar animación"
   },
   "hero": {
     "mainTitle1": "Algo fuerte está",

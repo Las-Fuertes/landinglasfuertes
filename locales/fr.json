@@ -4,7 +4,8 @@
     "description": "Nous construisons un espace pour que l'Éducation Menstruelle Intégrale (EMI) marque un nouveau jalon en Colombie."
   },
   "intro": {
-    "label": "Introduction"
+    "label": "Introduction",
+    "saltar": "Passer l'animation"
   },
   "hero": {
     "mainTitle1": "Quelque chose de puissant",

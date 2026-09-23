@@ -1,5 +1,8 @@
+'use client';
+
+import gsap from 'gsap';
 import Image from 'next/image';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithMarks } from '../../lib/render-text-with-bold';
 import {
@@ -7,8 +10,12 @@ import {
   type Breakpoint,
   type GroupTransform,
   type IntroLayer,
+  type IntroStep,
   type IntroVariant,
 } from './intro.data';
+import { crearAsomo, crearEntrada, crearReposo, crearTransicion, limpiar } from './intro.motion';
+import { useBreakpoint } from './use-breakpoint';
+import { useIntroPin } from './use-intro-pin';
 
 /** Cada breakpoint se muestra en su rango y se oculta fuera de él. */
 const VISIBILIDAD: Record<Breakpoint, string> = {
@@ -46,19 +53,27 @@ function transformar(layer: IntroLayer, g: GroupTransform): IntroLayer {
 function Capa({
   layer,
   canvas,
+  indice,
   sangra = false,
+  eager = false,
 }: {
   layer: IntroLayer;
   canvas: { width: number; height: number };
+  /** Posición de la capa dentro de su paso; va a `data-i` para la coreografía. */
+  indice: number;
   /** La capa se estira hasta los bordes de la pantalla, anclada por su borde inferior. */
   sangra?: boolean;
+  /** Con el pin, las imágenes se piden en el acto: la transición no puede esperar al lazy. */
+  eager?: boolean;
 }) {
   const { box, rotate, inner, inset, opacity, flipY } = layer;
   const pct = (v: number, eje: 'width' | 'height') => `${(v / canvas[eje]) * 100}%`;
 
   // Los SVG del diseño traen preserveAspectRatio="none": se estiran a su caja, que es
   // lo que queremos porque las proporciones ya vienen en los datos.
-  const img = <Image src={layer.src} alt="" fill sizes="100vw" />;
+  const img = (
+    <Image src={layer.src} alt="" fill sizes="100vw" loading={eager ? 'eager' : undefined} />
+  );
   const conInset = inset ? (
     <div className="absolute" style={{ inset }}>
       {img}
@@ -84,23 +99,34 @@ function Capa({
         height: pct(box.height, 'height'),
       };
 
-  return (
-    <div className="absolute" style={{ ...caja, opacity }}>
-      {rotate !== undefined && inner ? (
-        <div className="flex h-full w-full items-center justify-center">
-          <div
-            className="relative flex-none"
-            style={{
-              width: `${(inner.width / box.width) * 100}%`,
-              height: `${(inner.height / box.height) * 100}%`,
-              transform: `rotate(${rotate}deg)${flipY ? ' scaleY(-1)' : ''}`,
-            }}
-          >
-            {conInset}
-          </div>
+  // La caja exterior es la que anima la coreografía (`data-rol`). Si el diseño baja la opacidad,
+  // va en una caja interior, para que la animación no la pise al terminar.
+  const contenido =
+    rotate !== undefined && inner ? (
+      <div className="flex h-full w-full items-center justify-center">
+        <div
+          className="relative flex-none"
+          style={{
+            width: `${(inner.width / box.width) * 100}%`,
+            height: `${(inner.height / box.height) * 100}%`,
+            transform: `rotate(${rotate}deg)${flipY ? ' scaleY(-1)' : ''}`,
+          }}
+        >
+          {conInset}
         </div>
+      </div>
+    ) : (
+      conInset
+    );
+
+  return (
+    <div className="absolute" style={caja} data-rol={layer.rol} data-i={indice}>
+      {opacity === undefined ? (
+        contenido
       ) : (
-        conInset
+        <div className="h-full w-full" style={{ opacity }}>
+          {contenido}
+        </div>
       )}
     </div>
   );
@@ -115,6 +141,8 @@ function Paso({
   variant,
   groups,
   breakpoint,
+  eager = false,
+  agrupar = false,
 }: {
   /** Id único por breakpoint, para poder capturar cada uno por separado. */
   ancla: string;
@@ -122,6 +150,12 @@ function Paso({
   /** Grupos de capas compartidos, definidos en el lienzo mobile y transformados al vuelo. */
   groups: Record<string, IntroLayer[]>;
   breakpoint: Breakpoint;
+  eager?: boolean;
+  /**
+   * Con el pin, cada grupo va en un envoltorio del tamaño del lienzo (no cambia nada en reposo):
+   * es lo que mueve el movimiento en reposo del barco, con la persona dentro (D5).
+   */
+  agrupar?: boolean;
 }) {
   const { t } = useTranslation();
   const { canvas, own, texts } = variant;
@@ -134,19 +168,33 @@ function Paso({
 
   const sangran = new Set(variant.sangra ?? []);
   const capas: ReactNode[] = [];
-  own.forEach((l, i) => capas.push(<Capa key={`own-${i}`} layer={l} canvas={canvas} />));
+  own.forEach((l, i) =>
+    capas.push(
+      <Capa key={`own-${i}`} layer={l} canvas={canvas} indice={capas.length} eager={eager} />
+    )
+  );
+  let indice = capas.length;
   Object.entries(groups).forEach(([nombre, layers]) => {
     const g = variant.groups?.[nombre] ?? SIN_TRANSFORMAR;
-    layers.forEach((l, i) =>
+    const delGrupo = layers.map((l, i) => (
+      <Capa
+        key={`${nombre}-${i}`}
+        layer={transformar(l, g)}
+        canvas={canvas}
+        indice={indice++}
+        sangra={sangran.has(nombre)}
+        eager={eager}
+      />
+    ));
+    if (agrupar) {
       capas.push(
-        <Capa
-          key={`${nombre}-${i}`}
-          layer={transformar(l, g)}
-          canvas={canvas}
-          sangra={sangran.has(nombre)}
-        />
-      )
-    );
+        <div key={nombre} className="absolute inset-0" data-grupo={nombre}>
+          {delGrupo}
+        </div>
+      );
+    } else {
+      capas.push(...delGrupo);
+    }
   });
 
   return (
@@ -171,7 +219,7 @@ function Paso({
           }}
         >
           {txt.paragraphs.map((claves, j) => (
-            <p key={j} style={{ fontSize: fuente(txt.size) }}>
+            <p key={j} style={{ fontSize: fuente(txt.size) }} data-rol={txt.rol ?? 'texto'}>
               {renderTextWithMarks(claves.map(c => t(c)).join(' '))}
             </p>
           ))}
@@ -182,32 +230,271 @@ function Paso({
 }
 
 /**
- * Introducción: los 3 pasos con los que abre la web. Completamente estática: no hay
- * scroll-driven, ni GSAP, ni botón de saltar. Lo que se ve al llegar es lo que hay.
+ * Si un paso no tiene variante propia para un breakpoint, se muestra la de mobile. Así se
+ * puede avanzar paso por paso sin romper nada.
+ */
+function resolverPaso(paso: IntroStep, bp: Breakpoint) {
+  const propia = paso.variants[bp];
+  return {
+    ancla: bp === 'mobile' ? paso.id : `${paso.id}-${bp}`,
+    variant: propia ?? paso.variants.mobile,
+    breakpoint: propia ? bp : ('mobile' as Breakpoint),
+  };
+}
+
+/**
+ * Pide por adelantado las imágenes de las 3 partes del breakpoint activo. Con el pin solo se
+ * monta la parte que se ve; sin esto, las piezas de la parte que entra llegarían tarde a su
+ * propia animación. Mismas props que `Capa`, así el navegador reutiliza la misma descarga.
+ */
+function PrecargaImagenes({ breakpoint }: { breakpoint: Breakpoint }) {
+  const srcs = new Set<string>();
+  INTRO_STEPS.forEach(paso => {
+    const { variant } = resolverPaso(paso, breakpoint);
+    variant.own.forEach(l => srcs.add(l.src));
+    Object.values(paso.groups).forEach(ls => ls.forEach(l => srcs.add(l.src)));
+  });
+  return (
+    <div aria-hidden className="hidden">
+      {Array.from(srcs).map(src => (
+        <div key={src} className="relative">
+          <Image src={src} alt="" fill sizes="100vw" loading="eager" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** La entrada de la parte 1 espera a sus imágenes, pero nunca más de esto. */
+const ESPERA_IMAGENES_MS = 500;
+
+function imagenesListas(raiz: HTMLElement): Promise<void> {
+  const pendientes = Array.from(raiz.querySelectorAll('img'))
+    .filter(img => !img.complete)
+    .map(img => new Promise<void>(r => img.addEventListener('load', () => r(), { once: true })));
+  return Promise.race([
+    Promise.all(pendientes).then(() => undefined),
+    new Promise<void>(r => setTimeout(r, ESPERA_IMAGENES_MS)),
+  ]);
+}
+
+/**
+ * Introducción: las 3 partes con las que abre la web.
+ *
+ * El primer render (servidor y primer paint de cliente) es SIEMPRE el markup estático: los 9
+ * bloques (3 partes x 3 breakpoints) apilados, sin capa fija ni listeners. Es también lo que
+ * se queda con `prefers-reduced-motion` o con un `#hash` en la URL. Tras montar, `useIntroPin`
+ * decide si activar el pin: la intro ocupa una pantalla y cada gesto pasa a la parte siguiente
+ * con una coreografía de GSAP (`intro.motion.ts`). Mecánica y porqués en
+ * docs/introduccion/DECISIONES.md, D2.
  */
 export default function IntroSection() {
   const { t } = useTranslation();
+  const pin = useIntroPin(INTRO_STEPS.length);
+  const breakpoint = useBreakpoint();
+  const pasosRef = useRef<(HTMLDivElement | null)[]>([]);
+  const { transicion, entrada, timelineRef, terminarTransicion } = pin;
+
+  /**
+   * Cambia cada vez que la intro queda quieta tras una entrada o una transición: es cuando
+   * arranca el movimiento en reposo (D5).
+   */
+  const [reposo, setReposo] = useState(0);
+  /** `?quieto=1` congela el movimiento en reposo, para comparar capturas (docs/PATTERNS.md). */
+  const quieto = useRef(false);
+  /** La persona de la parte 3 se asoma después de la transición que lleva a ella. */
+  const personaPendiente = useRef(false);
+
+  useEffect(() => {
+    quieto.current = new URLSearchParams(window.location.search).get('quieto') === '1';
+  }, []);
+
+  // Con `?introPaso=N` no hay entrada: la intro ya está quieta desde que se activa el pin.
+  useEffect(() => {
+    if (pin.mode === 'pin' && pin.entrada === 0) setReposo(r => r + 1);
+  }, [pin.mode, pin.entrada]);
+
+  // La transición se arma antes del primer pintado de la parte que entra, para que no asome
+  // en su sitio final ni un fotograma. `gsap.context` deshace todo al desmontar (StrictMode
+  // monta dos veces en desarrollo).
+  useLayoutEffect(() => {
+    if (!transicion) return;
+    const origen = pasosRef.current[transicion.desde];
+    const destino = pasosRef.current[transicion.hacia];
+    if (!origen || !destino) {
+      terminarTransicion();
+      return;
+    }
+    // El sol, el barco y las olas solo viajan entre las partes 2 y 3.
+    const continuidad = Math.min(transicion.desde, transicion.hacia) === 1;
+    // Hacia la parte 3 la persona se asomará al final; desde ella, se esconde con la salida.
+    personaPendiente.current = !!destino.querySelector('[data-rol="persona"]');
+    const ctx = gsap.context(() => {
+      const tl = crearTransicion(origen, destino, transicion.sentido, continuidad);
+      tl.eventCallback('onComplete', () => {
+        limpiar(destino);
+        terminarTransicion();
+        setReposo(r => r + 1);
+      });
+      timelineRef.current = tl;
+      tl.play();
+    });
+    return () => ctx.revert();
+  }, [transicion, timelineRef, terminarTransicion]);
+
+  // Entrada de la parte 1: al cargar y cada vez que la intro reaparece subiendo desde abajo.
+  useLayoutEffect(() => {
+    if (!entrada) return;
+    const raiz = pasosRef.current[0];
+    if (!raiz) return;
+    let vivo = true;
+    const ctx = gsap.context(() => {
+      const tl = crearEntrada(raiz);
+      tl.eventCallback('onComplete', () => {
+        limpiar(raiz);
+        if (timelineRef.current === tl) timelineRef.current = null;
+        setReposo(r => r + 1);
+      });
+      timelineRef.current = tl;
+      imagenesListas(raiz).then(() => {
+        if (vivo) tl.play();
+      });
+    });
+    return () => {
+      vivo = false;
+      ctx.revert();
+    };
+  }, [entrada, timelineRef]);
+
+  // La persona se asoma como nota aparte, cuando la transición ya terminó: no alarga el bloqueo
+  // de gestos. Va en un efecto de layout para quedar escondida en el mismo commit en que el
+  // contexto de la transición se deshace (que la dejaría visible). Si llega un gesto, el asomo se
+  // mata SIN revertir: la salida la esconde desde donde esté, sin salto.
+  useLayoutEffect(() => {
+    if (transicion || !personaPendiente.current) return;
+    const raiz = pasosRef.current[pin.stepIndex];
+    if (!raiz) return;
+    const tween = crearAsomo(raiz);
+    tween?.eventCallback('onComplete', () => {
+      personaPendiente.current = false;
+      const persona = raiz.querySelector('[data-rol="persona"]');
+      if (persona) gsap.set(persona, { clearProps: 'transform,clipPath' });
+    });
+    return () => {
+      tween?.kill();
+    };
+  }, [transicion, pin.stepIndex]);
+
+  // Movimiento en reposo: arranca cuando la intro queda quieta y se detiene (volviendo suave a
+  // su sitio) en cuanto empieza una transición. Se pausa fuera de pantalla y con la pestaña
+  // oculta. Con `?quieto=1` no hay.
+  useEffect(() => {
+    if (pin.mode !== 'pin' || transicion || !reposo || quieto.current) return;
+    // Mientras corre la entrada de la parte 1, espera: su final vuelve a disparar este efecto.
+    if (timelineRef.current) return;
+    const raiz = pasosRef.current[pin.stepIndex];
+    if (!raiz) return;
+    const r = crearReposo(raiz);
+    let visible = true;
+    const actualizar = () => (visible && !document.hidden ? r.reanudar() : r.pausar());
+    const io = new IntersectionObserver(([en]) => {
+      visible = !!en?.isIntersecting;
+      actualizar();
+    });
+    if (pin.placeholderRef.current) io.observe(pin.placeholderRef.current);
+    document.addEventListener('visibilitychange', actualizar);
+    return () => {
+      io.disconnect();
+      document.removeEventListener('visibilitychange', actualizar);
+      r.detener();
+    };
+  }, [
+    pin.mode,
+    pin.stepIndex,
+    pin.placeholderRef,
+    transicion,
+    reposo,
+    entrada,
+    breakpoint,
+    timelineRef,
+  ]);
+
+  // Si el breakpoint cambia a media transición, las piezas animadas ya no existen: se termina.
+  // Solo cuenta un cambio real con el pin ya activo: el paso de 'mobile' (valor de arranque de
+  // useBreakpoint) al breakpoint de verdad llega en el mismo render que activa el pin, y
+  // terminar ahí mataba la entrada de la parte 1 en tablet y desktop.
+  const breakpointPrevio = useRef<Breakpoint | null>(null);
+  useEffect(() => {
+    if (pin.mode !== 'pin') return;
+    if (breakpointPrevio.current && breakpointPrevio.current !== breakpoint) {
+      timelineRef.current?.progress(1);
+    }
+    breakpointPrevio.current = breakpoint;
+  }, [pin.mode, breakpoint, timelineRef]);
+
+  if (pin.mode === 'fallback') {
+    return (
+      <section
+        aria-label={t('intro.label')}
+        className="relative w-full overflow-x-clip"
+        data-intro-estatica=""
+      >
+        {(['mobile', 'tablet', 'desktop'] as const).map(bp => (
+          <div key={bp} className={VISIBILIDAD[bp]}>
+            {INTRO_STEPS.map(paso => (
+              <Paso key={paso.id} groups={paso.groups} {...resolverPaso(paso, bp)} />
+            ))}
+          </div>
+        ))}
+      </section>
+    );
+  }
+
+  // Quieta, solo está montada la parte actual; durante una transición, la saliente y la
+  // entrante, esta encima.
+  const montados = transicion ? [transicion.desde, transicion.hacia] : [pin.stepIndex];
 
   return (
-    <section aria-label={t('intro.label')} className="relative w-full overflow-x-clip">
-      {(['mobile', 'tablet', 'desktop'] as const).map(bp => (
-        <div key={bp} className={VISIBILIDAD[bp]}>
-          {INTRO_STEPS.map(paso => {
-            // Si un paso no tiene variante propia para este breakpoint, se muestra
-            // la de mobile. Así se puede avanzar paso por paso sin romper nada.
-            const propia = paso.variants[bp];
+    <section
+      aria-label={t('intro.label')}
+      className="relative w-full overflow-x-clip"
+      data-paso={pin.stepIndex + 1}
+    >
+      {/* Ocupa una pantalla en el flujo, sin importar la parte: el avance es por gestos, no
+          por distancia de scroll. Enganchada, la misma caja pasa a `fixed` sin remontarse, y
+          como solo engancha con la página arriba del todo, no se mueve ni un píxel. */}
+      <div ref={pin.placeholderRef} className="relative h-dvh w-full">
+        <div
+          className={`inset-0 overflow-hidden ${pin.engaged ? 'fixed z-40 bg-beige' : 'absolute'}`}
+        >
+          {montados.map(i => {
+            const paso = INTRO_STEPS[i];
             return (
-              <Paso
+              <div
                 key={paso.id}
-                ancla={bp === 'mobile' ? paso.id : `${paso.id}-${bp}`}
-                variant={propia ?? paso.variants.mobile}
-                groups={paso.groups}
-                breakpoint={propia ? bp : 'mobile'}
-              />
+                ref={el => {
+                  pasosRef.current[i] = el;
+                }}
+                aria-hidden={i !== pin.stepIndex || undefined}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Paso groups={paso.groups} eager agrupar {...resolverPaso(paso, breakpoint)} />
+              </div>
             );
           })}
+          <PrecargaImagenes breakpoint={breakpoint} />
+          {pin.engaged && pin.saltarVisible && (
+            <button
+              ref={pin.saltarRef}
+              type="button"
+              onClick={pin.saltar}
+              className="absolute bottom-6 right-page-margin z-10 rounded-full border border-black/10 bg-white/80 px-5 py-2 text-sm font-bold text-black shadow-lg backdrop-blur-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue"
+            >
+              {t('intro.saltar')}
+            </button>
+          )}
         </div>
-      ))}
+      </div>
     </section>
   );
 }
