@@ -1,5 +1,8 @@
 # Arranque de sesión nueva
 
+> **Obsoleto desde el 2026-09-23:** las transiciones están aprobadas y en producción (PR #17).
+> El arranque vigente es `docs/CONTINUAR.md`. Esto se conserva como historial.
+
 Pega esto como primer mensaje en un chat nuevo. Está escrito para alguien sin ningún contexto
 previo de la conversación.
 

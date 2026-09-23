@@ -43,19 +43,16 @@ pida explícitamente.
 
 ## Trabajo en curso
 
-**El orden nuevo y Súmate como drawer** (rama `23-sep-orden-drawer`, 2026-09-23) es lo último que
-se construyó. Estado y pendientes en `docs/sumate-drawer/PROGRESS.md`; decisiones en
-`docs/sumate-drawer/DECISIONES.md`.
+**Arranque de sesión nueva: `docs/CONTINUAR.md`.** Tiene el prompt listo para pegar, el estado,
+el mapa de secciones, los pendientes y las lecciones que costaron horas.
 
-**Las transiciones de la Introducción** son el otro frente. Su estado vivo, sus decisiones y el
-prompt para continuar están en `docs/introduccion/`. Empieza por ahí:
+Frentes cerrados y en producción (2026-09-23), con su historial:
 
-- `docs/introduccion/CONTINUAR.md`: arranque de sesión nueva
-- `docs/introduccion/PROGRESS.md`: qué va hecho y qué sigue
-- `docs/introduccion/DECISIONES.md`: qué se decidió y por qué (D2: la mecánica actual)
-
-`docs/secciones-impacto/` es el historial cerrado del resto del primer tramo (Impacto, Quiénes
-somos y la Introducción estática). Se consulta, no se escribe ahí.
+- Transiciones de la Introducción (PR #17): `docs/introduccion/` (D1 a D5).
+- Orden nuevo y Súmate como drawer (PR #18): `docs/sumate-drawer/` (D1 y D2, pendientes en
+  PROGRESS).
+- `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
+  Introducción estática). Se consulta, no se reescribe.
 
 - `docs/PATTERNS.md`: convenciones del repo (grid, colores, copy, assets, animación)
 
