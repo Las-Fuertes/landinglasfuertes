@@ -6,6 +6,12 @@ import { useSumateDrawer } from './sumate-drawer-context';
 
 /** La primera sección tras la intro. Cuando su borde de arriba toca el techo, la intro ya salió. */
 const ID_TRAS_INTRO = 'bienvenida';
+/**
+ * Mientras la intro trae a Bienvenida (docs/introduccion/DECISIONES.md, D6), la página ya está en
+ * Bienvenida pero la intro sigue en pantalla con su botón de saltar abajo a la derecha: el botón
+ * espera a que termine. La intro marca `<html>` con este atributo mientras tanto.
+ */
+const LLEGANDO = 'data-intro-llegando';
 
 /**
  * Botón fijo "Súmate" abajo a la derecha. Aparece solo después de la intro (ni enganchada ni
@@ -23,7 +29,8 @@ export default function SumateFlotante() {
     const medir = () => {
       raf = 0;
       const el = document.getElementById(ID_TRAS_INTRO);
-      setTrasIntro(el ? el.getBoundingClientRect().top <= 0 : false);
+      const llegando = document.documentElement.hasAttribute(LLEGANDO);
+      setTrasIntro(el ? el.getBoundingClientRect().top <= 0 && !llegando : false);
     };
     const programar = () => {
       if (!raf) raf = requestAnimationFrame(medir);
@@ -31,7 +38,10 @@ export default function SumateFlotante() {
     medir();
     window.addEventListener('scroll', programar, { passive: true });
     window.addEventListener('resize', programar);
+    const mo = new MutationObserver(programar);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: [LLEGANDO] });
     return () => {
+      mo.disconnect();
       window.removeEventListener('scroll', programar);
       window.removeEventListener('resize', programar);
       if (raf) cancelAnimationFrame(raf);

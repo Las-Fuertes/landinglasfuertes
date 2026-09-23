@@ -518,3 +518,119 @@ avisaba en consola ("target not found"). Ahora mira antes de llamar.
 El reposo con `--quieto` sigue idéntico en las 9 capturas (mismas cifras que en D2). Siguen bien
 la inercia (un gesto, una parte), volver desde Impacto, el reenganche en la parte 3, el scroll
 encadenado, bajar de inmediato tras subir y saltar. `type-check` y `lint` limpios.
+
+---
+
+## D6. Bienvenida como un paso más de la intro: relevo del sol, entrada por piezas y reposo
+
+**Contexto.** Johan pidió el 2026-09-23 que Bienvenida sea "un paso más" de la intro, con el mismo
+patrón. Rama `23-sep-bienvenida` desde `main` (`5b5b299`), sin commitear. Diseño mobile en Figma
+`ng8HnnYyaDJ2nTWauh7Otb`, nodo `1278:2`.
+
+### Mecánica (`use-intro-pin.ts`, `intro-section.tsx`)
+
+- Desde la parte 3, un gesto hacia abajo (rueda, flecha, espacio, dedo) ya no suelta la intro:
+  `avanzar` abre una **llegada** (`llegada`, un id, como `transicion`). Un gesto sigue siendo un
+  paso: mientras corre, los gestos se tragan igual que en la intro y cuentan para el botón de
+  saltar.
+- En el efecto de layout de la llegada, antes del primer pintado: se ocultan las piezas de
+  Bienvenida, la página se desplaza sola a `#bienvenida` (`scrollTo` instantáneo) y la capa fija
+  de la intro deja de pintar su fondo beige. La parte 3 sigue encima, fija y en su sitio; debajo
+  ya está Bienvenida, oculta, sobre el mismo beige de la página. Por eso el salto de scroll no se
+  ve: `#bienvenida` queda en `top = 0` en todos los fotogramas.
+- La red de seguridad del scroll (soltar la capa si la página se mueve) se ignora durante la
+  llegada. Al terminar: la capa se suelta, la intro vuelve a la parte 1 sin animar (como al salir
+  por arriba) y el scroll es nativo. Lo que queda del gesto que la disparó (la inercia o el mismo
+  dedo) se sigue tragando hasta que empieza otro gesto, para que no siga bajando más allá.
+- Subir desde Bienvenida no cambia: se ve la parte 1 en flujo y reproduce su entrada; bajar
+  desde arriba engancha 1 -> 2. No hay llegada al revés.
+- "Saltar animación" termina la llegada con `progress(1)`: Bienvenida queda en reposo.
+- `<html data-intro-llegando>` mientras dura: el botón flotante de Súmate espera a que termine.
+  Sin eso aparecía al bajar la página y tapaba el botón de saltar (mismo rincón).
+
+### Coreografía (`components/intro/bienvenida.motion.ts`, cifras base x `ESCALA_TIEMPO`)
+
+1. La parte 3 sale con `salir()` (el texto último), menos el sol.
+2. **Relevo del sol**, como el barco (D4): el sol rojo viaja al disco del sol rosado (0,1 a 0,8 s
+   base, `power3.inOut`), se hunde y se aplasta al llegar, cambia en un fotograma por el disco
+   rosado y este se estira con `back.out(2.5)`. La parte recorta lo que se sale de su lienzo y en
+   móvil el sol rosado cae fuera, así que viaja una **copia** del sol rojo colgada de la capa fija
+   (el original se oculta en el mismo fotograma; la copia se quita al revertir el contexto).
+3. Los 13 **rayos** salen del disco en cascada, en el sentido del reloj desde arriba (0,035 s
+   entre uno y otro), cada uno desde más cerca del centro, con `back.out`.
+4. El **texto** entra primero, en 0,44 (cuando el viejo ya se fue): título, subtítulo manuscrito,
+   su subrayado se dibuja con `clip-path` de izquierda a derecha, y el párrafo.
+5. Las **nubes** derivan desde 0,9: solo opacidad y 14 px.
+6. La **ilustración** desde 1,0: palmera (crece desde abajo), olas (de lado, alternando), mujer
+   (sube 8 %), trazos (se dibujan) y flor (gira y aparece). El bloque de EMI solo hace un fundido:
+   se ve de entrada solo en pantallas muy altas.
+
+Para animar por piezas: el sol rosado es ahora `sol-rosado.tsx` (los paths de `pink-sun.svg` en
+`sol-rosado.data.ts`, el disco como `pink-sun-disco.png`, el raster que venía dentro del SVG) y
+la ilustración es `ilustracion-playa.tsx` con las capas de Figma (nodo `1278:99`) en
+`public/images/welcome/playa-*`. `beach-woman.png` y `pink-sun.svg` quedan sin uso (no se
+borran, regla de assets). Color nuevo `pink-sol` en Tailwind (`#F57DB7`, el del SVG).
+
+**Medido** (por fotograma, `?introPaso=3` y una muesca, flecha, inercia normal y fuerte, a
+390x844 y 1280x832; ms reales desde el desplazamiento): como mucho **1 sol visible** en cada
+fotograma y ninguno sin sol; texto viejo visible hasta 581, texto nuevo desde 614, relevo a
+1115, rayos desde 1232, nubes 1298, palmera 1398, olas 1481, mujer 1614, trazos 1698, flor 1815;
+la capa se suelta a los 2665. `scrollY` pasa de 0 al destino en un solo fotograma con la capa
+fija y no vuelve a cambiar. Capturas cada 100 ms: `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/serie/` (hoja de contacto
+`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/hoja-390.png`, relevo a 1280 en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/relevo-1280.png`).
+
+### Reposo: solo dos movimientos
+
+- **Rayos del sol:** giran alrededor del centro del disco, una vuelta cada 80 s (medido 4,52°/s),
+  arrancando desde 0 en 2 s. El **disco no gira**: es un raster con textura de lápiz y contorno
+  irregular; girando se ve bailar su silueta y el remuestreo lo hace titilar. Los rayos solos se
+  leen como un sol que gira.
+- **Pelo de la mujer:** la mujer es un raster sin el pelo separado. Se hizo con un filtro SVG
+  sobre la mujer: ruido de baja frecuencia (`feTurbulence`) que se desliza (`feOffset`), con
+  menos fuerza en x que en y, multiplicado por una **máscara** (`feImage`, degradados) que vale 1
+  en la melena y cae a 0 antes de la cabeza, la espalda y la rodilla, y usado en
+  `feDisplacementMap`. Como es una sola imagen y el desplazamiento se apaga suave, no hay costura
+  ni doble contorno. **Hallazgo:** fuera de la `feImage` el mapa es transparente y un mapa
+  transparente sí desplaza (copiaba el borde del pelo unos px más arriba): se pone un
+  `feFlood` negro opaco debajo. Además `color-interpolation-filters: sRGB` y el ruido opaco, para
+  que el gris 0,5 sea desplazamiento 0.
+  **Medido** en 6 s con capturas a 2x: los cambios quedan solo en el borde de la melena (mapa de
+  diferencias en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/pelo-union.png` y `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/pelo-union-1280.png`); el borde se mueve hasta 1,5 px
+  a 390 y 3 px a 1280 (percentil 95). Zoom sin costuras: `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/pelo-zoom-1280.png`.
+- Cifras en `REPOSO_BIENVENIDA`. Se pausa fuera de pantalla (con 1 px de margen: con la página
+  arriba, Bienvenida toca el borde inferior y contaba como visible) y con la pestaña oculta. Sin
+  idle con `?quieto=1`, `prefers-reduced-motion` o `#hash` al cargar (mismo atributo
+  `data-intro-anima` que la intro).
+
+### Llegar sin pasar por la intro
+
+Recarga a media página, `#hash`, barra de scroll o "saltar": Bienvenida se ve **en reposo**, sin
+entrada. Se eligió frente a una entrada al entrar en viewport porque el contenido puede estar ya a
+la vista al cargar (restauración del scroll) y ocultarlo para animarlo sería un parpadeo, y porque
+"saltar" ya pide reposo. El idle sí corre.
+
+### Diferencias visuales en reposo
+
+Comparado píxel a píxel con capturas previas (`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/antes/` vs `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep-intro/a603c801-2327-49d1-b139-e85c7fceab84/scratchpad/bienvenida/despues/`) a 390, 1000, 1280 y
+1512: 0,6 a 1,5 % de píxeles distintos, **todos en bordes** (antialias del sol y de la
+ilustración). La ilustración se ve **algo más nítida**: antes era un PNG de 390 px estirado hasta
+720 en desktop; ahora cada capa viene a más resolución. Posiciones iguales. El anillo del disco
+queda por encima de los rayos (no se tocan). Tras la llegada, el reposo es idéntico al estático
+(4 y 5 px distintos a 390 y 1280). Las 3 partes de la intro en reposo: 0 px distintos.
+
+### Sin cambios en la intro
+
+Repetido a 390x844 y 1280x832: una inercia normal avanza una parte (1 -> 2 -> 3 y atrás hasta
+soltar en la 1), la inercia fuerte y tres gestos cortos avanzan una y muestran el botón, flechas,
+Tab y Escape, saltar (lleva a `#bienvenida` con el foco), volver desde abajo sin enganche y bajar
+de nuevo a la parte 2. `#bienvenida` y reduced-motion: intro estática, sin idle.
+
+### Ampliación 2026-09-23: el pelo se retira
+
+Johan pidió quitar el movimiento del pelo de la mujer. La mujer es un raster
+(`public/images/welcome/playa-mujer.png`) sin el pelo separado, y el filtro deforma píxeles de una
+imagen plana. Se rehará cuando la diseñadora exporte el pelo como SVG aparte. Se borró todo el
+código (el filtro y la máscara en `ilustracion-playa.tsx`, el bloque del reposo y las cifras
+`PELO_*` en `bienvenida.motion.ts`): la mujer vuelve a ser una imagen normal, idéntica en reposo.
+El reposo de Bienvenida queda solo con el giro de los rayos, sin cambios. El truco del filtro
+queda descrito arriba ("Reposo: solo dos movimientos") como referencia, por si sirve de nuevo.

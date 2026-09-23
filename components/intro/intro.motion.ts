@@ -16,11 +16,11 @@ import { CANVAS, type Rol } from './intro.data';
 export type Sentido = 1 | -1;
 
 /** Lo que sube o baja el texto al entrar y salir. */
-const TEXTO_DESPLAZAMIENTO_PX = 24;
+export const TEXTO_DESPLAZAMIENTO_PX = 24;
 /** Desenfoque del texto mientras aparece. */
-const TEXTO_BLUR_PX = 6;
+export const TEXTO_BLUR_PX = 6;
 /** Cuánto se sale el trazo de un garabato de su caja; el recorte lo deja respirar. */
-const HOLGURA_RECORTE = '-20%';
+export const HOLGURA_RECORTE = '-20%';
 
 /**
  * Escala de todos los tiempos. Las cifras de abajo son la base; el timeline entero se reproduce
@@ -34,7 +34,7 @@ export const ESCALA_TIEMPO = 1.4;
  * las piezas se van primero y el texto viejo es lo último en apagarse; en la entrada el texto
  * nuevo llega el primero, justo cuando el viejo ya se fue, y las piezas lo siguen.
  */
-const T = {
+export const T = {
   SALIDA_PIEZAS: 0,
   SALIDA_TEXTO: 0.15,
   ENTRADA_TEXTO: 0.44,
@@ -112,23 +112,28 @@ const SALIDA_HORIZONTE_DURACION = 0.42;
 
 /** Piezas que viajan de su sitio viejo al nuevo entre las partes 2 y 3. */
 const VIAJAN: Rol[] = ['sol', 'barco', 'ola'];
-const VIAJE_DURACION = 0.85;
+export const VIAJE_DURACION = 0.85;
 
 /**
  * Relevo del barco entre las partes 2 y 3, "salto con squash" (D4, elegido por Johan): cuánto se
  * hunde (en % de su alto), cuánto se aplasta y cuánto dura cada tramo.
  */
-const HUNDIMIENTO = 12;
-const APLASTADO = 0.55;
-const HUNDIR_DURACION = 0.14;
-const EMERGER_DURACION = 0.4;
+export const HUNDIMIENTO = 12;
+export const APLASTADO = 0.55;
+export const HUNDIR_DURACION = 0.14;
+export const EMERGER_DURACION = 0.4;
 
 /** Propiedades que la animación toca y que se borran al terminar. */
-const PROPIEDADES = 'transform,transformOrigin,opacity,filter,clipPath,visibility';
+export const PROPIEDADES = 'transform,transformOrigin,opacity,filter,clipPath,visibility';
 
-const recorte = (arriba: string, derecha: string, abajo: string, izquierda: string) =>
+export const recorte = (arriba: string, derecha: string, abajo: string, izquierda: string) =>
   `inset(${arriba} ${derecha} ${abajo} ${izquierda})`;
-const RECORTE_ABIERTO = recorte(HOLGURA_RECORTE, HOLGURA_RECORTE, HOLGURA_RECORTE, HOLGURA_RECORTE);
+export const RECORTE_ABIERTO = recorte(
+  HOLGURA_RECORTE,
+  HOLGURA_RECORTE,
+  HOLGURA_RECORTE,
+  HOLGURA_RECORTE
+);
 
 /** Estado oculto de un rol. La entrada parte de aquí; la salida va aquí con el sentido opuesto. */
 function oculto(rol: Rol, s: Sentido, i: number): gsap.TweenVars {
@@ -336,7 +341,7 @@ function esconderYa(el: HTMLElement) {
 const PERSONA_RETRASO_S = 0.5;
 /** Lo que tarda en esconderse al retroceder (base). El barco no se mueve hasta que termina. */
 const PERSONA_SALIDA = 0.25;
-const VIAJE_TRAS_PERSONA = PERSONA_SALIDA + 0.05;
+export const VIAJE_TRAS_PERSONA = PERSONA_SALIDA + 0.05;
 
 /**
  * Se esconde hacia abajo dentro del barco, desde donde esté (quieta o a medio asomarse): así un
@@ -420,7 +425,7 @@ function entrar(
 }
 
 /** Añade al timeline la salida de todas las piezas de `raiz`, excepto las de `excluir`. */
-function salir(tl: gsap.core.Timeline, raiz: HTMLElement, s: Sentido, excluir: Rol[] = []) {
+export function salir(tl: gsap.core.Timeline, raiz: HTMLElement, s: Sentido, excluir: Rol[] = []) {
   const opuesto = -s as Sentido;
   ROLES.filter(r => !excluir.includes(r)).forEach(rol => {
     // Las burbujas salen de fuera hacia dentro: el orden de entrada, al revés.
@@ -457,7 +462,7 @@ function salir(tl: gsap.core.Timeline, raiz: HTMLElement, s: Sentido, excluir: R
 }
 
 /** Caja que envuelve a varias piezas, medida en pantalla. */
-function cajaDe(piezas: HTMLElement[]) {
+export function cajaDe(piezas: HTMLElement[]) {
   const rs = piezas.map(p => p.getBoundingClientRect());
   const left = Math.min(...rs.map(r => r.left));
   const top = Math.min(...rs.map(r => r.top));
@@ -473,7 +478,7 @@ type Caja = ReturnType<typeof cajaDe>;
  * dentro de la caja `a`. Es la base del viaje: se aplica a todo un rol a la vez para que las
  * piezas conserven su posición relativa mientras se mueven.
  */
-function mapear(el: HTMLElement, de: Caja, a: Caja): gsap.TweenVars {
+export function mapear(el: HTMLElement, de: Caja, a: Caja): gsap.TweenVars {
   const c = centro(el.getBoundingClientRect());
   const sx = a.width / (de.width || 1);
   const sy = a.height / (de.height || 1);
@@ -640,7 +645,7 @@ const entre = ([a, b]: readonly number[], t: number) => a + (b - a) * t;
  * Oscila una propiedad alrededor de 0. El primer medio ciclo sale de 0 con la misma curva, así
  * el movimiento arranca sin salto; luego va de +amp a -amp sin fin.
  */
-function oscilar(
+export function oscilar(
   el: HTMLElement,
   prop: 'x' | 'y' | 'rotation',
   amp: number,

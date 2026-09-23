@@ -5,9 +5,10 @@
 > partes) ya está cerrado y en producción; su historial vive en `docs/secciones-impacto/` y no se
 > toca (D1).
 
-Última actualización: 2026-09-23.
-Rama de trabajo: `23-sep-intro`, en el worktree `~/orca/workspaces/landinglasfuertes/23-sep-intro/`,
-sobre `main` en `ccef30f`. **Todo sin commitear**: nada llega a `main` sin que Johan lo pida.
+Última actualización: 2026-09-23 (D6).
+Las rondas 1 a 5 están en `main` (PR #17). Trabajo en curso: rama `23-sep-bienvenida`, en el
+worktree `~/orca/workspaces/landinglasfuertes/23-sep-intro/`, sobre `main` en `5b5b299`.
+**D6 sin commitear**: nada llega a `main` sin que Johan lo pida.
 
 ## Dónde vamos
 
@@ -18,13 +19,19 @@ sobre `main` en `ccef30f`. **Todo sin commitear**: nada llega a `main` sin que J
 | 2, ronda 2     | Más lento (x1,4), el texto manda, relevo sin barcos duplicados, gestos encadenados                        | Probada por Johan: pidió pulir el barco, la persona y la tierra.     |
 | 2, ronda 3     | Dos variantes del relevo del barco (`?barco=a` / `?barco=b`), persona desde el doblez, tierra con fundido | Johan eligió la variante b del barco (squash and stretch).           |
 | 2, ronda 4     | Barco b definitivo, persona lineal y como nota aparte, movimiento sutil en reposo                         | Probada por Johan: pidió que la persona salga del borde inclinado.   |
-| 2, ronda 5     | Recorte de la persona por el borde inclinado del barco                                                    | Construido y verificado por CDP (D5). **Falta que Johan lo pruebe.** |
+| 2, ronda 5     | Recorte de la persona por el borde inclinado del barco                                                    | Aprobado y en `main` (PR #17).                                       |
+| Bienvenida     | Bienvenida como paso de la intro: relevo del sol, entrada por piezas, reposo (rayos; el pelo se retiró)   | Construido y verificado por CDP (D6). **Falta verificador y Johan.** |
 
 El detalle del intento 2 (causas raíz del 1, umbrales, tiempos, qué se verificó y cómo) está en
 `DECISIONES.md`, D2. La ronda 2 (ajustes de la diseñadora y tres bugs de la prueba de Johan), en D3.
 
 ## Qué sigue, en orden
 
+0. **D6 (Bienvenida):** un verificador independiente y luego Johan en `localhost:3000`. Mirar: que
+   el salto a Bienvenida no se note, el relevo del sol, el ritmo (unos 2,7 s de bloqueo, más que
+   una transición de la intro: si se siente largo, `LLEGADA` en `bienvenida.motion.ts`) y la
+   ilustración algo más nítida. El pelo ya no se mueve: se retiró (ampliación al final de D6).
+   Probar con dedo real: la llegada ahora también la dispara el touch desde la parte 3.
 1. **Johan prueba la ronda 4** en `localhost:3000`: la persona (lineal, llega tarde), el idle
    (si se ve demasiado o nada, son las cifras de `REPOSO` en `intro.motion.ts`) y el barco b ya
    definitivo. Decidir también si la nube y el sol se suavizan en sus entradas (D4, punto 3).
@@ -38,8 +45,18 @@ El detalle del intento 2 (causas raíz del 1, umbrales, tiempos, qué se verific
 4. Con su visto bueno: commit, PR y merge (`gh auth switch --user johanmendezb` antes de `gh`).
 5. Pendiente anotado, no pedido: en pantallas más bajas que el lienzo (portátil de 1280x700, móvil
    apaisado) la parte se centra y se recorta. Ver el final de D2. Lo decide Johan.
+6. Pendiente anotado, no pedido: animar el pelo de la mujer de Bienvenida cuando exista como SVG
+   aparte (D6).
 
 ## Archivos del cambio
+
+D6 (Bienvenida): `components/intro/bienvenida.motion.ts` (nuevo), `use-intro-pin.ts` (llegada),
+`intro-section.tsx` (efecto de la llegada), `intro.motion.ts` (solo exports),
+`components/welcome/{welcome,sol-rosado,ilustracion-playa}.tsx`, `sol-rosado.data.ts`,
+`components/sumate/sumate-flotante.tsx` (espera a la llegada), `tailwind.config.js` (`pink-sol`),
+`public/images/welcome/pink-sun-disco.png` y `playa-*`.
+
+Rondas 1 a 5:
 
 - `components/intro/use-intro-pin.ts`: gestos, enganche, saltar y reinicio (reescrito).
 - `components/intro/intro.motion.ts`: roles y timelines de GSAP (nuevo).
@@ -57,6 +74,14 @@ En `docs/secciones-impacto/DECISIONES.md`: **D13** (capas en porcentaje sobre un
 **D26** (el horizonte de la parte 2 sangra en desktop: verificar a 1920).
 
 ## Bitácora
+
+### 2026-09-23: Bienvenida como paso de la intro (D6)
+
+Desde la parte 3, un gesto trae Bienvenida: la intro sale, la página se asienta sola en
+`#bienvenida` bajo la capa fija, el sol rojo viaja y cambia por el rosado con squash and stretch,
+los rayos salen en cascada y Bienvenida entra por piezas (texto primero). En reposo giran los
+rayos y ondea el pelo (filtro SVG con máscara, sin costuras). La ilustración pasó de un PNG a
+capas de Figma. Verificado por CDP con cifras en D6.
 
 ### 2026-09-23: ronda 5 (D5)
 
