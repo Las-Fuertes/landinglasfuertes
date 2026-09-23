@@ -205,6 +205,17 @@
 }
 
 /* ================================
+   INTRODUCCIÓN
+   ================================ */
+
+/* Mientras la página hidrata, la intro estática no se pinta si luego va a animarse: el
+   script de pages/_document.tsx marca <html> con las mismas condiciones que useIntroPin.
+   Ocupa su sitio igual (visibility, no display), así nada salta. */
+html[data-intro-anima] [data-intro-estatica] {
+  visibility: hidden;
+}
+
+/* ================================
    REDUCED MOTION
    ================================ */
 @media (prefers-reduced-motion: reduce) {

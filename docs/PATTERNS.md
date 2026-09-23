@@ -193,10 +193,33 @@ recorte suelto y deja un hueco; por encima de 324 se parte por dentro. Ver D28.
 
 - **Entrada al hacer scroll**: `FadeIn` (framer-motion, `whileInView`, `once: true`, fade + 28px
   desde abajo). Es el patrón por defecto para secciones nuevas; acepta `delay` para stagger.
-- **GSAP + ScrollTrigger**: solo en la intro. No lo extiendas a secciones nuevas sin razón.
+- **GSAP (solo el núcleo, sin ScrollTrigger)**: solo en las transiciones de la Introducción
+  (`components/intro/intro.motion.ts`). El avance es por gesto, no por posición del scroll, así que
+  ScrollTrigger no se usa. Todo timeline va dentro de `gsap.context()` y se deshace con
+  `ctx.revert()` al desmontar (StrictMode monta dos veces). No lo extiendas a secciones nuevas sin
+  razón. Ver `docs/introduccion/DECISIONES.md`, D2.
 - **Swiper**: solo en el carrusel de `components/principles/`.
 - **`prefers-reduced-motion`**: el repo ya lo respeta en varios sitios (por ejemplo
   `components/education-map/education-map-section.tsx`). Toda animación nueva debe respetarlo.
+
+### Verificar la Introducción con pin
+
+Con el pin solo está montada la parte actual, así que para la intro no sirve `--ancla`. Flags de
+`scripts/captura.js` (detalle en la cabecera del script):
+
+- `--paso N`: agrega `?introPaso=N`, fuerza la parte (1 a 3) ya enganchada y sin entrada.
+- `--gesto dY`, `--rafaga N:dY`: un evento de rueda real por CDP, o N seguidos cada 16 ms.
+- `--inercia A:r`: simula un trackpad, 60 eventos cada 30 ms (1,8 s) desde `A` decayendo por `r`.
+  `120:0.9` es un gesto normal (unos 1200 px); `200:0.95` es un scroll fuerte (unos 3700 px).
+- `--tecla K`: keydown y keyup reales (`Tab`, `Escape`, `ArrowDown`...).
+- `--tras-lista 0,300,600,900,1200`: una captura por cada ms tras el gesto, con sufijo `-<ms>`.
+- `--recorte id`: recorta a la caja de ese elemento, para comparar una parte aunque se mueva.
+- `--reducido` emula `prefers-reduced-motion`; `--hash h` carga con `#h`; `--leer expr` imprime.
+- `--quieto`: agrega `?quieto=1`, que congela el movimiento en reposo de la intro. Úsalo en toda
+  comparación de capturas en reposo, si no cada captura sale con las piezas en otro punto.
+- `--param k=v`: añade cualquier otro parámetro a la URL.
+
+Tablet se verifica a 1000 de ancho, nunca a 1024 (a 1024 exacto gana desktop).
 
 ## Assets
 

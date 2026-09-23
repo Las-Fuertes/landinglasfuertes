@@ -37,13 +37,17 @@ pida explícitamente.
 
 ## Trabajo en curso
 
-El primer tramo de la web se está reconstruyendo. El estado vivo, las decisiones y el prompt para
-continuar están en `docs/secciones-impacto/`. Empieza por ahí:
+**Las transiciones de la Introducción** son el trabajo activo. Su estado vivo, sus decisiones y el
+prompt para continuar están en `docs/introduccion/`. Empieza por ahí:
 
-- `docs/secciones-impacto/CONTINUAR.md` — arranque de sesión nueva
-- `docs/secciones-impacto/PROGRESS.md` — qué va hecho y qué sigue
-- `docs/secciones-impacto/DECISIONES.md` — qué se decidió y por qué
-- `docs/PATTERNS.md` — convenciones del repo (grid, colores, copy, assets, animación)
+- `docs/introduccion/CONTINUAR.md`: arranque de sesión nueva
+- `docs/introduccion/PROGRESS.md`: qué va hecho y qué sigue
+- `docs/introduccion/DECISIONES.md`: qué se decidió y por qué (D2: la mecánica actual)
+
+`docs/secciones-impacto/` es el historial cerrado del resto del primer tramo (Impacto, Quiénes
+somos y la Introducción estática). Se consulta, no se escribe ahí.
+
+- `docs/PATTERNS.md`: convenciones del repo (grid, colores, copy, assets, animación)
 
 ## Reglas
 
