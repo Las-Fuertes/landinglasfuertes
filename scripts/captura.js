@@ -39,6 +39,9 @@
  *   --quieto         agrega `?quieto=1`: congela el movimiento en reposo de la intro, para que
  *                    las capturas en reposo se puedan comparar píxel a píxel.
  *   --param k=v      añade un parámetro más a la URL.
+ *   --clic sel       clic real de ratón (CDP) en el centro del elemento que casa con el selector
+ *                    CSS, tras llevarlo al centro de la pantalla. Sirve para abrir el drawer de
+ *                    Súmate: `--clic "footer nav button"` o `--clic [data-sumate-flotante]`.
  *
  * Ejemplos:
  *   node scripts/captura.js --paso 2 --w 1280 --h 832 --out /tmp/paso2.png
@@ -167,7 +170,37 @@ async function capturar(browserWs) {
       { type: 'mouseWheel', x: Math.round(w / 2), y: Math.round(h / 2), deltaX: 0, deltaY },
       s
     );
-  const hayGesto = args.gesto || args.rafaga || args.inercia || args.tecla;
+  const hayGesto = args.gesto || args.rafaga || args.inercia || args.tecla || args.clic;
+  if (args.clic) {
+    const centro = async () =>
+      (
+        await enviar(
+          'Runtime.evaluate',
+          {
+            expression: `(() => { const el = document.querySelector(${JSON.stringify(args.clic)}); if (!el) return null; const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`,
+            returnByValue: true,
+          },
+          s
+        )
+      ).result?.result?.value;
+    await enviar(
+      'Runtime.evaluate',
+      {
+        expression: `document.querySelector(${JSON.stringify(args.clic)})?.scrollIntoView({ block: 'center' })`,
+      },
+      s
+    );
+    await dormir(400);
+    const c = await centro();
+    if (!c) throw new Error(`Selector no encontrado: ${args.clic}`);
+    for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
+      await enviar(
+        'Input.dispatchMouseEvent',
+        { type, x: c[0], y: c[1], button: 'left', clickCount: 1 },
+        s
+      );
+    }
+  }
   if (args.gesto) await rueda(Number(args.gesto));
   if (args.rafaga) {
     const [n, deltaY] = args.rafaga.split(':').map(Number);

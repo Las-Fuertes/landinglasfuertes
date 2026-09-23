@@ -38,7 +38,7 @@ export default function ComoAyudar() {
   const Panel = PANELS[category];
 
   return (
-    <div id="donar" className="scroll-mt-24">
+    <div id="donar" className="scroll-mt-s">
       <h3 className="text-center text-[1.6rem] font-bold leading-tight text-black md:text-[2rem]">
         {t('sumate.wizard.question')}
       </h3>

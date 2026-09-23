@@ -15,7 +15,12 @@ export default function WelcomeSection() {
   const { t } = useTranslation();
 
   return (
-    <section className="relative w-full pb-16 pt-10" aria-labelledby="welcome-title">
+    <section
+      id="bienvenida"
+      // Destino de "Saltar animación", que le pone tabindex=-1 y el foco: sin contorno de foco.
+      className="relative w-full pb-16 pt-10 outline-none"
+      aria-labelledby="welcome-title"
+    >
       <PageGrid className="mb-10">
         <div className="relative col-span-4 mx-auto flex min-h-[9rem] w-full max-w-lg items-start justify-center md:col-span-12">
           {/* Left cloud — ~25% past left edge; ~24px below vertical center */}

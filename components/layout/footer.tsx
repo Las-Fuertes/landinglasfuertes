@@ -8,16 +8,17 @@ import { PageGrid } from './page-grid';
 import { useTranslation } from '../../hooks/useTranslation';
 import { instagramHref } from '../sumate/sumate.data';
 import ContactModal from '../contact/contact-modal';
+import { useSumateDrawer } from '../sumate/sumate-drawer-context';
 
 const NAV_LINKS = [
   { key: 'footer.navWelcome', href: '#welcome-title' },
   { key: 'footer.navPrinciples', href: '#principles-title' },
-  { key: 'footer.navSumate', href: '#sumate' },
 ] as const;
 
 export default function Footer() {
   const { t } = useTranslation();
   const [contactOpen, setContactOpen] = useState(false);
+  const sumate = useSumateDrawer();
   const igHref = instagramHref();
   const year = new Date().getFullYear();
 
@@ -55,6 +56,17 @@ export default function Footer() {
                 </a>
               </li>
             ))}
+            {/* Súmate ya no es una sección: abre el drawer (docs/sumate-drawer/DECISIONES.md, D2). */}
+            <li>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() => sumate.open('footer')}
+                className="font-bold text-white underline-offset-4 transition hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                {t('footer.navSumate')}
+              </button>
+            </li>
           </ul>
         </nav>
 

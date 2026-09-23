@@ -26,8 +26,14 @@ npm run build
 `pages/index.tsx` es el dueño del orden de secciones. No está dentro de ningún componente:
 
 ```
-Hero (intro) -> Welcome -> Principles -> Donaciones -> Mapa educativo -> Súmate -> [Quiénes somos] -> Footer
+Introducción -> Welcome -> Principles -> Donaciones -> Mapa educativo -> Impacto -> Quiénes somos -> Footer
 ```
+
+Desde el 2026-09-23, **Súmate no es una sección**: es un drawer (lateral en desktop, sheet desde
+abajo en móvil y tablet) que abren el botón de Donaciones, el enlace del footer, un botón flotante
+fijo y el deep link `/#sumate`. Se abre desde cualquier componente con
+`useSumateDrawer().open('<origen>')` (`components/sumate/sumate-drawer-context.tsx`). "Saltar
+animación" de la intro lleva a Welcome (`#bienvenida`). Ver `docs/sumate-drawer/DECISIONES.md`.
 
 Ya NO existe el query param `?show=all`: se retiró el 2026-09-21 y todo el sitio carga por defecto.
 Si ves referencias a ese param en algún lado, están obsoletas.
@@ -37,7 +43,11 @@ pida explícitamente.
 
 ## Trabajo en curso
 
-**Las transiciones de la Introducción** son el trabajo activo. Su estado vivo, sus decisiones y el
+**El orden nuevo y Súmate como drawer** (rama `23-sep-orden-drawer`, 2026-09-23) es lo último que
+se construyó. Estado y pendientes en `docs/sumate-drawer/PROGRESS.md`; decisiones en
+`docs/sumate-drawer/DECISIONES.md`.
+
+**Las transiciones de la Introducción** son el otro frente. Su estado vivo, sus decisiones y el
 prompt para continuar están en `docs/introduccion/`. Empieza por ahí:
 
 - `docs/introduccion/CONTINUAR.md`: arranque de sesión nueva
