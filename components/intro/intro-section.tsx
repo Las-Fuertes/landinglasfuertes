@@ -13,6 +13,7 @@ import {
   type IntroStep,
   type IntroVariant,
 } from './intro.data';
+import { crearLlegada, limpiarBienvenida } from './bienvenida.motion';
 import { crearAsomo, crearEntrada, crearReposo, crearTransicion, limpiar } from './intro.motion';
 import { useBreakpoint } from './use-breakpoint';
 import { useIntroPin } from './use-intro-pin';
@@ -293,7 +294,7 @@ export default function IntroSection() {
   const pin = useIntroPin(INTRO_STEPS.length);
   const breakpoint = useBreakpoint();
   const pasosRef = useRef<(HTMLDivElement | null)[]>([]);
-  const { transicion, entrada, timelineRef, terminarTransicion } = pin;
+  const { transicion, entrada, llegada, timelineRef, terminarTransicion, terminarLlegada } = pin;
 
   /**
    * Cambia cada vez que la intro queda quieta tras una entrada o una transición: es cuando
@@ -342,6 +343,45 @@ export default function IntroSection() {
     return () => ctx.revert();
   }, [transicion, timelineRef, terminarTransicion]);
 
+  // Llegada a Bienvenida desde la parte 3 (D6). Todo antes del primer pintado: las piezas de
+  // Bienvenida se ocultan, la página se asienta en Bienvenida por debajo de la capa fija (que
+  // deja de pintar su fondo en este mismo render) y la parte 3 sigue encima, en su sitio, para
+  // salir con su coreografía. Como la capa es fija y Bienvenida está oculta, el salto de scroll
+  // no se ve. Al terminar, la capa se suelta y el scroll vuelve a ser nativo.
+  useLayoutEffect(() => {
+    if (!llegada) return;
+    const origen = pasosRef.current[INTRO_STEPS.length - 1];
+    const bienvenida = document.getElementById('bienvenida');
+    // La persona de la parte 3 no se asoma: sale con la intro, desde donde esté.
+    personaPendiente.current = false;
+    if (!origen || !bienvenida) {
+      terminarLlegada();
+      return;
+    }
+    // El botón flotante de Súmate espera a que termine (tapaba el de saltar).
+    document.documentElement.setAttribute('data-intro-llegando', '');
+    // Primero se desplaza (sin animación: la capa fija lo tapa) y luego se mide: la llegada
+    // lleva el sol rojo al sitio del rosado en pantalla.
+    window.scrollTo({
+      top: bienvenida.getBoundingClientRect().top + window.scrollY,
+      behavior: 'instant',
+    });
+    const ctx = gsap.context(() => {
+      const { tl, deshacer } = crearLlegada(origen, bienvenida);
+      tl.eventCallback('onComplete', () => {
+        limpiarBienvenida(bienvenida);
+        terminarLlegada();
+      });
+      timelineRef.current = tl;
+      tl.play();
+      return deshacer;
+    });
+    return () => {
+      ctx.revert();
+      document.documentElement.removeAttribute('data-intro-llegando');
+    };
+  }, [llegada, timelineRef, terminarLlegada]);
+
   // Entrada de la parte 1: al cargar y cada vez que la intro reaparece subiendo desde abajo.
   useLayoutEffect(() => {
     if (!entrada) return;
@@ -371,7 +411,7 @@ export default function IntroSection() {
   // contexto de la transición se deshace (que la dejaría visible). Si llega un gesto, el asomo se
   // mata SIN revertir: la salida la esconde desde donde esté, sin salto.
   useLayoutEffect(() => {
-    if (transicion || !personaPendiente.current) return;
+    if (transicion || llegada || !personaPendiente.current) return;
     const raiz = pasosRef.current[pin.stepIndex];
     if (!raiz) return;
     const tween = crearAsomo(raiz);
@@ -383,13 +423,13 @@ export default function IntroSection() {
     return () => {
       tween?.kill();
     };
-  }, [transicion, pin.stepIndex]);
+  }, [transicion, llegada, pin.stepIndex]);
 
   // Movimiento en reposo: arranca cuando la intro queda quieta y se detiene (volviendo suave a
   // su sitio) en cuanto empieza una transición. Se pausa fuera de pantalla y con la pestaña
   // oculta. Con `?quieto=1` no hay.
   useEffect(() => {
-    if (pin.mode !== 'pin' || transicion || !reposo || quieto.current) return;
+    if (pin.mode !== 'pin' || transicion || llegada || !reposo || quieto.current) return;
     // Mientras corre la entrada de la parte 1, espera: su final vuelve a disparar este efecto.
     if (timelineRef.current) return;
     const raiz = pasosRef.current[pin.stepIndex];
@@ -413,6 +453,7 @@ export default function IntroSection() {
     pin.stepIndex,
     pin.placeholderRef,
     transicion,
+    llegada,
     reposo,
     entrada,
     breakpoint,
@@ -465,7 +506,9 @@ export default function IntroSection() {
           como solo engancha con la página arriba del todo, no se mueve ni un píxel. */}
       <div ref={pin.placeholderRef} className="relative h-dvh w-full">
         <div
-          className={`inset-0 overflow-hidden ${pin.engaged ? 'fixed z-40 bg-beige' : 'absolute'}`}
+          // Durante la llegada a Bienvenida la capa sigue fija pero sin fondo: debajo ya está
+          // Bienvenida, con sus piezas ocultas, sobre el mismo beige de la página (D6).
+          className={`inset-0 overflow-hidden ${pin.engaged ? `fixed z-40 ${llegada ? '' : 'bg-beige'}` : 'absolute'}`}
         >
           {montados.map(i => {
             const paso = INTRO_STEPS[i];

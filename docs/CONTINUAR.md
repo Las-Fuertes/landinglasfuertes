@@ -25,6 +25,11 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   Súmate ya no es una sección: es un drawer (lateral en desktop, sheet desde abajo en móvil) que
   abren el botón de Donaciones, el footer, un botón flotante y `/#sumate` o `/#donar`.
 
+EN CURSO, SIN MERGEAR (2026-09-23): rama `23-sep-bienvenida`. Bienvenida como un paso más de la
+  intro: desde la parte 3 un gesto trae Bienvenida (relevo del sol rojo al rosado con squash and
+  stretch, entrada por piezas, texto primero) y en reposo giran los rayos del sol y ondea el pelo
+  de la mujer. Detalle en docs/introduccion/DECISIONES.md, D6. Falta verificador y prueba de Johan.
+
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 
 ============================================================
@@ -68,6 +73,7 @@ PENDIENTES CONOCIDOS (anotados, no pedidos; solo se tocan si Johan los pide)
   - Intro en pantallas más bajas que el lienzo (móvil apaisado): las partes 1 y 2 pierden el texto.
   - Bloques de Impacto en desktop se ven flacos (esperando feedback de diseño). Tablet de Impacto
     sin revisar. Claves de copy de la intro con prefijo `hero.` (limpieza opcional).
+  - Animar el pelo de la mujer de Bienvenida cuando exista como SVG aparte (D6).
 
 CÓMO TRABAJAR (regla de Johan: el orquestador no implementa)
   - El chat principal orquesta. Todo subagente se lanza con `model` explícito: "opus" para

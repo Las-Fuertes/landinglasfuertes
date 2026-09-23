@@ -58,6 +58,13 @@ export interface IntroPinState {
   transicion: Transicion | null;
   /** Cambia cada vez que la parte 1 debe reproducir su entrada (al cargar, al volver desde abajo). */
   entrada: number;
+  /**
+   * Llegada a Bienvenida desde la parte 3 (D6): distinto de 0 mientras corre. Cambia con cada
+   * llegada, para que el efecto que la anima se dispare aunque se repita.
+   */
+  llegada: number;
+  /** El componente avisa cuando el timeline de la llegada terminó. */
+  terminarLlegada: () => void;
   engaged: boolean;
   saltarVisible: boolean;
   placeholderRef: RefObject<HTMLDivElement>;
@@ -103,6 +110,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   const [stepIndex, setStepIndex] = useState(0);
   const [transicion, setTransicion] = useState<Transicion | null>(null);
   const [entrada, setEntrada] = useState(0);
+  const [llegada, setLlegada] = useState(0);
   const [engaged, setEngaged] = useState(false);
   const [saltarVisible, setSaltarVisible] = useState(false);
 
@@ -115,6 +123,15 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   /** Corre una transición (la entrada de la parte 1 no bloquea: un gesto la termina). */
   const corriendoRef = useRef(false);
   const transicionIdRef = useRef(0);
+  /** Corre la llegada a Bienvenida: la página se desplaza por código y la capa sigue fija. */
+  const llegandoRef = useRef(false);
+  /**
+   * Tras la llegada, el resto del gesto que la disparó (la inercia, o el mismo dedo) se sigue
+   * tragando: si no, al soltar la capa fija la página seguiría bajando más allá de Bienvenida.
+   */
+  const tragarRef = useRef(false);
+  /** La intro salió por arriba: al reaparecer, la parte 1 reproduce su entrada. */
+  const salioRef = useRef(false);
   const gestosDuranteRef = useRef(0);
   const gestoRef = useRef<Gesto>({
     vivo: false,
@@ -140,6 +157,25 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     setTransicion(null);
   }, []);
 
+  /**
+   * Fin de la llegada a Bienvenida: la capa fija se suelta (la página ya está en Bienvenida) y la
+   * intro vuelve a la parte 1 sin animar, como cuando sale de la pantalla por arriba. Al subir,
+   * se ve la parte 1 en su sitio y reproduce su entrada (D2, D3).
+   */
+  const terminarLlegada = useCallback(() => {
+    llegandoRef.current = false;
+    corriendoRef.current = false;
+    timelineRef.current = null;
+    tragarRef.current = true;
+    salioRef.current = true;
+    stepRef.current = 0;
+    setStepIndex(0);
+    setLlegada(0);
+    engagedRef.current = false;
+    setEngaged(false);
+    setSaltarVisible(false);
+  }, []);
+
   /** Termina de golpe lo que esté corriendo. `progress(1)` dispara su `onComplete`. */
   const terminarTimeline = useCallback(() => {
     timelineRef.current?.progress(1);
@@ -158,6 +194,16 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   const avanzar = useCallback(
     (sentido: Sentido): boolean => {
       const siguiente = stepRef.current + sentido;
+      // Desde la parte 3 hacia abajo, Bienvenida es un paso más (D6): la intro sale con su
+      // coreografía, la página se asienta sola en Bienvenida y esta entra por piezas.
+      if (siguiente === totalSteps && engagedRef.current && document.getElementById('bienvenida')) {
+        terminarTimeline();
+        corriendoRef.current = true;
+        llegandoRef.current = true;
+        gestosDuranteRef.current = 0;
+        setLlegada(++transicionIdRef.current);
+        return true;
+      }
       if (siguiente < 0 || siguiente >= totalSteps) {
         desenganchar();
         return false;
@@ -241,6 +287,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         g.valle <= g.pico * IMPULSO_DECAIDO &&
         abs >= Math.max(g.valle * IMPULSO_FACTOR, IMPULSO_MIN_PX);
       if (!g.vivo || sentido !== g.sentido || impulso) {
+        tragarRef.current = false;
         g.vivo = true;
         g.consumido = false;
         g.acumulado = 0;
@@ -274,6 +321,12 @@ export function useIntroPin(totalSteps: number): IntroPinState {
           return;
         }
         if (avanzar(sentido)) e.preventDefault();
+        return;
+      }
+
+      // El resto del gesto que llevó a Bienvenida no mueve la página (D6).
+      if (tragarRef.current && g.consumido) {
+        e.preventDefault();
         return;
       }
 
@@ -317,6 +370,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     };
 
     const onTouchStart = (e: TouchEvent) => {
+      tragarRef.current = false;
       const y = e.touches[0]?.clientY;
       touchRef.current = y === undefined ? null : { y, inicioY: window.scrollY, hecho: false };
     };
@@ -329,6 +383,11 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       const sentido: Sentido = delta > 0 ? 1 : -1;
 
       if (!engagedRef.current) {
+        // El dedo que llevó a Bienvenida no sigue moviendo la página al soltarse la capa (D6).
+        if (t.hecho && tragarRef.current) {
+          e.preventDefault();
+          return;
+        }
         // Sin enganchar solo interesa un dedo que sube con la página arriba del todo. Se
         // retiene el scroll nativo desde el primer movimiento para que no se escape.
         if (t.hecho || sentido !== 1 || t.inicioY > ARRIBA_PX || !arriba()) return;
@@ -347,13 +406,9 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         }
         return;
       }
-      // En los extremos se suelta en el acto, para que el mismo dedo siga con el scroll nativo
-      // (hacia Bienvenida desde la parte 3; o el gesto de recargar desde la parte 1).
-      const ultima = totalSteps - 1;
-      if (
-        (sentido === 1 && stepRef.current === ultima) ||
-        (sentido === -1 && stepRef.current === 0)
-      ) {
+      // Desde la parte 1 hacia arriba se suelta en el acto, para que el mismo dedo siga con el
+      // gesto de recargar. Desde la parte 3 hacia abajo ya no: Bienvenida es un paso más (D6).
+      if (sentido === -1 && stepRef.current === 0) {
         t.hecho = true;
         desenganchar();
         return;
@@ -371,6 +426,8 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     // Red de seguridad: si la página se movió por otra vía (barra de scroll, un enlace, el foco
     // saltando a otra sección), la capa fija se suelta.
     const onScroll = () => {
+      // La llegada a Bienvenida desplaza la página por código con la capa aún fija.
+      if (llegandoRef.current) return;
       if (engagedRef.current) {
         if (!arriba()) desenganchar();
         return;
@@ -409,20 +466,19 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     if (mode !== 'pin') return;
     const el = placeholderRef.current;
     if (!el) return;
-    let salio = false;
     const io = new IntersectionObserver(
       ([en]) => {
         if (!en) return;
         if (!en.isIntersecting) {
           if (engagedRef.current) return;
-          salio = true;
+          salioRef.current = true;
           terminarTimeline();
           corriendoRef.current = false;
           stepRef.current = 0;
           setStepIndex(0);
           setTransicion(null);
-        } else if (salio) {
-          salio = false;
+        } else if (salioRef.current) {
+          salioRef.current = false;
           setEntrada(n => n + 1);
         }
       },
@@ -439,6 +495,8 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     stepIndex,
     transicion,
     entrada,
+    llegada,
+    terminarLlegada,
     engaged,
     saltarVisible,
     placeholderRef,

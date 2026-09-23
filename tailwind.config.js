@@ -25,6 +25,8 @@ module.exports = {
         },
         pink: {
           DEFAULT: '#FF74BA',
+          /** El rosa del sol de Bienvenida (pink-sun.svg), para sus trazos animados. */
+          sol: '#F57DB7',
         },
         yellow: {
           DEFAULT: '#FFD700',
