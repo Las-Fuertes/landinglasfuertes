@@ -247,6 +247,11 @@
       "title": "Tu fais un don depuis les États-Unis ?",
       "text": "Uniquement si tu es aux USA : tu peux donner en dollars —une fois ou chaque mois— via notre partenaire Caring for Colombia, et ton don y est déductible des impôts. Depuis tout autre pays ? Utilise le formulaire ci-dessus avec ta carte internationale.",
       "cta": "Donner depuis les USA"
+    },
+    "drawer": {
+      "flotante": "Rejoins-nous",
+      "flotanteAria": "Rejoins Las Fuertes : ouvre les façons d'aider",
+      "cerrar": "Fermer Rejoins Las Fuertes"
     }
   },
   "quienesSomos": {

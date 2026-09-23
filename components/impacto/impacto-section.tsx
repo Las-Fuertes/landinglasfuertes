@@ -7,7 +7,8 @@ import { MapaImpacto } from './mapa-impacto';
 const k = (px: number) => `calc(${px}px * var(--k))`;
 
 /**
- * "Así se ve el impacto en acción": va entre la Introducción y Welcome (D1, D5). Solo hay diseño
+ * "Así se ve el impacto en acción": va tras el Mapa educativo y antes de Quiénes somos
+ * (docs/sumate-drawer/DECISIONES.md, D1; antes iba tras la Introducción, D5). Solo hay diseño
  * mobile; tablet y desktop escalan la misma composición con `--k` (D7), como Quiénes somos.
  *
  * En Figma cada bloque es una pantalla de 833 px con mucho aire arriba y abajo; en flujo se

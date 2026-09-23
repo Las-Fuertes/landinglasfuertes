@@ -247,6 +247,11 @@
       "title": "Donating from the United States?",
       "text": "Only if you're in the USA: you can give in dollars —once or monthly— through our partner Caring for Colombia, and your donation is tax-deductible there. Giving from any other country? Use the form above with your international card.",
       "cta": "Donate from the USA"
+    },
+    "drawer": {
+      "flotante": "Join us",
+      "flotanteAria": "Join Las Fuertes: open the ways to help",
+      "cerrar": "Close Join Las Fuertes"
     }
   },
   "quienesSomos": {

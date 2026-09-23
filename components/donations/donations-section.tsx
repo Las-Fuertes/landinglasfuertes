@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { PageGrid } from '../layout/page-grid';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithBold } from '../../lib/render-text-with-bold';
+import { useSumateDrawer } from '../sumate';
 
 const TITLE_LINE_KEYS = [
   'donations.titleLine1',
@@ -16,6 +17,7 @@ const TITLE_LINE_KEYS = [
 
 export default function DonationsSection() {
   const { t } = useTranslation();
+  const sumate = useSumateDrawer();
 
   return (
     <section
@@ -81,13 +83,15 @@ export default function DonationsSection() {
           </p>
         </div>
         <div className="col-span-4 mt-4 max-w-xl text-center md:col-span-12 md:mt-12 md:max-w-3xl md:text-left">
-          <a
-            href="#sumate"
+          {/* Abre el drawer de Súmate (docs/sumate-drawer/DECISIONES.md, D2). */}
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            onClick={() => sumate.open('tripulantes')}
             className="inline-flex h-[3.25rem] items-center justify-center rounded-lg bg-white px-7 text-[clamp(1.05rem,2.4vw,1.5rem)] font-bold uppercase tracking-tight text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue"
-            aria-label={t('donations.cta')}
           >
             {t('donations.cta')}
-          </a>
+          </button>
         </div>
       </PageGrid>
 

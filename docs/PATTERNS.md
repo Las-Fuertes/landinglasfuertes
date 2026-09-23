@@ -202,6 +202,35 @@ recorte suelto y deja un hueco; por encima de 324 se parte por dentro. Ver D28.
 - **`prefers-reduced-motion`**: el repo ya lo respeta en varios sitios (por ejemplo
   `components/education-map/education-map-section.tsx`). Toda animación nueva debe respetarlo.
 
+### Drawer de Súmate: cómo abrirlo desde cualquier componente
+
+"Súmate a Las Fuertes" ya no es una sección: es un drawer (`components/sumate/sumate-drawer.tsx`)
+con un solo estado global (`components/sumate/sumate-drawer-context.tsx`). El provider envuelve la
+página y el footer en `pages/index.tsx`, y ahí mismo se montan el drawer y el botón flotante.
+
+```tsx
+import { useSumateDrawer } from '../sumate';
+
+const sumate = useSumateDrawer();
+<button type="button" aria-haspopup="dialog" onClick={() => sumate.open('tripulantes')}>
+```
+
+- `open(origen)` registra `sumate_open` en GA con `origen` (`'tripulantes' | 'footer' |
+'flotante' | 'hash'`); si añades un disparador, suma su origen al tipo `SumateOrigen`.
+- Abrir pone `#sumate` en la URL con `history.replaceState` y cerrar lo quita, sin scroll.
+  `/#sumate` y `/#donar` abren el drawer al cargar (el segundo baja hasta "¿Cómo quieres ayudar?").
+- Fuera del provider (otra página), `open()` navega a `/#sumate`.
+- Forma: lateral derecho `lg:max-w-xl` en desktop; sheet de `92dvh` desde abajo en móvil y
+  tablet, como `education-map/route-sheet.tsx`. Trampa de foco con el mismo `FOCUSABLE`.
+- Dentro del drawer, `useEnDrawer()` vale `true`: `FadeIn` se muestra sin entrada. Las piezas de
+  Súmate no usan clases `lg:`, así que en el drawer desktop (576 px) se ven en su versión `md:`.
+  Si una pieza necesita otro trato ahí, usa `enDrawer ? 'lg:...' : ''` (ver el barco de
+  `proyecto-destacado.tsx`).
+- Un enlace a un ancla interna (`#donar`) dentro del drawer se desplaza a mano con
+  `scrollIntoView` y `preventDefault`: un `href="#..."` normal cambiaría el hash de la URL.
+- Para capturarlo: `node scripts/captura.js --clic "footer nav button" --w 1440 --h 900 --tras 900`
+  o `--hash sumate`. El scroll interno es `[data-drawer-scroll]`.
+
 ### Verificar la Introducción con pin
 
 Con el pin solo está montada la parte actual, así que para la intro no sirve `--ancla`. Flags de
@@ -218,6 +247,7 @@ Con el pin solo está montada la parte actual, así que para la intro no sirve `
 - `--quieto`: agrega `?quieto=1`, que congela el movimiento en reposo de la intro. Úsalo en toda
   comparación de capturas en reposo, si no cada captura sale con las piezas en otro punto.
 - `--param k=v`: añade cualquier otro parámetro a la URL.
+- `--clic sel`: clic real de ratón en el elemento que casa con el selector CSS (abre el drawer).
 
 Tablet se verifica a 1000 de ancho, nunca a 1024 (a 1024 exacto gana desktop).
 

@@ -1,12 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FEATURED_PROJECT, formatCop } from './sumate.data';
+import { useEnDrawer } from './sumate-drawer-context';
 
 export default function ProyectoDestacado() {
   const { t } = useTranslation();
+  const reduce = useReducedMotion();
+  const enDrawer = useEnDrawer();
   const { goalCop, raisedCop, imageSrc, imageAlt } = FEATURED_PROJECT;
   const hasProgress = goalCop > 0 && raisedCop >= 0;
   const progress = hasProgress ? Math.min(100, Math.round((raisedCop / goalCop) * 100)) : 0;
@@ -25,9 +28,12 @@ export default function ProyectoDestacado() {
         </div>
       )}
 
-      {/* Barquito de papel decorativo (mismo de la sección de donaciones) */}
+      {/* Barquito de papel decorativo (mismo de la sección de donaciones). En el drawer desktop
+          la tarjeta mide unos 500 px y el barco pisaba el título: ahí se quita. */}
       <div
-        className="pointer-events-none absolute -right-6 -top-4 hidden w-[7.5rem] rotate-6 md:block"
+        className={`pointer-events-none absolute -right-6 -top-4 hidden w-[7.5rem] rotate-6 md:block ${
+          enDrawer ? 'lg:hidden' : ''
+        }`}
         aria-hidden
       >
         <div className="relative aspect-square w-full">
@@ -78,8 +84,15 @@ export default function ProyectoDestacado() {
         )}
 
         <div className="mt-6">
+          {/* Dentro del drawer, un `#donar` normal cambiaría el hash de la URL: se desplaza a mano. */}
           <a
             href="#donar"
+            onClick={e => {
+              const destino = document.getElementById('donar');
+              if (!destino) return;
+              e.preventDefault();
+              destino.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+            }}
             className="inline-flex h-[3.25rem] w-full items-center justify-center rounded-lg bg-white px-7 text-center text-[1.05rem] font-bold uppercase tracking-tight text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue md:w-auto"
           >
             {t('sumate.proyecto.cta')}

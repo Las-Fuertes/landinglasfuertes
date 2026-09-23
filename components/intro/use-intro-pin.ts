@@ -93,7 +93,7 @@ const esCampoDeTexto = (el: EventTarget | null) =>
  *   que termina tras `FIN_DE_GESTO_MS` de silencio. No se dispara otra parte mientras el gesto
  *   vive ni mientras corre el timeline: se libera cuando las dos cosas terminaron.
  * - Solo engancha un gesto hacia abajo que empieza con la página arriba del todo. Al subir
- *   desde Impacto no hay enganche ni reversa: cuando la intro sale de la pantalla por arriba
+ *   desde abajo no hay enganche ni reversa: cuando la intro sale de la pantalla por arriba
  *   vuelve a la parte 1 sin animar, y al reaparecer la parte 1 reproduce su entrada.
  * - Scroll fuerte (un gesto de más de `SCROLL_FUERTE_PX`, o `GESTOS_FUERTES` gestos durante
  *   una transición), Tab o Escape muestran el botón de saltar.
@@ -186,14 +186,15 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   const saltar = useCallback(() => {
     terminarTimeline();
     enganchar(false);
-    const impacto = document.getElementById('impacto');
-    if (!impacto) return;
+    // Lleva a la primera sección tras la intro, Bienvenida (docs/sumate-drawer/DECISIONES.md, D1).
+    const siguiente = document.getElementById('bienvenida');
+    if (!siguiente) return;
     // Espera a que la capa fija se suelte antes de desplazarse.
     requestAnimationFrame(() => {
-      impacto.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      siguiente.scrollIntoView({ behavior: 'smooth', block: 'start' });
       // El foco sigue al contenido: si no, se queda en un botón que ya no existe.
-      if (!impacto.hasAttribute('tabindex')) impacto.setAttribute('tabindex', '-1');
-      impacto.focus({ preventScroll: true });
+      if (!siguiente.hasAttribute('tabindex')) siguiente.setAttribute('tabindex', '-1');
+      siguiente.focus({ preventScroll: true });
     });
   }, [enganchar, terminarTimeline]);
 
@@ -347,7 +348,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         return;
       }
       // En los extremos se suelta en el acto, para que el mismo dedo siga con el scroll nativo
-      // (hacia Impacto desde la parte 3; o el gesto de recargar desde la parte 1).
+      // (hacia Bienvenida desde la parte 3; o el gesto de recargar desde la parte 1).
       const ultima = totalSteps - 1;
       if (
         (sentido === 1 && stepRef.current === ultima) ||
@@ -374,7 +375,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         if (!arriba()) desenganchar();
         return;
       }
-      // De vuelta arriba sin haber salido del todo (se asomó a Impacto desde la parte 3 y
+      // De vuelta arriba sin haber salido del todo (se asomó a Bienvenida desde la parte 3 y
       // volvió): reengancha en la parte en que estaba, para poder retroceder dentro de la intro.
       // El gesto o el dedo que trajo hasta aquí se da por consumido, así su inercia no retrocede.
       if (arriba() && stepRef.current > 0) {
@@ -403,7 +404,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   }, [mode, totalSteps, avanzar, desenganchar, enganchar, mostrarSaltar, saltar]);
 
   // Reinicio al salir por arriba: la intro vuelve a la parte 1 sin animar, y cuando reaparece
-  // (subiendo desde Impacto) la parte 1 reproduce su entrada.
+  // (subiendo desde Bienvenida) la parte 1 reproduce su entrada.
   useEffect(() => {
     if (mode !== 'pin') return;
     const el = placeholderRef.current;
@@ -426,7 +427,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         }
       },
       // El margen de 1 px hace que tocar el borde cuente como fuera: "saltar" deja la intro
-      // justo encima de Impacto, con su borde inferior pegado al de arriba de la pantalla.
+      // justo encima de Bienvenida, con su borde inferior pegado al de arriba de la pantalla.
       { rootMargin: '-1px 0px 0px 0px' }
     );
     io.observe(el);

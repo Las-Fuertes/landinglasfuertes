@@ -96,6 +96,10 @@ Orden definitivo de la pagina:
 Introducción -> Impacto -> Welcome -> Principles -> Donaciones -> Mapa educativo -> Súmate -> Quiénes somos -> Footer
 ```
 
+> **Ampliación del 2026-09-23:** este orden quedó superado. Impacto pasa a ir después del Mapa
+> educativo y Súmate deja de ser una sección para volverse un drawer. Orden vigente y porqués en
+> `docs/sumate-drawer/DECISIONES.md` (D1 y D2).
+
 ---
 
 ## D6. Los 3 pasos animados de la intro son las 3 secciones GSAP de `hero.tsx`
