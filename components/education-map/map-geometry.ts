@@ -36,7 +36,45 @@ export interface Encuadre {
    * encima del mapa y Talleres aparece debajo, en grande (D3). Si no cabe, se ignora.
    */
   reservaPrimera: number;
+  /**
+   * Caja del texto del título en px del stage, con la página al principio de la sección (D7).
+   * Con ella se calcula el encuadre de entrada: lo que se ve antes de avanzar.
+   */
+  titulo?: CajaTitulo;
 }
+
+/** Borde inferior del texto del título y su extensión horizontal, en px del stage. */
+export interface CajaTitulo {
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+/**
+ * Silueta de lo que no es mar, vista desde arriba (D7): para cada franja de `SILUETA_PASO`
+ * unidades del lienzo, la y más alta con algo dibujado (tierra rosada, la casa de Talleres con
+ * su antena, el "Haz clic aquí"). Medida sobre `mapa-ruta-4000.webp` tomando el mínimo de cada
+ * franja, así que es conservadora. Si el arte cambia, se vuelve a medir.
+ */
+const SILUETA_PASO = 20;
+const SILUETA = [
+  1520, 526, 501, 471, 437, 409, 385, 364, 345, 327, 311, 214, 214, 213, 216, 213, 220, 194, 190,
+  187, 174, 95, 97, 91, 77, 71, 100, 90, 80, 72, 66, 62, 59, 57, 54, 51, 50, 49, 49, 49, 51, 53, 57,
+  61, 66, 72, 79, 86, 95, 105, 116, 128, 144, 164, 190, 218, 244, 269, 291, 309, 324, 336, 343, 347,
+  350, 354, 359, 368, 380, 395, 413, 437, 482, 588, 637, 682, 1520, 1520, 1520, 1520, 1520, 1520,
+];
+
+/** La y más alta con algo dibujado entre `x0` y `x1` (unidades del lienzo). */
+export function topeSilueta(x0: number, x1: number) {
+  const a = clamp(0, Math.floor(x0 / SILUETA_PASO), SILUETA.length - 1);
+  const b = clamp(0, Math.floor(x1 / SILUETA_PASO), SILUETA.length - 1);
+  let tope: number = VIEWBOX.h;
+  for (let i = a; i <= b; i++) tope = Math.min(tope, SILUETA[i]);
+  return tope;
+}
+
+/** Aire mínimo entre el texto del título y lo dibujado debajo en la primera pantalla (D7). */
+export const AIRE_TITULO = 16;
 
 /** Móvil: el grupo más grande (Talleres) llena el ancho. Una parada por pantalla. */
 export const ENCUADRE_MOBILE: Omit<Encuadre, 'insetBottom' | 'reservaPrimera'> = {
@@ -65,6 +103,12 @@ export interface MapLayout {
   mapH: number;
   /** Traslación que encuadra cada parada. */
   targets: MapTarget[];
+  /**
+   * Encuadre de la primera pantalla, antes de avanzar (D7): la parada 1 con el título encima.
+   * Si hay alto de sobra coincide con `targets[0]`; si no, el mapa baja lo necesario para que
+   * el título quede sobre el mar, y el tramo de entrada lo sube hasta el encuadre de la parada.
+   */
+  entrada: MapTarget;
 }
 
 /** Fracción (0 a 1) de la caja `b` que cae dentro del área visible con la traslación dada. */
@@ -192,8 +236,21 @@ function layoutCon(
   const targets = stops.map((_, i) =>
     encuadrar(i, stops, scale, stageW, visibleH, stageH, pad, i === 0 ? reservaPrimera : 0)
   );
+  const entrada = encuadreDeEntrada(targets[0], scale, encuadre.titulo);
 
-  return { stageW, stageH, visibleH, scale, mapW, mapH, targets };
+  return { stageW, stageH, visibleH, scale, mapW, mapH, targets, entrada };
+}
+
+/**
+ * Baja el encuadre de la parada 1 lo justo para que, bajo el texto del título, todo lo dibujado
+ * (tierra, casa, antena) quede al menos `AIRE_TITULO` px más abajo (D7). Nunca lo sube: con alto
+ * de sobra la entrada es la misma parada 1 y no hay movimiento en el tramo de entrada.
+ */
+function encuadreDeEntrada(t: MapTarget, scale: number, titulo?: CajaTitulo): MapTarget {
+  if (!titulo || titulo.right <= titulo.left) return t;
+  const tope = topeSilueta((titulo.left - t.tx) / scale, (titulo.right - t.tx) / scale);
+  const ty = titulo.bottom + AIRE_TITULO - tope * scale;
+  return ty > t.ty ? { tx: t.tx, ty } : t;
 }
 
 /**
@@ -283,8 +340,11 @@ export function progressStops(track: MapTrack, count: number) {
   return [0, ...inner, 1];
 }
 
-/** Los valores de salida correspondientes, repitiendo el primero y el último. */
-export function targetSeries(targets: MapTarget[], axis: 'tx' | 'ty') {
-  const inner = targets.map(t => t[axis]);
-  return [inner[0], ...inner, inner[inner.length - 1]];
+/**
+ * Los valores de salida correspondientes: el encuadre de entrada (D7), las paradas y la
+ * última repetida para la meseta de salida.
+ */
+export function targetSeries(layout: MapLayout, axis: 'tx' | 'ty') {
+  const inner = layout.targets.map(t => t[axis]);
+  return [layout.entrada[axis], ...inner, inner[inner.length - 1]];
 }

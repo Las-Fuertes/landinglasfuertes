@@ -28,9 +28,19 @@ export interface RouteSequencerOptions {
   isPinned: boolean;
   /** Devuelve el `window.scrollY` que centra la parada, o null si aún no se midió. */
   getStopScrollY: (index: number) => number | null;
+  /**
+   * El elemento que recibe el foco al cerrar: la parada ACTIVA, no la que abrió el modal. Si el
+   * foco volviera a la de origen, su `onFocus` arrastraría el recorrido hasta ella (D6).
+   */
+  getReturnFocus?: (index: number) => HTMLElement | null;
 }
 
-export function useRouteSequencer({ count, isPinned, getStopScrollY }: RouteSequencerOptions) {
+export function useRouteSequencer({
+  count,
+  isPinned,
+  getStopScrollY,
+  getReturnFocus,
+}: RouteSequencerOptions) {
   const { tweenTo, cancel } = useScrollTween();
 
   const [index, setIndex] = useState(0);
@@ -169,12 +179,39 @@ export function useRouteSequencer({ count, isPinned, getStopScrollY }: RouteSequ
         busyRef.current = false;
         setBusy(false);
       }
-      // Devolver el foco sin que el navegador arrastre el scroll: sin
-      // `preventScroll` deshace el recorrido de un golpe.
-      triggerRef.current?.focus({ preventScroll: true });
+      // Devolver el foco a la parada que se estaba viendo, sin que el navegador arrastre el
+      // scroll: sin `preventScroll` deshace el recorrido de un golpe.
+      const destino = getReturnFocus?.(index) ?? triggerRef.current;
+      destino?.focus({ preventScroll: true });
       triggerRef.current = null;
     }
-  }, [cancel, closeSheet]);
+  }, [cancel, closeSheet, getReturnFocus, index]);
+
+  /**
+   * Cierra el modal y sigue a otro lado con `after` (D6: "Terminar" lleva a Impacto). A
+   * diferencia de `close`, no devuelve el foco a la parada que lo abrió: su `onFocus` traería el
+   * recorrido de vuelta hasta ella y desharía el salto.
+   */
+  const leave = useCallback(
+    async (after: () => void) => {
+      if (busyRef.current) return;
+      busyRef.current = true;
+      setBusy(true);
+      const token = ++runRef.current;
+      triggerRef.current = null;
+      try {
+        cancel();
+        await closeSheet();
+      } finally {
+        if (token === runRef.current) {
+          busyRef.current = false;
+          setBusy(false);
+        }
+      }
+      if (token === runRef.current) after();
+    },
+    [cancel, closeSheet]
+  );
 
   return {
     index,
@@ -188,6 +225,7 @@ export function useRouteSequencer({ count, isPinned, getStopScrollY }: RouteSequ
     goNext,
     goPrev,
     close,
+    leave,
     handleExitComplete,
   };
 }

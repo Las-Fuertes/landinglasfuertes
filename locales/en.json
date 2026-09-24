@@ -138,7 +138,7 @@
     "routes": {
       "talleres": {
         "name": "Workshops (EMI)",
-        "age": "Ages: 11 to 13",
+        "age": "Ages: 10 to 14",
         "body": "It is always about them. We create safe spaces where, through workshops and a method of our own, menstrual education becomes a bridge to new opportunities.",
         "imageAlt": "Three girls point at a poster about internal reproductive anatomy during a workshop."
       },
@@ -155,8 +155,8 @@
         "imageAlt": "A group of girls and teenagers holds up their new backpacks and smiles."
       },
       "chiquifuertes": {
-        "name": "ChiquiFuertes",
-        "age": "Ages: 5 to 10",
+        "name": "Chiquifuertes",
+        "age": "Ages: 6 to 10",
         "body": "Girls discovering their first territory: their body. Through play and drawing we spark their imagination, teamwork and self-knowledge, planting the skills to grow up strong, creative and free.",
         "imageAlt": "Two girls draw and colour while sitting on a mat."
       },

@@ -138,7 +138,7 @@
     "routes": {
       "talleres": {
         "name": "Talleres (EMI)",
-        "age": "Edades: 11 a 13 años",
+        "age": "Edades: 10 a 14 años",
         "body": "Siempre se trata de ellas. Creamos espacios seguros donde, a través de talleres y un método propio, la educación menstrual se convierte en un puente hacia nuevas oportunidades.",
         "imageAlt": "Tres niñas señalan un cartel sobre el aparato genital interno durante un taller."
       },
@@ -155,13 +155,13 @@
         "imageAlt": "Un grupo de niñas y adolescentes levanta sus morrales nuevos y sonríe."
       },
       "chiquifuertes": {
-        "name": "ChiquiFuertes",
-        "age": "Edades: 5 a 10 años",
+        "name": "Chiquifuertes",
+        "age": "Edades: 6 a 10 años",
         "body": "Niñas que descubren su primer territorio: su cuerpo. A través del juego y el dibujo, estimulamos su imaginación, el trabajo en equipo y el autoconocimiento, sembrando habilidades para crecer fuertes, creativas y libres.",
         "imageAlt": "Dos niñas dibujan y colorean sentadas sobre una estera."
       },
       "voces": {
-        "name": "Voces Soberanas:\nLiderazgo Juvenil",
+        "name": "Voces soberanas:\nLiderazgo juvenil",
         "age": "Edades: 14 años +",
         "body": "Ir más allá de la pubertad es esencial para fomentar el valor del trabajo comunitario como herramienta de transformación individual y colectiva. En Las Fuertes dejamos de ser una sola voz, para tejer una red de decenas.",
         "imageAlt": "Dos adolescentes y una facilitadora de Las Fuertes posan sentadas juntas."

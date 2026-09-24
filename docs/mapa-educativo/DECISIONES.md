@@ -201,3 +201,146 @@ Medido por CDP (opacidad del botón) a 390x844: Donaciones 1, entrando al mapa 0
 parada 3 0, Impacto 1, Quiénes somos 1. A 1280x832 igual, salvo que el mapa estático sale antes.
 
 Documentado en `docs/PATTERNS.md`, sección del drawer de Súmate.
+
+## D6. "Terminar" saca del mapa hacia Impacto
+
+**Qué se pidió (2026-09-24).** Al recorrer las paradas con el modal y pulsar "Terminar" en Voces
+Soberanas, el sitio volvía por scroll a Talleres. Debe cerrar el modal y llevar a `#impacto`, como
+"Saltar mapa", también con `prefers-reduced-motion`.
+
+**Por qué volvía.** `close()` del secuenciador devuelve el foco a la parada que abrió el modal
+(Talleres, si se entró por ahí) y el `onFocus` de esa parada (`revealStop`) trae el recorrido hasta
+ella.
+
+**Qué se hizo:**
+
+- `use-route-sequencer.ts`: `leave(after)` cierra el modal como `close()`, pero **no devuelve el
+  foco a la parada** (olvida el disparador) y al terminar la salida del modal llama a `after`.
+- `education-map-section.tsx`: `after` es el mismo `saltar` de `use-saltar-mapa.ts` (scroll hasta
+  `#impacto`, `tabindex -1` y foco en la sección); no hay una segunda copia de esa lógica.
+- `route-sheet.tsx` (reescrito en paralelo para D8) no se tocó en esta tanda; lo único que se usa
+  de él son sus atributos `data-sheet-back` y `data-sheet-next`. El modal solo avisa con `onClose`, que comparten la X, Escape, el
+  fondo, el "Atrás" de la primera parada y "Terminar". El contenedor del modal anota en fase de
+  captura si el clic salió de un botón del `footer` que no es `[data-sheet-back]` y lo borra al
+  terminar el clic; `onClose` en la última parada con esa marca es "Terminar".
+- **Cerrar con Escape, la X o el fondo devuelve el foco a la parada ACTIVA**, no a la que abrió el
+  modal (`getReturnFocus` del secuenciador, que busca `#mapa [data-parada=<id>]`). Antes, tras
+  recorrer con "Siguiente ruta" hasta Voces y cerrar, el foco volvía a Talleres y su `onFocus`
+  arrastraba el mapa 2656 px hacia atrás (390x664). Ahora el mapa ya está en la parada activa y su
+  `revealStop` no mueve nada.
+- `saltar` usa `behavior: 'auto'` con `prefers-reduced-motion` (el `smooth` explícito no respeta el
+  CSS global). Afecta también a "Saltar mapa", que con reduced-motion no se muestra.
+
+**Medido por CDP** (clic en Talleres, "Siguiente ruta" x4, "Atrás" y "Siguiente ruta" en la última
+para probar las intermedias, luego "Terminar"; `getBoundingClientRect().top` de `#impacto` cada
+100 ms durante 3 s):
+
+| Ventana          | Llega a  | Top durante los 1500 ms siguientes | Foco      |
+| ---------------- | -------- | ---------------------------------- | --------- |
+| 390x664          | ~920 ms  | -0,2 a 0,8                         | `impacto` |
+| 428x746          | ~1010 ms | 0,4                                | `impacto` |
+| 1440x900         | ~910 ms  | -0,3 a 0,7                         | `impacto` |
+| 390x664 reduced  | ~300 ms  | -0,4 (salto sin animación)         | `impacto` |
+| 1440x900 reduced | ~300 ms  | -0,3                               | `impacto` |
+
+Cerrar tras recorrer de Talleres a Voces (Escape y X) y con "Atrás" en Talleres, a 390x664, 428x746
+y 1440x900: diferencia de `scrollY` 1500 ms después, 0 px en los nueve casos; foco en `voces` (o
+`talleres` con "Atrás"). "Terminar" medido de nuevo tras el cambio: igual que la tabla.
+
+## D7. Título y barra inferior en pantallas bajas
+
+**Qué se vio.** En el iPhone 12 Pro Max de Johan (Safari, 428 de ancho y ~746 de alto visible con
+las barras) el encabezado quedaba encima de la casa de Talleres: la antena y el tejado cruzaban el
+texto. Con alto de sobra (390x844) no pasa. La causa: el encabezado (~296 px), Talleres entera
+(~400 px a 428) y la barra de abajo (109 px) no caben juntos en 746, y el encuadre de la parada 1
+(D2) prefiere que Talleres entre entera antes que dejar hueco al título. Además la reserva del
+título era su caja entera y no miraba la tierra: la costa sube hacia la derecha y bajo el extremo
+derecho del texto la tierra está más alta que la antena.
+
+**Qué se hizo:**
+
+- **Encuadre de entrada** (`map-geometry.ts`, `entrada` en `MapLayout`): la primera pantalla, antes
+  de avanzar, ya no es por fuerza el encuadre de la parada 1. Se mide la caja real del texto del
+  título por líneas (`medirTitulo` en la sección, con un `Range`) y se baja el mapa lo justo para
+  que todo lo dibujado bajo esas letras (tierra, casa, antena, "Haz clic aquí") quede
+  `AIRE_TITULO` (16 px) por debajo. Nunca lo sube: con alto de sobra, entrada y parada 1 coinciden
+  y nada cambia. Si difieren, el tramo de entrada (`LEAD_IN`, mientras el título se va con el
+  scroll) lleva el mapa de la entrada al encuadre de la parada 1, que sigue cumpliendo D2.
+- **Silueta del mapa** (`SILUETA` en `map-geometry.ts`): para cada franja de 20 unidades del lienzo,
+  la y más alta que no es mar, medida en `mapa-ruta-4000.webp` con el mínimo de cada franja
+  (conservadora). Si cambia el arte, se vuelve a medir.
+- **Título más compacto en pantallas bajas, solo con recorrido en mobile** (`map-title.tsx`): el
+  aire de arriba, la ilustración, el hueco y la letra escalan con `svh` y a 844 de alto o más quedan
+  al px de Figma como en D3 (40, 127, 24 y 30 px). A 746: 35, 113, 22 y 27 px; a 560: 27, 85, 16 y
+  20 px (tres líneas). Tablet y desktop no cambian (sus `md:` mandan).
+- **Barra inferior más baja**: de 109 a 77 px (`pt-l pb-m gap-s` en vez de `pt-12 pb-6 gap-3`).
+  El degradado sigue entrando desde arriba; el nombre y los puntos no cambian de tamaño. Como el
+  alto de la barra se resta del área visible de cada parada, todas ganan 32 px.
+
+**Medido por CDP** en la primera pantalla (página al principio de `#mapa`). Aire tierra: del borde
+inferior del texto a lo primero dibujado bajo el texto, medido sobre el raster. Aire casa: al borde
+superior del grupo de Talleres, que es la punta de la antena. Cinta/barra: del borde inferior de
+la cinta "Talleres (EMI)" al borde superior de la barra.
+
+| Ventana  | Líneas | Letra | Aire tierra | Aire casa | Cinta/barra |
+| -------- | ------ | ----- | ----------- | --------- | ----------- |
+| 428x746  | 4      | 26,9  | 19,6        | 24,0      | 72,9        |
+| 390x664  | 3      | 23,9  | 16,4        | 25,6      | 73,3        |
+| 375x560  | 3      | 20,2  | 17,2        | 22,9      | 15,8        |
+| 360x640  | 4      | 23,0  | 17,7        | 22,8      | 58,5        |
+| 428x926  | 4      | 30    | 79,5        | 87,5      | 157,3       |
+| 768x1024 | 3      | 30    | 16,1        | 16,1      | 108,6       |
+
+Antes, a 428x746 y 375x560 el texto cruzaba la casa (capturas `antes-*-titulo.png`). D2 medido de
+nuevo en esas seis ventanas más 390x844: parada activa 100 % en las cinco, peor otra 9,8 a 14,7 %
+(siempre la punta de Talleres vista desde Clubes).
+
+**Límite.** Si una pantalla es tan baja que título, casa y cinta no caben (por debajo de ~540 de
+alto a 375), gana el aire del título y la cinta de Talleres puede quedar bajo la barra en la
+primera pantalla; la barra repite el nombre.
+
+## D8. Modales de parada fieles a Figma en mobile; en desktop, la misma tarjeta centrada
+
+**Fecha:** 2026-09-24. **Figma (mobile, 411x809):** Talleres `894:754`, Clubes `907:2996`, Mi ruta
+`910:3589`, ChiquiFuertes `959:8352`, Voces `959:10655`. **Desktop y tablet no tienen diseño:** por
+decisión de Johan (2026-09-24) se usa la MISMA tarjeta de mobile, centrada, con ancho máximo
+`max-w-md` (448 px) y todo el contenido visible sin scroll interno.
+
+**Qué se hizo** (`components/education-map/route-sheet.tsx`, sin cambiar sus props):
+
+- Una sola columna en todos los anchos: cerrar (círculo rosado claro de 20 px con área de toque de
+  40), título centrado en cinta negra (`map-chip--cinta`, 40 px, una cinta por línea, las líneas
+  las marca `\n` en `locales`), chip "Edades" `bg-pink-sol` plano superpuesto 12 px al borde de la
+  foto, foto `rounded-xl` en `aspect-[9/10]`, párrafo de 16 px regular con interlineado 1,2, y abajo
+  a la derecha "ATRÁS" en texto y el botón oscuro "SIGUIENTE RUTA >" (10 px extrabold).
+- "Atrás" aparece también en Talleres: como no hay ruta anterior, vuelve al mapa (cierra, igual
+  que la X). En la última parada el botón oscuro dice "Terminar", sin flecha.
+- Si la tarjeta no cabe en el alto (`max-h: 100dvh - 3rem`), **primero se encoge la foto**
+  (flex, hasta `min-h-40`) y solo después aparece el scroll de `[data-sheet-scroll]`. Así desktop
+  queda sin scroll y la foto sale algo más baja que su 9:10 cuando hace falta.
+- Posición: en mobile la hoja sigue subiendo desde abajo, a 12 px de los lados (a 390 la tarjeta
+  mide 366, la de Figma 367) y 32 px del borde inferior. En tablet se centra en vertical con un
+  `translate` en un envoltorio propio (el contenedor de la sección la apoya abajo y framer-motion
+  escribe el transform del panel). En desktop ya la centra el contenedor.
+- Copy corregido contra Figma en es, en y fr: Talleres "10 a 14 años" (antes 11 a 13),
+  ChiquiFuertes "6 a 10 años" (antes 5 a 10), "Voces soberanas: / Liderazgo juvenil" en minúscula
+  como el modal de Figma. En fr, "Leadership des jeunes" se parte en dos cintas para no envolver
+  dentro de una. Las fotos ya eran los recortes de Figma a 2x: no hubo assets nuevos.
+- Colores fuera de la paleta: el círculo de cerrar de Figma es `#FED4E8` (se usa `bg-pink/25`) y
+  el botón oscuro `#3D3B3B` (se usa `bg-black`). El chip `#F57DB7` es exactamente `pink-sol`.
+
+**No se siguió de Figma, a propósito:** "Chiquifuertes" (el modal de Figma lo escribe así, el mapa
+y el resto del sitio "ChiquiFuertes"; se deja ChiquiFuertes) y las erratas del diseño ("a a
+fortalecer", "una sola una voz", "Su cuerpo" tras dos puntos).
+
+**Medido por CDP** (`getBoundingClientRect`, relativo a la tarjeta, 390x844 contra Figma): título,
+chip, foto y párrafo de Clubes y Voces a menos de 8 px; sus botones, a menos de diez. Los frames de Figma no son consistentes entre sí (el hueco foto-párrafo va de 1 px en Mi ruta
+a 35 en Talleres), así que con una sola maqueta Talleres queda 18 px más arriba en el párrafo y
+Mi ruta 19 px más abajo. 1280x800 y 1440x900: `scrollHeight == clientHeight` en las cinco paradas,
+tarjeta centrada. 390x844 y 428x926 caben enteras; 390x664 cabe encogiendo la foto; 375x560
+hace scroll en Clubes, Mi ruta y Voces.
+
+Ampliación (Johan, 2026-09-24, al aprobar): el nombre de la parada es "Chiquifuertes" (con f
+minúscula), como en el modal de Figma. Se cambió `educationMap.stops[].name` en es, en y fr; el
+rótulo dibujado dentro del SVG del mapa no se tocó. Johan aprobó también los colores aproximados
+(`pink/25` en el círculo de cerrar, `black` en el botón) y el hueco único foto-párrafo.
