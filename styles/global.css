@@ -165,6 +165,24 @@
   transform: none;
 }
 
+/* Sección EMI (docs/emi/DECISIONES.md, D2). El chip "EMI" es el rosa del sol de Bienvenida,
+   más inclinado y con poco aire a los lados (Figma 1288:913, caja de 79 x 44 a 40 px). */
+.map-chip--emi {
+  padding: 0.08em 0.15em 0.16em;
+  transform: rotate(-4.09deg);
+  transform-origin: center;
+}
+
+.map-chip--emi::before {
+  background-color: theme('colors.pink.sol');
+}
+
+/* La cinta de "Así lo comprendimos nosotras:": casi recta, como en Figma (-0,54 grados). */
+.map-chip--cinta {
+  transform: rotate(-0.54deg);
+  transform-origin: center;
+}
+
 /* Latido de los puntos del mapa. En CSS y no en framer-motion: una animación
    pura de transform + opacity se resuelve en el compositor, mientras que la de
    framer correría en el mismo hilo que ya está escribiendo el recorrido en cada

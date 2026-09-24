@@ -45,6 +45,10 @@ module.exports = {
         cream: {
           DEFAULT: '#FFEBC6',
         },
+        /** Papel de Donaciones: la cinta del título, el texto y el botón (Figma #FFF5E8). */
+        papel: {
+          DEFAULT: '#FFF5E8',
+        },
         /** Gris de los departamentos apagados en el mapa de impacto. */
         ash: {
           DEFAULT: '#B3B3B3',

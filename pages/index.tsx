@@ -3,7 +3,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { IntroSection } from '../components/intro';
 import { ImpactoSection } from '../components/impacto';
 import { WelcomeSection } from '../components/welcome';
-import { PrinciplesSection } from '../components/principles';
+import { EmiSection } from '../components/emi';
 import { DonationsSection } from '../components/donations';
 import { EducationMapSection } from '../components/education-map';
 import { SumateDrawer, SumateDrawerProvider, SumateFlotante } from '../components/sumate';
@@ -48,7 +48,8 @@ export default function Home() {
           <div className="relative min-h-screen overflow-x-clip bg-beige">
             <IntroSection />
             <WelcomeSection />
-            <PrinciplesSection />
+            {/* EMI contiene el slider de principios (docs/emi/DECISIONES.md, D2). */}
+            <EmiSection />
             <DonationsSection />
             <EducationMapSection />
             <ImpactoSection />

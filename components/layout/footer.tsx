@@ -12,7 +12,7 @@ import { useSumateDrawer } from '../sumate/sumate-drawer-context';
 
 const NAV_LINKS = [
   { key: 'footer.navWelcome', href: '#welcome-title' },
-  { key: 'footer.navPrinciples', href: '#principles-title' },
+  { key: 'footer.navPrinciples', href: '#principios' },
 ] as const;
 
 export default function Footer() {

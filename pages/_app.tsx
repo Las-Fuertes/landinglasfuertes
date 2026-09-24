@@ -7,7 +7,8 @@ import { Bricolage_Grotesque } from 'next/font/google';
 
 const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  // 800: el botón "Quiero aportar" de Donaciones es ExtraBold en Figma.
+  weight: ['400', '500', '700', '800'],
 });
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? 'G-9ZXP5ZNDT1';

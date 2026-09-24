@@ -26,7 +26,7 @@ npm run build
 `pages/index.tsx` es el dueño del orden de secciones. No está dentro de ningún componente:
 
 ```
-Introducción -> Welcome -> Principles -> Donaciones -> Mapa educativo -> Impacto -> Quiénes somos -> Footer
+Introducción -> Bienvenida (hero) -> EMI (con el slider de Principles dentro) -> Donaciones -> Mapa educativo -> Impacto -> Quiénes somos -> Footer
 ```
 
 Desde el 2026-09-23, **Súmate no es una sección**: es un drawer (lateral en desktop, sheet desde
@@ -34,6 +34,11 @@ abajo en móvil y tablet) que abren el botón de Donaciones, el enlace del foote
 fijo y el deep link `/#sumate`. Se abre desde cualquier componente con
 `useSumateDrawer().open('<origen>')` (`components/sumate/sumate-drawer-context.tsx`). "Saltar
 animación" de la intro lleva a Welcome (`#bienvenida`). Ver `docs/sumate-drawer/DECISIONES.md`.
+
+Desde el 2026-09-23 (rama `23-sep-emi`), Bienvenida es un hero de una pantalla (`min-h-dvh`) y
+"Educación menstrual integral como mapa de cambio" es la sección propia `components/emi/` (id
+`emi`), que monta el slider de `components/principles/` como su segunda mitad. Ver
+`docs/emi/DECISIONES.md`.
 
 Ya NO existe el query param `?show=all`: se retiró el 2026-09-21 y todo el sitio carga por defecto.
 Si ves referencias a ese param en algún lado, están obsoletas.
@@ -51,6 +56,10 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
 - Transiciones de la Introducción (PR #17): `docs/introduccion/` (D1 a D5).
 - Orden nuevo y Súmate como drawer (PR #18): `docs/sumate-drawer/` (D1 y D2, pendientes en
   PROGRESS).
+- Bienvenida como hero y sección EMI (rama `23-sep-emi`): `docs/emi/` (D1 y D2, pendientes en
+  PROGRESS).
+- Donaciones fiel a Figma en mobile y con desktop nuevo (rama `23-sep-emi`): `docs/donaciones/`
+  (D1 y D2, pendientes en PROGRESS).
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

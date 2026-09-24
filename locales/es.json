@@ -63,10 +63,13 @@
     "titleLine1": "Bienvenidx a",
     "titleLine2": "Las Fuertes",
     "subtitle": "de Isla Fuerte, Colombia",
-    "body": "Un espacio donde la **educación menstrual integral** se convierte en una herramienta de transformación, aquí acompañamos a niñas y adolescentes a conocer, comprender y **vivir su ciclo con libertad y confianza.**",
-    "emiTitle": "Educación menstrual integral como mapa de cambio",
-    "emiParagraph1": "De esa escucha atenta y del deseo de mover nuevas mareas, nace **EMI**, nuestro Programa de **Educación Menstrual Integral.**",
-    "emiParagraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integridad que permita a cada niña habitar su cuerpo con libertad y orgullo."
+    "body": "Un espacio donde la **educación menstrual integral** se convierte en una herramienta de transformación, aquí acompañamos a niñas y adolescentes a conocer, comprender y **vivir su ciclo con libertad y confianza.**"
+  },
+  "emi": {
+    "title": "Educación menstrual integral como mapa de cambio",
+    "paragraph1": "De esa escucha atenta y del deseo de mover nuevas mareas, nace **EMI**, nuestro Programa de **Educación Menstrual Integral.**",
+    "paragraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integridad que permita a cada niña habitar su cuerpo con libertad y orgullo.",
+    "comprendimos": "Así lo comprendimos nosotras:"
   },
   "content": {
     "intro": "Estamos construyendo un espacio para que la {emi} marque un nuevo hito en Colombia.",
@@ -102,17 +105,20 @@
   "timestamp": "Generado el",
   "principles": {
     "title": "Así lo comprendimos nosotras:",
-    "prev": "Foto anterior",
-    "next": "Foto siguiente"
+    "prev": "Estampilla anterior",
+    "next": "Estampilla siguiente",
+    "instrucciones": "Carrusel de estampillas. Desliza o usa las flechas del teclado para ver la siguiente.",
+    "rolCarrusel": "carrusel",
+    "estampillas": {
+      "1": "Estampilla: Cada niña es un mar de derechos",
+      "2": "Estampilla: Educación menstrual como mapa de cambio",
+      "3": "Estampilla: Juntas florecemos, juntas somos más fuertes",
+      "4": "Estampilla: Yo soy fuerte, yo decido"
+    }
   },
   "donations": {
-    "titleLine1": "Dirigir el cambio",
-    "titleLine2": "con educación",
-    "titleLine3": "menstrual",
-    "titleLine4": "integral",
-    "titleLine5": "requiere",
-    "titleLine6": "tripulantes comprometidos",
-    "paragraph1": "Convierte tu dinero en **acciones colectivas**. Más valiosas que cualquier inversión porque nos lleva a nuevos destinos profundizando nuestro impacto.",
+    "title": "Dirigir el cambio con educación menstrual integral requiere tripulantes comprometidos",
+    "paragraph1": "**Convierte tu dinero en acciones colectivas.** Más valiosas que cualquier inversión porque nos lleva a nuevos destinos profundizando nuestro impacto.",
     "paragraph2": "Cada aporte crea una ola... aunque tu apoyo constante forma corrientes de cambio y nuevas oportunidades.",
     "cta": "QUIERO APORTAR"
   },
