@@ -81,7 +81,9 @@ export function useSaltarMapa({
     poner(false);
     const siguiente = document.getElementById(destino);
     if (!siguiente) return;
-    siguiente.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Con reduced-motion, sin animación: el `smooth` explícito no respeta el CSS (D6).
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    siguiente.scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' });
     // El foco sigue al contenido: si no, se queda en un botón que ya no se ve.
     if (!siguiente.hasAttribute('tabindex')) siguiente.setAttribute('tabindex', '-1');
     siguiente.focus({ preventScroll: true });

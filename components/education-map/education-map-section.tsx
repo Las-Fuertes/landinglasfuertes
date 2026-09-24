@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { MAP_ROUTES, ROUTE_COUNT } from './education-map.data';
 import {
+  type CajaTitulo,
   computeLayout,
   computeTrack,
   ENCUADRE_MOBILE,
@@ -24,6 +25,29 @@ const DESKTOP_QUERY = '(min-width: 1024px)';
 const TABLET_QUERY = '(min-width: 768px)';
 const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
 const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+
+/**
+ * Caja del texto del título en px del stage, con la página al principio de la sección (D7). Se
+ * mide por líneas (un `Range`), no por la caja del `h2`: el título va centrado y equilibrado, y
+ * lo que importa es dónde hay letras.
+ */
+function medirTitulo(
+  titulo: HTMLElement | null,
+  track: HTMLElement | null
+): CajaTitulo | undefined {
+  const h2 = titulo?.querySelector('h2');
+  if (!h2 || !track) return undefined;
+  const origen = track.getBoundingClientRect();
+  const rango = document.createRange();
+  rango.selectNodeContents(h2);
+  const lineas = Array.from(rango.getClientRects()).filter(r => r.width > 0 && r.height > 0);
+  if (lineas.length === 0) return undefined;
+  return {
+    bottom: Math.max(...lineas.map(r => r.bottom)) - origen.top,
+    left: Math.min(...lineas.map(r => r.left)) - origen.left,
+    right: Math.max(...lineas.map(r => r.right)) - origen.left,
+  };
+}
 
 export default function EducationMapSection() {
   const { t } = useTranslation();
@@ -80,6 +104,8 @@ export default function EducationMapSection() {
         ...base,
         insetBottom: barRef.current?.offsetHeight ?? 0,
         reservaPrimera: titleRef.current?.offsetHeight ?? 0,
+        // La primera pantalla deja el título sobre el mar, sin tocar tierra ni casa (D7).
+        titulo: medirTitulo(titleRef.current, trackRef.current),
       });
       const track = computeTrack(stageH, layout.targets);
       setGeometry({ layout, track, trackTop: readTrackTop() });
@@ -121,13 +147,29 @@ export default function EducationMapSection() {
     [readTrackTop]
   );
 
+  // Al cerrar, el foco vuelve a la parada activa: el mapa ya está en ella y no se mueve (D6).
+  const getReturnFocus = useCallback(
+    (i: number) => document.querySelector<HTMLElement>(`#mapa [data-parada="${MAP_ROUTES[i].id}"]`),
+    []
+  );
   const sequencer = useRouteSequencer({
     count: ROUTE_COUNT,
     isPinned: pinned,
     getStopScrollY,
+    getReturnFocus,
   });
-  const { isOpen, busy, index, openAt, revealStop, goNext, goPrev, close, handleExitComplete } =
-    sequencer;
+  const {
+    isOpen,
+    busy,
+    index,
+    openAt,
+    revealStop,
+    goNext,
+    goPrev,
+    close,
+    leave,
+    handleExitComplete,
+  } = sequencer;
 
   // Con el mapa fijado: la página está entre el principio y el final del tramo fijo.
   const isFixed = useCallback(() => {
@@ -145,6 +187,21 @@ export default function EducationMapSection() {
     fijado: isFixed,
     destino: 'impacto',
   });
+  const { saltar } = skip;
+
+  /**
+   * "Terminar" en la última parada saca del mapa hacia Impacto, como "Saltar mapa" (D6). El
+   * modal solo avisa con `onClose`, que también usan la X, Escape, el fondo y el "Atrás" de la
+   * primera parada; para distinguirlo, el contenedor anota en captura si el clic vino del botón
+   * de avance del pie del modal (no el `data-sheet-back`) y lo borra al terminar el clic.
+   */
+  const clicEnPieRef = useRef(false);
+  const onSheetClose = useCallback(() => {
+    const terminar = clicEnPieRef.current && index === ROUTE_COUNT - 1;
+    clicEnPieRef.current = false;
+    if (terminar) void leave(saltar);
+    else void close();
+  }, [close, index, leave, saltar]);
 
   // Escudo de entrada: frena a la persona sin tocar `body.overflow`, porque
   // entre ruta y ruta seguimos necesitando mover la página nosotros.
@@ -240,8 +297,9 @@ export default function EducationMapSection() {
 
             <div
               ref={barRef}
-              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 pb-6 pt-12"
+              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-s bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 pb-m pt-l"
             >
+              {/* Compacto (D7): el alto de esta barra se le resta al área visible de cada parada. */}
               <p className="text-center text-[0.95rem] font-bold leading-tight text-black">
                 {routeName(activeIndex).replace(/\n/g, ' ')}
               </p>
@@ -289,7 +347,18 @@ export default function EducationMapSection() {
               style={{ touchAction: 'none' }}
               onClick={busy ? undefined : close}
             />
-            <div className="pointer-events-none relative flex w-full justify-center">
+            <div
+              className="pointer-events-none relative flex w-full justify-center"
+              onClickCapture={event => {
+                clicEnPieRef.current =
+                  event.target instanceof Element &&
+                  event.target.closest('[role="dialog"] footer button:not([data-sheet-back])') !==
+                    null;
+              }}
+              onClick={() => {
+                clicEnPieRef.current = false;
+              }}
+            >
               <RouteSheet
                 key={activeRoute.id}
                 route={activeRoute}
@@ -307,7 +376,7 @@ export default function EducationMapSection() {
                   finish: t('educationMap.actions.finish'),
                   close: t('educationMap.actions.close'),
                 }}
-                onClose={close}
+                onClose={onSheetClose}
                 onNext={goNext}
                 onPrev={goPrev}
               />

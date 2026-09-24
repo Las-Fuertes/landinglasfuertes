@@ -1,7 +1,8 @@
 # Mapa educativo: estado
 
 Rama `24-sep-mapa` desde `origin/main` `5bae81e`. Sin commitear (2026-09-24). Decisiones en
-`DECISIONES.md` (D1 mapa y orden, D2 zoom, D3 título, D4 salto, D5 flotante).
+`DECISIONES.md` (D1 mapa y orden, D2 zoom, D3 título, D4 salto, D5 flotante, D6 Terminar lleva a Impacto,
+D7 título y barra en pantallas bajas).
 
 ## Hecho
 
@@ -15,6 +16,15 @@ Rama `24-sep-mapa` desde `origin/main` `5bae81e`. Sin commitear (2026-09-24). De
   compartida con la intro en `lib/gesto-rueda.ts`.
 - Botón flotante de Súmate oculto con `data-oculta-flotante` (mecanismo reutilizable).
 - Claves `educationMap.saltar` en es, en y fr.
+- "Terminar" en la última parada cierra el modal y lleva a Impacto, sin volver a Talleres (D6).
+- Título sin montarse sobre la casa en pantallas bajas: encuadre de entrada con la silueta del
+  mapa, título que escala con `svh` en mobile y barra inferior de 77 px (D7). Evidencia (capturas
+  `antes|despues-<vp>-titulo.png`, `despues-<vp>-terminar*.png` y scripts `tools/medir.js`,
+  `tools/terminar.js`, `tools/paradas.js`) en el scratchpad de la sesión `3826136d`, carpeta
+  `mapa-a/`.
+- Modales de parada fieles a Figma en mobile y, en desktop y tablet, la misma tarjeta centrada
+  sin scroll interno (D8, 2026-09-24). Evidencia y script CDP `modal.js` en el scratchpad de la
+  sesión `3826136d`, carpeta `modal/`.
 
 ## Verificado (2026-09-24)
 

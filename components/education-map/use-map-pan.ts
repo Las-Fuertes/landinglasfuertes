@@ -72,8 +72,8 @@ export function useMapPan(geometry: PanGeometry | null, enabled: boolean, stopCo
       enabled && geometry
         ? {
             stops: progressStops(geometry.track, stopCount),
-            x: targetSeries(geometry.layout.targets, 'tx'),
-            y: targetSeries(geometry.layout.targets, 'ty'),
+            x: targetSeries(geometry.layout, 'tx'),
+            y: targetSeries(geometry.layout, 'ty'),
           }
         : null,
     [enabled, geometry, stopCount]
