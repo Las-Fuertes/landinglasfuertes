@@ -195,6 +195,11 @@
   white-space: normal;
 }
 
+/* Una palabra no se parte por dentro (un guion la partiría y la cinta saldría mal medida). */
+.medidor [data-palabra] {
+  white-space: nowrap;
+}
+
 /* ---------- Barco ---------- */
 
 /* Mobile: caja del export en x=247,27 y=178,64 (223,7 de ancho), medida desde la columna del

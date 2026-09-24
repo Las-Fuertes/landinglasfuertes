@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 
 import { PrinciplesSection } from '../principles';
 import { PageGrid } from '../layout/page-grid';
+import { Resaltado } from '../layout/resaltado';
 import { FadeIn } from '../sumate/fade-in';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithBold } from '../../lib/render-text-with-bold';
@@ -18,12 +19,25 @@ import { renderTextWithBold } from '../../lib/render-text-with-bold';
  * párrafos y la cinta de "Así lo comprendimos nosotras:" (lenguaje de movimiento, reglas 1 y 2).
  * El slider trae su propia animación y no se envuelve.
  */
+/**
+ * Geometría propia del sello sobre la variante etiqueta: fondo de 1,1 em, poco aire lateral y la
+ * caja de antes (interlineado de 2,15 rem a 40 px y 2,8 rem a 52 px, 0,86, más 0,12 rem arriba y
+ * abajo), para que el título de la sección quede donde estaba. `--hueco` compensa el margen que la
+ * variante calcula para su fondo: el margen queda en 0,12 rem justos.
+ */
+const SELLO = {
+  ['--aire-x' as string]: '0.15em',
+  ['--fondo-alto' as string]: '1.1em',
+  ['--linea' as string]: '0.86',
+  ['--hueco' as string]: 'calc(0.12rem - 0.12em)',
+};
+
 export default function EmiSection() {
   const { t } = useTranslation();
+  // La sigla se traduce (Johan, 2026-09-24): CME en inglés, EMI en español y francés. No hay una
+  // clave de locale solo con la sigla, así que la elige el idioma de la ruta.
   const { locale } = useRouter();
-  // En francés la cinta no cabe en una línea a 390 con text-h3 (335 px de texto para 299 de
-  // columna útil): bajo lg pasa a text-h4 con tracking-tighter (unos 296 px) y queda en una.
-  const cintaMobile = locale === 'fr' ? 'text-h4 tracking-tighter' : 'text-h3 tracking-[-0.04em]';
+  const sigla = locale === 'en' ? 'CME' : 'EMI';
 
   return (
     <section
@@ -34,12 +48,17 @@ export default function EmiSection() {
       <PageGrid>
         <div className="col-span-4 flex flex-col items-center md:col-span-12">
           <FadeIn>
-            {/* El chip rasgado del sitio, en el rosa del sol y sin las palomas de antes. */}
-            <span className="map-chip map-chip--emi">
-              <span className="block text-h1 font-bold leading-[2.15rem] tracking-[-0.04em] text-beige lg:text-[3.25rem] lg:leading-[2.8rem]">
-                EMI
-              </span>
-            </span>
+            {/* El resaltado del sitio como sello: rosa del sol, -4,09 grados y poco aire (Figma
+                1288:913, caja de 79 x 44 a 40 px). */}
+            <Resaltado
+              tono="rosa"
+              giro={-4.09}
+              partir={false}
+              className="text-h1 tracking-[-0.04em] lg:text-[3.25rem]"
+              style={SELLO}
+            >
+              {sigla}
+            </Resaltado>
           </FadeIn>
 
           <FadeIn delay={0.08} className="mt-6 lg:mt-7">
@@ -62,13 +81,11 @@ export default function EmiSection() {
               Va aquí y no dentro de components/principles; ver docs/emi/PROGRESS.md. */}
           <FadeIn delay={0.24} className="mb-m mt-[2.9375rem] lg:mt-[2.125rem]">
             <h3 id="principios" className="scroll-mt-xl text-center">
-              <span className="map-chip map-chip--cinta">
-                <span
-                  className={`block font-bold leading-8 text-beige lg:text-[1.5625rem] lg:tracking-[-0.04em] ${cintaMobile}`}
-                >
-                  {t('emi.comprendimos')}
-                </span>
-              </span>
+              {/* Si no cabe en una línea (francés en mobile) se parte en dos piezas con la misma
+                  letra: nunca se achica (docs/resaltado/DECISIONES.md, D1). */}
+              <Resaltado className="text-h3 tracking-[-0.04em] lg:text-[1.5625rem]">
+                {t('emi.comprendimos')}
+              </Resaltado>
             </h3>
           </FadeIn>
         </div>

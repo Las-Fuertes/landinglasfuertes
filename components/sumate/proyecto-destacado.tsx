@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
+import { Resaltado } from '../layout/resaltado';
 import { FEATURED_PROJECT, formatCop } from './sumate.data';
 import { useEnDrawer } from './sumate-drawer-context';
 
@@ -49,9 +50,9 @@ export default function ProyectoDestacado() {
 
       <div className="flex flex-1 flex-col p-6 md:p-8">
         <p>
-          <span className="donation-title-chip text-[0.85rem] font-bold uppercase tracking-wide text-blue">
+          <Resaltado tono="papel" partir={false} className="text-[0.85rem] uppercase tracking-wide">
             {t('sumate.proyecto.label')}
-          </span>
+          </Resaltado>
         </p>
         <h3 className="mt-3 text-[1.6rem] font-bold leading-tight text-white">
           {t('sumate.proyecto.title')}

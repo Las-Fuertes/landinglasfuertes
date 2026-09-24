@@ -137,7 +137,7 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
           className="font-bold leading-tight tracking-[-0.04em] text-black"
           style={{ fontSize: k(30) }}
         >
-          {renderTextWithMarks(t(`impacto.bloques.${bloque.id}.title`))}
+          {renderTextWithMarks(t(`impacto.bloques.${bloque.id}.title`), { variante: 'titulo' })}
         </h3>
         <p
           className="leading-normal text-black"
