@@ -634,3 +634,182 @@ código (el filtro y la máscara en `ilustracion-playa.tsx`, el bloque del repos
 `PELO_*` en `bienvenida.motion.ts`): la mujer vuelve a ser una imagen normal, idéntica en reposo.
 El reposo de Bienvenida queda solo con el giro de los rayos, sin cambios. El truco del filtro
 queda descrito arriba ("Reposo: solo dos movimientos") como referencia, por si sirve de nuevo.
+
+---
+
+## D7. Bienvenida: pelo en SVG y desktop según Figma 1280:9
+
+**Contexto.** 2026-09-23, rama `23-sep-pulido`. La diseñadora pasó la mujer de la playa a SVG
+para poder animar el pelo (retirado en D6 porque la mujer era un raster), y Bienvenida tiene ya
+frame desktop en Figma (`1280:9`, 1280 x 832). El frame mobile (`1278:2`) también se rehízo:
+las olas son ahora vectores azul claro (grupo "Group 218") en vez de los PNG de antes.
+
+### Qué se descubrió del SVG de la mujer
+
+El nodo "Girl" (`1281:252` desktop, `1283:307` mobile, el mismo dibujo a escala 0,83) tiene
+tres capas: "Vector 1287" (cuerpo y cuello, dos paths con una textura de ruido de Figma),
+"Group 257" (12 trazos claros del cuerpo) y "Vector 1286" (**cabeza y melena en un solo
+contorno**, con su textura, pintado el último). Lo "un poco separado" es eso: el pelo es una capa
+aparte, y la cabeza va dentro de ella. **No hay hueco visible**: el cuello acaba recto en y 34,1 a
+34,7 del viewBox (161,4 x 146,9) y el pelo lo tapa hasta y 36,5, unas 2 unidades de solape (2 px a
+1280). No hizo falta tocar el dibujo.
+
+### Qué se hizo
+
+- `public/images/welcome/playa-mujer.svg`: el export real de Figma. `mujer-playa.data.ts` saca
+  de él los paths por capa (con un script, no a mano) y `mujer-playa.tsx` lo pinta inline con los
+  mismos filtros de textura, el pelo en dos grupos anidados (`data-pelo` gira, `data-pelo-onda`
+  se inclina). Colores por nombre: `fill-blue` y `fill-beige` para los trazos (en Figma eran
+  `#FFF5E8`, el fondo del frame). El PNG viejo (`playa-mujer.png`) queda sin uso, no se borra.
+  Los ids de los filtros salen de `useId`: hay dos mujeres montadas (mobile y desktop, una con
+  `display: none`) y un filtro dentro de un SVG oculto no pinta.
+- **Reposo del pelo** (`REPOSO_BIENVENIDA`): giro de **±3°** alrededor de la nuca (el centro del
+  borde superior del cuello, `NUCA` = 130,4 35 del viewBox) y, con un retraso de 0,18 de ciclo,
+  una inclinación (skewX) de **±2°** desde el mismo punto: la raíz casi quieta y las puntas, a unas
+  110 unidades, con unos 5,7 px de recorrido a 1280 (4,7 a 390). Seguimiento: la onda llega tarde a
+  la punta. Ciclo **4,2 s**, un seno puro; la amplitud crece de 0 a la suya en 2,5 s, así que el
+  primer fotograma es el diseño. Al girar sobre ese punto, los bordes del cuello (a ±9 unidades) se
+  mueven menos de 0,5 unidades: el solape de 2 nunca se abre.
+- **Desktop con su propia composición**: `ilustracion-playa.tsx` tiene dos lienzos recortados de
+  cada frame (mobile: x 0 a 390, y 568 a 811; desktop: 1280 x 278 desde y 496), con las cajas y los
+  insets de Figma. Nuevos assets en `public/images/welcome/`: `playa-olas-{desktop,mobile}.svg`
+  ("Group 218"), `playa-ola-corta-*` ("Group 219" y "221"), `playa-ola-suelta-*` ("Vector
+  1168"), `playa-arena-*` (la línea "Vector 1300"), `gaviota-1..4.svg` ("Vector 1305" a
+  "1308"; "1311" y "1312" reutilizan la 1 y la 2), `nube-borde.svg` ("Vector 1309") y
+  `nube-derecha-alta.svg` ("Vector 1310"). La palmera, la flor y las dos nubes de siempre son
+  los archivos que ya había (misma geometría).
+- `decor-desktop.tsx`: nubes y gaviotas de la derecha en una caja de 1280 x 832 centrada (en
+  pantallas anchas la composición se queda alrededor del centro). La nube "1309" va pegada al borde
+  izquierdo de la pantalla, un tercio fuera y en espejo (en Figma, giro de 180 más volteo vertical).
+  Por debajo de 1280 la nube derecha alta se corta un poco por el borde (lo recorta el
+  `overflow-x-clip` de la página). Las gaviotas de la izquierda van dentro del lienzo de la
+  ilustración, porque caen sobre ella.
+- Texto en `lg`: título en una línea (50 px, interlínea 42, tracking -0,04em; los dos `span` pasan
+  a `inline`, también cabe en en y fr), subtítulo a 15 px pegado al título (30 px), subrayado a
+  10 px, párrafo de 577 de ancho, 16 px, interlínea 1,2 y alineado a la izquierda. Tablet y mobile
+  no cambian.
+- **Entrada**: las gaviotas son un rol nuevo (`gaviota`), fondo: solo opacidad y 6 px desde
+  arriba, desde 1,05 (tras las nubes), 0,08 entre una y otra. Las nubes nuevas son `nube`. Las olas
+  entran de lado ±24 px (antes ±12 % de su caja: el grupo de olas mide ahora todo el ancho y un %
+  lo movía de más).
+- **Reposo de las gaviotas**: ±3 px en vertical, ciclos de 4,1 a 5,9 s y fases repartidas por la
+  proporción áurea, en la caja interior (la exterior es de la entrada).
+
+### Medido
+
+- Posiciones a 1280 x 832 contra el frame (px desde el borde superior de la sección, Figma entre
+  paréntesis): sol 52 (52), título 257 (257), subtítulo 329 (329), subrayado 360 (360), párrafo 395
+  (395), palmera 495 (496), mujer 628 (628,4), la ilustración entera cabe en 832 (acaba en 774).
+- Pelo por CDP, 21 muestras en 5 s a 1280: giro de -2,98 a 3,00°, inclinación de -1,98 a 2,00°,
+  gaviota de -2,99 a 3,00 px, 21 transform distintos. Con `?quieto=1`: sin transform, 1 valor.
+  Con `prefers-reduced-motion`: sin transform.
+- Cuello a 8x en 4 instantes (1280 y 390): azul continuo, sin hueco.
+- Llegada desde la parte 3 (una muesca a 1280): texto primero, rayos, nubes; a los 4 s queda en el
+  diseño, igual que la captura quieta.
+
+Capturas en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep/e1bea937-3490-4abc-9d57-20da256c2279/scratchpad/bienvenida/`: `<ancho>-antes.png` y `<ancho>-despues.png` (1280, 1512, 1920, 1024, 768, 390
+y 1000), `pelo/mujer-1280-{0..3}.png` y `pelo/cuello-1280-{0..3}.png` (el pelo en instantes
+distintos), `llegada-g-1280-{700,1300,1700,4000}.png`.
+
+**Tokens en vez de valores sueltos (2026-09-23):** se añadieron a `tailwind.config.js` dos tamaños de
+texto, `text-display` (50 px, interlineado 42 px, tracking -0,04 em, sin peso: el título de
+desktop) y `text-p-md` (15 px, interlineado 1,375: la línea manuscrita). `lg:text-[16px]` pasó a
+`lg:text-base`, `lg:mt-[0.625rem]` a `lg:mt-s` y `max-w-[1280px]` a `max-w-screen-xl`. Quedan
+arbitrarios los márgenes únicos de Figma (43, 52, 60, 30 y 29 px, ancho 577 px del párrafo) y las
+medidas de ilustración (sol, nubes, decorado). Capturas `?quieto=1` antes y después idénticas.
+
+**Decidido por Johan tras la verificación (2026-09-23):**
+
+- El botón flotante de Súmate tapa en móvil la mano y la cadera de la mujer cuando Bienvenida queda
+  arriba. Se deja así por ahora; se decide con diseño más adelante.
+- Las nubes que sangran por el borde se quedan como están: a 1024 la derecha se corta un 22 % y a
+  1920 la izquierda queda pegada al borde. Se leen como sangrado intencional.
+
+## D8. Reposo de la intro más perceptible
+
+**Lo que pidió Johan (2026-09-23):** "en la sección de la intro en todos los pasos pedí una
+animación muy sutil mientras el usuario está en cada step, el problema es que ya es demasiado
+sutil y no se percibe que en verdad está siendo animado, así que sigamos con este patrón 'sutil'
+pero sí necesito que se vea que las cosas se están moviendo".
+
+**Por qué:** con las cifras de D5 (2 a 3 px de lienzo, ciclos de 4 a 8 s) el movimiento quedaba
+por debajo de lo que se nota en unos segundos de mirar. Se suben amplitudes a unas 2 a 3 veces,
+se acortan los ciclos lentos y se suman piezas vectoriales que no tenían reposo, para que en
+cualquier paso se vean moverse al menos dos cosas en 3 s. Mismo idiom de D5: oscilar sobre la
+caja interior, fases distintas por azar fijo, `sine.inOut`, solo `transform` y `opacity`.
+
+### Dos niveles para decidir mirando (TEMPORAL, regla 12)
+
+`?reposo=medio` (por defecto, también sin parámetro) y `?reposo=alto`. Cifras en
+`NIVELES_REPOSO` (`components/intro/intro.motion.ts`); cuando Johan elija, se borra el otro nivel
+y el parámetro. Amplitudes en px del lienzo mobile (390x700), escaladas por el alto real:
+
+|                          | D5 (antes)    | medio               | alto                 |
+| ------------------------ | ------------- | ------------------- | -------------------- |
+| Burbujas, `y`            | 2,5 (3-5 s)   | 5 (2,8-4,2 s)       | 7 (2,5-3,8 s)        |
+| Barco, `y`               | 2,5 (5 s)     | 6 (3,6 s)           | 8,5 (3,2 s)          |
+| Barco, giro              | 1,2° (4,2 s)  | 2,8° (4,4 s)        | 4° (4 s)             |
+| Olas y agua, `x`         | 3 (3,5-5,5 s) | 7 (2,8-4,2 s)       | 10 (2,5-3,8 s)       |
+| Nube, `x`                | 2,5 (8 s)     | 6 (5,5 s)           | 9 (5 s)              |
+| Reflejo, opacidad mínima | 0,85 (4,5 s)  | 0,65 (3,4 s)        | 0,55 (3 s)           |
+| Sol, escala (nuevo)      | no            | 1 a 1,04 (4 s)      | 1 a 1,065 (3,5 s)    |
+| Garabatos, giro (nuevo)  | no            | punta 4 px, máx. 7° | punta 6 px, máx. 10° |
+
+`VUELTA_S` sigue en 0,35 s en los dos niveles.
+
+### Piezas añadidas al reposo (todas vector, regla 9)
+
+- **Sol** (rol `sol`, pasos 2 y 3, y el punto rojo del paso 1 en tablet y desktop): respira en
+  escala sobre su centro. Se eligió escala y no flotar porque el sol toca otras piezas (la espiral
+  del paso 2 en desktop, el final del garabato del paso 1): flotando se despegaría de ellas.
+- **Garabatos pequeños** (espirales y trazos del paso 1, la espiral del paso 2 en tablet y
+  desktop, el trazo amarillo del paso 3): se balancean sobre su centro. El giro se calcula para
+  que la punta más lejana se mueva `GARABATO_PX`, con tope `GARABATO_GIRO_MAX` (las espirales
+  chicas llegan al tope; el trazo largo del paso 3 gira unos 3° a 4°). **El garabato grande de
+  fondo del paso 1 no se mueve**: el lienzo lo corta y es fondo (regla 6).
+
+### Bordes: la deriva nunca descubre el extremo de una pieza cortada
+
+Con 7 a 10 px de deriva, una pieza que el lienzo corta por un lado dejaría ver su extremo (las olas
+del paso 3 en mobile salen solo 3,9 px por la izquierda). `derivaSegura` mide la imagen contra el
+lienzo y, si un lado tiene menos holgura que la amplitud, desplaza el rango hacia el otro lado
+conservando el recorrido total: las olas del paso 3 en mobile derivan de -11,1 a 2,9 px (medio) y
+de -17,1 a 2,9 px (alto). El neutro (0) sigue dentro del rango.
+
+### Otros cambios
+
+- `detener` ya no escribe `opacity` en todas las cajas tocadas, solo en las que la animaban (el
+  reflejo): antes ponía y borraba `opacity` en cajas que no la usaban.
+- `oscilar` acepta `scale` y un centro distinto de 0.
+
+### Medido por CDP (transform calculado, cada 100 ms durante 6 s, px de pantalla, pico a pico)
+
+|                    | 390x844 medio | 390x844 alto | 1280x832 medio | 1280x832 alto |
+| ------------------ | ------------- | ------------ | -------------- | ------------- |
+| Barco (grupo), `y` | 12            | 16,9         | 14,3           | 20,1          |
+| Barco, giro        | 4,6°          | 8°           | 4,6°           | 8°            |
+| Ola, `x`           | 14            | 20           | 16,6           | 23,8          |
+| Nube, `x` (paso 3) | 10,7          | 18           | 12,7           | 21,4          |
+| Burbujas, `y`      | 10            | 14           | 11,9           | 16,6          |
+| Garabatos, giro    | 14° (paso 1)  | 20°          | 14°            | 20°           |
+| Reflejo, opacidad  | 1 a 0,65      | 1 a 0,55     | 1 a 0,65       | 1 a 0,55      |
+
+(El giro del barco no completa su ciclo en 6 s: con capturas en el extremo se mide ±2,7° en medio
+y ±3,8° en alto.) Piezas en movimiento por paso: paso 1, las 13 burbujas y 8 garabatos; paso 2,
+barco, 7 olas, 6 aguas, reflejo, sol (y espiral en desktop); paso 3, barco con la persona, olas,
+nube, sol y garabato.
+
+**Verificado:**
+
+- **Recorte de la persona:** capturas recortadas del barco en los dos extremos del giro, a 390 y
+  1280, en los dos niveles: el recorte inclinado va con el grupo y no asoma borde.
+- **Reposo sagrado:** capturas `--quieto` de los pasos 1, 2 y 3 a 1280x832 idénticas byte a byte
+  a las tomadas antes del cambio.
+- **Transiciones:** tras 5 s de reposo, un gesto (1 → 2, 2 → 3, 3 → 2) a 390 y 1280: todo vuelve a
+  neutro en 369 a 410 ms, con un paso máximo por fotograma de 1,25 px (sin salto).
+- `type-check` y `lint` limpios.
+- Capturas y scripts (`sonda.js`, `extremos.js`, `transicion.js`) en
+  `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep/e1bea937-3490-4abc-9d57-20da256c2279/scratchpad/reposo/`.
+- **Margen de visibilidad (2026-09-23):** el observador del reposo usa `rootMargin` de 1 px, como
+  Bienvenida: con Bienvenida arriba del todo, el borde compartido ya no cuenta como en pantalla y
+  el reposo de la intro se pausa (medido por CDP a 390 y 1280: antes cambiaba en 3 s, ahora no).

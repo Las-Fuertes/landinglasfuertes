@@ -202,6 +202,51 @@ recorte suelto y deja un hueco; por encima de 324 se parte por dentro. Ver D28.
 - **`prefers-reduced-motion`**: el repo ya lo respeta en varios sitios (por ejemplo
   `components/education-map/education-map-section.tsx`). Toda animación nueva debe respetarlo.
 
+### Lenguaje de movimiento del sitio (preferencias de Johan)
+
+Destilado de 6 rondas de feedback sobre la Introducción y Bienvenida (2026-09-22 y 23; detalle y
+números en `docs/introduccion/DECISIONES.md`, D2 a D6). **Toda animación nueva de una sección
+parte de aquí**, y si Johan corrige algo que contradiga esta lista, se actualiza la lista.
+
+1. **Nada lineal ni en bloque.** Cada pieza tiene un rol y su propio tiempo; las salidas y las
+   entradas se solapan. Un fade de todo a la vez es lo que se rechazó en el primer intento.
+2. **El texto manda, porque la intro cuenta una historia.** Al salir, el texto es lo ÚLTIMO en
+   irse; al entrar, lo PRIMERO en llegar. Las piezas nunca compiten con el texto.
+3. **Ritmo pausado.** La diseñadora pidió más lento: las transiciones de la intro rondan 1,7 a
+   1,9 s. Todo el ritmo cuelga de una sola constante (`ESCALA_TIEMPO`), para ajustar sin tocar cada
+   animación.
+4. **Un gesto, un paso.** Rápido o lento, un scroll avanza un paso. La inercia del trackpad no
+   cuenta como gesto nuevo; un cambio de sentido o un impulso nuevo sí. Nunca se bloquea más de lo
+   que dura la transición. Salir siempre es posible ("Saltar animación" ante scroll fuerte, Tab o
+   Escape).
+5. **Continuidad entre partes, sin duplicados.** Lo que se repite de una parte a otra (sol, barco,
+   olas) viaja a su nuevo sitio. Si el dibujo cambia de forma, se hace el relevo con **squash and
+   stretch** (se aplasta, se cambia en el punto de máximo aplastamiento y se estira con `back.out`).
+   Un fundido cruzado entre dos dibujos distintos se lee como "fantasma" o como imagen doble: no.
+6. **Los fondos son suaves.** Tierra, nubes y elementos de fondo entran y salen solo con opacidad o
+   con muy poco desplazamiento. Los movimientos fuertes son para las protagonistas.
+7. **Los detalles llegan tarde y lineales.** Un personaje que se asoma (la persona del barco) es
+   una "nota coqueta": entra medio segundo después de la transición, lineal, sin rebote, sin
+   escalar, recortado exactamente por el borde del dibujo del que sale (si el borde es inclinado,
+   el recorte también) y sin frenar el scroll.
+8. **Vida en reposo: "sutil, pero que se vea que se mueve".** Mientras se está en un paso, algo
+   se mueve: flotar, mecerse, derivar, respirar, rayos que giran. Quien mira 3 s cualquier paso
+   tiene que notar al menos dos piezas moviéndose. Amplitud de 5 a 10 px de lienzo mobile (escalada
+   por alto), giros de 3° a 4° en piezas grandes y hasta 7° a 10° en garabatos chicos, opacidad que
+   respira hasta 0,55 a 0,65, ciclos de 2,5 a 5,5 s (o una vuelta en más de un minuto para
+   rotaciones). La versión de 2 a 3 px (D5) no se percibía. Arranca después de la entrada, vuelve a
+   neutro antes de una salida, se pausa fuera de pantalla y nunca descubre el extremo de una pieza
+   que el lienzo corta. Ver D8.
+9. **Solo se anima lo que es vector.** Animar una parte de un raster con trucos (filtros sobre una
+   zona) se retiró: se espera a que la diseñadora exporte la pieza como SVG aparte.
+10. **Principios clásicos de animación.** Johan los reconoce y los valora (squash and stretch,
+    anticipación, desfase, seguimiento). Proponerlos por su nombre ayuda a decidir.
+11. **El reposo es sagrado.** Al terminar cualquier animación, lo que se ve es exactamente el
+    diseño aprobado. Se verifica con capturas `--quieto` contra las de antes.
+12. **Decidir mirando.** Ante dos opciones de movimiento, se construyen las dos detrás de un
+    parámetro temporal (`?barco=a|b`) para que Johan y la diseñadora las comparen en el navegador,
+    y luego se borra la perdedora.
+
 ### Drawer de Súmate: cómo abrirlo desde cualquier componente
 
 "Súmate a Las Fuertes" ya no es una sección: es un drawer (`components/sumate/sumate-drawer.tsx`)
