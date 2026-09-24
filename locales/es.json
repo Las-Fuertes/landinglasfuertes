@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Las Fuertes - Algo fuerte está en camino",
+    "title": "Las Fuertes - Algo fuerte está en camino",
     "description": "Estamos construyendo un espacio para que la Educación Menstrual Integral (EMI) marque un nuevo hito en Colombia."
   },
   "intro": {
@@ -22,28 +22,28 @@
     },
     "section3": {
       "title": "Un tema tan natural, históricamente ignorado, ==¿por qué hablar ahora?==",
-      "text": "La dignidad y los derechos de niñas y adolescentes son como el agua de mar, nunca expiran, y en **Las Fuertes** nos embarcamos en esta misión sin retorno con un mapa educativo único, rompiendo muros y barreras."
+      "text": "La dignidad y los derechos de niñas y adolescentes son como el agua de mar, nunca expiran, y en **Las Fuertes** nos embarcamos en esta misión sin retorno con un mapa educativo único, rompiendo muros y barreras."
     }
   },
   "impacto": {
     "title": "Así se ve el\nimpacto en acción",
     "mapa": {
       "territorios": {
-        "islaFuerte": "Isla Fuerte",
+        "islaFuerte": "Isla Fuerte",
         "cordoba": "Córdoba",
         "bolivar": "Bolívar",
         "atlantico": "Atlántico",
         "guajira": "Guajira",
         "ibague": "Ibagué",
-        "bogota": "Bogotá D.C"
+        "bogota": "Bogotá D.C."
       },
       "cierre": "==7 territorios ahora== ==más fuertes==",
-      "texto": "Desde Isla Fuerte llevando olas de cambio a Colombia."
+      "texto": "Desde Isla Fuerte llevando olas de cambio a Colombia."
     },
     "bloques": {
       "piscina": {
         "title": "==550 niñas,== ==adolescentes y== ==mujeres en talleres==",
-        "text": "Juntas llenamos aprox. una piscina de 802 m2 aprendiendo de nosotras."
+        "text": "Juntas llenamos aprox. una piscina de 802 m² aprendiendo de nosotras."
       },
       "luces": {
         "title": "==La comprensión de la== ==menstruación como== ==ciclo natural pasó== ==del 45% al 95%==",
@@ -55,26 +55,26 @@
       },
       "persona": {
         "title": "==8 de 10 se conocen== ==más con lo explorado== ==en los talleres==",
-        "text": "Las Fuertes tienen 5 estrellas"
+        "text": "Las Fuertes tienen 5 estrellas"
       }
     }
   },
   "welcome": {
     "titleLine1": "Bienvenidx a",
-    "titleLine2": "Las Fuertes",
-    "subtitle": "de Isla Fuerte, Colombia",
+    "titleLine2": "Las Fuertes",
+    "subtitle": "de Isla Fuerte, Colombia",
     "body": "Un espacio donde la **educación menstrual integral** se convierte en una herramienta de transformación, aquí acompañamos a niñas y adolescentes a conocer, comprender y **vivir su ciclo con libertad y confianza.**"
   },
   "emi": {
     "title": "Educación menstrual integral como mapa de cambio",
     "paragraph1": "De esa escucha atenta y del deseo de mover nuevas mareas, nace **EMI**, nuestro Programa de **Educación Menstrual Integral.**",
-    "paragraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integridad que permita a cada niña habitar su cuerpo con libertad y orgullo.",
+    "paragraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integridad que permita a cada niña habitar su cuerpo con libertad y orgullo.",
     "comprendimos": "Así lo comprendimos nosotras:"
   },
   "content": {
     "intro": "Estamos construyendo un espacio para que la {emi} marque un nuevo hito en Colombia.",
     "emi": "Educación Menstrual Integral (EMI)",
-    "since": "Desde 2021, Las Fuertes ha creado espacios seguros donde la información rompe barreras de silencio y transforma vidas.",
+    "since": "Desde 2021, Las Fuertes ha creado espacios seguros donde la información rompe barreras de silencio y transforma vidas.",
     "thanks": "Gracias por estar aquí. Síguenos y sé parte del cambio."
   },
   "cta": {
@@ -83,14 +83,14 @@
   },
   "modal": {
     "title": "Contáctanos",
-    "description": "Cuéntanos qué te interesa sobre Las Fuertes o la Educación Menstrual Integral",
+    "description": "Cuéntanos qué te interesa sobre Las Fuertes o la Educación Menstrual Integral",
     "form": {
       "name": "Nombre",
       "email": "Correo electrónico",
       "message": "Mensaje",
       "namePlaceholder": "¿Cómo te llamas?",
       "emailPlaceholder": "tu@correo.com",
-      "messagePlaceholder": "Cuéntanos qué te interesa sobre Las Fuertes o EMI...",
+      "messagePlaceholder": "Cuéntanos qué te interesa sobre Las Fuertes o EMI...",
       "submit": "Enviar mensaje",
       "sending": "Enviando..."
     },
@@ -149,9 +149,9 @@
         "imageAlt": "Un grupo de niñas trabaja alrededor de mesas al aire libre en un club de lectura."
       },
       "ruta": {
-        "name": "Mi ruta mi\ndestino",
+        "name": "Mi ruta\nmi destino",
         "age": "Edades: 12 a 14 años",
-        "body": "Las Fuertes Junior siguen descubriendo sus talentos, habilidades y áreas de crecimiento para fortalecer su autoestima y cómo se perciben. Con ese autoconocimiento como base, las acompañamos a tomar decisiones conscientes sobre su futuro a corto, mediano y largo plazo.",
+        "body": "Las Fuertes Junior siguen descubriendo sus talentos, habilidades y áreas de crecimiento para fortalecer su autoestima y cómo se perciben. Con ese autoconocimiento como base, las acompañamos a tomar decisiones conscientes sobre su futuro a corto, mediano y largo plazo.",
         "imageAlt": "Un grupo de niñas y adolescentes levanta sus morrales nuevos y sonríe."
       },
       "chiquifuertes": {
@@ -163,19 +163,19 @@
       "voces": {
         "name": "Voces soberanas:\nLiderazgo juvenil",
         "age": "Edades: 14 años +",
-        "body": "Ir más allá de la pubertad es esencial para fomentar el valor del trabajo comunitario como herramienta de transformación individual y colectiva. En Las Fuertes dejamos de ser una sola voz, para tejer una red de decenas.",
-        "imageAlt": "Dos adolescentes y una facilitadora de Las Fuertes posan sentadas juntas."
+        "body": "Ir más allá de la pubertad es esencial para fomentar el valor del trabajo comunitario como herramienta de transformación individual y colectiva. En Las Fuertes dejamos de ser una sola voz, para tejer una red de decenas.",
+        "imageAlt": "Dos adolescentes y una facilitadora de Las Fuertes posan sentadas juntas."
       }
     }
   },
   "sumate": {
     "hero": {
-      "title": "Súmate a Las Fuertes",
-      "subtitle": "Cada niña de Isla Fuerte merece herramientas para construir su futuro. Tú puedes ser parte de eso hoy, desde donde estés."
+      "title": "Súmate a Las Fuertes",
+      "subtitle": "Cada niña de Isla Fuerte merece herramientas para construir su futuro. Tú puedes ser parte de eso hoy, desde donde estés."
     },
     "proyecto": {
       "label": "Nuestro proyecto ahora mismo",
-      "title": "Educación Menstrual Integral en Isla Fuerte",
+      "title": "Educación Menstrual Integral en Isla Fuerte",
       "description": "Con EMI acompañamos a niñas y adolescentes de la isla a conocer y vivir su ciclo con libertad y confianza. Tu apoyo se convierte en talleres, materiales y espacios seguros.",
       "goalLabel": "Meta",
       "raisedLabel": "Vamos en",
@@ -226,7 +226,7 @@
     },
     "llegue": {
       "title": "El Llegue-Llegue: compra con propósito",
-      "text": "En nuestra sede en Isla Fuerte tenemos el Llegue-Llegue, nuestra minitienda de ropa de segunda de buena calidad. Cada prenda que se vende apoya directamente los programas de la fundación.",
+      "text": "En nuestra sede en Isla Fuerte tenemos el Llegue-Llegue, nuestra minitienda de ropa de segunda de buena calidad. Cada prenda que se vende apoya directamente los programas de la fundación.",
       "donateNote": "Para comprar tienes que visitarnos en la isla, pero desde cualquier lugar puedes donar ropa en buen estado y darle más stock a la tienda.",
       "cta": "Donar ropa al Llegue-Llegue",
       "locationLabel": "Para comprar, visítanos en:",
@@ -257,8 +257,8 @@
     },
     "drawer": {
       "flotante": "Súmate",
-      "flotanteAria": "Súmate a Las Fuertes: abre las formas de ayudar",
-      "cerrar": "Cerrar Súmate a Las Fuertes"
+      "flotanteAria": "Súmate a Las Fuertes: abre las formas de ayudar",
+      "cerrar": "Cerrar Súmate a Las Fuertes"
     }
   },
   "quienesSomos": {
@@ -267,16 +267,16 @@
     "roles": {
       "coordinadora": "Coordinadora Red ASE",
       "fundadora": "Fundadora y Directora general",
-      "cofundadora": "Co-Fundadora y Directora creativa",
+      "cofundadora": "Cofundadora y Directora creativa",
       "projectManager": "Project Manager",
       "disenadora": "Diseñadora Gráfica"
     }
   },
   "gracias": {
     "suscripcionTitle": "¡Gracias por sumarte cada mes!",
-    "suscripcionText": "Tu aporte mensual le da estabilidad a los programas de Las Fuertes y nos permite planear a futuro. Mercado Pago te enviará el comprobante de cada cobro a tu correo, y puedes gestionar o cancelar tu suscripción desde tu cuenta de Mercado Pago cuando quieras.",
+    "suscripcionText": "Tu aporte mensual le da estabilidad a los programas de Las Fuertes y nos permite planear a futuro. Mercado Pago te enviará el comprobante de cada cobro a tu correo, y puedes gestionar o cancelar tu suscripción desde tu cuenta de Mercado Pago cuando quieras.",
     "approvedTitle": "¡Gracias por tu donación!",
-    "approvedText": "Tu aporte llegó bien y se convertirá en talleres, materiales y oportunidades para las niñas de Isla Fuerte. Recibirás el comprobante de Bold en tu correo.",
+    "approvedText": "Tu aporte llegó bien y se convertirá en talleres, materiales y oportunidades para las niñas de Isla Fuerte. Recibirás el comprobante de Bold en tu correo.",
     "pendingTitle": "Tu pago está en proceso",
     "pendingText": "Tu transacción quedó pendiente de confirmación (esto es normal con PSE). Bold te enviará el comprobante cuando se apruebe.",
     "rejectedTitle": "El pago no se completó",
@@ -290,7 +290,7 @@
     "copied": "¡Enlace copiado!"
   },
   "footer": {
-    "tagline": "Educación Menstrual Integral desde Isla Fuerte, Colombia.",
+    "tagline": "Educación Menstrual Integral desde Isla Fuerte, Colombia.",
     "navTitle": "Explora",
     "navWelcome": "Bienvenida",
     "navPrinciples": "Nuestros principios",
@@ -298,7 +298,7 @@
     "helpTitle": "¿Quieres ayudar?",
     "contact": "Contáctanos",
     "followUs": "Síguenos en Instagram",
-    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
     "madeWith": "Hecho con amor desde la isla."
   },
   "lang": {

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { sendGAEvent } from '@next/third-parties/google';
 import { Laptop, Camera, Backpack, BookOpen, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { Resaltado } from '../layout/resaltado';
 import { SEDE_LOCATION, buildWhatsAppHref } from './sumate.data';
 import { CtaLink, DisabledCta } from './ui';
 
@@ -66,12 +67,23 @@ export default function DonarCosas() {
       {/* Llegue-Llegue */}
       <div className="mt-10 rounded-3xl bg-blue p-6 md:p-8">
         <p className="text-center">
-          <span className="donation-title-chip text-[0.85rem] font-bold uppercase tracking-wide text-blue">
+          <Resaltado tono="papel" partir={false} className="text-[0.85rem] uppercase tracking-wide">
             Llegue-Llegue
-          </span>
+          </Resaltado>
         </p>
         <h4 className="mt-3 text-center text-[1.3rem] font-bold leading-tight text-white">
-          {t('sumate.llegue.title')}
+          {/* El nombre no se parte por el guion (con `text-wrap: balance` quedaba "Llegue- / Llegue"). */}
+          {t('sumate.llegue.title')
+            .split(/(Llegue-Llegue)/)
+            .map((parte, i) =>
+              parte === 'Llegue-Llegue' ? (
+                <span key={i} className="whitespace-nowrap">
+                  {parte}
+                </span>
+              ) : (
+                parte
+              )
+            )}
         </h4>
         <p className="mt-3 text-center leading-relaxed text-white/90">{t('sumate.llegue.text')}</p>
         <p className="mt-3 text-center leading-relaxed text-white/90">

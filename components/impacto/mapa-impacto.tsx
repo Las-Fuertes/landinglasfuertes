@@ -5,6 +5,7 @@ import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithMarks } from '../../lib/render-text-with-bold';
+import { Resaltado } from '../layout/resaltado';
 import { FadeIn } from '../sumate/fade-in';
 import {
   DEPARTAMENTOS,
@@ -97,11 +98,9 @@ export function MapaImpacto() {
             className="impacto-etiqueta absolute"
             style={{ ...pct(x, y), ['--i' as string]: i }}
           >
-            <span className="map-chip whitespace-nowrap">
-              <span className="font-bold text-white" style={{ fontSize: k(chico ? 12 : 16) }}>
-                {t(`impacto.mapa.territorios.${id}`)}
-              </span>
-            </span>
+            <Resaltado partir={false} style={{ fontSize: k(chico ? 12 : 16) }}>
+              {t(`impacto.mapa.territorios.${id}`)}
+            </Resaltado>
           </div>
         ))}
       </div>
@@ -112,7 +111,7 @@ export function MapaImpacto() {
           className="font-bold leading-tight tracking-[-0.04em] text-black"
           style={{ fontSize: k(30) }}
         >
-          {renderTextWithMarks(t('impacto.mapa.cierre'))}
+          {renderTextWithMarks(t('impacto.mapa.cierre'), { variante: 'titulo' })}
         </h3>
         <p className="leading-normal text-black" style={{ fontSize: k(16), marginTop: k(10) }}>
           {t('impacto.mapa.texto')}

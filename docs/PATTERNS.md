@@ -57,6 +57,10 @@ Escala de texto: `text-h1` (40px), `text-h2` (30px), `text-h3` (20px), `text-h4`
 Espaciado: `xs` 5px, `s` 10px, `m` 15px, `l` 25px, `xl` 40px, `xxl` 65px. Más
 `page-margin` (40px) y `grid-gutter` (25px), que usa el `PageGrid`.
 
+Cortes de línea: todos los títulos (`h1` a `h6`) llevan `text-wrap: balance` y los párrafos
+(`p`, `li`) `text-wrap: pretty`, desde `@layer base` de `styles/global.css`. No hace falta
+`text-balance` en cada título; para quitarlo en un uso, `text-wrap` (utilidad de Tailwind).
+
 Fuente manuscrita puntual: `Homemade_Apple` vía `next/font/google`, ver `components/welcome/welcome.tsx`.
 
 ## Copy e i18n
@@ -88,29 +92,66 @@ pasada.
 
 ## Resaltado de palabras: el chip rasgado
 
-**Este es el patrón del sitio para una palabra o frase resaltada. No inventes otro.**
+**Este es el patrón del sitio para una palabra o frase resaltada. No inventes otro.** Un solo
+componente, `components/layout/resaltado.tsx`, con los estilos `.resaltado*` de
+`styles/global.css`. Por qué es así: `docs/resaltado/DECISIONES.md`, D1.
 
 ```tsx
-<span className="map-chip">
-  <span className="font-bold text-white">texto resaltado</span>
-</span>
+import { Resaltado, TextoResaltado } from '../layout/resaltado';
+
+// Texto de locales con ==resaltado== (y **negrita**), como único contenido de su bloque:
+<p><TextoResaltado texto={t('hero.section1.text2')} /></p>
+<h3><TextoResaltado texto={t('impacto.bloques.duchas.title')} variante="titulo" /></h3>
+// o, lo mismo: {renderTextWithMarks(t('...'), { variante: 'titulo' })}
+
+// Un texto resaltado entero:
+<h3><Resaltado className="text-h3">{t('emi.comprendimos')}</Resaltado></h3>
+<Resaltado partir={false}>{nombre}</Resaltado>
 ```
 
-Definido en `styles/global.css:137`. Es un `inline-block` con fondo `#242424`, texto blanco,
-inclinación de -1.2 grados y borde rasgado mediante el filtro SVG `#map-rough-edge`. El texto va en
-un hijo porque el fondo se pinta en un `::before`.
+**Una pieza de fondo por línea visual, cortada por el navegador.** Un medidor invisible al final
+del bloque (`lib/use-lineas-medidas.ts`) coloca las palabras con la misma tipografía y el mismo
+ancho; cada línea se pinta como una pieza `inline-block` que no se parte. Nunca hay fondo a todo el
+ancho y los cortes no se escriben a mano por idioma: dos resaltados seguidos (`==a== ==b==`)
+cuentan como una sola frase. Si la frase no cabe, se parte en dos piezas; **no se achica la
+letra**. Un `\n` dentro del resaltado es un corte forzado (título y subtítulo de las rutas del
+mapa). Una palabra de 3 letras o menos en un extremo va pegada a su vecina, y el espacio de no
+separación (U+00A0) no se parte: nunca queda "¿por" solo en su pieza.
 
-Variantes: `map-chip--pink` (fondo rosa) y `map-chip--flat` (sin inclinación). Desde la sección
-EMI (`docs/emi/DECISIONES.md`, D2): `map-chip--emi` (rosa del sol `pink-sol`, -4,09 grados y poco
-aire lateral: el chip "EMI") y `map-chip--cinta` (-0,54 grados: la cinta negra de un título, con el
-texto en `text-beige`).
+| Variante                                  | Para                                                                               | Giro                             | Fondo                                | Aire lateral                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------ | --------------------------------------------------------- |
+| `linea` (por defecto en `TextoResaltado`) | dentro de un párrafo (Introducción)                                                | -0,54°                           | 1,1 em, centrado en la línea         | 0,15 em, reservado con margen en los extremos de la frase |
+| `titulo`                                  | título apilado, una tira por línea (Impacto; el modal del mapa con `giro={-0.54}`) | -1,23°, sobre el borde izquierdo | 1,1 em                               | 0,27 em                                                   |
+| `etiqueta` (por defecto en `Resaltado`)   | una frase suelta (cinta de EMI, nombres, rótulos del mapa, etiquetas de Súmate)    | -0,54°                           | 1,7 em, reservado con `margin-block` | 0,33 em                                                   |
 
-En textos de `locales` se escribe `==texto==` y lo convierte `renderTextWithMarks`
-(`lib/render-text-with-bold.tsx`), igual que `**negrita**` lo convierte `renderTextWithBold`.
+Props: `giro` (grados), `tono` (`negro`: fondo `black` y texto `papel`, el `#FFF5E8` de Figma;
+`rosa`: `pink-sol`; `papel`: fondo `papel` y texto `blue`), `partir={false}` para lo que nunca se
+parte (nombres, rótulos), `className` para el tamaño y el tracking del texto (va en el resaltado y
+en su medidor; no lo pongas en un hijo). Un uso con geometría propia sobrescribe las variables:
+el sello "EMI" es `variante="etiqueta" tono="rosa" giro={-4.09}` con
+las variables `--fondo-alto: 1.1em`, `--aire-x: 0.15em`, `--linea: 0.86` y `--hueco` (ver `SELLO`
+en `components/emi/emi-section.tsx`), que conservan su caja de antes para no mover el título.
+
+**Regla de no solape (prioridad de Johan).** El fondo nunca pisa las líneas de texto vecinas ni
+se funde con el fondo de la línea de al lado. Por eso:
+
+- El fondo es un `::before` con `inset` negativos, no `padding`: la pieza mide lo que su texto y
+  resaltar no cambia dónde corta la línea.
+- Su alto cabe en el interlineado. Con Bricolage la caja de una línea mide 1,2 em y la tinta va
+  de 0,16 a 1,13 em; un fondo de 1,1 em con interlineado de 1,2 a 1,25 deja 0,05 a 0,075 em por
+  lado, que tienen que alcanzar para la subida del giro (ancho x sen(giro) / 2) y para lo que
+  derrama el borde rasgado (la región de `#map-rough-edge` es un 3 % del alto: menos de 1,5 px).
+  **No subas el giro, el alto del fondo ni la región del filtro sin volver a medir**, y no bajes
+  el interlineado de un bloque con resaltado por debajo de 1,2.
+- Una etiqueta tiene fondo más alto que su línea: la pieza reserva el sitio con `margin-block`.
 
 **Cuidado con el filtro.** Un `filter: url(#map-rough-edge)` que apunta a un filtro inexistente no
 degrada a "sin filtro": hace **desaparecer** el elemento. Por eso el filtro se monta una sola vez
 en `pages/_app.tsx` vía `components/layout/rough-edge-filter.tsx`, y no dentro de una sección.
+
+Piezas propias que no usan el componente: la cinta de papel del título de Donaciones
+(`components/donations/titulo-cinta.tsx`, cada tramo con su medida de Figma; comparte el hook de
+corte) y los chips del panel del mapa educativo que no son texto resaltado.
 
 ## Verificación visual antes de entregar
 
@@ -170,27 +211,24 @@ Las anclas de la Introducción son `intro-paso-N` en mobile y `intro-paso-N-tabl
 6. **Si el puerto 3000 ya responde, puede ser el dev server de OTRO worktree.** Compruébalo con
    `lsof -p <pid> | grep cwd` y levanta el tuyo en otro puerto (`npx next dev -p 3111`).
 
-### Medir los chips de un título antes de dar por buena una traducción
+### Medir el resaltado antes de dar por buena una traducción o un cambio de estilo
 
-Un chip (`.map-chip`) es tan ancho como su texto, así que el corte de línea decide la forma del
-bloque negro. Para comprobarlo en los tres idiomas sin ir a ojo, se lee el ancho real de cada uno
-por el protocolo de DevTools, con la misma mecánica de `scripts/captura.js`, evaluando en la
-página:
+`scripts/medir-resaltado.js` mide los 12 usos del resaltado en los tres idiomas y cinco anchos, y
+captura cada uno. Con el dev server en `:3000`:
 
-```js
-document
-  .querySelectorAll('#impacto h3')
-  .forEach(h3 =>
-    console.log(
-      [...h3.querySelectorAll('.map-chip')]
-        .map(c => Math.round(c.getBoundingClientRect().width) + ' ' + c.textContent)
-        .join(' | ')
-    )
-  );
+```bash
+node scripts/medir-resaltado.js --out /tmp/chip --prefijo despues          # todo (unos 10 min)
+node scripts/medir-resaltado.js --langs fr --anchos 390x844 --usos intro3,impacto-titulo
 ```
 
-La columna útil de un bloque mide 324 px en mobile. Un chip por debajo de ~200 px se ve como un
-recorte suelto y deja un hueco; por encima de 324 se parte por dentro. Ver D28.
+Por cada pieza de fondo da: en cuántas líneas cae (tiene que ser 1), el exceso de fondo sobre el
+texto (máximo 24 px), si es una palabra de 3 letras o menos sola, la separación con las líneas de
+texto vecinas y con los otros fondos (>= 0, tolerancia 1 px). La geometría es la real: quita los
+giros, mide y vuelve a girar cada caja con su matriz; el fondo es el `::before` más lo que derrama
+el filtro rasgado. Termina con una tabla PASA / FALLA por uso, idioma y ancho, y deja
+`<prefijo>-<uso>-<lang>-<ancho>.png` y `<prefijo>-medidas-<langs>.json` en `--out`. Para ir más
+rápido, lanza un proceso por idioma en paralelo. Donaciones está exento de la separación: sus
+cintas se montan por diseño y todo su texto va por encima de todas las cintas.
 
 ## Animación
 

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Las Fuertes - Something Powerful is Coming",
+    "title": "Las Fuertes - Something Powerful is Coming",
     "description": "We are building a space for Comprehensive Menstrual Education (CME) to mark a new milestone in Colombia."
   },
   "intro": {
@@ -15,66 +15,66 @@
     "section1": {
       "text1": "Half the world menstruates,",
       "text2": "but ==talking about menstruation==",
-      "text3": "**still costs a world.**"
+      "text3": "**still takes a world of effort.**"
     },
     "section2": {
-      "paragraph": "Silence, ignorance, and disinformation have for years created **habits, walls and barriers that float in violent and discriminatory realities for girls as they grow.**"
+      "paragraph": "For years, silence, lack of knowledge and misinformation have built **customs, walls and barriers that float over the violent and discriminatory realities of growing girls.**"
     },
     "section3": {
-      "title": "A topic so natural, historically ignored, ==why talk about it now?==",
-      "text": "The dignity and rights of girls and adolescents are like seawater, they never expire, and in **Las Fuertes** we embark on this irreversible mission with a unique educational map, breaking down walls and barriers."
+      "title": "Such a natural topic, ignored for so long: ==why talk about it now?==",
+      "text": "The dignity and rights of girls and adolescents are like seawater: they never expire. At **Las Fuertes** we set sail on this mission with no turning back, with a unique educational map that breaks down walls and barriers."
     }
   },
   "impacto": {
     "title": "This is what impact\nin action looks like",
     "mapa": {
       "territorios": {
-        "islaFuerte": "Isla Fuerte",
+        "islaFuerte": "Isla Fuerte",
         "cordoba": "Córdoba",
         "bolivar": "Bolívar",
         "atlantico": "Atlántico",
         "guajira": "Guajira",
         "ibague": "Ibagué",
-        "bogota": "Bogotá D.C"
+        "bogota": "Bogotá D.C."
       },
-      "cierre": "==7 territories now== ==stronger==",
-      "texto": "From Isla Fuerte, carrying waves of change across Colombia."
+      "cierre": "==7 territories now== ==growing stronger==",
+      "texto": "From Isla Fuerte, carrying waves of change across Colombia."
     },
     "bloques": {
       "piscina": {
         "title": "==550 girls,== ==teenagers and== ==women in workshops==",
-        "text": "Together we'd fill a pool of about 802 m² learning about ourselves."
+        "text": "Together we filled a pool of about 802 m² learning about ourselves."
       },
       "luces": {
         "title": "==Understanding of== ==menstruation as a== ==natural cycle went== ==from 45% to 95%==",
         "text": "Now they see clearly what was always there."
       },
       "copa": {
-        "title": "==More than 50== ==eco-products for== ==menstrual care==",
+        "title": "==More than 50== ==eco-products== ==delivered for== ==menstrual care==",
         "text": "Cutting at least 6 kg of waste per user every year."
       },
       "persona": {
         "title": "==8 out of 10 know== ==themselves better== ==after the workshops==",
-        "text": "Las Fuertes has 5 stars"
+        "text": "Las Fuertes has 5 stars"
       }
     }
   },
   "welcome": {
     "titleLine1": "Welcome to",
-    "titleLine2": "Las Fuertes",
-    "subtitle": "from Isla Fuerte, Colombia",
-    "body": "A space where **comprehensive menstrual education** becomes a tool for transformation; here we accompany girls and adolescents to know, understand, and **live their cycle with freedom and confidence.**"
+    "titleLine2": "Las Fuertes",
+    "subtitle": "from Isla Fuerte, Colombia",
+    "body": "A space where **comprehensive menstrual education** becomes a tool for transformation: here we walk alongside girls and adolescents as they get to know and understand their cycle and **live it with freedom and confidence.**"
   },
   "emi": {
     "title": "Comprehensive menstrual education as a map for change",
-    "paragraph1": "From that attentive listening and the desire to move new tides, **EMI** is born, our **Comprehensive Menstrual Education** program.",
-    "paragraph2": "A living proposal, woven from experience in Isla Fuerte and other territories in Colombia; here we understood that menstrual education is not enough on its own: **we need a broad vision** of integrity that allows every girl to inhabit her body with freedom and pride.",
+    "paragraph1": "From that attentive listening and the desire to move new tides, **CME** was born: our **Comprehensive Menstrual Education program.**",
+    "paragraph2": "A living proposal, woven from experience on Isla Fuerte and other territories in Colombia. Here we understood that menstrual education is not enough on its own: **we need a broad, holistic vision** that allows every girl to inhabit her body with freedom and pride.",
     "comprendimos": "How we came to understand it:"
   },
   "content": {
     "intro": "We are building a space for {emi} to mark a new milestone in Colombia.",
     "emi": "Comprehensive Menstrual Education (CME)",
-    "since": "Since 2021, Las Fuertes has created safe spaces where information breaks down barriers of silence and transforms lives.",
+    "since": "Since 2021, Las Fuertes has created safe spaces where information breaks down barriers of silence and transforms lives.",
     "thanks": "Thank you for being here. Follow us and be part of the change."
   },
   "cta": {
@@ -83,14 +83,14 @@
   },
   "modal": {
     "title": "Contact Us",
-    "description": "Tell us what interests you about Las Fuertes or Comprehensive Menstrual Education",
+    "description": "Tell us what interests you about Las Fuertes or Comprehensive Menstrual Education",
     "form": {
       "name": "Name",
       "email": "Email",
       "message": "Message",
       "namePlaceholder": "What's your name?",
       "emailPlaceholder": "your@email.com",
-      "messagePlaceholder": "Tell us what interests you about Las Fuertes or CME...",
+      "messagePlaceholder": "Tell us what interests you about Las Fuertes or CME...",
       "submit": "Send message",
       "sending": "Sending..."
     },
@@ -117,13 +117,13 @@
     }
   },
   "donations": {
-    "title": "Leading change with comprehensive menstrual education requires committed crews",
+    "title": "Comprehensive menstrual education needs a committed crew to steer change",
     "paragraph1": "**Turn your money into collective action.** More valuable than any investment because it takes us to new destinations while deepening our impact.",
     "paragraph2": "Every contribution creates a wave... and your constant support shapes currents of change and new opportunities.",
     "cta": "I WANT TO CONTRIBUTE"
   },
   "educationMap": {
-    "title": "How our educational map becomes the route toward conscious integral development",
+    "title": "How we turn our educational map into a route toward conscious, holistic development",
     "saltar": "Skip map",
     "actions": {
       "back": "Back",
@@ -137,46 +137,46 @@
     },
     "routes": {
       "talleres": {
-        "name": "Workshops (EMI)",
+        "name": "Workshops (CME)",
         "age": "Ages: 10 to 14",
         "body": "It is always about them. We create safe spaces where, through workshops and a method of our own, menstrual education becomes a bridge to new opportunities.",
         "imageAlt": "Three girls point at a poster about internal reproductive anatomy during a workshop."
       },
       "clubes": {
-        "name": "Reading and\nfun clubs",
+        "name": "Reading and\nPlay Clubs",
         "age": "Ages: 6 to 11",
         "body": "We create more spaces for self-knowledge so they can grow up safe and free. Through recreational and educational activities, we help girls and teenagers build their confidence.",
         "imageAlt": "A group of girls works around outdoor tables at a reading club."
       },
       "ruta": {
-        "name": "My route, my\ndestination",
+        "name": "My Route,\nMy Destination",
         "age": "Ages: 12 to 14",
-        "body": "Las Fuertes Junior keep discovering their talents, skills and areas for growth, strengthening their self-esteem and the way they see themselves. With that self-knowledge as a foundation, we support them in making conscious decisions about their short, medium and long term future.",
+        "body": "Las Fuertes Junior keep discovering their talents, skills and areas for growth, strengthening their self-esteem and the way they see themselves. With that self-knowledge as a foundation, we support them in making conscious decisions about their short, medium and long term future.",
         "imageAlt": "A group of girls and teenagers holds up their new backpacks and smiles."
       },
       "chiquifuertes": {
         "name": "Chiquifuertes",
         "age": "Ages: 6 to 10",
         "body": "Girls discovering their first territory: their body. Through play and drawing we spark their imagination, teamwork and self-knowledge, planting the skills to grow up strong, creative and free.",
-        "imageAlt": "Two girls draw and colour while sitting on a mat."
+        "imageAlt": "Two girls draw and color while sitting on a mat."
       },
       "voces": {
         "name": "Sovereign Voices:\nYouth Leadership",
-        "age": "Ages: 14 +",
-        "body": "Going beyond puberty is essential to nurture the value of community work as a tool for individual and collective transformation. At Las Fuertes we stop being a single voice and weave a network of dozens.",
-        "imageAlt": "Two teenagers and a Las Fuertes facilitator sit together for a portrait."
+        "age": "Ages: 14+",
+        "body": "Going beyond puberty is essential to nurture the value of community work as a tool for individual and collective transformation. At Las Fuertes we stop being a single voice and weave a network of dozens.",
+        "imageAlt": "Two teenagers and a Las Fuertes facilitator sit together for a portrait."
       }
     }
   },
   "sumate": {
     "hero": {
-      "title": "Join Las Fuertes",
-      "subtitle": "Every girl on Isla Fuerte deserves tools to build her future. You can be part of that today, from wherever you are."
+      "title": "Join Las Fuertes",
+      "subtitle": "Every girl on Isla Fuerte deserves tools to build her future. You can be part of that today, from wherever you are."
     },
     "proyecto": {
       "label": "Our project right now",
-      "title": "Comprehensive Menstrual Education on Isla Fuerte",
-      "description": "Through EMI we support girls and teenagers on the island so they can understand and live their cycle with freedom and confidence. Your support becomes workshops, materials and safe spaces.",
+      "title": "Comprehensive Menstrual Education on Isla Fuerte",
+      "description": "Through CME we support girls and teenagers on the island so they can understand and live their cycle with freedom and confidence. Your support becomes workshops, materials and safe spaces.",
       "goalLabel": "Goal",
       "raisedLabel": "Raised so far",
       "cta": "Support this project"
@@ -215,7 +215,7 @@
     },
     "llegue": {
       "title": "The Llegue-Llegue: shopping with purpose",
-      "text": "At our headquarters on Isla Fuerte we run the Llegue-Llegue, our mini second-hand clothing store of good quality. Every garment sold directly supports the foundation's programs.",
+      "text": "At our headquarters on Isla Fuerte we run the Llegue-Llegue, our small shop of good-quality second-hand clothes. Every garment sold directly supports the foundation's programs.",
       "cta": "Donate clothes to the Llegue-Llegue",
       "locationLabel": "To shop, visit us at:",
       "whatsappMessage": "Hi, I want to donate clothes for the Llegue-Llegue.",
@@ -252,17 +252,17 @@
     },
     "usa": {
       "title": "Donating from the United States?",
-      "text": "Only if you're in the USA: you can give in dollars —once or monthly— through our partner Caring for Colombia, and your donation is tax-deductible there. Giving from any other country? Use the form above with your international card.",
+      "text": "Only if you're in the USA: you can give in dollars, once or monthly, through our partner Caring for Colombia, and your donation is tax-deductible there. Giving from any other country? Use the form above with your international card.",
       "cta": "Donate from the USA"
     },
     "drawer": {
       "flotante": "Join us",
-      "flotanteAria": "Join Las Fuertes: open the ways to help",
-      "cerrar": "Close Join Las Fuertes"
+      "flotanteAria": "Join Las Fuertes: open the ways to help",
+      "cerrar": "Close the Join Las Fuertes panel"
     }
   },
   "quienesSomos": {
-    "title": "Who are we?",
+    "title": "Who we are",
     "text": "We are a reef of women, volunteers and allies growing from Bogotá toward Colombia's forgotten territories. We build spaces where knowledge of the body is not whispered but shared, where comprehensive menstrual education is not a luxury but a right. And where every adolescent finds her own voice to navigate her life with clarity, confidence and freedom.",
     "roles": {
       "coordinadora": "ASE Network Coordinator",
@@ -274,7 +274,7 @@
   },
   "gracias": {
     "approvedTitle": "Thank you for your donation!",
-    "approvedText": "Your contribution went through and will become workshops, materials and opportunities for the girls of Isla Fuerte. You'll receive Bold's receipt by email.",
+    "approvedText": "Your contribution went through and will become workshops, materials and opportunities for the girls of Isla Fuerte. You'll receive Bold's receipt by email.",
     "pendingTitle": "Your payment is being processed",
     "pendingText": "Your transaction is pending confirmation (this is normal with PSE). Bold will send you the receipt once it's approved.",
     "rejectedTitle": "The payment didn't go through",
@@ -284,13 +284,13 @@
     "back": "Back to home",
     "share": "Follow us on Instagram",
     "suscripcionTitle": "Thank you for joining monthly!",
-    "suscripcionText": "Your monthly contribution gives stability to Las Fuertes' programs and lets us plan ahead. Mercado Pago will email you the receipt for each charge, and you can manage or cancel your subscription from your Mercado Pago account at any time.",
+    "suscripcionText": "Your monthly contribution gives stability to Las Fuertes' programs and lets us plan ahead. Mercado Pago will email you the receipt for each charge, and you can manage or cancel your subscription from your Mercado Pago account at any time.",
     "shareCta": "Tell your friends",
     "shareText": "I just supported Las Fuertes, a foundation providing Comprehensive Menstrual Education to girls on Isla Fuerte. Join in:",
     "copied": "Link copied!"
   },
   "footer": {
-    "tagline": "Comprehensive Menstrual Education from Isla Fuerte, Colombia.",
+    "tagline": "Comprehensive Menstrual Education from Isla Fuerte, Colombia.",
     "navTitle": "Explore",
     "navWelcome": "Welcome",
     "navPrinciples": "Our principles",
@@ -298,7 +298,7 @@
     "helpTitle": "Want to help?",
     "contact": "Contact us",
     "followUs": "Follow us on Instagram",
-    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
     "madeWith": "Made with love from the island."
   },
   "lang": {

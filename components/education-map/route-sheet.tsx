@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, X } from 'lucide-react';
 import type { MapRoute } from './education-map.data';
 import { routePhoto } from './education-map.data';
+import { Resaltado } from '../layout/resaltado';
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -129,15 +130,13 @@ export default function RouteSheet({
           <h3
             id={titleId}
             data-sheet-title=""
-            className="-mx-6 shrink-0 text-center text-[clamp(1.75rem,10.3vw,2.5rem)] font-bold leading-none tracking-[-0.04em]"
+            className="-mx-6 shrink-0 text-center text-[clamp(1.75rem,10.3vw,2.5rem)] font-bold leading-[1.2] tracking-[-0.04em]"
           >
-            {title.split('\n').map((line, i) => (
-              <span key={line} className={`block ${i > 0 ? '-mt-1.5' : ''}`}>
-                <span className="map-chip map-chip--cinta !px-3 !py-1">
-                  <span className="text-papel">{line}</span>
-                </span>
-              </span>
-            ))}
+            {/* Una tira por línea (docs/resaltado/DECISIONES.md, D1): el `\n` del locale separa
+                título y subtítulo, y si una parte no cabe el navegador la parte en dos tiras. */}
+            <Resaltado variante="titulo" giro={-0.54} style={{ ['--origen' as string]: 'center' }}>
+              {title}
+            </Resaltado>
           </h3>
 
           <div className="relative mt-6 flex aspect-[9/10] min-h-40 w-full flex-col">

@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Cortes de línea de todo el sitio: títulos equilibrados y párrafos sin viudas
+   (docs/resaltado/COPIES.md, M3 a M5, M13 a M15). Van en base para que una utilidad
+   (`text-wrap`, `text-balance`) los pueda cambiar en un uso concreto. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  figcaption,
+  blockquote {
+    text-wrap: pretty;
+  }
+}
+
 /* =========================================================
    COMPONENTS LAYER — CUSTOM DESIGN SYSTEM EXTENSIONS
    ========================================================= */
@@ -108,80 +129,138 @@
   display: none !important;
 }
 
-/* Donation title chips: beige strips with rough paper-edge texture + slight tilt */
-.donation-title-chip {
-  position: relative;
-  display: inline-block;
-  padding: 0.05em 0.2em 0.12em;
-  margin-bottom: 0.08em;
-  transform: rotate(-1.2deg);
-  transform-origin: left bottom;
+/* ================================
+   RESALTADO (chip rasgado)
+   ================================ */
+
+/* Un solo patrón para todo texto resaltado: components/layout/resaltado.tsx, docs/PATTERNS.md
+   ("Resaltado de palabras") y docs/resaltado/DECISIONES.md, D1. Una pieza por línea visual; el
+   fondo es un `::before` centrado en la línea y más bajo que el interlineado, así que no pisa
+   nunca las líneas vecinas. Las variables se pueden sobrescribir por uso (el sello EMI). */
+.resaltado {
+  --giro: -0.54deg;
+  --origen: center;
+  --aire-x: 0.15em;
+  --fondo-alto: 1.1em;
+  --fondo-color: theme('colors.black.DEFAULT');
+  --texto-color: theme('colors.papel.DEFAULT');
+  font-weight: 700;
 }
 
-.donation-title-chip::before {
+/* Títulos apilados (Impacto, modal del mapa): -1,23 grados como Figma en Impacto, girando
+   sobre el borde izquierdo para que las tiras de un título queden paralelas. */
+.resaltado--titulo {
+  --giro: -1.23deg;
+  --origen: left center;
+  --aire-x: 0.27em;
+}
+
+/* En un párrafo el fondo sobresale del texto por los lados; la primera y la última pieza reservan
+   ese aire con margen para que el fondo no llegue a la palabra vecina de la misma línea. El
+   medidor reserva lo mismo con `padding-inline` en el resaltado, que solo cuenta al principio y
+   al final de la frase: igual que los márgenes de las piezas. */
+.resaltado--linea .resaltado-pieza--inicio {
+  margin-inline-start: var(--aire-x);
+}
+
+.resaltado--linea .resaltado-pieza--fin {
+  margin-inline-end: var(--aire-x);
+}
+
+.resaltado-medidor .resaltado--linea {
+  padding-inline: var(--aire-x);
+}
+
+/* Etiqueta suelta (cinta de EMI, nombres, rótulos): aire generoso. El fondo es más alto que la
+   línea, así que la pieza reserva ese sitio con margen vertical. */
+.resaltado--etiqueta {
+  --aire-x: 0.33em;
+  --fondo-alto: 1.7em;
+  --linea: 1.2;
+  --hueco: 0.05em;
+  line-height: var(--linea);
+}
+
+.resaltado--etiqueta .resaltado-pieza {
+  margin-block: calc((var(--fondo-alto) - var(--linea) * 1em) / 2 + var(--hueco));
+}
+
+.resaltado--rosa {
+  --fondo-color: theme('colors.pink.sol');
+}
+
+.resaltado--papel {
+  --fondo-color: theme('colors.papel.DEFAULT');
+  --texto-color: theme('colors.blue.DEFAULT');
+}
+
+/* Sin `z-index: -1` en el fondo: dentro de un modal animado con transform una capa negativa
+   desaparece. `isolation` crea el contexto propio. */
+.resaltado-pieza {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  white-space: nowrap;
+  transform: rotate(var(--giro));
+  transform-origin: var(--origen);
+}
+
+.resaltado-pieza::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background-color: #fff5e8;
-  filter: url(#paper-texture);
-  z-index: -1;
+  z-index: 0;
+  top: calc(50% - var(--fondo-alto) / 2);
+  height: var(--fondo-alto);
+  left: calc(-1 * var(--aire-x));
+  right: calc(-1 * var(--aire-x));
+  background-color: var(--fondo-color);
+  /* Filtro global de borde rasgado (components/layout/rough-edge-filter.tsx). */
+  filter: url(#map-rough-edge);
+}
+
+.resaltado-texto {
+  position: relative;
+  z-index: 1;
+  color: var(--texto-color);
+}
+
+/* Antes de medir (servidor, primer render, sin JS): en línea, un fondo liso por línea, sin giro
+   ni filtro. Mide lo que el texto, así que tampoco pisa a las vecinas. */
+.resaltado-pieza--sin-medir {
+  display: inline;
+  white-space: normal;
+  transform: none;
+  background-color: var(--fondo-color);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.resaltado-pieza--sin-medir::before {
+  content: none;
+}
+
+/* Copia invisible del texto al final del bloque: mismo ancho y misma tipografía, alto cero. Una
+   palabra no se parte por dentro (el guion de "eco-products" la partiría y la pieza mentiría). */
+.resaltado-medidor {
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.resaltado-medidor [data-palabra] {
+  white-space: nowrap;
+}
+
+/* El texto de los medidores va en un atributo, no en el HTML (ver `paraMedir` en resaltado.tsx). */
+[data-medir-texto]::before {
+  content: attr(data-medir-texto);
 }
 
 /* ================================
    MAPA EDUCATIVO
    ================================ */
-
-/* Chips del mapa: mismo papel rasgado y misma inclinación que los títulos de
-   "Dirigir el cambio", pero sin `z-index: -1`. El modal se anima con transform,
-   y eso crea un contexto de apilamiento donde una capa negativa desaparece. */
-.map-chip {
-  position: relative;
-  isolation: isolate;
-  display: inline-block;
-  padding: 0.08em 0.34em 0.16em;
-  transform: rotate(-1.2deg);
-  transform-origin: left bottom;
-}
-
-.map-chip::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-color: #242424;
-  filter: url(#map-rough-edge);
-}
-
-.map-chip > * {
-  position: relative;
-  z-index: 1;
-}
-
-.map-chip--pink::before {
-  background-color: #ff74ba;
-}
-
-.map-chip--flat {
-  transform: none;
-}
-
-/* Sección EMI (docs/emi/DECISIONES.md, D2). El chip "EMI" es el rosa del sol de Bienvenida,
-   más inclinado y con poco aire a los lados (Figma 1288:913, caja de 79 x 44 a 40 px). */
-.map-chip--emi {
-  padding: 0.08em 0.15em 0.16em;
-  transform: rotate(-4.09deg);
-  transform-origin: center;
-}
-
-.map-chip--emi::before {
-  background-color: theme('colors.pink.sol');
-}
-
-/* La cinta de "Así lo comprendimos nosotras:": casi recta, como en Figma (-0,54 grados). */
-.map-chip--cinta {
-  transform: rotate(-0.54deg);
-  transform-origin: center;
-}
 
 /* Latido de los puntos del mapa. En CSS y no en framer-motion: una animación
    pura de transform + opacity se resuelve en el compositor, mientras que la de

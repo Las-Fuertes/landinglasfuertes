@@ -31,13 +31,20 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   `docs/emi/` y `docs/donaciones/`. Verificado por dos verificadores independientes; Vercel en
   success.
 
-EN CURSO, SIN MERGEAR (2026-09-24): rama `24-sep-mapa` (worktree `23-sep`). Mapa educativo nuevo
-  (Figma `966:11627`, orden Talleres -> Clubes -> Mi ruta -> ChiquiFuertes -> Voces Soberanas),
-  cada parada clicable en todo su grupo, zoom en mobile para ver una parada sola, título con el
-  mapa doblado y el pin (Figma `1311:14`), "Saltar mapa" con scroll fuerte reutilizando el
-  detector de gestos de la intro (`lib/gesto-rueda.ts`) y el botón flotante de Súmate oculto en
-  las secciones marcadas con `data-oculta-flotante`. Detalle y estado exacto en
-  `docs/mapa-educativo/PROGRESS.md` y `DECISIONES.md` (D1 a D5).
+- PR #23 (merge `7b21a3a`, 2026-09-24): mapa educativo nuevo (Figma `966:11627`), zoom mobile,
+  título con el mapa doblado (`1311:14`), "Saltar mapa" y flotante oculto con
+  `data-oculta-flotante`. `docs/mapa-educativo/` D1 a D5.
+- PR #24 (merge `7066bfc`, 2026-09-24): "Terminar" en la última parada lleva a Impacto; cerrar el
+  modal deja el mapa en la parada activa; título del mapa sobre el mar en pantallas bajas y barra
+  inferior más compacta; modales de las cinco paradas fieles a Figma (desktop: la tarjeta de
+  mobile centrada, decisión de Johan); nombre "Chiquifuertes". `docs/mapa-educativo/` D6 a D8.
+- PR #25 (2026-09-24): un solo patrón de resaltado (`components/layout/resaltado.tsx`), una tira
+  por línea visual medida por el navegador, sin pisar líneas vecinas, inclinación de Figma por
+  uso; medible con `scripts/medir-resaltado.js`. Copies de en y fr corregidos (CME en inglés, EMI
+  en fr, tuteo en francés, espacios de no separación). `docs/resaltado/` D1 y D2, AUDITORIA.md y
+  COPIES.md. Pendiente de Johan: 6 propuestas de redacción en español (en COPIES.md y PROGRESS) y
+  validar "Voix souveraines : jeunes leaders". Los rótulos dibujados en imágenes se quedan en
+  español por decisión de Johan: no proponer traducirlos.
 
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 

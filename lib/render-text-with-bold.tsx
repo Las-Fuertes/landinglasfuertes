@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { TextoResaltado, type OpcionesResaltado } from '../components/layout/resaltado';
+
 export function renderTextWithBold(text: string) {
   const parts = text.split(/\*\*(.*?)\*\*/g);
   return parts.map((part, index) => {
@@ -11,30 +13,11 @@ export function renderTextWithBold(text: string) {
 }
 
 /**
- * Como `renderTextWithBold`, pero además entiende `==texto==` como resaltado, usando
- * el chip de borde rasgado que ya usa el resto del sitio (`.map-chip` en
- * styles/global.css): fondo #242424 con filtro de papel roto, texto blanco y una
- * inclinación de -1.2 grados.
- *
- * El resaltado va en línea y no como una barra posicionada aparte (que es como lo
- * resuelve Figma) porque el copy se traduce a tres idiomas: una barra de ancho fijo
- * quedaría corrida o sobrando en cuanto cambia el largo de la frase.
+ * Como `renderTextWithBold`, pero además entiende `==texto==` como resaltado: el chip rasgado del
+ * sitio (`TextoResaltado` en components/layout/resaltado.tsx, docs/PATTERNS.md). Una pieza de
+ * fondo por línea visual, cortada por el navegador; `==a== ==b==` seguidos son una sola frase.
+ * Va como único contenido de su bloque (`p`, `h3`...), porque el corte se mide a su ancho.
  */
-export function renderTextWithMarks(text: string): ReactNode[] {
-  // Se parte por ambos marcadores a la vez para no depender del orden en que aparezcan.
-  const parts = text.split(/(\*\*.*?\*\*|==.*?==)/g).filter(Boolean);
-
-  return parts.map((part, index) => {
-    if (part.startsWith('==') && part.endsWith('==') && part.length > 4) {
-      return (
-        <span key={index} className="map-chip">
-          <span className="font-bold text-white">{part.slice(2, -2)}</span>
-        </span>
-      );
-    }
-    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-      return <strong key={index}>{part.slice(2, -2)}</strong>;
-    }
-    return <span key={index}>{part}</span>;
-  });
+export function renderTextWithMarks(text: string, opciones?: OpcionesResaltado): ReactNode {
+  return <TextoResaltado texto={text} {...opciones} />;
 }

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { Resaltado } from '../layout/resaltado';
 import { FadeIn } from '../sumate/fade-in';
 import { INTEGRANTES, type Integrante } from './quienes-somos.data';
 
@@ -70,14 +71,13 @@ function Persona({ integrante, index }: { integrante: Integrante; index: number 
       <div
         className={`min-w-0 flex-1 lg:mt-m lg:w-full lg:flex-none ${side === 'left' ? '-mr-l lg:mr-0' : ''}`}
       >
-        <span className="map-chip whitespace-nowrap">
-          <span
-            className="font-bold text-white"
-            style={{ fontSize: 'var(--nombre)', letterSpacing: '-0.04em' }}
-          >
-            {name}
-          </span>
-        </span>
+        <Resaltado
+          partir={false}
+          className="tracking-[-0.04em]"
+          style={{ fontSize: 'var(--nombre)' }}
+        >
+          {name}
+        </Resaltado>
         <p className="mt-s leading-snug text-black" style={{ fontSize: k(14) }}>
           {t(`quienesSomos.roles.${role}`)}
         </p>
