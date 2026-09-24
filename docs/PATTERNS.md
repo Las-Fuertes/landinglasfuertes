@@ -202,6 +202,9 @@ recorte suelto y deja un hueco; por encima de 324 se parte por dentro. Ver D28.
   `ctx.revert()` al desmontar (StrictMode monta dos veces). No lo extiendas a secciones nuevas sin
   razón. Ver `docs/introduccion/DECISIONES.md`, D2.
 - **Swiper**: solo en el carrusel de `components/principles/`.
+- **Gestos de rueda y scroll fuerte**: `lib/gesto-rueda.ts` (constantes y `registrarRueda`). Lo
+  comparten la intro y el "Saltar mapa" del Mapa educativo. Una sección nueva que necesite
+  distinguir gestos o detectar un scroll fuerte parte de ahí, no de otra copia.
 - **`prefers-reduced-motion`**: el repo ya lo respeta en varios sitios (por ejemplo
   `components/education-map/education-map-section.tsx`). Toda animación nueva debe respetarlo.
 
@@ -278,6 +281,20 @@ const sumate = useSumateDrawer();
   `scrollIntoView` y `preventDefault`: un `href="#..."` normal cambiaría el hash de la URL.
 - Para capturarlo: `node scripts/captura.js --clic "footer nav button" --w 1440 --h 900 --tras 900`
   o `--hash sumate`. El scroll interno es `[data-drawer-scroll]`.
+
+**Secciones que retiran el botón flotante: `data-oculta-flotante`.** Una sección con este
+atributo esconde el botón "Súmate" mientras está en pantalla y lo devuelve al salir (hoy, el Mapa
+educativo; ver `docs/mapa-educativo/DECISIONES.md`, D5). Para sumar otra no hay que tocar el botón:
+
+```tsx
+<section id="mi-seccion" data-oculta-flotante="">
+```
+
+`sumate-flotante.tsx` observa todas con un `IntersectionObserver` (`rootMargin -10% 0px -10% 0px`,
+así una franja que apenas asoma no cuenta) y las vuelve a buscar con un `MutationObserver` si se
+montan tarde. Se oculta con opacidad y un `translate` corto (300 ms), sin mover el layout ni
+desmontarse. Se suma a las otras dos razones para ocultarlo: antes de terminar la intro y con el
+drawer abierto.
 
 ### Verificar la Introducción con pin
 

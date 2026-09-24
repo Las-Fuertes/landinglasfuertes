@@ -1,0 +1,52 @@
+# Mapa educativo: estado
+
+Rama `24-sep-mapa` desde `origin/main` `5bae81e`. Sin commitear (2026-09-24). Decisiones en
+`DECISIONES.md` (D1 mapa y orden, D2 zoom, D3 título, D4 salto, D5 flotante).
+
+## Hecho
+
+- Mapa nuevo (Figma `966:11627`) con el orden Talleres -> Clubes -> Mi ruta -> ChiquiFuertes ->
+  Voces Soberanas; cada parada clicable en todo su grupo, con foco visible y nombre accesible.
+- Encuadre por parada calculado desde las cajas de los grupos; mobile y tablet cumplen el criterio
+  de D2 (activa 100 %, otras <= 15 %).
+- Encabezado con el mapa doblado y el pin sobre el mar (Figma `1311:14`), flotando sobre la primera
+  pantalla del mapa en mobile y tablet; en flujo en desktop.
+- "Saltar mapa" ante scroll fuerte, Tab o Escape, que lleva a `#impacto`. Detección de gestos
+  compartida con la intro en `lib/gesto-rueda.ts`.
+- Botón flotante de Súmate oculto con `data-oculta-flotante` (mecanismo reutilizable).
+- Claves `educationMap.saltar` en es, en y fr.
+
+## Verificado (2026-09-24)
+
+Evidencia en
+`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-23-sep/e1bea937-3490-4abc-9d57-20da256c2279/scratchpad/mapa/`,
+con scripts CDP propios en la misma carpeta (`cdp.js` arnés; `capturas.js`, `despues.js`,
+`verificar.js <prueba> <ancho>x<alto>`, `intro.js`, `idiomas.js`):
+
+- `antes-<vp>-paradaN.png` (tomadas antes de tocar nada) y `despues-<vp>-paradaN.png` en 390x844,
+  360x800, 768x1024, 1280x832 y 1920x1080. Medición del criterio en `medicion-despues.txt`.
+- Rueda (`verificar.js rueda`, 390 y 768): recorrido 1 -> 5 -> 1 con gestos normales, inercia
+  larga suave sin botón, ráfaga de 1680 px muestra "Saltar mapa", clic lleva a `#impacto` (top 0,
+  foco en la sección), volver desde abajo entra por Voces.
+- Touch emulado (`verificar.js touch`): arrastres normales sin botón; un deslizar rápido lo muestra
+  y el tap lleva a `#impacto`.
+- Teclas: Escape muestra y enfoca; Escape otra vez salta; Tab lo muestra sin robar el foco; Enter
+  sobre el botón salta.
+- Clic (390, 768, 1280) y tap (390) en la esquina del grupo opuesta al punto (160 a 550 px de él)
+  abren el modal correcto en las cinco paradas. Tab + Enter abre cada una y Escape devuelve el foco.
+- Flotante: opacidad 1 en Donaciones, 0 en todo el mapa, 1 en Impacto y Quiénes somos.
+- `prefers-reduced-motion`: sin recorrido ni botón de saltar, mapa estático con paradas clicables.
+- Intro con el módulo extraído: 1 -> 2 -> 3 -> Bienvenida, vuelta arriba, scroll fuerte + "Saltar
+  animación" y Escape, a 390 y 1280.
+- es, en y fr a 390 y 1280 sin claves crudas ni desborde horizontal (`idioma-<lang>-<w>-titulo.png`).
+- `npm run type-check` y `npm run lint` limpios. No se corrió `npm run build`.
+
+## Pendiente / a decidir con Johan
+
+1. **Modelo de avance.** El mapa sigue avanzando por posición de scroll: un gesto normal de
+   trackpad recorre algo más de una parada. Si se quiere "un gesto, un paso" como en la intro, es
+   un cambio de modelo (pin por gestos), no un ajuste.
+2. **Título en desktop** sin frame de Figma: adaptación propia (D3), a validar con la diseñadora.
+3. Tablet apaisada (1000x700): Clubes deja ver 17 % de Talleres aun con el zoom máximo.
+4. "Saltar mapa" arriba a la derecha (la intro lo tiene abajo a la derecha, pero abajo en el mapa
+   están el nombre y los puntos).
