@@ -63,10 +63,13 @@
     "titleLine1": "Bienvenue à",
     "titleLine2": "Las Fuertes",
     "subtitle": "d'Isla Fuerte, Colombie",
-    "body": "Un espace où l'**éducation menstruelle intégrale** devient un outil de transformation ; ici nous accompagnons les filles et les adolescentes pour connaître, comprendre et **vivre leur cycle avec liberté et confiance.**",
-    "emiTitle": "L'éducation menstruelle intégrale comme carte du changement",
-    "emiParagraph1": "De cette écoute attentive et du désir de faire bouger de nouvelles marées naît **EMI**, notre programme d'**Éducation Menstruelle Intégrale.**",
-    "emiParagraph2": "Une proposition vivante, tissée depuis l'expérience à Isla Fuerte et dans d'autres territoires de Colombie ; nous avons compris ici que l'éducation menstruelle ne suffit pas à elle seule : **nous avons besoin d'une vision large** de l'intégrité qui permette à chaque fille d'habiter son corps avec liberté et fierté."
+    "body": "Un espace où l'**éducation menstruelle intégrale** devient un outil de transformation ; ici nous accompagnons les filles et les adolescentes pour connaître, comprendre et **vivre leur cycle avec liberté et confiance.**"
+  },
+  "emi": {
+    "title": "L'éducation menstruelle intégrale comme carte du changement",
+    "paragraph1": "De cette écoute attentive et du désir de faire bouger de nouvelles marées naît **EMI**, notre programme d'**Éducation Menstruelle Intégrale.**",
+    "paragraph2": "Une proposition vivante, tissée depuis l'expérience à Isla Fuerte et dans d'autres territoires de Colombie ; nous avons compris ici que l'éducation menstruelle ne suffit pas à elle seule : **nous avons besoin d'une vision large** de l'intégrité qui permette à chaque fille d'habiter son corps avec liberté et fierté.",
+    "comprendimos": "Voici comment nous l'avons compris :"
   },
   "content": {
     "intro": "Nous construisons un espace pour que l'{emi} marque un nouveau jalon en Colombie.",
@@ -102,17 +105,20 @@
   "timestamp": "Généré le",
   "principles": {
     "title": "Voici comment nous l'avons compris :",
-    "prev": "Photo précédente",
-    "next": "Photo suivante"
+    "prev": "Timbre précédent",
+    "next": "Timbre suivant",
+    "instrucciones": "Carrousel de timbres. Balayez ou utilisez les flèches du clavier pour voir le suivant.",
+    "rolCarrusel": "carrousel",
+    "estampillas": {
+      "1": "Timbre : Chaque fille est une mer de droits",
+      "2": "Timbre : L’éducation menstruelle comme carte du changement",
+      "3": "Timbre : Ensemble nous fleurissons, ensemble nous sommes plus fortes",
+      "4": "Timbre : Je suis forte, je décide"
+    }
   },
   "donations": {
-    "titleLine1": "Conduire le changement",
-    "titleLine2": "avec l’éducation",
-    "titleLine3": "menstruelle",
-    "titleLine4": "intégrale",
-    "titleLine5": "demande",
-    "titleLine6": "des équipages engagés",
-    "paragraph1": "Transforme ton argent en **actions collectives**. Plus précieuses que n’importe quel investissement, elles nous mènent vers de nouveaux horizons en renforçant notre impact.",
+    "title": "Conduire le changement avec l’éducation menstruelle intégrale demande des équipages engagés",
+    "paragraph1": "**Transforme ton argent en actions collectives.** Plus précieuses que n’importe quel investissement, elles nous mènent vers de nouveaux horizons en renforçant notre impact.",
     "paragraph2": "Chaque contribution crée une vague... et ton soutien constant forme des courants de changement et de nouvelles opportunités.",
     "cta": "JE VEUX CONTRIBUER"
   },

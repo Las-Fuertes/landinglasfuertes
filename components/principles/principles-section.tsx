@@ -1,163 +1,263 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useInView, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectCards, Navigation } from 'swiper/modules';
+import { A11y, Autoplay, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperClass } from 'swiper';
 
 import 'swiper/css';
-import 'swiper/css/effect-cards';
-import 'swiper/css/navigation';
 
-import { PageGrid } from '../layout/page-grid';
 import { useTranslation } from '../../hooks/useTranslation';
+import { crearEfectoMazo, repintarMazo, type ConfigMazo } from './efecto-mazo';
+import {
+  ESTAMPILLAS,
+  ESTAMPILLA_ALTO_PX,
+  ESTAMPILLA_ANCHO_PX,
+  POSES_ABANICO,
+  POSES_PILA,
+} from './estampillas.data';
+import { PulgarDeslizar } from './pulgar-deslizar';
+import estilos from './principles.module.css';
 
-const PRINCIPLE_SLIDES = [
-  '/images/principles/slide_1.jpg',
-  '/images/principles/slide_2.jpg',
-  '/images/principles/slide_3.jpg',
-  '/images/principles/slide_4.jpg',
-] as const;
+/** Desde tablet el mazo es abanico; debajo, pila (frames 1288:676 y 1288:913). */
+const MEDIA_ABANICO = '(min-width: 768px)';
 
-export default function PrinciplesSection() {
+/**
+ * El pulgar se va la primera vez que la persona usa el slider y no vuelve en esa visita.
+ * Vive en el módulo (no en el estado del componente) para que un remontaje no lo traiga.
+ */
+let pulgarUsadoEnEstaVisita = false;
+
+type Props = {
+  /**
+   * id del título que nombra al carrusel (aria-labelledby). El título, el fondo y el padding
+   * de sección los pone quien lo monta: hoy la sección EMI (components/emi/emi-section.tsx).
+   */
+  etiquetadoPor?: string;
+};
+
+export default function PrinciplesSection({ etiquetadoPor }: Props) {
   const { t } = useTranslation();
-  const sliderViewportRef = useRef<HTMLDivElement>(null);
+  const reducido = useReducedMotion() ?? false;
+  const escenarioRef = useRef<HTMLDivElement>(null);
   const swiperRef = useRef<SwiperClass | null>(null);
-  const autoplayVisibilityObserverRef = useRef<IntersectionObserver | null>(null);
+  // La instancia también en estado: los efectos que dependen de ella se rehacen si Swiper se
+  // vuelve a crear (StrictMode monta, desmonta y monta de nuevo en desarrollo).
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null);
+  /** Tras la primera interacción el autoplay se para y no vuelve (docs/emi/DECISIONES.md, D3). */
+  const interactuadoRef = useRef(false);
   const prevRef = useRef<HTMLButtonElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
 
+  const enPantalla = useInView(escenarioRef, { amount: 0.35 });
+  const [conFoco, setConFoco] = useState(false);
+  const enPantallaRef = useRef(false);
+  enPantallaRef.current = enPantalla;
+  const [pulgarVisible, setPulgarVisible] = useState(!pulgarUsadoEnEstaVisita);
+
+  const configMazo = useRef<ConfigMazo>({ poses: POSES_PILA, reducido: false });
+  const efectoMazo = useMemo(() => crearEfectoMazo(configMazo), []);
+
+  /** La persona usó el slider: se va el pulgar (una vez por visita) y se para el autoplay. */
+  const marcarUso = () => {
+    interactuadoRef.current = true;
+    const sw = swiperRef.current;
+    if (sw && !sw.destroyed && sw.autoplay?.running) sw.autoplay.stop();
+    if (pulgarUsadoEnEstaVisita) return;
+    pulgarUsadoEnEstaVisita = true;
+    setPulgarVisible(false);
+  };
+  const marcarUsoRef = useRef(marcarUso);
+  marcarUsoRef.current = marcarUso;
+
+  // Abanico o pila según el ancho, y sin arco con prefers-reduced-motion.
   useEffect(() => {
-    return () => {
-      autoplayVisibilityObserverRef.current?.disconnect();
-      autoplayVisibilityObserverRef.current = null;
+    const mq = window.matchMedia(MEDIA_ABANICO);
+    const aplicar = () => {
+      configMazo.current = {
+        poses: mq.matches ? POSES_ABANICO : POSES_PILA,
+        reducido,
+      };
+      const sw = swiperRef.current;
+      if (sw && !sw.destroyed) repintarMazo(sw);
     };
-  }, []);
+    aplicar();
+    mq.addEventListener('change', aplicar);
+    return () => mq.removeEventListener('change', aplicar);
+  }, [reducido]);
+
+  // Autoplay: corre solo con el slider en pantalla, sin el foco del teclado dentro, sin
+  // prefers-reduced-motion y hasta la primera interacción. Se decide en un efecto que depende de
+  // la instancia (en estado) y de `enPantalla` (el mismo useInView del pulgar): así sobrevive al
+  // doble montaje de StrictMode, que destruye y rehace la instancia de Swiper.
+  useEffect(() => {
+    if (!swiper || swiper.destroyed || !swiper.autoplay) return;
+    const debe = enPantalla && !conFoco && !reducido && !interactuadoRef.current;
+    if (debe && !swiper.autoplay.running) swiper.autoplay.start();
+    if (!debe && swiper.autoplay.running) swiper.autoplay.stop();
+  }, [swiper, enPantalla, conFoco, reducido]);
+
+  useEffect(() => {
+    if (!swiper) return;
+    return () => {
+      if (!swiper.destroyed && swiper.autoplay?.running) swiper.autoplay.stop();
+    };
+  }, [swiper]);
+
+  // Anuncio para lectores de pantalla: "polite" cuando nadie más mueve el slider (autoplay
+  // parado o en pausa), "off" mientras rota solo, para no hablar cada 4,5 s.
+  useEffect(() => {
+    if (!swiper) return;
+    const actualizar = () => {
+      if (swiper.destroyed) return;
+      const rotando = swiper.autoplay?.running && !swiper.autoplay.paused;
+      swiper.wrapperEl.setAttribute('aria-live', rotando ? 'off' : 'polite');
+    };
+    const eventos = ['autoplayStart', 'autoplayStop', 'autoplayPause', 'autoplayResume'] as const;
+    actualizar();
+    eventos.forEach(ev => swiper.on(ev, actualizar));
+    return () => {
+      if (!swiper.destroyed) eventos.forEach(ev => swiper.off(ev, actualizar));
+    };
+  }, [swiper]);
+
+  // Teclado: flechas izquierda y derecha con el slider en pantalla. Propio y no el módulo
+  // Keyboard de Swiper, que escucha en document sin mirar si hay un diálogo abierto encima:
+  // con el drawer de Súmate (o cualquier modal) abierto, las flechas no mueven el slider.
+  useEffect(() => {
+    if (!swiper) return;
+    const alTeclear = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (!enPantallaRef.current || swiper.destroyed) return;
+      const destino = e.target instanceof Element ? e.target : null;
+      if (destino?.closest('input, textarea, select, [contenteditable], [role=dialog]')) return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      marcarUsoRef.current();
+      if (e.key === 'ArrowRight') swiper.slideNext();
+      else swiper.slidePrev();
+    };
+    document.addEventListener('keydown', alTeclear);
+    return () => document.removeEventListener('keydown', alTeclear);
+  }, [swiper]);
 
   return (
-    <section
-      className="relative w-full bg-beige pb-16 pt-12 md:pb-20 md:pt-16"
-      aria-labelledby="principles-title"
+    <div
+      ref={escenarioRef}
+      id="estampillas"
+      className={estilos.escenario}
+      onFocus={() => setConFoco(true)}
+      onBlur={e => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setConFoco(false);
+      }}
     >
-      <PageGrid>
-        <div className="col-span-4 md:col-span-12">
-          <h2
-            id="principles-title"
-            className="text-left text-[32px] font-bold leading-tight text-black lg:text-[40px]"
-          >
-            {t('principles.title')}
-          </h2>
-        </div>
+      <p id="estampillas-instrucciones" className="sr-only">
+        {t('principles.instrucciones')}
+      </p>
+      {/* Las flechas no están en el diseño: siguen ahí para teclado y lectores de pantalla,
+          ocultas a la vista hasta que reciben el foco. */}
+      <button
+        ref={prevRef}
+        type="button"
+        className="sr-only z-30 flex items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md focus-visible:not-sr-only focus-visible:absolute focus-visible:left-0 focus-visible:top-1/2 focus-visible:h-11 focus-visible:w-11 focus-visible:-translate-y-1/2"
+        aria-label={t('principles.prev')}
+      >
+        <ChevronLeft className="h-6 w-6" strokeWidth={2} aria-hidden />
+      </button>
 
-        <div className="col-span-4 md:col-span-12">
-          <div className="relative flex w-full items-center justify-center gap-1 py-6 sm:gap-2 md:gap-4 md:py-10 lg:gap-6">
-            <button
-              ref={prevRef}
-              type="button"
-              className="z-20 hidden h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md transition hover:bg-white md:flex"
-              aria-label={t('principles.prev')}
-            >
-              <ChevronLeft className="h-6 w-6" strokeWidth={2} aria-hidden />
-            </button>
+      <Swiper
+        modules={[efectoMazo, Navigation, Autoplay, A11y]}
+        effect="mazo"
+        grabCursor
+        loop
+        slideToClickedSlide
+        longSwipesRatio={0.3}
+        speed={reducido ? 250 : 1000}
+        a11y={{
+          enabled: true,
+          containerRole: 'region',
+          containerRoleDescriptionMessage: t('principles.rolCarrusel'),
+          prevSlideMessage: t('principles.prev'),
+          nextSlideMessage: t('principles.next'),
+          slideRole: 'group',
+          slideLabelMessage: '{{index}} / {{slidesLength}}',
+        }}
+        navigation={{
+          prevEl: prevRef.current,
+          nextEl: nextRef.current,
+        }}
+        onBeforeInit={swiper => {
+          const nav = swiper.params.navigation;
+          if (nav && typeof nav !== 'boolean') {
+            nav.prevEl = prevRef.current;
+            nav.nextEl = nextRef.current;
+          }
+        }}
+        autoplay={{
+          delay: 4500,
+          disableOnInteraction: true,
+          pauseOnMouseEnter: true,
+        }}
+        onSliderFirstMove={marcarUso}
+        onNavigationNext={marcarUso}
+        onNavigationPrev={marcarUso}
+        onClick={swiper => {
+          // Clic en una de las de detrás: slideToClickedSlide la trae al frente.
+          if (swiper.clickedSlide && swiper.clickedIndex !== swiper.activeIndex) marcarUso();
+        }}
+        onSwiper={instancia => {
+          swiperRef.current = instancia;
+          setSwiper(instancia);
+          instancia.autoplay.stop();
 
-            <div
-              ref={sliderViewportRef}
-              className="min-h-0 min-w-0 w-full max-w-full flex-1 px-0 sm:px-1 md:max-w-[460px] lg:max-w-[520px]"
-            >
-              <Swiper
-                modules={[EffectCards, Navigation, Autoplay]}
-                effect="cards"
-                cardsEffect={{ slideShadows: false }}
-                grabCursor
-                rewind
-                speed={500}
-                navigation={{
-                  prevEl: prevRef.current,
-                  nextEl: nextRef.current,
-                }}
-                onBeforeInit={swiper => {
-                  const nav = swiper.params.navigation;
-                  if (nav && typeof nav !== 'boolean') {
-                    nav.prevEl = prevRef.current;
-                    nav.nextEl = nextRef.current;
-                  }
-                }}
-                autoplay={{
-                  delay: 4500,
-                  disableOnInteraction: false,
-                  pauseOnMouseEnter: true,
-                }}
-                onSwiper={swiper => {
-                  swiperRef.current = swiper;
-                  swiper.autoplay.stop();
+          requestAnimationFrame(() => {
+            const prev = prevRef.current;
+            const next = nextRef.current;
+            if (!prev || !next || !instancia.navigation) return;
+            const nav = instancia.params.navigation;
+            if (nav && typeof nav !== 'boolean') {
+              nav.prevEl = prev;
+              nav.nextEl = next;
+            }
+            instancia.navigation.init();
+            instancia.navigation.update();
+          });
+        }}
+        aria-labelledby={etiquetadoPor}
+        aria-describedby="estampillas-instrucciones"
+        className={`principles-swiper ${estilos.mazo}`}
+      >
+        {ESTAMPILLAS.map((estampilla, index) => (
+          <SwiperSlide key={estampilla.src}>
+            <Image
+              src={estampilla.src}
+              alt={t(estampilla.altKey)}
+              width={ESTAMPILLA_ANCHO_PX}
+              height={ESTAMPILLA_ALTO_PX}
+              draggable={false}
+              className="block h-auto w-full select-none"
+              sizes="(min-width: 1024px) 360px, (min-width: 768px) 320px, 90vw"
+              priority={index === 0}
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
 
-                  autoplayVisibilityObserverRef.current?.disconnect();
+      <button
+        ref={nextRef}
+        type="button"
+        className="sr-only z-30 flex items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md focus-visible:not-sr-only focus-visible:absolute focus-visible:right-0 focus-visible:top-1/2 focus-visible:h-11 focus-visible:w-11 focus-visible:-translate-y-1/2"
+        aria-label={t('principles.next')}
+      >
+        <ChevronRight className="h-6 w-6" strokeWidth={2} aria-hidden />
+      </button>
 
-                  const root = sliderViewportRef.current;
-                  if (root) {
-                    const io = new IntersectionObserver(
-                      ([entry]) => {
-                        const sw = swiperRef.current;
-                        if (!sw?.autoplay) return;
-                        if (entry.isIntersecting) sw.autoplay.start();
-                        else sw.autoplay.stop();
-                      },
-                      {
-                        threshold: 0.35,
-                        rootMargin: '0px',
-                      }
-                    );
-                    io.observe(root);
-                    autoplayVisibilityObserverRef.current = io;
-                  }
-
-                  requestAnimationFrame(() => {
-                    const prev = prevRef.current;
-                    const next = nextRef.current;
-                    if (!prev || !next || !swiper.navigation) return;
-                    const nav = swiper.params.navigation;
-                    if (nav && typeof nav !== 'boolean') {
-                      nav.prevEl = prev;
-                      nav.nextEl = next;
-                    }
-                    swiper.navigation.init();
-                    swiper.navigation.update();
-                  });
-                }}
-                className="principles-swiper mx-auto h-auto w-full max-w-full overflow-visible"
-              >
-                {PRINCIPLE_SLIDES.map((src, index) => (
-                  <SwiperSlide key={src}>
-                    <div className="box-border w-full px-1 pb-1 pt-1 sm:px-2 md:px-3 md:pb-2">
-                      <div className="relative aspect-[3/4] w-full">
-                        <Image
-                          src={src}
-                          alt=""
-                          fill
-                          className="object-contain object-center"
-                          sizes="(max-width: 768px) 92vw, (max-width: 1200px) 85vw, min(1152px, 85vw)"
-                          priority={index === 0}
-                        />
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-
-            <button
-              ref={nextRef}
-              type="button"
-              className="z-20 hidden h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md transition hover:bg-white md:flex"
-              aria-label={t('principles.next')}
-            >
-              <ChevronRight className="h-6 w-6" strokeWidth={2} aria-hidden />
-            </button>
-          </div>
-        </div>
-      </PageGrid>
-    </section>
+      <div className={estilos.pulgar}>
+        <PulgarDeslizar visible={pulgarVisible} enPantalla={enPantalla} />
+      </div>
+    </div>
   );
 }

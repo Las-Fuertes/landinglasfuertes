@@ -100,7 +100,10 @@ Definido en `styles/global.css:137`. Es un `inline-block` con fondo `#242424`, t
 inclinación de -1.2 grados y borde rasgado mediante el filtro SVG `#map-rough-edge`. El texto va en
 un hijo porque el fondo se pinta en un `::before`.
 
-Variantes: `map-chip--pink` (fondo rosa) y `map-chip--flat` (sin inclinación).
+Variantes: `map-chip--pink` (fondo rosa) y `map-chip--flat` (sin inclinación). Desde la sección
+EMI (`docs/emi/DECISIONES.md`, D2): `map-chip--emi` (rosa del sol `pink-sol`, -4,09 grados y poco
+aire lateral: el chip "EMI") y `map-chip--cinta` (-0,54 grados: la cinta negra de un título, con el
+texto en `text-beige`).
 
 En textos de `locales` se escribe `==texto==` y lo convierte `renderTextWithMarks`
 (`lib/render-text-with-bold.tsx`), igual que `**negrita**` lo convierte `renderTextWithBold`.

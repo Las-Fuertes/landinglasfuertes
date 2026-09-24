@@ -1,0 +1,92 @@
+/*
+ * Medidas del slider de estampillas (docs/emi/DECISIONES.md, D3). Van aquí y no en clases de
+ * Tailwind porque son proporciones del diseño que dependen unas de otras (alto = ancho por la
+ * proporción del export; las poses del mazo se miden contra el alto).
+ *
+ * --ancho: ancho de la estampilla de enfrente.
+ *   mobile  349 de 390 del frame 1288:913 (89,5vw), con tope en 349px.
+ *   tablet  320px (el abanico entero cabe en 768 menos los márgenes).
+ *   desktop 360px (alto 343). El frame 1288:676 dibuja la estampilla apaisada (467x333); el
+ *           export 1297:x es casi cuadrado, así que se iguala el ALTO del diseño (333), no el
+ *           ancho: con 400px el abanico crecía 50px y se comía el pie del frame de 956.
+ */
+.escenario {
+  --ancho: min(349px, 89.5vw);
+  --alto: calc(var(--ancho) * 669 / 701);
+  /* Mobile (1288:913): la de enfrente empieza 97 px bajo el borde de abajo de la cinta (545 a
+     642) y la sección EMI deja 15 (mb-m): 86 px, 0,258 del alto. */
+  --aire-arriba: calc(var(--alto) * 0.258);
+  position: relative;
+  padding-top: var(--aire-arriba);
+  /* Bajo el pulgar, 7 px hasta el final del frame (1027 a 1034). */
+  padding-bottom: 0.5rem;
+}
+
+.mazo {
+  width: var(--ancho);
+  /* Centrada aunque sea más ancha que la columna (en mobile desborda el PageGrid). */
+  margin-left: calc((100% - var(--ancho)) / 2);
+  overflow: visible !important;
+  touch-action: pan-y;
+}
+
+/* Antes de que Swiper arranque, solo se ve la primera (evita el destello de las cuatro en fila). */
+.mazo:not(:global(.swiper-initialized)) :global(.swiper-slide:not(:first-child)) {
+  visibility: hidden;
+}
+
+.mazo :global(.swiper-slide) {
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+/* Pulgar en mobile y tablet: debajo, alineado al borde derecho de la de enfrente. */
+.pulgar {
+  display: flex;
+  justify-content: flex-end;
+  width: var(--ancho);
+  margin-left: calc((100% - var(--ancho)) / 2);
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .escenario {
+    --ancho: 320px;
+    --aire-arriba: calc(var(--alto) * 0.16);
+    /* El abanico baja un poco por los giros de las de detrás. */
+    padding-bottom: calc(var(--alto) * 0.1);
+  }
+
+  /* Tablet: bajo la azul de la derecha del abanico, sin pasar del margen del grid (2,5rem,
+     el page-margin del PageGrid). */
+  .pulgar {
+    width: auto;
+    justify-content: flex-start;
+    margin-left: min(
+      calc(50% + var(--alto) * 0.567 + var(--ancho) / 2 - 2.5rem),
+      calc(100% - 5rem)
+    );
+    margin-top: calc(var(--alto) * 0.1);
+  }
+}
+
+@media (min-width: 1024px) {
+  .escenario {
+    --ancho: 360px;
+    /* 1288:676: la de enfrente a 109 px de la cinta (451 a 560) y 34 px de crema entre el
+       abanico y el final del frame (922 a 956); el abanico sobresale de la caja unos 24 px
+       por los giros. */
+    --aire-arriba: calc(var(--alto) * 0.18);
+    padding-bottom: calc(var(--alto) * 0.155);
+  }
+
+  /* Desktop: donde el diseño pone "SWIPE", a la derecha de la azul de atrás, a la altura del
+     borde de abajo de la de enfrente (centro a +1,32 y +0,45 altos del centro del mazo). */
+  .pulgar {
+    position: absolute;
+    left: calc(50% + var(--alto) * 1.12);
+    top: calc(var(--aire-arriba) + var(--alto) * 0.95 - 1.25rem);
+    margin: 0;
+    width: auto;
+  }
+}

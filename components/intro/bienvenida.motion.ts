@@ -43,8 +43,7 @@ export type RolBienvenida =
   | 'persona'
   | 'trazo'
   | 'flor'
-  | 'gaviota'
-  | 'emi';
+  | 'gaviota';
 
 /** Tiempos base de la llegada, en segundos desde el gesto (a multiplicar por ESCALA_TIEMPO). */
 const LLEGADA = {
@@ -82,8 +81,6 @@ const LLEGADA = {
    * olas mide todo el ancho de la ilustración y un % lo movería de más.
    */
   OLA_DESPLAZAMIENTO_PX: 24,
-  /** El bloque de EMI solo se ve de entrada en pantallas muy altas: un fundido con la ilustración. */
-  EMI: 1.1,
 } as const;
 
 /** Desfase de cada pieza de la ilustración respecto a `LLEGADA.ILUSTRACION`. */
@@ -305,9 +302,6 @@ export function crearLlegada(
       { scale: 1, rotation: 0, opacity: 1, duration: 0.4, ease: 'back.out(2)' },
       t('flor')
     );
-  });
-  piezas(bienvenida, 'emi').forEach(el => {
-    tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: d, ease: 'power1.inOut' }, LLEGADA.EMI);
   });
 
   return { tl: tl.timeScale(1 / ESCALA_TIEMPO), deshacer: () => viajero?.remove() };

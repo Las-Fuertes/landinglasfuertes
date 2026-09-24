@@ -58,7 +58,9 @@ ANTES DE TOCAR NADA, lee en este orden:
 MAPA DE SECCIONES (componente -> título visible)
   components/intro/            Introducción (3 partes, pin con GSAP)
   components/welcome/          "Bienvenidx a Las Fuertes"                 id `bienvenida`
-  components/principles/       "Así lo comprendimos nosotras" (Swiper)
+  components/emi/              "Educación menstrual integral como mapa de cambio"  id `emi`
+                               (contiene el slider de principles y su título en cinta)
+  components/principles/       el slider "Así lo comprendimos nosotras" (Swiper), dentro de EMI
   components/donations/        "Dirigir el cambio ... tripulantes comprometidos"
   components/education-map/    "Cómo hacemos de nuestro mapa educativo la ruta ..."
   components/impacto/          "Así se ve el impacto en acción"           id `impacto`

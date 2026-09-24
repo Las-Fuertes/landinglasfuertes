@@ -1,0 +1,299 @@
+/*
+ * Donaciones ("Dirigir el cambio..."), medidas de Figma: mobile 1288:1478 (390x871) y desktop
+ * 1288:1594 (1280x956). Van aquí y no en clases de Tailwind porque son la geometría del frame
+ * (posiciones del barco, tramos de cinta por línea, olas a escala) y dependen unas de otras.
+ * Mobile < 768; desde `md` (768) se usa la composición desktop, con la columna y el barco en
+ * proporción al contenedor del PageGrid. Ver docs/donaciones/DECISIONES.md, D1 y D2.
+ */
+
+/* ---------- Contenedor ---------- */
+
+.contenido {
+  /* Mismo inset que el PageGrid (24 px bajo 380, 40 desde 380), para colocar el botón mobile. */
+  --inset: 1.5rem;
+  /* Mobile: la primera línea del título empieza en y=101 del frame. */
+  padding-top: 101px;
+}
+
+@media (min-width: 380px) {
+  .contenido {
+    --inset: 2.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .contenido {
+    /* Desktop: la primera línea del título empieza en y=205 del frame. */
+    padding-top: 205px;
+  }
+}
+
+/* La columna de texto (título, párrafos y botón). En desktop empieza en x=120 del frame
+   (80 del PageGrid + 40) y termina antes del barco, con 16 px de aire. */
+@media (min-width: 768px) {
+  .columna {
+    margin-left: 40px;
+    max-width: calc(64.754% - 56px);
+  }
+}
+
+/* ---------- Título: una cinta de papel por línea ---------- */
+
+.titulo {
+  position: relative;
+  /* Mobile: el texto empieza en x=34, 6 px antes de la columna del grid (40). */
+  margin: 0 0 0 -6px;
+  /* La caja de Figma mide 311, pero con las métricas del navegador "integral requiere" (299 px)
+     cabe en una línea y en el frame va partida. 295 reproduce los siete cortes del diseño. */
+  max-width: 295px;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 44px;
+  letter-spacing: -0.04em;
+  color: theme('colors.blue.DEFAULT');
+}
+
+@media (min-width: 768px) {
+  .titulo {
+    /* Desktop: texto en x=127 (7 px dentro de la columna) y caja de 657 de ancho. */
+    margin-left: 7px;
+    max-width: 657px;
+    line-height: 42.04px;
+  }
+}
+
+.linea {
+  position: relative;
+  display: block;
+  width: fit-content;
+  white-space: nowrap;
+  /* Tramo de cinta de cada línea: cuánto sobresale de la caja del texto por cada lado y su giro.
+     Los valores por línea salen de los rectángulos 1288:1434 a 1440 (mobile) y 1288:1722, 1723 y
+     1294:1762 (desktop), medidos contra la caja de cada línea de texto. */
+  --arriba: 4px;
+  --abajo: 2px;
+  --izq: 8px;
+  --der: 8px;
+  --giro: -1.23deg;
+  --sesgo: 0deg;
+}
+
+.lineaSinMedir {
+  white-space: normal;
+  width: auto;
+}
+
+.linea::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: calc(-1 * var(--arriba));
+  bottom: calc(-1 * var(--abajo));
+  left: calc(-1 * var(--izq));
+  right: calc(-1 * var(--der));
+  background-color: theme('colors.papel.DEFAULT');
+  transform: rotate(var(--giro)) skewX(var(--sesgo));
+  /* Filtro global de borde rasgado (components/layout/rough-edge-filter.tsx). */
+  filter: url(#map-rough-edge);
+}
+
+/* El texto va por encima del barco, y el barco por encima de la cinta (orden de capas de Figma). */
+.lineaTexto {
+  position: relative;
+  z-index: 3;
+}
+
+/* Mobile, 1288:1478 */
+.linea:nth-child(1) {
+  --arriba: 5.9px;
+  --abajo: -2.1px;
+  --izq: 7.5px;
+  --der: 9.5px;
+  --giro: -1.23deg;
+}
+.linea:nth-child(2) {
+  --arriba: 5.7px;
+  --abajo: 1.7px;
+  --izq: 7.4px;
+  --der: 14px;
+  --giro: -2.97deg;
+}
+.linea:nth-child(3) {
+  --arriba: 6.7px;
+  --abajo: 1.7px;
+  --izq: 7.2px;
+  --der: 15.3px;
+  --giro: -1.23deg;
+}
+.linea:nth-child(4) {
+  --arriba: 1.6px;
+  --abajo: 0.9px;
+  --izq: 7.6px;
+  --der: 9.5px;
+  --giro: 1.06deg;
+}
+.linea:nth-child(5) {
+  --arriba: 3px;
+  --abajo: 4px;
+  --izq: 8.4px;
+  --der: 11.8px;
+  --giro: -1.23deg;
+}
+.linea:nth-child(6) {
+  --arriba: -3px;
+  --abajo: 0.4px;
+  --izq: 8.7px;
+  --der: 10.5px;
+  --giro: 1.17deg;
+}
+.linea:nth-child(7) {
+  --arriba: 2.8px;
+  --abajo: 3.4px;
+  --izq: 8.8px;
+  --der: 11.6px;
+  --giro: -1.23deg;
+}
+
+/* Desktop, 1288:1594: las tres cintas con el mismo giro y sesgo. */
+@media (min-width: 768px) {
+  .linea {
+    --giro: -0.58deg;
+    --sesgo: 2.03deg;
+    --izq: 9.5px;
+    --der: 9.5px;
+    --arriba: 4px;
+    --abajo: 6px;
+  }
+  .linea:nth-child(1) {
+    --arriba: 8px;
+    --abajo: 2.8px;
+    --izq: 9.8px;
+    --der: 10.7px;
+  }
+  .linea:nth-child(2) {
+    --arriba: 3.4px;
+    --abajo: 12.4px;
+    --izq: 9px;
+    --der: 12.1px;
+  }
+  .linea:nth-child(3) {
+    --arriba: -6.2px;
+    --abajo: 12px;
+    --izq: 8.8px;
+    --der: 19.8px;
+  }
+}
+
+/* Medidor invisible: misma tipografía y mismo ancho que el título, para saber dónde corta. */
+.medidor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: normal;
+}
+
+/* ---------- Barco ---------- */
+
+/* Mobile: caja del export en x=247,27 y=178,64 (223,7 de ancho), medida desde la columna del
+   grid (x=40) y desde la primera línea del título (y=101). Sangra por la derecha. */
+.barcoMobile {
+  position: absolute;
+  z-index: 2;
+  left: 207.27px;
+  top: 77.64px;
+  width: 223.7px;
+  pointer-events: none;
+}
+
+/* Desktop: caja del export en x=805,25 y=277,44 (413,68 de ancho). Relativo al contenido del
+   PageGrid (80 a 1200 a 1280): 725,25 de 1120 a la izquierda, 413,68 de 1120 de ancho y 72,44
+   bajo la primera línea del título. */
+.barcoDesktop {
+  position: absolute;
+  z-index: 2;
+  left: 64.754%;
+  top: 72.44px;
+  width: 36.936%;
+  pointer-events: none;
+}
+
+/* ---------- Párrafos y botón ---------- */
+
+.parrafos {
+  /* Mobile: del final del título (409) al párrafo (456). */
+  margin-top: 47px;
+  max-width: 300px;
+  font-size: 16px;
+  line-height: normal;
+  color: theme('colors.papel.DEFAULT');
+}
+
+.parrafos > p + p {
+  /* En Figma es un salto de línea en blanco: un interlineado de aire. */
+  margin-top: 1lh;
+}
+
+@media (min-width: 768px) {
+  .parrafos {
+    /* Desktop: del final del título (331) al párrafo (400). */
+    margin-top: 69px;
+    max-width: 546px;
+    font-size: 18px;
+  }
+}
+
+.botonFila {
+  /* Mobile: el segundo párrafo termina en 627 y el botón empieza en 657. */
+  margin-top: 30px;
+}
+
+@media (min-width: 768px) {
+  .botonFila {
+    /* Desktop: el segundo párrafo termina en 532,1 y el botón empieza en 583. */
+    margin-top: 50.9px;
+  }
+}
+
+.boton {
+  /* Mobile: el botón empieza en x=111 de 390 (28,46 %), no centrado: así está en el frame. */
+  margin-left: calc(28.46vw - var(--inset));
+  height: 40px;
+  padding: 0 9px;
+  min-width: 144px;
+}
+
+@media (min-width: 768px) {
+  .boton {
+    margin-left: 0;
+  }
+}
+
+/* ---------- Olas ---------- */
+
+/* Mobile: el SVG compuesto cubre y=708 a 871 del frame; el botón termina en 697. */
+.olasMobile {
+  margin-top: 11px;
+}
+
+/* Desktop: el grupo 1294:1752 (export 1714,34 x 245,04) empieza en x=42,09 y 28,77 bajo el
+   botón, y deja 59 px de azul hasta el final del frame. Escala con el ancho de pantalla, con
+   tope en 1512 para que a 1920 no crezca de más; su ancho (1,34 veces la pantalla) cubre
+   siempre el borde derecho. */
+.olasDesktop {
+  --base: min(100vw, 1512px);
+  position: relative;
+  margin-top: 28.77px;
+  height: calc(var(--base) * 304.23 / 1280);
+}
+
+.olasDesktopImagen {
+  position: absolute;
+  top: 0;
+  left: calc(var(--base) * 42.09 / 1280);
+  width: calc(var(--base) * 1714.34 / 1280);
+  max-width: none;
+  height: auto;
+}

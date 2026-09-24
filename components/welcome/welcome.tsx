@@ -66,7 +66,9 @@ export default function WelcomeSection() {
       ref={ref}
       id="bienvenida"
       // Destino de "Saltar animación", que le pone tabindex=-1 y el foco: sin contorno de foco.
-      className="relative w-full pb-16 pt-10 outline-none lg:pt-[3.25rem]"
+      // Hero de una pantalla (docs/emi/DECISIONES.md, D1): al menos el alto dinámico de la
+      // ventana, el texto arriba y la ilustración abajo. Si no cabe, crece en vez de solapar.
+      className="relative flex min-h-dvh w-full flex-col pb-[3.3125rem] pt-10 outline-none lg:pb-[3.625rem] lg:pt-[3.25rem]"
       aria-labelledby="welcome-title"
     >
       {/* Desktop: nubes y gaviotas en el sitio del frame 1280:9 de Figma. */}
@@ -155,41 +157,12 @@ export default function WelcomeSection() {
       </PageGrid>
 
       {/* Ancho completo: la sección no tiene márgenes laterales. En desktop se limita para que
-          la ilustración no crezca de más en pantallas anchas. */}
-      <IlustracionPlaya />
-
-      <PageGrid className="mt-36 md:mt-16">
-        <div
-          className="col-span-4 md:col-span-10 md:col-start-2"
-          data-rol="emi"
-          role="region"
-          aria-labelledby="welcome-emi-title"
-        >
-          <div className="flex flex-col items-center text-center">
-            <div className="relative mx-auto aspect-[123/59] w-full max-w-[7.6875rem] shrink-0">
-              <Image
-                src="/images/welcome/emi-dove.svg"
-                alt="EMI"
-                fill
-                className="object-contain"
-                sizes="154px"
-              />
-            </div>
-            <h3
-              id="welcome-emi-title"
-              className="mt-6 text-center text-[clamp(1.25rem,4vw,1.75rem)] font-bold leading-tight text-black md:mt-8 lg:text-[2rem]"
-            >
-              {t('welcome.emiTitle')}
-            </h3>
-          </div>
-          <p className="mx-auto mt-6 max-w-3xl text-left text-[16px] font-normal leading-tight text-black md:mt-8 md:text-[18px] md:leading-snug lg:text-[20px]">
-            {renderTextWithBold(t('welcome.emiParagraph1'))}
-          </p>
-          <p className="mx-auto mt-4 max-w-3xl text-left text-[16px] font-normal leading-tight text-black md:text-[18px] md:leading-snug lg:text-[20px]">
-            {renderTextWithBold(t('welcome.emiParagraph2'))}
-          </p>
-        </div>
-      </PageGrid>
+          la ilustración no crezca de más en pantallas anchas. `mt-auto` la ancla al fondo de la
+          pantalla; el `mt-10` propio de la ilustración es el aire mínimo bajo el texto
+          (docs/emi/DECISIONES.md, D1). */}
+      <div className="mt-auto w-full">
+        <IlustracionPlaya />
+      </div>
     </section>
   );
 }
