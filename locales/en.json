@@ -124,6 +124,7 @@
   },
   "educationMap": {
     "title": "How our educational map becomes the route toward conscious integral development",
+    "saltar": "Skip map",
     "actions": {
       "back": "Back",
       "next": "Next route",

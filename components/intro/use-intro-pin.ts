@@ -9,28 +9,17 @@ import {
   useState,
 } from 'react';
 import type { Sentido } from './intro.motion';
+import {
+  FIN_DE_GESTO_MS,
+  GESTOS_FUERTES,
+  type GestoRueda,
+  registrarRueda,
+  SCROLL_FUERTE_PX,
+} from '../../lib/gesto-rueda';
 
 const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
 /** Arrastre en touch para que dispare UNA parte. */
 const TOUCH_THRESHOLD = 50;
-/**
- * Silencio que cierra un gesto de rueda. La inercia de un trackpad manda eventos seguidos
- * durante 1,5 a 2 s; mientras lleguen con menos de esta separación es el mismo gesto.
- */
-const FIN_DE_GESTO_MS = 180;
-/** `deltaY` acumulado en un gesto a partir del cual cuenta como scroll fuerte. */
-const SCROLL_FUERTE_PX = 1500;
-/** Gestos nuevos durante una misma transición a partir de los cuales cuenta como scroll fuerte. */
-const GESTOS_FUERTES = 2;
-/**
- * Nuevo impulso sin silencio: si alguien vuelve a hacer scroll mientras la inercia del gesto
- * anterior aún decae, los eventos nunca dejan 180 ms de hueco. Cuenta como gesto nuevo cuando,
- * tras haber bajado del pico a menos de `IMPULSO_DECAIDO` de él, `|deltaY|` vuelve a crecer
- * `IMPULSO_FACTOR` veces sobre el valle y pasa de `IMPULSO_MIN_PX`.
- */
-const IMPULSO_DECAIDO = 0.4;
-const IMPULSO_FACTOR = 3;
-const IMPULSO_MIN_PX = 12;
 /** Tolerancia para considerar que la página está arriba del todo. */
 const ARRIBA_PX = 2;
 
@@ -76,17 +65,14 @@ export interface IntroPinState {
   saltar: () => void;
 }
 
-interface Gesto {
-  vivo: boolean;
-  /** Ya disparó una parte (o desenganchó): el resto del gesto, inercia incluida, se traga. */
-  consumido: boolean;
-  acumulado: number;
+/**
+ * El gesto de rueda en curso. La detección (silencio, cambio de sentido, impulso nuevo) vive en
+ * `lib/gesto-rueda.ts`, compartida con el Mapa educativo; `consumido` aquí significa que ya
+ * disparó una parte (o desenganchó).
+ */
+interface Gesto extends GestoRueda {
   /** scrollY al empezar: solo engancha un gesto que arrancó arriba del todo. */
   inicioY: number;
-  sentido: Sentido;
-  /** Mayor `|deltaY|` del gesto y menor desde ese pico: sirven para detectar un impulso nuevo. */
-  pico: number;
-  valle: number;
 }
 
 const esCampoDeTexto = (el: EventTarget | null) =>
@@ -282,24 +268,9 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       // Un gesto nuevo empieza tras un silencio, SIEMPRE que cambia el sentido (la inercia de
       // subida que llega arriba no se come la bajada que sigue), o con un impulso nuevo sobre
       // una inercia que ya decaía. Si no, un scroll fuerte encadenado bloqueaba la intro.
-      const impulso =
-        g.consumido &&
-        g.valle <= g.pico * IMPULSO_DECAIDO &&
-        abs >= Math.max(g.valle * IMPULSO_FACTOR, IMPULSO_MIN_PX);
-      if (!g.vivo || sentido !== g.sentido || impulso) {
+      if (registrarRueda(g, sentido, abs)) {
         tragarRef.current = false;
-        g.vivo = true;
-        g.consumido = false;
-        g.acumulado = 0;
         g.inicioY = window.scrollY;
-        g.sentido = sentido;
-        g.pico = abs;
-        g.valle = abs;
-      } else if (abs > g.pico) {
-        g.pico = abs;
-        g.valle = abs;
-      } else {
-        g.valle = Math.min(g.valle, abs);
       }
       window.clearTimeout(finDeGestoRef.current);
       finDeGestoRef.current = window.setTimeout(() => {

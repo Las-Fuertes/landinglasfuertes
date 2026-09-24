@@ -56,6 +56,9 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
 - Transiciones de la Introducción (PR #17): `docs/introduccion/` (D1 a D5).
 - Orden nuevo y Súmate como drawer (PR #18): `docs/sumate-drawer/` (D1 y D2, pendientes en
   PROGRESS).
+- Mapa educativo nuevo (rama `24-sep-mapa`, sin commitear): `docs/mapa-educativo/` (D1 a D5:
+  mapa y orden, zoom mobile, título, "Saltar mapa", flotante oculto con `data-oculta-flotante`;
+  pendientes en PROGRESS).
 - Bienvenida como hero y sección EMI (rama `23-sep-emi`): `docs/emi/` (D1 y D2, pendientes en
   PROGRESS).
 - Donaciones fiel a Figma en mobile y con desktop nuevo (rama `23-sep-emi`): `docs/donaciones/`

@@ -5,31 +5,49 @@
  *
  * Idea general: el mapa es una capa de `mapW × mapH` px que se traslada dentro
  * de un "stage" fijo de `stageW × stageH`. Para cada parada existe una
- * traslación (tx, ty) que la deja en el punto de foco. El scroll interpola
- * entre esas traslaciones.
+ * traslación (tx, ty) que la encuadra. El scroll interpola entre esas
+ * traslaciones.
+ *
+ * Encuadre (docs/mapa-educativo/DECISIONES.md, D2): en cada parada tiene que verse
+ * ENTERO el grupo activo (etiqueta, ilustración y punto) y casi nada de los demás.
+ * Por eso el zoom sale de la caja del grupo más grande, no de los puntos, y la
+ * posición de cada parada se elige buscando la que menos muestra de las otras.
+ * Fuera del mapa solo hay mar del mismo azul que el fondo del stage, así que la
+ * cámara puede salirse del lienzo sin que se note.
  */
 
-import { MAP_ASPECT, type MapRoute } from './education-map.data';
+import { VIEWBOX, type MapBox, type MapRoute } from './education-map.data';
 
 export const clamp = (min: number, value: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-/** Dónde queremos que caiga la parada activa dentro del stage, en fracción. */
-export const FOCUS = { x: 0.5, y: 0.5 } as const;
-
-export interface ZoomRange {
-  min: number;
-  max: number;
+export interface Encuadre {
+  /**
+   * Fracción del zoom máximo. 1 es el zoom con el que el grupo más grande cabe
+   * justo (con `pad` de aire) en el área visible; menos de 1 deja ver más mapa.
+   */
+  factor: number;
+  /** Aire mínimo entre la caja activa y el borde del área visible, en px. */
+  pad: number;
+  /** Px de abajo del stage que tapa la barra con el nombre y los puntos. */
+  insetBottom: number;
+  /**
+   * Px de arriba que ocupa el encabezado en la primera parada: el título va
+   * encima del mapa y Talleres aparece debajo, en grande (D3). Si no cabe, se ignora.
+   */
+  reservaPrimera: number;
 }
 
-/**
- * En móvil el rango deja pasar el zoom "ideal" (~2.56×), que es justo el que
- * permite centrar horizontalmente las cinco paradas sin recorte.
- * En tablet lo limitamos: el mapa se ve menos ampliado y entra más contexto,
- * a cambio de que las paradas de los extremos queden algo descentradas.
- */
-export const ZOOM_MOBILE: ZoomRange = { min: 2.2, max: 2.9 };
-export const ZOOM_TABLET: ZoomRange = { min: 1.5, max: 1.8 };
+/** Móvil: el grupo más grande (Talleres) llena el ancho. Una parada por pantalla. */
+export const ENCUADRE_MOBILE: Omit<Encuadre, 'insetBottom' | 'reservaPrimera'> = {
+  factor: 1,
+  pad: 16,
+};
+/** Tablet: zoom intermedio, con más contexto alrededor, sin meter otra parada. */
+export const ENCUADRE_TABLET: Omit<Encuadre, 'insetBottom' | 'reservaPrimera'> = {
+  factor: 0.8,
+  pad: 32,
+};
 
 export interface MapTarget {
   tx: number;
@@ -39,60 +57,162 @@ export interface MapTarget {
 export interface MapLayout {
   stageW: number;
   stageH: number;
+  /** Alto del stage que de verdad se ve (sin la barra de abajo). */
+  visibleH: number;
+  /** px de pantalla por unidad del viewBox. */
+  scale: number;
   mapW: number;
   mapH: number;
-  /** Rectángulo de traslaciones válidas: las que mantienen el mapa cubriendo el stage. */
-  txMin: number;
-  txMax: number;
-  tyMin: number;
-  tyMax: number;
-  /** Traslación que deja cada parada en el punto de foco, ya recortada. */
+  /** Traslación que encuadra cada parada. */
   targets: MapTarget[];
 }
 
+/** Fracción (0 a 1) de la caja `b` que cae dentro del área visible con la traslación dada. */
+export function visibleFraction(
+  b: MapBox,
+  scale: number,
+  t: MapTarget,
+  stageW: number,
+  visibleH: number
+) {
+  const left = t.tx + b.x * scale;
+  const top = t.ty + b.y * scale;
+  const w = b.w * scale;
+  const h = b.h * scale;
+  const ix = Math.max(0, Math.min(left + w, stageW) - Math.max(left, 0));
+  const iy = Math.max(0, Math.min(top + h, visibleH) - Math.max(top, 0));
+  return w > 0 && h > 0 ? (ix * iy) / (w * h) : 0;
+}
+
+/** Lo máximo que se puede ver de otra parada en un encuadre (criterio de D2). */
+export const MAX_OTRA_VISIBLE = 0.15;
+/** Y de su cinta con el nombre, casi nada: una cinta ajena a medias confunde (D2). */
+export const MAX_CINTA_VISIBLE = 0.05;
+
+/** Pasos de la búsqueda por eje. 32 × 32 posiciones por parada: sobra y es instantáneo. */
+const PASOS = 32;
+/** Una cinta ajena que asoma distrae más que un trozo de dibujo: pesa esto más. */
+const PESO_CINTA = 4;
+
 /**
- * Ancho mínimo de mapa para que ninguna parada quede recortada en un eje.
- * Sale de exigir que el destino sin recortar caiga dentro del rectángulo válido.
+ * Elige dónde poner la caja activa dentro del área visible. Primero manda que las
+ * otras paradas se vean lo menos posible (sus cintas, sobre todo); a igualdad, que
+ * quede lo más centrada. Para las otras cuenta también la franja de la barra de
+ * abajo: su degradado deja ver lo que pasa por detrás.
  */
-function widthForExactFocus(stops: MapRoute[], stageW: number) {
-  return stops.reduce(
-    (acc, s) => Math.max(acc, (FOCUS.x * stageW) / s.u, ((1 - FOCUS.x) * stageW) / (1 - s.u)),
-    0
+function encuadrar(
+  i: number,
+  stops: MapRoute[],
+  scale: number,
+  stageW: number,
+  visibleH: number,
+  stageH: number,
+  pad: number,
+  reservaTop: number
+): MapTarget {
+  const b = stops[i].box;
+  const bw = b.w * scale;
+  const bh = b.h * scale;
+
+  const rango = (min: number, max: number, libre: number) =>
+    max >= min ? [min, max] : [libre / 2, libre / 2];
+  const [l0, l1] = rango(pad, stageW - pad - bw, stageW - bw);
+  // La reserva del encabezado se respeta hasta donde quepa: si no cabe entera, la caja
+  // baja todo lo posible sin cortarse.
+  const tope = visibleH - pad - bh;
+  const [t0, t1] = rango(Math.min(pad + reservaTop, Math.max(pad, tope)), tope, visibleH - bh);
+
+  const lc = clamp(l0, (stageW - bw) / 2, l1);
+  const tc = clamp(t0, (visibleH - bh) / 2, t1);
+  const diagonal = Math.hypot(stageW, visibleH);
+
+  let best: MapTarget = { tx: lc - b.x * scale, ty: tc - b.y * scale };
+  let bestScore = Infinity;
+  for (let a = 0; a <= PASOS; a++) {
+    const left = l0 + ((l1 - l0) * a) / PASOS;
+    for (let c = 0; c <= PASOS; c++) {
+      const top = t0 + ((t1 - t0) * c) / PASOS;
+      const t = { tx: left - b.x * scale, ty: top - b.y * scale };
+      let otras = 0;
+      let excede = 0;
+      for (let j = 0; j < stops.length; j++) {
+        if (j === i) continue;
+        // El criterio de D2 es duro: ninguna otra caja pasa de MAX_OTRA_VISIBLE.
+        const cinta = visibleFraction(stops[j].label, scale, t, stageW, stageH);
+        excede +=
+          Math.max(
+            0,
+            visibleFraction(stops[j].box, scale, t, stageW, visibleH) - MAX_OTRA_VISIBLE
+          ) + Math.max(0, cinta - MAX_CINTA_VISIBLE);
+        otras += visibleFraction(stops[j].box, scale, t, stageW, stageH) + PESO_CINTA * cinta;
+      }
+      const score = excede * 1e4 + otras * 100 + Math.hypot(left - lc, top - tc) / diagonal;
+      if (score < bestScore) {
+        bestScore = score;
+        best = t;
+      }
+    }
+  }
+  return best;
+}
+
+/** Si algún encuadre muestra de otra parada más de lo que permite D2 (caja o cinta). */
+export function incumpleEncuadre(layout: MapLayout, stops: MapRoute[]) {
+  const { targets, scale, stageW, stageH, visibleH } = layout;
+  return targets.some((t, i) =>
+    stops.some(
+      (s, j) =>
+        j !== i &&
+        (visibleFraction(s.box, scale, t, stageW, visibleH) > MAX_OTRA_VISIBLE + 1e-3 ||
+          visibleFraction(s.label, scale, t, stageW, stageH) > MAX_CINTA_VISIBLE + 1e-3)
+    )
   );
 }
 
-/**
- * Cuánto más alto que el stage tiene que quedar el mapa como mínimo. Sin esto,
- * en pantallas altas y angostas el mapa queda exactamente del alto del stage y
- * el movimiento vertical desaparece del todo.
- */
-const COVER_BLEED = 1.06;
+function layoutCon(
+  stageW: number,
+  stageH: number,
+  stops: MapRoute[],
+  encuadre: Encuadre,
+  factor: number
+): MapLayout {
+  const { pad, insetBottom, reservaPrimera } = encuadre;
+  const visibleH = Math.max(1, stageH - insetBottom);
 
+  // El zoom que deja al grupo más grande justo dentro del área visible.
+  const fit = stops.reduce(
+    (acc, s) => Math.min(acc, (stageW - 2 * pad) / s.box.w, (visibleH - 2 * pad) / s.box.h),
+    Infinity
+  );
+  // Se redondea el ancho a px enteros para que el mapa se dibuje nítido.
+  const mapW = Math.max(1, Math.floor(fit * factor * VIEWBOX.w));
+  const scale = mapW / VIEWBOX.w;
+  const mapH = Math.ceil(VIEWBOX.h * scale);
+
+  const targets = stops.map((_, i) =>
+    encuadrar(i, stops, scale, stageW, visibleH, stageH, pad, i === 0 ? reservaPrimera : 0)
+  );
+
+  return { stageW, stageH, visibleH, scale, mapW, mapH, targets };
+}
+
+/**
+ * Con el `factor` pedido; si en alguna parada se ve demasiado de otra (pantallas
+ * apaisadas, sobre todo en tablet), sube el zoom de a poco hasta el máximo (1).
+ */
 export function computeLayout(
   stageW: number,
   stageH: number,
   stops: MapRoute[],
-  zoom: ZoomRange
+  encuadre: Encuadre
 ): MapLayout {
-  const desired = clamp(zoom.min * stageW, widthForExactFocus(stops, stageW), zoom.max * stageW);
-
-  // El mapa siempre tiene que cubrir el stage; esa condición gana sobre el zoom máximo.
-  // Se redondea hacia arriba para que el recorte no deje una hendija de subpíxel
-  // en los extremos, y de paso el mapa se dibuja en tamaños enteros.
-  const mapW = Math.ceil(Math.max(desired, stageW, stageH * MAP_ASPECT * COVER_BLEED));
-  const mapH = Math.ceil(mapW / MAP_ASPECT);
-
-  const txMin = stageW - mapW;
-  const txMax = 0;
-  const tyMin = stageH - mapH;
-  const tyMax = 0;
-
-  const targets = stops.map(s => ({
-    tx: clamp(txMin, FOCUS.x * stageW - s.u * mapW, txMax),
-    ty: clamp(tyMin, FOCUS.y * stageH - s.v * mapH, tyMax),
-  }));
-
-  return { stageW, stageH, mapW, mapH, txMin, txMax, tyMin, tyMax, targets };
+  let factor = encuadre.factor;
+  let layout = layoutCon(stageW, stageH, stops, encuadre, factor);
+  while (factor < 1 && incumpleEncuadre(layout, stops)) {
+    factor = Math.min(1, factor + 0.05);
+    layout = layoutCon(stageW, stageH, stops, encuadre, factor);
+  }
+  return layout;
 }
 
 /** Tramo de entrada y de salida, en múltiplos de la altura del stage. */
@@ -118,9 +238,9 @@ export interface MapTrack {
 
 /**
  * Reparte el scroll entre paradas en proporción a lo que se mueve el mapa, con
- * piso y techo. Así la velocidad aparente es pareja y el salto largo (ruta 3 a
- * ruta 4, de un extremo al otro) recibe el scroll que necesita en vez de pasar
- * volando.
+ * piso y techo. Así la velocidad aparente es pareja y un tramo largo recibe el
+ * scroll que necesita en vez de pasar volando. Con el orden de 2026-09-24 (D1) ya
+ * no hay un tramo de un extremo al otro de la isla, pero el reparto sigue igual.
  */
 export function computeTrack(baseH: number, targets: MapTarget[]): MapTrack {
   const distances = targets

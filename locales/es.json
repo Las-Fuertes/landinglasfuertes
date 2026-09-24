@@ -124,6 +124,7 @@
   },
   "educationMap": {
     "title": "Cómo hacemos de nuestro mapa educativo la ruta hacia el desarrollo integral consciente",
+    "saltar": "Saltar mapa",
     "actions": {
       "back": "Atrás",
       "next": "Siguiente ruta",

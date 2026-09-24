@@ -2,15 +2,23 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PageGrid } from '../layout/page-grid';
 import { useTranslation } from '../../hooks/useTranslation';
 import { MAP_ROUTES, ROUTE_COUNT } from './education-map.data';
-import { computeLayout, computeTrack, stopScrollY, ZOOM_MOBILE, ZOOM_TABLET } from './map-geometry';
+import {
+  computeLayout,
+  computeTrack,
+  ENCUADRE_MOBILE,
+  ENCUADRE_TABLET,
+  stopScrollY,
+} from './map-geometry';
 import { useMapPan, type PanGeometry } from './use-map-pan';
 import { useRouteSequencer } from './use-route-sequencer';
 import MapCanvas from './map-canvas';
 import MapProgressDots from './map-progress-dots';
 import RouteSheet from './route-sheet';
+import MapTitle from './map-title';
+import { useSaltarMapa } from './use-saltar-mapa';
+import { useSumateDrawer } from '../sumate';
 
 const DESKTOP_QUERY = '(min-width: 1024px)';
 const TABLET_QUERY = '(min-width: 768px)';
@@ -22,6 +30,8 @@ export default function EducationMapSection() {
 
   const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const geometryRef = useRef<PanGeometry | null>(null);
 
   // Arranca estático para que el HTML del servidor y el del cliente coincidan;
@@ -63,8 +73,14 @@ export default function EducationMapSection() {
       const stageH = stage.clientHeight;
       if (stageW === 0 || stageH === 0) return;
 
-      const zoom = window.matchMedia(TABLET_QUERY).matches ? ZOOM_TABLET : ZOOM_MOBILE;
-      const layout = computeLayout(stageW, stageH, MAP_ROUTES, zoom);
+      const base = window.matchMedia(TABLET_QUERY).matches ? ENCUADRE_TABLET : ENCUADRE_MOBILE;
+      // La barra de abajo (nombre y puntos) tapa el mapa: no cuenta como área visible. El
+      // encabezado ocupa la parte de arriba de la primera parada (D3).
+      const layout = computeLayout(stageW, stageH, MAP_ROUTES, {
+        ...base,
+        insetBottom: barRef.current?.offsetHeight ?? 0,
+        reservaPrimera: titleRef.current?.offsetHeight ?? 0,
+      });
       const track = computeTrack(stageH, layout.targets);
       setGeometry({ layout, track, trackTop: readTrackTop() });
     };
@@ -73,6 +89,7 @@ export default function EducationMapSection() {
 
     const observer = new ResizeObserver(measure);
     observer.observe(stageRef.current!);
+    if (titleRef.current) observer.observe(titleRef.current);
     window.addEventListener('orientationchange', measure);
     // Las imágenes de arriba pueden asentarse tarde y correr el track.
     window.addEventListener('load', measure);
@@ -111,6 +128,23 @@ export default function EducationMapSection() {
   });
   const { isOpen, busy, index, openAt, revealStop, goNext, goPrev, close, handleExitComplete } =
     sequencer;
+
+  // Con el mapa fijado: la página está entre el principio y el final del tramo fijo.
+  const isFixed = useCallback(() => {
+    const current = geometryRef.current;
+    if (!current) return false;
+    const y = window.scrollY;
+    return y >= current.trackTop - 1 && y <= current.trackTop + current.track.pin + 1;
+  }, []);
+
+  // Con el drawer de Súmate abierto tampoco: el scroll es del drawer, no del mapa (D4).
+  const { isOpen: drawerOpen } = useSumateDrawer();
+  const skip = useSaltarMapa({
+    activo: pinned,
+    bloqueado: isOpen || busy || drawerOpen,
+    fijado: isFixed,
+    destino: 'impacto',
+  });
 
   // Escudo de entrada: frena a la persona sin tocar `body.overflow`, porque
   // entre ruta y ruta seguimos necesitando mover la página nosotros.
@@ -154,28 +188,45 @@ export default function EducationMapSection() {
       className="relative w-full scroll-mt-16 bg-blue-700"
       style={{ overflowAnchor: 'none' }}
       aria-labelledby="education-map-title"
+      // El botón flotante de Súmate se retira mientras esta sección está en pantalla (D5).
+      data-oculta-flotante=""
     >
-      {/* El encabezado conserva el beige de la página; el azul empieza en el mapa. */}
-      <div className="bg-beige pb-10 pt-12 md:pb-14 md:pt-16">
-        <PageGrid>
-          <div className="col-span-4 flex flex-col items-center text-center md:col-span-12">
-            <h2
-              id="education-map-title"
-              className="max-w-[20rem] text-balance text-[clamp(1.25rem,5.8vw,1.75rem)] font-bold leading-[1.32] tracking-tight text-black md:max-w-[34rem] md:text-[2rem]"
-            >
-              {t('educationMap.title')}
-            </h2>
-          </div>
-        </PageGrid>
-      </div>
+      {/* Todo sobre el mar (D3): el título ya no va en beige. Sin recorrido, encima del mapa. */}
+      {!pinned && <MapTitle ref={titleRef} title={t('educationMap.title')} overlay={false} />}
 
       {pinned ? (
         <div
           ref={trackRef}
           className="relative"
           style={geometry ? { height: geometry.track.trackH } : undefined}
+          data-paradas-y={
+            geometry
+              ? MAP_ROUTES.map((_, i) =>
+                  Math.round(stopScrollY(i, geometry.trackTop, geometry.track))
+                ).join(',')
+              : undefined
+          }
         >
+          {/* Con recorrido, el encabezado flota sobre la primera pantalla del mapa y se va con
+              el scroll; la parada 1 queda debajo, en grande (D3). */}
+          <MapTitle ref={titleRef} title={t('educationMap.title')} overlay />
           <div ref={stageRef} className="sticky top-0 h-[100svh] overflow-clip">
+            {/* Salida para quien pasa con prisa (D4). Va antes que las paradas: con Tab es lo
+                primero que se alcanza, como un enlace de "saltar contenido". */}
+            <button
+              ref={skip.saltarRef}
+              type="button"
+              onClick={skip.saltar}
+              onFocus={skip.mostrar}
+              data-saltar-mapa=""
+              data-visible={skip.visible ? '' : undefined}
+              className={`absolute right-page-margin top-m z-30 rounded-full border border-black/10 bg-white/80 px-5 py-2 text-sm font-bold text-black shadow-lg backdrop-blur-sm transition duration-300 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
+                skip.visible ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+            >
+              {t('educationMap.saltar')}
+            </button>
+
             <MapCanvas
               pinned
               mapWidth={geometry?.layout.mapW ?? 0}
@@ -187,7 +238,10 @@ export default function EducationMapSection() {
               onReveal={revealStop}
             />
 
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 pb-6 pt-12">
+            <div
+              ref={barRef}
+              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 pb-6 pt-12"
+            >
               <p className="text-center text-[0.95rem] font-bold leading-tight text-black">
                 {routeName(activeIndex).replace(/\n/g, ' ')}
               </p>
@@ -196,7 +250,7 @@ export default function EducationMapSection() {
           </div>
         </div>
       ) : (
-        <div className="px-4 py-8 md:px-8 md:py-12">
+        <div className="px-4 pb-8 md:px-8 md:pb-12">
           <MapCanvas
             pinned={false}
             mapWidth={0}

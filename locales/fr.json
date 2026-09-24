@@ -124,6 +124,7 @@
   },
   "educationMap": {
     "title": "Comment notre carte éducative devient la route vers un développement intégral conscient",
+    "saltar": "Passer la carte",
     "actions": {
       "back": "Retour",
       "next": "Route suivante",

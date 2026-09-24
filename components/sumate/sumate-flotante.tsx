@@ -12,17 +12,79 @@ const ID_TRAS_INTRO = 'bienvenida';
  * espera a que termine. La intro marca `<html>` con este atributo mientras tanto.
  */
 const LLEGANDO = 'data-intro-llegando';
+/**
+ * Toda sección con este atributo retira el botón mientras está en pantalla (hoy, el Mapa
+ * educativo: docs/mapa-educativo/DECISIONES.md, D5). Para sumar otra basta con ponerle
+ * `data-oculta-flotante=""`; el botón la encuentra solo, aunque se monte más tarde.
+ */
+const OCULTA = 'data-oculta-flotante';
+/**
+ * Cuánto tiene que entrar la sección para contar como "en pantalla": un 10 % por arriba y por
+ * abajo no cuenta, así una franja que apenas asoma no hace parpadear el botón.
+ */
+const MARGEN_OCULTA = '-10% 0px -10% 0px';
 
 /**
  * Botón fijo "Súmate" abajo a la derecha. Aparece solo después de la intro (ni enganchada ni
  * visible: con el pin la intro ocupa la pantalla y la página está arriba del todo) y se oculta
- * mientras el drawer está abierto. Se oculta con opacidad y no se desmonta, para que el foco
- * pueda volver a él al cerrar el drawer.
+ * mientras el drawer está abierto o mientras una sección con `data-oculta-flotante` está en
+ * pantalla. Se oculta con opacidad y no se desmonta, para que el foco pueda volver a él al
+ * cerrar el drawer.
  */
 export default function SumateFlotante() {
   const { t } = useTranslation();
   const { isOpen, open } = useSumateDrawer();
   const [trasIntro, setTrasIntro] = useState(false);
+  const [tapado, setTapado] = useState(false);
+
+  // Secciones que piden no tener el botón encima. Un IntersectionObserver por todas; si se
+  // monta o desmonta alguna, se vuelve a buscar.
+  useEffect(() => {
+    const dentro = new Set<Element>();
+    const io = new IntersectionObserver(
+      entradas => {
+        for (const en of entradas) {
+          if (en.isIntersecting) dentro.add(en.target);
+          else dentro.delete(en.target);
+        }
+        setTapado(dentro.size > 0);
+      },
+      { rootMargin: MARGEN_OCULTA }
+    );
+    let observadas: Element[] = [];
+    const buscar = () => {
+      const ahora = Array.from(document.querySelectorAll(`[${OCULTA}]`));
+      for (const el of observadas) {
+        if (!ahora.includes(el)) {
+          io.unobserve(el);
+          dentro.delete(el);
+        }
+      }
+      for (const el of ahora) if (!observadas.includes(el)) io.observe(el);
+      observadas = ahora;
+      setTapado(dentro.size > 0);
+    };
+    buscar();
+    let raf = 0;
+    const mo = new MutationObserver(() => {
+      if (!raf)
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          buscar();
+        });
+    });
+    mo.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: [OCULTA],
+    });
+    return () => {
+      mo.disconnect();
+      io.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   useEffect(() => {
     let raf = 0;
@@ -48,7 +110,7 @@ export default function SumateFlotante() {
     };
   }, []);
 
-  const visible = trasIntro && !isOpen;
+  const visible = trasIntro && !isOpen && !tapado;
 
   return (
     <button
