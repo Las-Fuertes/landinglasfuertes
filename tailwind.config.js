@@ -55,11 +55,15 @@ module.exports = {
          TYPOGRAPHY SCALE
          ================================ */
       fontSize: {
+        /** Título de Bienvenida en desktop. Sin peso: el título lleva `font-bold`. */
+        display: ['50px', { lineHeight: '42px', letterSpacing: '-0.04em' }],
         h1: ['40px', { lineHeight: '1.1', fontWeight: '400' }],
         h2: ['30px', { lineHeight: '1.2', fontWeight: '400' }],
         h3: ['20px', { lineHeight: '1.3', fontWeight: '400' }],
         h4: ['18px', { lineHeight: '1.4', fontWeight: '400' }],
         'p-lg': ['14px', { lineHeight: '1.6', fontWeight: '400' }],
+        /** Línea manuscrita de Bienvenida en desktop; interlineado de `leading-snug`. */
+        'p-md': ['15px', { lineHeight: '1.375' }],
         'p-sm': ['13px', { lineHeight: '1.6', fontWeight: '400' }],
       },
 

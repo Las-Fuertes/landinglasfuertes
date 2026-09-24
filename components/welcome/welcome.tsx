@@ -7,6 +7,7 @@ import { crearReposoBienvenida } from '../intro/bienvenida.motion';
 import { PageGrid } from '../layout/page-grid';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithBold } from '../../lib/render-text-with-bold';
+import { DecorDesktop } from './decor-desktop';
 import { IlustracionPlaya } from './ilustracion-playa';
 import { SolRosado } from './sol-rosado';
 
@@ -16,8 +17,8 @@ const homemadeApple = Homemade_Apple({
 });
 
 /**
- * Movimiento en reposo de Bienvenida (docs/introduccion/DECISIONES.md, D6): solo los rayos
- * del sol, que giran despacio. Mismas condiciones que la intro animada (el
+ * Movimiento en reposo de Bienvenida (docs/introduccion/DECISIONES.md, D6 y D7): los rayos
+ * del sol giran despacio, el pelo de la mujer se mece desde la nuca y las gaviotas suben y bajan. Mismas condiciones que la intro animada (el
  * atributo que pone `pages/_document.tsx`: sin `prefers-reduced-motion` ni `#hash` al cargar),
  * congelado con `?quieto=1`, y en pausa fuera de pantalla o con la pestaña oculta.
  */
@@ -65,14 +66,17 @@ export default function WelcomeSection() {
       ref={ref}
       id="bienvenida"
       // Destino de "Saltar animación", que le pone tabindex=-1 y el foco: sin contorno de foco.
-      className="relative w-full pb-16 pt-10 outline-none"
+      className="relative w-full pb-16 pt-10 outline-none lg:pt-[3.25rem]"
       aria-labelledby="welcome-title"
     >
-      <PageGrid className="mb-10">
+      {/* Desktop: nubes y gaviotas en el sitio del frame 1280:9 de Figma. */}
+      <DecorDesktop />
+
+      <PageGrid className="mb-10 lg:mb-[3.75rem]">
         <div className="relative col-span-4 mx-auto flex min-h-[9rem] w-full max-w-lg items-start justify-center md:col-span-12">
-          {/* Left cloud — ~25% past left edge; ~24px below vertical center */}
+          {/* Nube izquierda (mobile y tablet): un 25 % fuera del borde, 24 px bajo el centro. */}
           <div
-            className="pointer-events-none absolute left-0 top-1/2 z-0 w-[clamp(5.5rem,38vw,9rem)] -translate-x-[50%] translate-y-[calc(-50%+24px)]"
+            className="pointer-events-none absolute left-0 top-1/2 z-0 w-[clamp(5.5rem,38vw,9rem)] -translate-x-[50%] translate-y-[calc(-50%+24px)] lg:hidden"
             aria-hidden
           >
             <div className="relative aspect-[154/65] w-full" data-rol="nube">
@@ -87,13 +91,13 @@ export default function WelcomeSection() {
           </div>
 
           {/* Sun */}
-          <div className="relative z-10 mx-auto w-[clamp(6.5rem,42vw,9rem)] shrink-0">
+          <div className="relative z-10 mx-auto w-[clamp(6.5rem,42vw,9rem)] shrink-0 lg:w-[9.45rem]">
             <SolRosado />
           </div>
 
-          {/* Right cloud — ~10% past right edge; ~24px above vertical center */}
+          {/* Nube derecha (mobile y tablet): un 10 % fuera del borde, 24 px sobre el centro. */}
           <div
-            className="pointer-events-none absolute right-0 top-1/2 z-0 w-[clamp(5rem,34vw,8rem)] translate-x-[40%] translate-y-[calc(-50%-24px)]"
+            className="pointer-events-none absolute right-0 top-1/2 z-0 w-[clamp(5rem,34vw,8rem)] translate-x-[40%] translate-y-[calc(-50%-24px)] lg:hidden"
             aria-hidden
           >
             <div className="relative aspect-[110/45] w-full" data-rol="nube">
@@ -114,20 +118,24 @@ export default function WelcomeSection() {
           <h2
             id="welcome-title"
             data-rol="texto"
-            className="text-[40px] font-bold leading-none text-black md:text-[52px]"
+            className="text-[40px] font-bold leading-none text-black md:text-[52px] lg:whitespace-nowrap lg:text-display"
           >
-            <span className="block">{t('welcome.titleLine1')}</span>
-            <span className="block">{t('welcome.titleLine2')}</span>
+            {/* En desktop, una sola línea (Figma 1280:9). */}
+            <span className="block lg:inline">{t('welcome.titleLine1')}</span>{' '}
+            <span className="block lg:inline">{t('welcome.titleLine2')}</span>
           </h2>
 
           <p
             data-rol="texto"
-            className={`${homemadeApple.className} mt-7 text-[clamp(1rem,4vw,1.125rem)] font-normal leading-snug text-blue lg:text-[1.4rem]`}
+            className={`${homemadeApple.className} mt-7 text-[clamp(1rem,4vw,1.125rem)] font-normal leading-snug text-blue lg:mt-[1.875rem] lg:text-p-md`}
           >
             {t('welcome.subtitle')}
           </p>
 
-          <div className="relative mx-auto mt-3 h-[6px] w-full max-w-[220px]" data-rol="garabato">
+          <div
+            className="relative mx-auto mt-3 h-[6px] w-full max-w-[220px] lg:mt-s"
+            data-rol="garabato"
+          >
             <Image
               src="/images/welcome/subtitle-underline.svg"
               alt=""
@@ -139,7 +147,7 @@ export default function WelcomeSection() {
 
           <p
             data-rol="texto"
-            className="mt-8 text-left text-[16px] font-normal leading-tight text-black md:text-center md:text-[19px] md:leading-snug lg:text-[22px]"
+            className="mt-8 text-left text-[16px] font-normal leading-tight text-black md:text-center md:text-[19px] md:leading-snug lg:mx-auto lg:mt-[1.8125rem] lg:max-w-[36.0625rem] lg:text-left lg:text-base lg:leading-[1.2]"
           >
             {renderTextWithBold(t('welcome.body'))}
           </p>

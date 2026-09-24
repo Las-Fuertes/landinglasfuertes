@@ -46,6 +46,9 @@ ANTES DE TOCAR NADA, lee en este orden:
   1. CLAUDE.md                            qué es el proyecto, orden de la página, reglas, worktrees
   2. docs/PATTERNS.md                     grid, breakpoints, colores por nombre, copy e i18n, chip
                                           rasgado, verificación visual, animación, drawer
+                                          SI EL FEEDBACK TOCA ANIMACIÓN: lee entera la
+                                          subsección "Lenguaje de movimiento del sitio"
+                                          (12 preferencias de Johan aprobadas en 6 rondas)
   3. docs/sumate-drawer/PROGRESS.md       pendientes abiertos del drawer y del orden nuevo
   4. docs/sumate-drawer/DECISIONES.md     D1 (orden) y D2 (drawer)
   5. Solo si el feedback toca la intro:   docs/introduccion/DECISIONES.md (D2 a D5)

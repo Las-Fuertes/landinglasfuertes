@@ -611,51 +611,143 @@ export function crearEntrada(raiz: HTMLElement): gsap.core.Timeline {
 }
 
 /*
- * Movimiento en reposo (D5): mientras se está en una parte, algo flota muy sutilmente. Va sobre
- * elementos que las transiciones no animan (la caja interior de cada pieza, o el envoltorio del
- * grupo del barco), para que las transformaciones no se pisen. Solo transform y opacity.
+ * Movimiento en reposo (D5, D8): mientras se está en una parte, las piezas flotan. Sutil, pero
+ * que se vea que se mueve. Va sobre elementos que las transiciones no animan (la caja interior de
+ * cada pieza, o el envoltorio del grupo del barco), para que las transformaciones no se pisen.
+ * Solo transform y opacity.
  *
  * Las amplitudes están en px del lienzo mobile y se escalan con el alto real de la parte respecto
  * a ese lienzo: así no se ven enormes en móvil ni diminutas a 1920. Las duraciones, en segundos
  * reales (no pasan por ESCALA_TIEMPO).
  */
-const REPOSO = {
-  BURBUJA_Y: 2.5,
-  BURBUJA_S: [3, 5],
-  BARCO_Y: 2.5,
-  BARCO_ROTACION: 1.2,
-  BARCO_Y_S: 5,
-  BARCO_ROTACION_S: 4.2,
-  OLA_X: 3,
-  OLA_S: [3.5, 5.5],
-  NUBE_X: 2.5,
-  NUBE_S: 8,
+interface NivelDeReposo {
+  BURBUJA_Y: number;
+  BURBUJA_S: readonly [number, number];
+  BARCO_Y: number;
+  /** Grados. */
+  BARCO_ROTACION: number;
+  BARCO_Y_S: number;
+  BARCO_ROTACION_S: number;
+  OLA_X: number;
+  OLA_S: readonly [number, number];
+  NUBE_X: number;
+  NUBE_S: number;
   /** El reflejo del sol respira entre su opacidad y esta. */
-  REFLEJO_OPACIDAD: 0.85,
-  REFLEJO_S: 4.5,
-  /** Lo que tarda en volver a su sitio cuando empieza una transición. */
-  VUELTA_S: 0.35,
-} as const;
+  REFLEJO_OPACIDAD: number;
+  REFLEJO_S: number;
+  /** El sol respira en escala alrededor de su centro, entre 1 y esta. */
+  SOL_ESCALA: number;
+  SOL_S: number;
+  /**
+   * Los garabatos pequeños (espirales, trazos sueltos) se balancean sobre su centro: el giro que
+   * mueve su punta más lejana estos px, sin pasar de `GARABATO_GIRO_MAX` grados.
+   */
+  GARABATO_PX: number;
+  GARABATO_GIRO_MAX: number;
+  GARABATO_S: readonly [number, number];
+}
+
+/**
+ * Dos niveles para decidir mirando (`?reposo=medio|alto`, regla 12 de docs/PATTERNS.md). Sin
+ * parámetro, `medio`. Cuando Johan elija, se borra el otro y se deja una sola tabla.
+ */
+const NIVELES_REPOSO = {
+  medio: {
+    BURBUJA_Y: 5,
+    BURBUJA_S: [2.8, 4.2],
+    BARCO_Y: 6,
+    BARCO_ROTACION: 2.8,
+    BARCO_Y_S: 3.6,
+    BARCO_ROTACION_S: 4.4,
+    OLA_X: 7,
+    OLA_S: [2.8, 4.2],
+    NUBE_X: 6,
+    NUBE_S: 5.5,
+    REFLEJO_OPACIDAD: 0.65,
+    REFLEJO_S: 3.4,
+    SOL_ESCALA: 1.04,
+    SOL_S: 4,
+    GARABATO_PX: 4,
+    GARABATO_GIRO_MAX: 7,
+    GARABATO_S: [3, 4.5],
+  },
+  alto: {
+    BURBUJA_Y: 7,
+    BURBUJA_S: [2.5, 3.8],
+    BARCO_Y: 8.5,
+    BARCO_ROTACION: 4,
+    BARCO_Y_S: 3.2,
+    BARCO_ROTACION_S: 4,
+    OLA_X: 10,
+    OLA_S: [2.5, 3.8],
+    NUBE_X: 9,
+    NUBE_S: 5,
+    REFLEJO_OPACIDAD: 0.55,
+    REFLEJO_S: 3,
+    SOL_ESCALA: 1.065,
+    SOL_S: 3.5,
+    GARABATO_PX: 6,
+    GARABATO_GIRO_MAX: 10,
+    GARABATO_S: [2.6, 4],
+  },
+} as const satisfies Record<string, NivelDeReposo>;
+
+export type NivelReposo = keyof typeof NIVELES_REPOSO;
+export const NIVEL_REPOSO_POR_DEFECTO: NivelReposo = 'medio';
+
+/** Lee `?reposo=medio|alto`; cualquier otro valor, o ninguno, es el nivel por defecto. */
+export function nivelReposoDe(valor: string | null): NivelReposo {
+  return valor === 'alto' || valor === 'medio' ? valor : NIVEL_REPOSO_POR_DEFECTO;
+}
+
+/** Lo que tarda en volver a su sitio cuando empieza una transición. Igual en los dos niveles. */
+const VUELTA_S = 0.35;
+/** Lo que una pieza que el lienzo corta deja de margen entre su extremo y el borde, en px. */
+const MARGEN_BORDE = 1;
 
 /** Azar fijo por índice, para que cada pieza tenga su fase y su duración y sea reproducible. */
 const azar = (i: number) => (((Math.sin(i * 12.9898 + 4.1) * 43758.5453) % 1) + 1) % 1;
 const entre = ([a, b]: readonly number[], t: number) => a + (b - a) * t;
 
 /**
- * Oscila una propiedad alrededor de 0. El primer medio ciclo sale de 0 con la misma curva, así
- * el movimiento arranca sin salto; luego va de +amp a -amp sin fin.
+ * Oscila una propiedad alrededor de `centro` (0 por defecto; 1 para la escala) con amplitud
+ * `amp`. El primer medio ciclo sale del valor neutro con la misma curva, así el movimiento arranca
+ * sin salto; luego va de un extremo al otro sin fin.
  */
 export function oscilar(
   el: HTMLElement,
-  prop: 'x' | 'y' | 'rotation',
+  prop: 'x' | 'y' | 'rotation' | 'scale',
   amp: number,
   dur: number,
-  fase: number
+  fase: number,
+  centro = prop === 'scale' ? 1 : 0
 ) {
   return gsap
     .timeline({ delay: fase * dur })
-    .to(el, { [prop]: amp, duration: dur / 2, ease: 'sine.inOut' })
-    .to(el, { [prop]: -amp, duration: dur, ease: 'sine.inOut', repeat: -1, yoyo: true });
+    .to(el, { [prop]: centro + amp, duration: dur / 2, ease: 'sine.inOut' })
+    .to(el, { [prop]: centro - amp, duration: dur, ease: 'sine.inOut', repeat: -1, yoyo: true });
+}
+
+/**
+ * Rango de deriva en `x` que no deja ver el extremo de una pieza que el lienzo corta (una ola que
+ * sale por un lado, la nube que se asoma por la izquierda). Conserva el recorrido total: si un
+ * lado no tiene holgura, la pieza deriva hacia el otro. Devuelve centro y amplitud para `oscilar`.
+ */
+function derivaSegura(pieza: HTMLElement, lienzo: DOMRect, amp: number) {
+  const r = (pieza.querySelector('img') ?? pieza).getBoundingClientRect();
+  const sobraIzq = lienzo.left - r.left;
+  const sobraDer = r.right - lienzo.right;
+  let hi = amp;
+  let lo = -amp;
+  if (sobraIzq > 0) {
+    hi = Math.min(hi, Math.max(0, sobraIzq - MARGEN_BORDE));
+    lo = hi - 2 * amp;
+  }
+  if (sobraDer > 0) {
+    lo = Math.max(lo, -Math.max(0, sobraDer - MARGEN_BORDE));
+    if (sobraIzq <= 0) hi = lo + 2 * amp;
+  }
+  return { centro: (hi + lo) / 2, amp: (hi - lo) / 2 };
 }
 
 export interface Reposo {
@@ -665,41 +757,72 @@ export interface Reposo {
   detener: () => void;
 }
 
-export function crearReposo(raiz: HTMLElement): Reposo {
+export function crearReposo(
+  raiz: HTMLElement,
+  nivel: NivelReposo = NIVEL_REPOSO_POR_DEFECTO
+): Reposo {
+  const R: NivelDeReposo = NIVELES_REPOSO[nivel];
   const paso = raiz.querySelector<HTMLElement>('[id^="intro-paso-"]');
+  const lienzo = (paso ?? raiz).getBoundingClientRect();
   const k = (paso?.offsetHeight ?? CANVAS.height) / CANVAS.height;
   const tls: gsap.core.Timeline[] = [];
   const tocados: HTMLElement[] = [];
+  const conOpacidad: HTMLElement[] = [];
   const interior = (el: HTMLElement) => el.firstElementChild as HTMLElement | null;
   const mover = (el: HTMLElement | null, fn: (el: HTMLElement) => gsap.core.Timeline) => {
     if (!el) return;
     tocados.push(el);
     tls.push(fn(el));
   };
+  /** Una pieza que el lienzo corta por algún lado (el garabato de fondo): no se balancea. */
+  const cortada = (el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    return r.left < lienzo.left || r.right > lienzo.right;
+  };
 
   piezasDe(raiz, 'burbuja').forEach((el, i) =>
     mover(interior(el), e =>
-      oscilar(e, 'y', REPOSO.BURBUJA_Y * k, entre(REPOSO.BURBUJA_S, azar(i)), azar(i + 7))
+      oscilar(e, 'y', R.BURBUJA_Y * k, entre(R.BURBUJA_S, azar(i)), azar(i + 7))
     )
   );
-  [...piezasDe(raiz, 'ola'), ...piezasDe(raiz, 'agua')].forEach((el, i) =>
+  [...piezasDe(raiz, 'ola'), ...piezasDe(raiz, 'agua')].forEach((el, i) => {
+    const { centro, amp } = derivaSegura(el, lienzo, R.OLA_X * k);
     mover(interior(el), e =>
-      oscilar(e, 'x', REPOSO.OLA_X * k, entre(REPOSO.OLA_S, azar(i + 20)), azar(i + 31))
+      oscilar(e, 'x', amp, entre(R.OLA_S, azar(i + 20)), azar(i + 31), centro)
+    );
+  });
+  piezasDe(raiz, 'nube').forEach((el, i) => {
+    const { centro, amp } = derivaSegura(el, lienzo, R.NUBE_X * k);
+    mover(interior(el), e => oscilar(e, 'x', amp, R.NUBE_S, azar(i + 40), centro));
+  });
+  piezasDe(raiz, 'sol').forEach((el, i) =>
+    mover(interior(el), e =>
+      oscilar(e, 'scale', (R.SOL_ESCALA - 1) / 2, R.SOL_S, azar(i + 50), 1 + (R.SOL_ESCALA - 1) / 2)
     )
   );
-  piezasDe(raiz, 'nube').forEach((el, i) =>
-    mover(interior(el), e => oscilar(e, 'x', REPOSO.NUBE_X * k, REPOSO.NUBE_S, azar(i + 40)))
-  );
+  piezasDe(raiz, 'garabato')
+    .filter(el => !cortada(el))
+    .forEach((el, i) => {
+      const radio = Math.max(el.offsetWidth, el.offsetHeight) / 2;
+      const giro = Math.min(
+        R.GARABATO_GIRO_MAX,
+        (Math.atan((R.GARABATO_PX * k) / Math.max(radio, 1)) * 180) / Math.PI
+      );
+      mover(interior(el), e =>
+        oscilar(e, 'rotation', giro, entre(R.GARABATO_S, azar(i + 60)), azar(i + 70))
+      );
+    });
   piezasDe(raiz, 'reflejo').forEach(el =>
-    mover(interior(el), e =>
-      gsap.timeline().to(e, {
-        opacity: REPOSO.REFLEJO_OPACIDAD,
-        duration: REPOSO.REFLEJO_S,
+    mover(interior(el), e => {
+      conOpacidad.push(e);
+      return gsap.timeline().to(e, {
+        opacity: R.REFLEJO_OPACIDAD,
+        duration: R.REFLEJO_S,
         ease: 'sine.inOut',
         repeat: -1,
         yoyo: true,
-      })
-    )
+      });
+    })
   );
   // El barco se mece con todo su grupo: en la parte 3 la persona va dentro, así que se mueve con
   // él y nunca se desincroniza. El giro es alrededor del centro del barco.
@@ -709,8 +832,8 @@ export function crearReposo(raiz: HTMLElement): Reposo {
     gsap.set(grupo, {
       transformOrigin: `${barco.offsetLeft + barco.offsetWidth / 2}px ${barco.offsetTop + barco.offsetHeight / 2}px`,
     });
-    mover(grupo, e => oscilar(e, 'y', REPOSO.BARCO_Y * k, REPOSO.BARCO_Y_S, 0));
-    tls.push(oscilar(grupo, 'rotation', REPOSO.BARCO_ROTACION, REPOSO.BARCO_ROTACION_S, 0.3));
+    mover(grupo, e => oscilar(e, 'y', R.BARCO_Y * k, R.BARCO_Y_S, 0));
+    tls.push(oscilar(grupo, 'rotation', R.BARCO_ROTACION, R.BARCO_ROTACION_S, 0.3));
   });
 
   return {
@@ -719,16 +842,28 @@ export function crearReposo(raiz: HTMLElement): Reposo {
     detener: () => {
       tls.forEach(t => t.kill());
       if (tocados.length === 0) return;
+      // La opacidad solo vuelve donde se tocó (el reflejo): en las demás cajas no se escribe.
+      if (conOpacidad.length) {
+        gsap.to(conOpacidad, {
+          opacity: 1,
+          duration: VUELTA_S,
+          ease: 'sine.out',
+          overwrite: 'auto',
+          onComplete: () => {
+            gsap.set(conOpacidad, { clearProps: 'opacity' });
+          },
+        });
+      }
       gsap.to(tocados, {
         x: 0,
         y: 0,
         rotation: 0,
-        opacity: 1,
-        duration: REPOSO.VUELTA_S,
+        scale: 1,
+        duration: VUELTA_S,
         ease: 'sine.out',
-        overwrite: true,
+        overwrite: 'auto',
         onComplete: () => {
-          gsap.set(tocados, { clearProps: 'transform,transformOrigin,opacity' });
+          gsap.set(tocados, { clearProps: 'transform,transformOrigin' });
         },
       });
     },

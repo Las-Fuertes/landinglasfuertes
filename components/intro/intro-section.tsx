@@ -14,7 +14,16 @@ import {
   type IntroVariant,
 } from './intro.data';
 import { crearLlegada, limpiarBienvenida } from './bienvenida.motion';
-import { crearAsomo, crearEntrada, crearReposo, crearTransicion, limpiar } from './intro.motion';
+import {
+  crearAsomo,
+  crearEntrada,
+  crearReposo,
+  crearTransicion,
+  limpiar,
+  NIVEL_REPOSO_POR_DEFECTO,
+  nivelReposoDe,
+  type NivelReposo,
+} from './intro.motion';
 import { useBreakpoint } from './use-breakpoint';
 import { useIntroPin } from './use-intro-pin';
 
@@ -303,11 +312,18 @@ export default function IntroSection() {
   const [reposo, setReposo] = useState(0);
   /** `?quieto=1` congela el movimiento en reposo, para comparar capturas (docs/PATTERNS.md). */
   const quieto = useRef(false);
+  /**
+   * `?reposo=medio|alto` elige la amplitud del movimiento en reposo, para compararlas en el
+   * navegador (D8, TEMPORAL). Sin parámetro, `medio`.
+   */
+  const nivelReposo = useRef<NivelReposo>(NIVEL_REPOSO_POR_DEFECTO);
   /** La persona de la parte 3 se asoma después de la transición que lleva a ella. */
   const personaPendiente = useRef(false);
 
   useEffect(() => {
-    quieto.current = new URLSearchParams(window.location.search).get('quieto') === '1';
+    const params = new URLSearchParams(window.location.search);
+    quieto.current = params.get('quieto') === '1';
+    nivelReposo.current = nivelReposoDe(params.get('reposo'));
   }, []);
 
   // Con `?introPaso=N` no hay entrada: la intro ya está quieta desde que se activa el pin.
@@ -434,13 +450,18 @@ export default function IntroSection() {
     if (timelineRef.current) return;
     const raiz = pasosRef.current[pin.stepIndex];
     if (!raiz) return;
-    const r = crearReposo(raiz);
+    const r = crearReposo(raiz, nivelReposo.current);
     let visible = true;
     const actualizar = () => (visible && !document.hidden ? r.reanudar() : r.pausar());
-    const io = new IntersectionObserver(([en]) => {
-      visible = !!en?.isIntersecting;
-      actualizar();
-    });
+    // El margen de 1 px hace que tocar el borde cuente como fuera: con Bienvenida arriba del
+    // todo, donde la deja la intro, la intro termina justo en el borde superior de la pantalla.
+    const io = new IntersectionObserver(
+      ([en]) => {
+        visible = !!en?.isIntersecting;
+        actualizar();
+      },
+      { rootMargin: '-1px 0px -1px 0px' }
+    );
     if (pin.placeholderRef.current) io.observe(pin.placeholderRef.current);
     document.addEventListener('visibilitychange', actualizar);
     return () => {

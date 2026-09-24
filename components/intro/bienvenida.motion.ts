@@ -43,6 +43,7 @@ export type RolBienvenida =
   | 'persona'
   | 'trazo'
   | 'flor'
+  | 'gaviota'
   | 'emi';
 
 /** Tiempos base de la llegada, en segundos desde el gesto (a multiplicar por ESCALA_TIEMPO). */
@@ -68,9 +69,19 @@ const LLEGADA = {
   NUBES: 0.9,
   NUBES_DURACION: 0.9,
   NUBE_DESPLAZAMIENTO_PX: 14,
+  /** Las gaviotas son fondo, como las nubes: bajan un poco mientras aparecen, tras las nubes. */
+  GAVIOTAS: 1.05,
+  GAVIOTA_ESCALON: 0.08,
+  GAVIOTAS_DURACION: 0.8,
+  GAVIOTA_DESPLAZAMIENTO_PX: 6,
   /** La ilustración por piezas: palmera, olas, mujer, trazos y flor. */
   ILUSTRACION: 1.0,
   PIEZA_DURACION: 0.45,
+  /**
+   * Las olas entran de lado, alternando. En px y no en % de su caja: desde D7 el grupo grande de
+   * olas mide todo el ancho de la ilustración y un % lo movería de más.
+   */
+  OLA_DESPLAZAMIENTO_PX: 24,
   /** El bloque de EMI solo se ve de entrada en pantallas muy altas: un fundido con la ilustración. */
   EMI: 1.1,
 } as const;
@@ -242,6 +253,16 @@ export function crearLlegada(
     );
   });
 
+  // 5b. Las gaviotas: fondo también, solo opacidad y unos px hacia abajo, una tras otra.
+  piezas(bienvenida, 'gaviota').forEach((el, i) => {
+    tl.fromTo(
+      el,
+      { y: -LLEGADA.GAVIOTA_DESPLAZAMIENTO_PX, opacity: 0 },
+      { y: 0, opacity: 1, duration: LLEGADA.GAVIOTAS_DURACION, ease: 'sine.out' },
+      LLEGADA.GAVIOTAS + i * LLEGADA.GAVIOTA_ESCALON
+    );
+  });
+
   // 6. La ilustración por piezas.
   const t = (rol: RolBienvenida) => LLEGADA.ILUSTRACION + (ILUSTRACION_DESFASE[rol] ?? 0);
   const d = LLEGADA.PIEZA_DURACION;
@@ -256,8 +277,8 @@ export function crearLlegada(
   piezas(bienvenida, 'ola').forEach((el, i) => {
     tl.fromTo(
       el,
-      { xPercent: i % 2 === 0 ? 12 : -12, opacity: 0 },
-      { xPercent: 0, opacity: 1, duration: d, ease: 'power3.out' },
+      { x: (i % 2 === 0 ? 1 : -1) * LLEGADA.OLA_DESPLAZAMIENTO_PX, opacity: 0 },
+      { x: 0, opacity: 1, duration: d, ease: 'power3.out' },
       t('ola') + i * 0.05
     );
   });
@@ -302,12 +323,18 @@ export function limpiarBienvenida(bienvenida: HTMLElement | null) {
 }
 
 /*
- * Movimiento en reposo de Bienvenida: SOLO los rayos del sol, muy sutil (D6).
+ * Movimiento en reposo de Bienvenida, muy sutil (D6 y D7):
  *
- * Los rayos giran despacio alrededor del centro del disco. El disco no gira: es un raster con
- * textura de lápiz y su contorno no es redondo, así que al girar se vería bailar su silueta y el
- * remuestreo lo haría titilar. Los rayos llevan el movimiento solos.
+ * - Los rayos del sol giran despacio alrededor del centro del disco. El disco no gira: es un
+ *   raster con textura de lápiz y su contorno no es redondo, así que al girar se vería bailar su
+ *   silueta y el remuestreo lo haría titilar. Los rayos llevan el movimiento solos.
+ * - El pelo de la mujer se mece desde la nuca: gira un poco (la raíz casi quieta, las puntas con
+ *   todo el recorrido) y, con un desfase, se inclina, así la punta sigue a la raíz como una onda
+ *   (seguimiento). Es un SVG propio desde D7, no un filtro sobre un raster.
+ * - Las gaviotas suben y bajan unos px, cada una con su ciclo y su fase.
  *
+ * El pelo y las gaviotas oscilan como un seno puro alrededor de su sitio en Figma, y su amplitud
+ * crece de 0 a la suya al arrancar: nunca hay un salto y el primer fotograma es el diseño.
  * Duraciones en segundos reales (no pasan por ESCALA_TIEMPO).
  */
 export const REPOSO_BIENVENIDA = {
@@ -315,7 +342,44 @@ export const REPOSO_BIENVENIDA = {
   SOL_VUELTA_S: 80,
   /** Lo que tardan los rayos en tomar su velocidad al arrancar. */
   SOL_ARRANQUE_S: 2,
+  /** Giro máximo del pelo a cada lado, en grados, con el origen en la nuca. */
+  PELO_GIRO_GRADOS: 3,
+  /** Inclinación máxima (skewX) del pelo a cada lado, en grados, también desde la nuca. */
+  PELO_INCLINACION_GRADOS: 2,
+  /** Un ciclo completo del pelo (ida y vuelta). */
+  PELO_CICLO_S: 4.2,
+  /** Retraso de la inclinación respecto al giro, en fracción de ciclo: la onda llega tarde. */
+  PELO_DESFASE_CICLO: 0.18,
+  /** Lo que tarda el pelo (y las gaviotas) en llegar a su amplitud al arrancar. */
+  AMPLITUD_ARRANQUE_S: 2.5,
+  /** Vaivén vertical de cada gaviota, en px a cada lado. */
+  GAVIOTA_VAIVEN_PX: 3,
+  /** Ciclos de las gaviotas: cada una toma el suyo (en orden, dando la vuelta a la lista). */
+  GAVIOTA_CICLOS_S: [4.4, 5.6, 4.9, 5.2, 4.1, 5.9],
 } as const;
+
+/**
+ * Una oscilación senoidal que arranca en su sitio: `aplicar(valor)` recibe
+ * `amplitud * sin(fase)` con la amplitud creciendo de 0 a 1 en `arranque` segundos.
+ */
+function oscilar(
+  ciclo: number,
+  fase0: number,
+  arranque: number,
+  aplicar: (seno: number) => void
+): gsap.core.Animation[] {
+  const estado = { fase: fase0, amplitud: 0 };
+  const pintar = () => aplicar(estado.amplitud * Math.sin(estado.fase));
+  const giro = gsap.to(estado, {
+    fase: fase0 + 2 * Math.PI,
+    duration: ciclo,
+    ease: 'none',
+    repeat: -1,
+    onUpdate: pintar,
+  });
+  const entrada = gsap.to(estado, { amplitud: 1, duration: arranque, ease: 'sine.inOut' });
+  return [giro, entrada];
+}
 
 /** Arranca el reposo de Bienvenida. Lo pausa y reanuda quien lo creó (fuera de pantalla, pestaña). */
 export function crearReposoBienvenida(bienvenida: HTMLElement): Reposo {
@@ -338,12 +402,51 @@ export function crearReposoBienvenida(bienvenida: HTMLElement): Reposo {
     tls.push(giro, gsap.to(giro, { timeScale: 1, duration: R.SOL_ARRANQUE_S, ease: 'sine.in' }));
   }
 
+  // El pelo se mece desde la nuca (hay dos mujeres montadas, la de mobile y la de desktop).
+  const pelos = Array.from(bienvenida.querySelectorAll<SVGGElement>('[data-pelo]'));
+  const ondas = Array.from(bienvenida.querySelectorAll<SVGGElement>('[data-pelo-onda]'));
+  pelos.forEach(pelo => {
+    const onda = pelo.querySelector<SVGGElement>('[data-pelo-onda]');
+    const nuca = pelo.ownerSVGElement?.dataset.nuca;
+    if (!onda || !nuca) return;
+    gsap.set([pelo, onda], { svgOrigin: nuca });
+    tls.push(
+      ...oscilar(R.PELO_CICLO_S, 0, R.AMPLITUD_ARRANQUE_S, s =>
+        gsap.set(pelo, { rotation: s * R.PELO_GIRO_GRADOS })
+      ),
+      ...oscilar(R.PELO_CICLO_S, -2 * Math.PI * R.PELO_DESFASE_CICLO, R.AMPLITUD_ARRANQUE_S, s =>
+        gsap.set(onda, { skewX: s * R.PELO_INCLINACION_GRADOS })
+      )
+    );
+  });
+
+  // Las gaviotas suben y bajan, cada una a su ritmo y con su fase.
+  const gaviotas = piezas(bienvenida, 'gaviota');
+  gaviotas.forEach((el, i) => {
+    const ciclo = R.GAVIOTA_CICLOS_S[i % R.GAVIOTA_CICLOS_S.length];
+    // Fases repartidas por la proporción áurea: nunca dos gaviotas a la par.
+    const fase = (i * 2.39996) % (2 * Math.PI);
+    // En la caja interior: la de fuera la mueve la entrada.
+    const caja = (el.firstElementChild as HTMLElement | null) ?? el;
+    tls.push(
+      ...oscilar(ciclo, fase, R.AMPLITUD_ARRANQUE_S, s =>
+        gsap.set(caja, { y: s * R.GAVIOTA_VAIVEN_PX })
+      )
+    );
+  });
+
   return {
     pausar: () => tls.forEach(t => t.pause()),
     reanudar: () => tls.forEach(t => t.resume()),
     detener: () => {
       tls.forEach(t => t.kill());
       if (rayos) gsap.set(rayos, { clearProps: 'transform' });
+      // Vuelve a neutro: el pelo y las gaviotas, en su sitio de Figma.
+      if (pelos.length) gsap.set([...pelos, ...ondas], { clearProps: 'transform' });
+      gaviotas.forEach(el => {
+        const caja = (el.firstElementChild as HTMLElement | null) ?? el;
+        gsap.set(caja, { clearProps: 'transform' });
+      });
     },
   };
 }
