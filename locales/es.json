@@ -68,7 +68,7 @@
   "emi": {
     "title": "Educación menstrual integral como mapa de cambio",
     "paragraph1": "De esa escucha atenta y del deseo de mover nuevas mareas, nace **EMI**, nuestro Programa de **Educación Menstrual Integral.**",
-    "paragraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integridad que permita a cada niña habitar su cuerpo con libertad y orgullo.",
+    "paragraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integralidad que permita a cada niña habitar su cuerpo con libertad y orgullo.",
     "comprendimos": "Así lo comprendimos nosotras:"
   },
   "content": {
@@ -108,6 +108,7 @@
     "prev": "Estampilla anterior",
     "next": "Estampilla siguiente",
     "instrucciones": "Carrusel de estampillas. Desliza o usa las flechas del teclado para ver la siguiente.",
+    "pista": "desliza",
     "rolCarrusel": "carrusel",
     "estampillas": {
       "1": "Estampilla: Cada niña es un mar de derechos",
@@ -118,8 +119,8 @@
   },
   "donations": {
     "title": "Dirigir el cambio con educación menstrual integral requiere tripulantes comprometidos",
-    "paragraph1": "**Convierte tu dinero en acciones colectivas.** Más valiosas que cualquier inversión porque nos lleva a nuevos destinos profundizando nuestro impacto.",
-    "paragraph2": "Cada aporte crea una ola... aunque tu apoyo constante forma corrientes de cambio y nuevas oportunidades.",
+    "paragraph1": "**Convierte tu dinero en acciones colectivas.** Más valiosas que cualquier inversión porque nos llevan a nuevos destinos profundizando nuestro impacto.",
+    "paragraph2": "Cada aporte crea una ola... y tu apoyo constante forma corrientes de cambio y nuevas oportunidades.",
     "cta": "QUIERO APORTAR"
   },
   "educationMap": {
@@ -149,7 +150,7 @@
         "imageAlt": "Un grupo de niñas trabaja alrededor de mesas al aire libre en un club de lectura."
       },
       "ruta": {
-        "name": "Mi ruta\nmi destino",
+        "name": "Mi ruta,\nmi destino",
         "age": "Edades: 12 a 14 años",
         "body": "Las Fuertes Junior siguen descubriendo sus talentos, habilidades y áreas de crecimiento para fortalecer su autoestima y cómo se perciben. Con ese autoconocimiento como base, las acompañamos a tomar decisiones conscientes sobre su futuro a corto, mediano y largo plazo.",
         "imageAlt": "Un grupo de niñas y adolescentes levanta sus morrales nuevos y sonríe."
@@ -269,7 +270,7 @@
       "fundadora": "Fundadora y Directora general",
       "cofundadora": "Cofundadora y Directora creativa",
       "projectManager": "Project Manager",
-      "disenadora": "Diseñadora Gráfica"
+      "disenadora": "Diseñadora gráfica"
     }
   },
   "gracias": {

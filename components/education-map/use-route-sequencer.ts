@@ -2,24 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useScrollTween } from './use-scroll-tween';
-
-/** Duraciones de la coreografía, en ms. */
-export const TIMING = {
-  sheetExit: 280,
-  sheetEnter: 400,
-  scroll: 800,
-  /**
-   * El spring del mapa llega unos 270 ms después que el scroll. Sin esta pausa
-   * el modal empezaría a subir mientras el mapa todavía se está deslizando.
-   */
-  settle: 180,
-} as const;
+import { TIEMPO } from './coreografia';
 
 const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
-/** Un salto corto no merece los 800 ms completos. */
+/** Desplazamiento de teclado hasta una parada (`revealStop`): corto, sin coreografía. */
 function scrollDuration(distance: number) {
-  return Math.min(TIMING.scroll, Math.max(320, Math.round(distance * 0.85)));
+  return Math.min(500, Math.max(320, Math.round(distance * 0.85)));
 }
 
 export interface RouteSequencerOptions {
@@ -33,6 +22,13 @@ export interface RouteSequencerOptions {
    * foco volviera a la de origen, su `onFocus` arrastraría el recorrido hasta ella (D6).
    */
   getReturnFocus?: (index: number) => HTMLElement | null;
+  /**
+   * Lleva el mapa hasta el `scrollY` de una parada con el viaje de D9 y resuelve al llegar. Sin
+   * él, el recorrido se hace desplazando la página.
+   */
+  viajar?: (destino: number) => Promise<void>;
+  /** Se llama al empezar el viaje hacia `index`: sirve para precargar la foto de su modal. */
+  precargar?: (index: number) => Promise<void>;
 }
 
 export function useRouteSequencer({
@@ -40,6 +36,8 @@ export function useRouteSequencer({
   isPinned,
   getStopScrollY,
   getReturnFocus,
+  viajar,
+  precargar,
 }: RouteSequencerOptions) {
   const { tweenTo, cancel } = useScrollTween();
 
@@ -51,6 +49,10 @@ export function useRouteSequencer({
   const busyRef = useRef(false);
   const runRef = useRef(0);
   const exitResolveRef = useRef<(() => void) | null>(null);
+  /** Escape durante una transición entre paradas: se llega, pero no se abre el modal (D9). */
+  const abortRef = useRef(false);
+  /** Hay un `run` (paso entre paradas) en marcha; `leave` y `close` no cuentan. */
+  const enRutaRef = useRef(false);
   /** Qué elemento devolvió el foco al cerrar. */
   const triggerRef = useRef<HTMLElement | null>(null);
 
@@ -82,7 +84,7 @@ export function useRouteSequencer({
           exitResolveRef.current = null;
           resolve();
         }
-      }, TIMING.sheetExit + 200);
+      }, TIEMPO.cierre + 250);
     });
   }, []);
 
@@ -96,37 +98,74 @@ export function useRouteSequencer({
 
       const token = ++runRef.current;
       const alive = () => token === runRef.current;
+      abortRef.current = false;
+      enRutaRef.current = true;
+      /** Parada en la que queda el mapa si se cancela con Escape: la de origen hasta que viaja. */
+      let asentada = index;
+      const cancelada = () => {
+        if (!abortRef.current) return false;
+        // Sin modal, el mapa quieto en `asentada` y el foco en su parada. `preventScroll`: el
+        // navegador no mueve nada y su `onFocus` no encuentra distancia que recorrer.
+        setIndex(asentada);
+        getReturnFocus?.(asentada)?.focus({ preventScroll: true });
+        triggerRef.current = null;
+        return true;
+      };
 
+      // Coreografía de D9, en fases que se leen de una en una: cierre, viaje, llegada, apertura.
+      const foto = precargar?.(target).catch(() => undefined);
       try {
         await closeSheet();
-        if (!alive()) return;
+        if (!alive() || cancelada()) return;
 
         if (options.scroll && isPinned) {
           const destination = getStopScrollY(target);
           if (destination !== null) {
             const distance = Math.abs(destination - window.scrollY);
             if (distance > 24) {
-              await tweenTo(destination, { duration: scrollDuration(distance) });
-              if (!alive()) return;
-              await delay(TIMING.settle);
-              if (!alive()) return;
+              // El viaje no se corta a medias: un Escape lo deja terminar y asentarse.
+              if (viajar) await viajar(destination);
+              else await tweenTo(destination, { duration: 900 });
+              asentada = target;
+              if (!alive() || cancelada()) return;
+              await delay(TIEMPO.asiento);
+              if (!alive() || cancelada()) return;
             }
           }
         }
 
+        // La foto nueva ya decodificada: si no, aparece a trozos mientras sube la tarjeta. No se
+        // espera más de un momento por ella.
+        if (foto) await Promise.race([foto, delay(250)]);
+        asentada = target;
+        if (!alive() || cancelada()) return;
+
         setIndex(target);
         openRef.current = true;
         setIsOpen(true);
-        await delay(TIMING.sheetEnter);
+        await delay(TIEMPO.apertura);
       } finally {
+        abortRef.current = false;
+        enRutaRef.current = false;
         if (token === runRef.current) {
           busyRef.current = false;
           setBusy(false);
         }
       }
     },
-    [closeSheet, getStopScrollY, isPinned, tweenTo]
+    [closeSheet, getReturnFocus, getStopScrollY, index, isPinned, precargar, tweenTo, viajar]
   );
+
+  /**
+   * Escape mientras una transición va entre paradas (cierre, viaje o llegada, sin modal a la
+   * vista): no se abre el siguiente. El viaje termina y el foco queda en la parada donde se
+   * asentó el mapa. Devuelve si había algo que cancelar.
+   */
+  const abort = useCallback(() => {
+    if (!enRutaRef.current || openRef.current) return false;
+    abortRef.current = true;
+    return true;
+  }, []);
 
   const openAt = useCallback(
     (target: number, trigger?: HTMLElement | null) => {
@@ -190,10 +229,11 @@ export function useRouteSequencer({
   /**
    * Cierra el modal y sigue a otro lado con `after` (D6: "Terminar" lleva a Impacto). A
    * diferencia de `close`, no devuelve el foco a la parada que lo abrió: su `onFocus` traería el
-   * recorrido de vuelta hasta ella y desharía el salto.
+   * recorrido de vuelta hasta ella y desharía el salto. Si `after` devuelve una promesa (el paso
+   * a Impacto de D9), el secuenciador sigue ocupado hasta que termina.
    */
   const leave = useCallback(
-    async (after: () => void) => {
+    async (after: () => void | Promise<void>) => {
       if (busyRef.current) return;
       busyRef.current = true;
       setBusy(true);
@@ -202,13 +242,13 @@ export function useRouteSequencer({
       try {
         cancel();
         await closeSheet();
+        if (token === runRef.current) await after();
       } finally {
         if (token === runRef.current) {
           busyRef.current = false;
           setBusy(false);
         }
       }
-      if (token === runRef.current) after();
     },
     [cancel, closeSheet]
   );
@@ -226,6 +266,7 @@ export function useRouteSequencer({
     goPrev,
     close,
     leave,
+    abort,
     handleExitComplete,
   };
 }

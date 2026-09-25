@@ -33,7 +33,10 @@ export interface Bloque {
   figma: { antes: string; despues: string };
   /** Franja del frame que ocupa la ilustración; las capas se posicionan dentro de ella. */
   lienzo: { top: number; height: number };
-  /** Dónde empieza el título en el frame; el aire hasta la ilustración sale de aquí. */
+  /**
+   * Dónde empieza el título en el frame de Figma. Ya no fija el aire hasta la ilustración: desde
+   * docs/impacto/DECISIONES.md, D2, es el mismo `mt-xl` en todos los bloques. Queda como referencia.
+   */
   texto: number;
   /**
    * Cómo cambia de estado: `subir` es un barrido de abajo arriba sobre todo el lienzo que

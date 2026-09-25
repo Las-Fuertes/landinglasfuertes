@@ -40,13 +40,18 @@
   backface-visibility: hidden;
 }
 
-/* Pulgar en mobile y tablet: debajo, alineado al borde derecho de la de enfrente. */
-.pulgar {
+/* Hueco de la pista de "desliza" (docs/emi/DECISIONES.md, D4). En mobile y tablet es una fila
+   propia de alto fijo (el sitio del SWIPE del diseño), así la pista puede aparecer o irse sin
+   cambiar el alto de la sección. Mobile: bajo la de enfrente, alineada a su borde derecho. */
+.pista {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   width: var(--ancho);
+  height: 2.5rem;
   margin-left: calc((100% - var(--ancho)) / 2);
   margin-top: 0.75rem;
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {
@@ -57,15 +62,12 @@
     padding-bottom: calc(var(--alto) * 0.1);
   }
 
-  /* Tablet: bajo la azul de la derecha del abanico, sin pasar del margen del grid (2,5rem,
-     el page-margin del PageGrid). */
-  .pulgar {
+  /* Tablet: bajo la azul de la derecha del abanico, pegada al margen del grid (2,5rem, el
+     page-margin del PageGrid). */
+  .pista {
     width: auto;
-    justify-content: flex-start;
-    margin-left: min(
-      calc(50% + var(--alto) * 0.567 + var(--ancho) / 2 - 2.5rem),
-      calc(100% - 5rem)
-    );
+    margin-left: 0;
+    padding-right: 2.5rem;
     margin-top: calc(var(--alto) * 0.1);
   }
 }
@@ -81,12 +83,16 @@
   }
 
   /* Desktop: donde el diseño pone "SWIPE", a la derecha de la azul de atrás, a la altura del
-     borde de abajo de la de enfrente (centro a +1,32 y +0,45 altos del centro del mazo). */
-  .pulgar {
+     borde de abajo de la de enfrente (centro a +1,32 y +0,45 altos del centro del mazo). La
+     flecha va sobre la palabra (pista-deslizar.tsx), así cabe a 1024 sin salirse, y deja aire
+     con la azul también en el tirón del amago. */
+  .pista {
     position: absolute;
-    left: calc(50% + var(--alto) * 1.12);
-    top: calc(var(--aire-arriba) + var(--alto) * 0.95 - 1.25rem);
+    left: calc(50% + var(--alto) * 1.15);
+    top: calc(var(--aire-arriba) + var(--alto) * 0.95 - 2.25rem);
     margin: 0;
+    padding: 0;
     width: auto;
+    justify-content: flex-start;
   }
 }

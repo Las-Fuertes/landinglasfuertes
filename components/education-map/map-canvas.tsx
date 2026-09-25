@@ -1,5 +1,6 @@
 'use client';
 
+import type { RefObject } from 'react';
 import { motion, type MotionValue } from 'framer-motion';
 import { MAP_ASPECT, MAP_ROUTES, MAP_WIDTHS, VIEWBOX } from './education-map.data';
 import MapHotspot from './map-hotspot';
@@ -18,6 +19,9 @@ export interface MapCanvasProps {
   hotspotLabel: (index: number) => string;
   onOpen: (index: number, trigger: HTMLElement | null) => void;
   onReveal: (index: number) => void;
+  /** Con recorrido: la capa que desliza el viaje de "Siguiente ruta" y la del mapa (D9). */
+  capaRef?: RefObject<HTMLDivElement | null>;
+  mapaRef?: RefObject<HTMLDivElement | null>;
 }
 
 export default function MapCanvas({
@@ -29,11 +33,14 @@ export default function MapCanvas({
   hotspotLabel,
   onOpen,
   onReveal,
+  capaRef,
+  mapaRef,
 }: MapCanvasProps) {
   const sizes = pinned && mapWidth > 0 ? `${Math.round(mapWidth)}px` : '100vw';
 
-  return (
+  const mapa = (
     <motion.div
+      ref={mapaRef}
       className={pinned ? 'absolute left-0 top-0 origin-top-left' : 'relative mx-auto w-full'}
       style={
         pinned
@@ -81,5 +88,15 @@ export default function MapCanvas({
         />
       ))}
     </motion.div>
+  );
+
+  // La capa solo existe con recorrido: en reposo no tiene transform y no crea capa propia; el
+  // navegador la promueve mientras dura el viaje.
+  return pinned ? (
+    <div ref={capaRef} className="absolute inset-0">
+      {mapa}
+    </div>
+  ) : (
+    mapa
   );
 }

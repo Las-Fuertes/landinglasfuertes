@@ -2,7 +2,11 @@
 
 Rama `24-sep-mapa` desde `origin/main` `5bae81e`. Sin commitear (2026-09-24). Decisiones en
 `DECISIONES.md` (D1 mapa y orden, D2 zoom, D3 título, D4 salto, D5 flotante, D6 Terminar lleva a Impacto,
-D7 título y barra en pantallas bajas).
+D7 título y barra en pantallas bajas, D8 modales, D9 coreografía de Siguiente ruta y Terminar, D10
+modal a dos columnas en desktop).
+
+Tanda del 2026-09-24 en la rama `24-sep-pulido` (desde `origin/main` `4518852`, sin commitear):
+D9 y D10.
 
 ## Hecho
 
@@ -25,6 +29,18 @@ D7 título y barra en pantallas bajas).
 - Modales de parada fieles a Figma en mobile y, en desktop y tablet, la misma tarjeta centrada
   sin scroll interno (D8, 2026-09-24). Evidencia y script CDP `modal.js` en el scratchpad de la
   sesión `3826136d`, carpeta `modal/`.
+
+- "Siguiente ruta" rehecha según el lenguaje de movimiento (D9): cierre, viaje del mapa por el
+  compositor (900 a 1400 ms según la distancia, sine.inOut), llegada y apertura con la foto después.
+  Con la CPU a 4x y DPR 3: 0 frames de más de 34 ms (antes 8 en 12 transiciones, máx. 117 ms),
+  raster de ~1,25 s a ~65 ms por transición. Se quitó un parpadeo de un frame al terminar de entrar
+  la tarjeta (framer-motion y la Web Animations API).
+- "Terminar" y "Saltar mapa" pasan a Impacto con cortina beige cuando está lejos (mobile y tablet)
+  o desplazamiento suave cuando está cerca; Impacto entra con su propia animación. Reduced-motion:
+  salto directo (D9).
+- Modal de parada a dos columnas en desktop, 896 x 464, sin scroll en 1280, 1440 y 1920 en los tres
+  idiomas (D10). Evidencia de D9 y D10 en el scratchpad de la sesión `3826136d`, carpeta
+  `mapa-anim/`.
 
 ## Verificado (2026-09-24)
 
@@ -60,3 +76,11 @@ con scripts CDP propios en la misma carpeta (`cdp.js` arnés; `capturas.js`, `de
 3. Tablet apaisada (1000x700): Clubes deja ver 17 % de Talleres aun con el zoom máximo.
 4. "Saltar mapa" arriba a la derecha (la intro lo tiene abajo a la derecha, pero abajo en el mapa
    están el nombre y los puntos).
+5. **Ver D9 y D10 en un celular real** (Johan): ritmo de "Siguiente ruta" (~2,1 s de clic a tarjeta
+   asentada; todo cuelga de `TIEMPO` en `coreografia.ts`) y la cortina de "Terminar". Si se quiere
+   otra opción de cortina (con borde rasgado, o del azul del mapa), se construye detrás de un
+   parámetro para comparar.
+6. Con el modal de Clubes abierto y la página quieta, la traza de Chrome marca todos los frames
+   como perdidos (también con el código anterior; en las otras paradas no). No se ve en pantalla en
+   headless; si en un celular se nota calor o batería en esa parada, investigar ahí.
+7. Desktop del modal (D10) sin diseño de Figma: adaptación a validar con la diseñadora.

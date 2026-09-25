@@ -8,6 +8,8 @@ export interface ScrollTweenOptions {
   duration?: number;
   /** Cortar el tween si la persona toca o rueda. Útil para saltos de teclado. */
   abortOnUserInput?: boolean;
+  /** Curva del desplazamiento; por defecto cubic.inOut. */
+  easing?: (t: number) => number;
 }
 
 /**
@@ -32,7 +34,10 @@ export function useScrollTween() {
 
   /** Resuelve `true` si llegó al destino, `false` si se abortó. */
   const tweenTo = useCallback(
-    (to: number, { duration = 800, abortOnUserInput = false }: ScrollTweenOptions = {}) =>
+    (
+      to: number,
+      { duration = 800, abortOnUserInput = false, easing = easeInOutCubic }: ScrollTweenOptions = {}
+    ) =>
       new Promise<boolean>(resolve => {
         cancel();
 
@@ -73,7 +78,7 @@ export function useScrollTween() {
         const start = performance.now();
         const step = (now: number) => {
           const t = Math.min(1, (now - start) / duration);
-          window.scrollTo(0, from + (dest - from) * easeInOutCubic(t));
+          window.scrollTo(0, from + (dest - from) * easing(t));
           if (t < 1) rafRef.current = requestAnimationFrame(step);
           else finish(true);
         };

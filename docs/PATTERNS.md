@@ -291,6 +291,21 @@ parte de aquí**, y si Johan corrige algo que contradiga esta lista, se actualiz
     parámetro temporal (`?barco=a|b`) para que Johan y la diseñadora las comparen en el navegador,
     y luego se borra la perdedora.
 
+**Tiempos y curvas reutilizables para modales y viajes** (`components/education-map/coreografia.ts`;
+detalle y cifras en `docs/mapa-educativo/DECISIONES.md`, D9). Salida `[0.32, 0, 0.67, 0]`
+(power2.in), entrada `[0.22, 1, 0.36, 1]` (la de `FadeIn`), viaje `[0.37, 0, 0.63, 1]` (sine.inOut:
+la de menor velocidad punta, la que no marea). Un modal se cierra en ~420 ms, se abre en ~600 con la
+foto 160 ms después del texto; un viaje de cámara dura 650 ms + 0,6 ms por px, entre 900 y 1400.
+Para pasar a una sección a más de ~1,2 pantallas, cortina (`cortina.ts`) en vez de recorrer miles
+de px a la vista. Dos reglas de rendimiento que salieron de medir con la CPU a 4x:
+
+- **Mover una capa grande con la Web Animations API, no con el scroll frame a frame.** El viaje del
+  mapa salta el scroll de una vez y anima el `transform` de una capa envoltorio: corre en el
+  compositor y el raster por transición bajó de ~1,25 s a ~65 ms.
+- **framer-motion 11 y la opacidad:** con una curva en array la anima con la Web Animations API y
+  al terminar deja un frame con la opacidad de `initial` (parpadeo). En un `motion.div` que anima
+  opacidad y no puede parpadear, pasa `onUpdate={sinAceleracion}` (de `coreografia.ts`).
+
 ### Drawer de Súmate: cómo abrirlo desde cualquier componente
 
 "Súmate a Las Fuertes" ya no es una sección: es un drawer (`components/sumate/sumate-drawer.tsx`)
@@ -387,9 +402,13 @@ Figma trae además un path cream por departamento que es el trazo convertido a r
 los 812 del archivo); se tiró y se reemplazó por `stroke` de 1 px en el `<g>` padre. Colores del
 diseño: gris `#B3B3B3` (`ash` en Tailwind), rosa `#FF60AD` (se usa `pink`, `#FF74BA`).
 
-El encendido es CSS puro (`.impacto-territorio` y `.impacto-etiqueta` en `styles/global.css`):
-cada path y cada chip llevan su turno en `--i` y el contenedor recibe `data-encendido` cuando
-`useInView` (framer-motion, `once`) lo ve. Reduced-motion quita duración y escalonado.
+El encendido es CSS puro (`.impacto-cabecera`, `.impacto-mapa-base`, `.impacto-territorio` y
+`.impacto-etiqueta` en `styles/global.css`), solo con opacidad y `transform`: cada territorio va
+dos veces (gris y encima rosa, que aparece por opacidad), cada path y cada chip llevan su turno
+en `--i`, la cabecera recibe `data-entrada` y el mapa `data-encendido` (con `--retraso`) cuando
+están en pantalla y no hay cortina del Mapa educativo encima (`useSinCortina`, que escucha el
+`EVENTO_CORTINA` de `components/education-map/cortina.ts`). Línea de tiempo en
+`docs/impacto/DECISIONES.md`, D2. Reduced-motion lo deja todo en su estado final.
 
 Para capturar el estado final: `node scripts/captura.js --ancla impacto --w 390 --h 828 --tras 4500`.
 

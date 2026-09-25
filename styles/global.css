@@ -330,27 +330,102 @@ html[data-intro-anima] [data-intro-estatica] {
    MAPA DE IMPACTO
    ================================ */
 
-/* Los territorios se encienden en cascada cuando el mapa entra en viewport: el componente pone
-   `data-encendido` en `.impacto-mapa` y cada path lleva su turno en `--i`. Va en CSS, no en
-   framer-motion, para que sea una transición de relleno pura; el bloque de reduced-motion de
-   arriba deja la duración en 0 y aquí se quita también el escalonado. */
+/* Entrada de la primera fila de Impacto (docs/impacto/DECISIONES.md, D2). Una sola línea de
+   tiempo, medida desde que el título empieza a entrar:
+
+     título      0 a 800 ms     aparece y sube 8 px (la curva de `FadeIn`)
+     flor      150 a 850        aparece y sube 6 px: el detalle llega después del texto
+     mapa gris 250 a 1050       fondo suave: aparece y sube 6 px
+     territorio i   750 + i x 160, 450 ms   el rosa aparece encima del gris (Isla Fuerte primero)
+     etiqueta i     la de su territorio + 200, 400 ms, sube 4 px
+
+   Todo en opacidad y `transform`. La cabecera recibe `data-entrada` y el mapa `data-encendido`
+   (con `--retraso`: lo que le falta para ir 250 ms detrás del título) cuando están en pantalla
+   y no hay cortina del Mapa educativo encima (`useSinCortina`). */
+.impacto-cabecera > * {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.impacto-cabecera .impacto-flor {
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+
+.impacto-cabecera[data-entrada] .impacto-flor {
+  opacity: 1;
+  transform: none;
+}
+
+/* Encaje (D3 de docs/impacto): el mapa mide lo que quepa para que el título, el mapa y su texto
+   se vean enteros al llegar. `--resto` es lo que ocupa la fila fuera del mapa (en línea en
+   mobile y tablet, aquí en desktop); 390.124 / 531.224 es la proporción del mapa. */
+.impacto-mapa {
+  width: min(100%, calc((100svh - var(--resto)) * 390.124 / 531.224));
+  margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  /* 48 de aire arriba, 90 del título, 40 hasta la fila y 16 de margen abajo. Las etiquetas
+     escalan con el mapa, sin bajar del tamaño de mobile. */
+  .impacto-mapa {
+    --resto: 194px;
+    --u: max(1px, calc(min(100cqw, (100svh - var(--resto)) * 390.124 / 531.224) / 390));
+  }
+}
+
+.impacto-cabecera[data-entrada] > * {
+  opacity: 1;
+  transform: none;
+}
+
+.impacto-mapa-base {
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--retraso, 0ms),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--retraso, 0ms);
+}
+
+.impacto-mapa[data-encendido] .impacto-mapa-base {
+  opacity: 1;
+  transform: none;
+}
+
 .impacto-territorio {
-  fill: theme('colors.ash.DEFAULT');
-  transition: fill 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--i, 0) * 0.28s);
+  fill: theme('colors.pink.DEFAULT');
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--retraso, 0ms) + 500ms + var(--i, 0) * 160ms);
 }
 
 .impacto-mapa[data-encendido] .impacto-territorio {
-  fill: theme('colors.pink.DEFAULT');
+  opacity: 1;
+}
+
+/* El gris de debajo se retira de golpe cuando el rosa ya está entero: en reposo no se pinta. */
+.impacto-territorio-gris {
+  transition: opacity 0s linear;
+  transition-delay: calc(var(--retraso, 0ms) + 950ms + var(--i, 0) * 160ms);
+}
+
+.impacto-mapa[data-encendido] .impacto-territorio-gris {
+  opacity: 0;
 }
 
 .impacto-etiqueta {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translate3d(0, 4px, 0);
   transition:
-    opacity 0.45s ease,
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--i, 0) * 0.28s + 0.35s);
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--retraso, 0ms) + 700ms + var(--i, 0) * 160ms);
 }
 
 .impacto-mapa[data-encendido] .impacto-etiqueta {
@@ -358,10 +433,21 @@ html[data-intro-anima] [data-intro-estatica] {
   transform: none;
 }
 
+/* Sin movimiento: todo en su estado final desde el principio, sin esperar a la pantalla. */
 @media (prefers-reduced-motion: reduce) {
+  .impacto-cabecera > *,
+  .impacto-cabecera .impacto-flor,
+  .impacto-mapa-base,
   .impacto-territorio,
   .impacto-etiqueta {
-    transition-delay: 0s !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .impacto-territorio-gris {
+    opacity: 0 !important;
+    transition: none !important;
   }
 }
 

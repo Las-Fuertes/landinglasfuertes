@@ -680,3 +680,7 @@ chips iguales**; lo que rompe la pieza es un chip corto aislado, no que crezcan.
 
 La herramienta para esto es un sondeo por DevTools que imprime el ancho de cada chip por idioma;
 el procedimiento esta en `docs/PATTERNS.md`.
+
+---
+
+**Ampliación 2026-09-24:** desde esta fecha Impacto en desktop (>= 1024) va a dos columnas con filas intercaladas, lo que deja D7 solo para tablet; decisión, propuesta y verificación en `docs/impacto/DECISIONES.md` (D1) y `docs/impacto/PROGRESS.md`.

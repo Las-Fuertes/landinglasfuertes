@@ -344,3 +344,138 @@ Ampliación (Johan, 2026-09-24, al aprobar): el nombre de la parada es "Chiquifu
 minúscula), como en el modal de Figma. Se cambió `educationMap.stops[].name` en es, en y fr; el
 rótulo dibujado dentro del SVG del mapa no se tocó. Johan aprobó también los colores aproximados
 (`pink/25` en el círculo de cerrar, `black` en el botón) y el hueco único foto-párrafo.
+
+**Cambiada por D10 (2026-09-24):** en desktop (>= 1024) el modal ya no es la tarjeta de mobile
+centrada, sino una tarjeta ancha a dos columnas. Mobile y tablet siguen como aquí.
+
+## D9. Coreografía de "Siguiente ruta" y "Terminar"
+
+**Fecha:** 2026-09-24. **Qué se pidió.** La transición de "Siguiente ruta" (cerrar el modal, viajar
+a la parada siguiente, abrir su modal) se hizo antes de definir el lenguaje de movimiento: era
+demasiado rápida, mareaba y ralentizaba el celular. "Terminar" (última parada, lleva a Impacto) era
+abrupta y la sección siguiente aparecía de golpe. Rehacerlas según `docs/PATTERNS.md` (lenguaje de
+movimiento) y medir el rendimiento con la CPU a 4x.
+
+**Por qué mareaba y pesaba.** El viaje desplazaba la página frame a frame (`window.scrollTo` con
+cubic.inOut, velocidad punta 3 veces la media, entre 320 y 800 ms) y el mapa seguía al scroll con
+un spring que llegaba ~270 ms tarde: dos curvas encadenadas, arranque brusco y una cola que seguía
+moviéndose cuando el modal ya subía. Cada frame pasaba por el hilo principal (scroll, sticky,
+evento, React, spring) y el compositor volvía a rasterizar: ~1,25 s de raster por transición.
+
+**Coreografía nueva, en cuatro fases que se leen de una en una** (tiempos y curvas en
+`components/education-map/coreografia.ts`; todo es `transform` u `opacity`):
+
+| Fase     | Qué pasa                                                                                     | Tiempo                                             | Curva                                      |
+| -------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------ |
+| Cierre   | La tarjeta baja el 45 % de su alto y se desvanece en el último 55 %; el velo se aclara antes | 420 ms (velo 340)                                  | salida `[0.32,0,0.67,0]` (power2.in)       |
+| Viaje    | El mapa viaja a la parada siguiente                                                          | 650 + 0,6 ms por px, entre 900 y 1400 ms           | viaje `[0.37,0,0.63,1]` (sine.inOut)       |
+| Llegada  | Mapa quieto; el nombre de la barra y la parada activa cambian al llegar                      | 200 ms                                             |                                            |
+| Apertura | La tarjeta sube desde el 40 % con el texto; la foto llega después (opacidad)                 | 600 ms (opacidad 360, velo 420); foto 460 tras 160 | entrada `[0.22,1,0.36,1]` (la de `FadeIn`) |
+
+- A 390x844 los cuatro tramos miden 334, 556, 468 y 397 px de pantalla y el viaje dura 900, 983,
+  930 y 900 ms. De clic a tarjeta asentada: ~2,1 s; con la foto, ~2,3 s (la intro ronda 1,7 a 1,9).
+- **El viaje corre en el compositor** (`viajar` en `use-map-pan.ts`): con el mapa congelado, la
+  página salta de una vez al `scrollY` de la parada (el stage es sticky, no se ve), el mapa se
+  planta en el encuadre de llegada y la capa que lo envuelve (`capaRef` en `map-canvas.tsx`)
+  arranca desplazada lo que falta y vuelve a cero con una animación de la Web Animations API. Al
+  terminar, el scroll y el mapa coinciden por construcción y el spring no tiene nada que hacer. El
+  mapa escribe su transform a mano en el mismo frame en que arranca la animación, para que no haya
+  un frame con el desfase doble.
+- sine.inOut es, de las simétricas, la de menor velocidad punta (1,57 veces la media): es lo que
+  quita el mareo. Sin rebote.
+- **La foto siguiente se decodifica durante el viaje** (`precargar` en la sección, `Image.decode()`),
+  y la apertura la espera como mucho 250 ms: antes aparecía a trozos mientras subía la tarjeta.
+- **El marco rasgado va en su propia capa** (`will-change: transform`) y la tarjeta también: el
+  filtro SVG se rasteriza una vez al abrir, no en cada frame ni al cambiar el texto. Se quitó el
+  `scale` del modal de desktop (escalar obliga a rasterizar de nuevo al terminar).
+- **Trampa de framer-motion 11 (medida por frame).** Con una curva en array, anima la opacidad con
+  la Web Animations API; al terminar, la animación desaparece y el valor final se escribe en el
+  frame siguiente, así que hay un frame con la opacidad de `initial` (0): la tarjeta parpadeaba al
+  acabar de entrar. Se evita con `onUpdate={sinAceleracion}` en los `motion.div` que animan
+  opacidad (tarjeta, foto y velo): con `onUpdate` framer anima en JS.
+- `revealStop` (Tab por las paradas) sigue desplazando la página con su tween corto de siempre.
+- **Tras la verificación independiente (2026-09-24).** Mientras la tarjeta se va (y durante su
+  entrada), sus botones se ven apagados (`aria-disabled`, opacidad) y no hacen nada, y la tarjeta
+  saliente no recibe clics (`pointer-events-none`, con `useIsPresent`). No se usa `disabled` ni
+  `inert` porque le quitarían el foco al botón pulsado. **Escape entre paradas** (con la tarjeta
+  saliendo o el mapa viajando) cancela la apertura: el viaje termina y se asienta, no se abre
+  modal y el foco queda en la parada donde está el mapa (la de origen si el viaje no había
+  empezado; `abort` en `use-route-sequencer.ts`). Medido a 390x844 y 768x1024: Escape a ~700 ms
+  deja el mapa en Clubes, sin modal, foco en `clubes`, `scrollY` estable; Enter la vuelve a abrir
+  y el recorrido sigue. En desktop no hay viaje y Escape durante la entrada de la tarjeta no hace
+  nada (como antes).
+
+**"Terminar" y "Saltar mapa"** (`saltar` en `use-saltar-mapa.ts`, una sola copia para los dos, y
+`cortina.ts`). Tras el cierre del modal (420 ms), el paso a Impacto depende de la distancia:
+
+- Hasta 1,2 pantallas: la página se desplaza con sine.inOut en 420 + 0,55 ms por px, entre 600 y
+  1100 ms (en la práctica, desktop cuando Impacto ya asoma).
+- Más lejos (mobile y tablet con recorrido, ~1300 px; desktop desde la última parada): **cortina**.
+  **Ampliado el 2026-09-25 (telón, ver `docs/impacto/DECISIONES.md`, D2):** la capa `bg-beige` ya
+  no sube: aparece con un fundido (0 a 1 en 400 ms, sine.inOut), la página salta debajo, 60 ms de
+  pausa y se desvanece (1 a 0 en 500 ms, sine.inOut) como un telón que se abre. Impacto empieza su
+  entrada 120 ms antes de que el telón termine de irse. Solo opacidad; nada se desplaza. No se
+  recorren miles de px a la vista.
+- Con `prefers-reduced-motion`: salto directo, sin cortina ni desplazamiento (el cierre del modal
+  también dura 0).
+- Durante el paso, rueda, dedo y teclas de scroll no mueven la página. El foco pasa a `#impacto`
+  (`tabindex -1`) al llegar.
+
+**Rendimiento, medido por CDP** (Chrome headless, 390x844, DPR 3, `Emulation.setCPUThrottlingRate`
+4; clic real en Talleres y luego "Siguiente ruta" x4 y "Terminar"; frames contados con
+`requestAnimationFrame` desde el clic hasta 700 ms después del modal asentado, y traza con
+`PipelineReporter`, raster y hilo principal):
+
+| Medida (por "Siguiente ruta", media de 2 corridas)   | Antes                                                      | Después                           |
+| ---------------------------------------------------- | ---------------------------------------------------------- | --------------------------------- |
+| Frames > 34 ms (rAF), en total, 4x                   | 8 en 12 transiciones (máx. 117 ms en frío, 67 en caliente) | 0 en 20 transiciones (máx. 17 ms) |
+| Frames > 34 ms (rAF), 6x                             | 2 en 8 (máx. 100 ms)                                       | 0 en 12 (máx. 33 ms)              |
+| Raster                                               | 957 a 1817 ms                                              | 61 a 71 ms                        |
+| Hilo principal ocupado                               | 736 a 1104 ms                                              | 314 a 362 ms                      |
+| Frames presentados sin el hilo principal (parciales) | 79 a 148                                                   | 0 a 41                            |
+| "Terminar": raster                                   | 374 a 514 ms                                               | 15 a 16 ms                        |
+
+Frames largos: 100 % menos y ninguno de más de 100 ms. **Ruido conocido:** con el modal de Clubes
+abierto y la página quieta, la traza marca todos los frames como perdidos (72 en 1,2 s con el
+código de antes y 73 con el de ahora; en Voces, 0). Es previo, pasa en reposo y no en la
+transición; por eso los "perdidos" de la traza no se usan como cifra.
+
+**Verificado** (scripts CDP y capturas en el scratchpad de la sesión `3826136d`, carpeta
+`mapa-anim/`: `perf.js`, `analiza.js`, `fases.js`, `checks.js`, `saltar.js`; montajes
+`m-antes-*.png` y `m-despues-*.png` con una captura cada 200 ms): "Terminar" a 390x844, 390x664,
+768x1024 y 1440x900 llega en ~970 ms, top de `#impacto` entre -0,2 y 0,5 durante los 1500 ms
+siguientes y foco en `impacto`; con reduced-motion llega en ~50 ms (390 y 1440). Escape y X tras
+recorrer hasta Voces: diferencia de `scrollY` 0 y foco en `voces` (D6) en los cinco anchos. "Atrás"
+en la última lleva a Chiquifuertes. Tab da la vuelta dentro del modal. "Saltar mapa" con Escape x2
+y con clic: top 0, foco en `impacto`. La captura de 1000 ms de "Terminar" pesa 5 KB porque es la
+cortina entera, no una captura fallida.
+
+## D10. Modal de parada a dos columnas en desktop
+
+**Fecha:** 2026-09-24. **Qué se pidió.** Johan cambió su decisión de D8: desde 1024 px, tarjeta
+ancha con la foto a la izquierda y a la derecha el título en cinta, el chip de edades, el párrafo y
+los botones Atrás / Siguiente ruta. Misma estética (papel crema, borde rasgado, botón cerrar).
+Mobile y tablet (< 1024) quedan como en D8.
+
+**Qué se hizo** (`route-sheet.tsx`, mismas props):
+
+- Ancho `lg:max-w-4xl` (896 px) y alto máximo `lg:max-h-[90dvh]`. La tarjeta no cambia de
+  estructura: el mismo contenedor pasa de `flex-col` a rejilla `lg:grid` con columnas 5fr / 6fr,
+  `gap-x-10` y `p-10`. La foto ocupa la columna 1 en las cuatro filas; título, chip, párrafo y pie
+  van en la columna 2 (filas `auto auto 1fr auto`, el pie abajo).
+- **El chip salió del bloque de la foto** y va antes que ella: en mobile se monta 12 px sobre su
+  borde con `mt-3` en el chip y `-mt-4` en la foto (medido a 390x844: chip 12 px sobre la foto,
+  foto 24 px bajo el título, igual que en D8); en desktop queda bajo el título, alineado a la
+  izquierda.
+- La foto en desktop es `absolute inset-0` dentro de su celda (no empuja el alto) con un mínimo
+  de `lg:min-h-96` (384 px, casi su 9:10 natural a 353 de ancho) y `object-cover` centrado: recorta
+  un poco arriba y abajo, nunca deforma.
+- El título se alinea a la izquierda (`lg:text-left`) con aire a la derecha para no rozar la X.
+  La cinta es la misma (`Resaltado` variante `titulo`, giro -0,54°).
+
+**Medido por CDP** (`modal-desk.js`: las cinco paradas, 1280x800, 1440x900 y 1920x1080, en es, en
+y fr, 45 casos): tarjeta de 896 x 464 en todos, 58 % del alto a 800, 52 % a 900 y 43 % a 1080;
+`scrollHeight == clientHeight` en los 45; foto a la izquierda del texto; título, chip, X, foto,
+párrafo y pie sin solapes. `node scripts/medir-resaltado.js --usos modal` en los tres idiomas y los
+cinco anchos por defecto: 75 pasan, 0 fallan. Mobile y tablet medidos de nuevo a 390x844 y
+768x1024: mismas posiciones que D8.

@@ -813,3 +813,81 @@ nube, sol y garabato.
 - **Margen de visibilidad (2026-09-23):** el observador del reposo usa `rootMargin` de 1 px, como
   Bienvenida: con Bienvenida arriba del todo, el borde compartido ya no cuenta como en pantalla y
   el reposo de la intro se pausa (medido por CDP a 390 y 1280: antes cambiaba en 3 s, ahora no).
+
+## D9. Bienvenida cabe entera en la pantalla del celular
+
+**Lo que pidió Johan (2026-09-24, rama `24-sep-pulido`):** en su iPhone con Safari (428 x 746
+visibles) el hero de Bienvenida no cabía: la palmera y las olas se cortaban abajo y el aire quedaba
+desbalanceado. La composición de Figma (`1278:2`, 390 x 864) tiene que encajar SIEMPRE en la
+pantalla del celular; se puede sacrificar el tamaño de las decoraciones, nunca deformarlas. Desktop
+no cambia. Sigue decidido que el botón flotante de Súmate puede tapar la mano de la mujer.
+
+**Por qué cambia D1 de `docs/emi/DECISIONES.md`.** Allí el hero crecía (`min-h-dvh`) cuando el
+contenido no cabía, y en celular eso era casi siempre: 860 px de contenido natural contra 664 a 746
+visibles. Ahora en mobile y tablet se comprime el aire y las decoraciones, no el texto.
+
+**Qué se hizo** (solo `components/welcome/`; nada en `components/intro/` ni en `styles/`):
+
+- **Una escala por alto, `--hero-k`** (`ESCALA_ALTO` en `welcome.tsx`): vale 1rem desde 864 de
+  alto y baja en línea recta hasta 0,5rem a 568 (`clamp(0.5rem, calc(0.5rem + (100dvh - 35.5rem) *
+0.027), 1rem)`). Cada medida de Figma que no es texto se escribe `calc(var(--hero-k) * N)`: aire
+  arriba (40) y abajo (53), sol (144, además de su tope por ancho `42vw`), fila del sol, nubes y su
+  desfase vertical (24), aire bajo el sol (40), separaciones del subtítulo (28), del subrayado (12)
+  y del párrafo (32), y el aire mínimo sobre la ilustración (40). A 864 o más todo es igual a Figma.
+- **La ilustración se queda con el alto que sobra.** Su contenedor es `flex-1` y dentro una capa
+  absoluta con `container-type: size`; el lienzo mobile (390 x 243) mide
+  `min(100cqw, 100cqh * 390 / 243, 87.5rem)` de ancho y su `aspect-ratio`, anclado abajo y
+  centrado. Así nunca se corta ni se deforma: si falta alto, se hace más estrecho que la pantalla.
+- **Las olas sangran hasta los bordes.** El lienzo mobile ya no lleva `overflow-hidden`: cuando es
+  más estrecho que la pantalla, las olas (856 de ancho en un lienzo de 390) siguen hasta los bordes y
+  el contenedor las recorta solo en horizontal (`overflow-x: clip`).
+- **Ninguna pieza se estira.** En mobile las piezas de archivo llevan `object-contain`: tres cajas
+  de Figma no tenían la proporción exacta del SVG (arena 3 %, ola corta 1,8 %, ola suelta 2,8 %) y
+  con `fill` se estiraban un poco. En desktop no se tocó.
+- **El título baja con el ancho solo por debajo de 364 px**: `clamp(2rem, 11vw, 2.5rem)`. A 320 en
+  francés "Bienvenue chez" partía en tres líneas y el hero no cabía; ahora son dos, a 35 px.
+- Desktop (`lg`): cada clase nueva tiene su `lg:` con la medida de antes, el contenedor de la
+  ilustración vuelve a `flex-none` + `mt-auto` y a bloque normal.
+
+**Hallazgo.** Un ítem flex con `flex-1` (base 0) y `container-type: size` da `100cqh = 0` en
+Chrome: la consulta se evalúa antes de repartir el alto. Por eso el contenedor de tamaño es una capa
+`absolute inset-0` dentro del hueco flexible, no el propio ítem.
+
+**Medido por CDP** (`captura.js --ancla bienvenida --quieto --leer`, script `medir.js`): alto del
+hero, base de la ilustración, área de solape entre las cajas de texto (`h2`, `p`) y las de sol,
+nubes, palmera, mujer, flor, olas y arena, peor desviación de proporción de cada imagen visible
+(`object-contain` cuenta 0) y la mujer contra su `viewBox`, y scroll horizontal. En es, en y fr:
+
+| Ventana  | Hero | Base ilustración (es) | Alto ilustración es / en / fr | Sol | Solape | Proporción | Scroll x |
+| -------- | ---- | --------------------- | ----------------------------- | --- | ------ | ---------- | -------- |
+| 320x568  | 568  | 541                   | 135 / 135 / 115               | 69  | 0      | <= 0,03 %  | 0        |
+| 360x640  | 640  | 606                   | 171 / 171 / 151               | 86  | 0      | <= 0,03 %  | 0        |
+| 375x667  | 667  | 631                   | 180 / 180 / 180               | 92  | 0      | <= 0,03 %  | 0        |
+| 390x664  | 664  | 628                   | 179 / 179 / 159               | 91  | 0      | <= 0,03 %  | 0        |
+| 390x844  | 844  | 792                   | 240 / 240 / 220               | 133 | 0      | <= 0,03 %  | 0        |
+| 414x736  | 736  | 694                   | 223 / 203 / 203               | 108 | 0      | <= 0,03 %  | 0        |
+| 428x746  | 746  | 703                   | 225 / 205 / 205               | 111 | 0      | <= 0,03 %  | 0        |
+| 430x932  | 932  | 878                   | 268 / 268 / 268               | 138 | 0      | <= 0,03 %  | 0        |
+| 768x1024 | 1024 | 969                   | 422 / 396 / 396               | 138 | 0      | <= 0,03 %  | 0        |
+
+Antes: el hero medía 836 a 865 en todos los celulares (y 1081 en tablet) y la base de la
+ilustración caía hasta 145 px por debajo de la pantalla. Ahora el hero mide exactamente el alto de
+la ventana en los 27 casos y la ilustración queda entera dentro, con el aire inferior de Figma
+escalado (27 a 54 px). La base de la ilustración es la misma en los tres idiomas; lo que cambia con
+un texto más largo es su alto.
+
+**Desktop sin cambios:** capturas `--quieto` antes y después a 1280x832, 1512x982 y 1920x1080
+idénticas byte a byte.
+
+**Llegada desde la intro** (`--paso 3 --gesto 120`, 390x664 y 1280x832): `#bienvenida` en
+`top = 0` con el alto de la ventana, sin `data-intro-llegando` y 0 piezas con opacidad < 1 a los
+4,5 s. El sol rojo viaja al disco rosado ya escalado (el relevo mide la caja real). Entrada por
+piezas, rayos girando y pelo sin cambios de código.
+
+Capturas `antes-<ancho>x<alto>-<lang>.png` y `despues-...`, `llegada-<ancho>x<alto>-<ms>.png` y
+`medir.js` en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-24-sep/3826136d-6674-498b-b321-d960b35db571/scratchpad/hero/`.
+
+**Riesgos.** En 320x568 en francés la ilustración queda en 115 px de alto (unos 185 de ancho): cabe
+y no se deforma, pero es pequeña, y el botón de Súmate tapa buena parte de la mujer. Por debajo de
+568 de alto (celular apaisado) el hero vuelve a crecer: la ilustración tiene un mínimo de 7rem.
+Safari usa `dvh` y container queries desde la versión 16; no se probó en un iPhone físico.

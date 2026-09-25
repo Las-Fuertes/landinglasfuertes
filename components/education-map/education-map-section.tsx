@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
-import { MAP_ROUTES, ROUTE_COUNT } from './education-map.data';
+import { MAP_ROUTES, ROUTE_COUNT, routePhoto } from './education-map.data';
 import {
   type CajaTitulo,
   computeLayout,
@@ -19,6 +19,7 @@ import MapProgressDots from './map-progress-dots';
 import RouteSheet from './route-sheet';
 import MapTitle from './map-title';
 import { useSaltarMapa } from './use-saltar-mapa';
+import { CURVA, sinAceleracion, TIEMPO } from './coreografia';
 import { useSumateDrawer } from '../sumate';
 
 const DESKTOP_QUERY = '(min-width: 1024px)';
@@ -127,7 +128,7 @@ export default function EducationMapSection() {
     };
   }, [pinned, readTrackTop]);
 
-  const { x, y, activeIndex } = useMapPan(geometry, pinned, ROUTE_COUNT);
+  const { x, y, activeIndex, capaRef, mapaRef, viajar } = useMapPan(geometry, pinned, ROUTE_COUNT);
 
   const getStopScrollY = useCallback(
     (index: number) => {
@@ -152,11 +153,19 @@ export default function EducationMapSection() {
     (i: number) => document.querySelector<HTMLElement>(`#mapa [data-parada="${MAP_ROUTES[i].id}"]`),
     []
   );
+  // La foto del modal siguiente se decodifica durante el viaje, no mientras sube la tarjeta (D9).
+  const precargar = useCallback((i: number) => {
+    const foto = new Image();
+    foto.src = routePhoto(MAP_ROUTES[i].id, 'avif');
+    return foto.decode();
+  }, []);
   const sequencer = useRouteSequencer({
     count: ROUTE_COUNT,
     isPinned: pinned,
     getStopScrollY,
     getReturnFocus,
+    viajar,
+    precargar,
   });
   const {
     isOpen,
@@ -168,6 +177,7 @@ export default function EducationMapSection() {
     goPrev,
     close,
     leave,
+    abort,
     handleExitComplete,
   } = sequencer;
 
@@ -215,6 +225,10 @@ export default function EducationMapSection() {
       if (insideSheet(event.target)) return;
       event.preventDefault();
     };
+    // Escape entre paradas (el modal saliendo o el mapa viajando) cancela la apertura (D9).
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && abort()) event.preventDefault();
+    };
     const blockKeys = (event: KeyboardEvent) => {
       if (!SCROLL_KEYS.has(event.key) || insideSheet(event.target)) return;
       event.preventDefault();
@@ -223,13 +237,15 @@ export default function EducationMapSection() {
     window.addEventListener('wheel', blockPointer, { passive: false, capture: true });
     window.addEventListener('touchmove', blockPointer, { passive: false, capture: true });
     window.addEventListener('keydown', blockKeys);
+    window.addEventListener('keydown', onEscape);
 
     return () => {
       window.removeEventListener('wheel', blockPointer, true);
       window.removeEventListener('touchmove', blockPointer, true);
       window.removeEventListener('keydown', blockKeys);
+      window.removeEventListener('keydown', onEscape);
     };
-  }, [isOpen, busy]);
+  }, [abort, isOpen, busy]);
 
   const routeName = useCallback((i: number) => t(`${MAP_ROUTES[i].i18n}.name`), [t]);
   const hotspotLabel = useCallback(
@@ -238,6 +254,7 @@ export default function EducationMapSection() {
   );
 
   const activeRoute = MAP_ROUTES[index];
+  const reducido = useReducedMotion();
 
   return (
     <section
@@ -273,7 +290,7 @@ export default function EducationMapSection() {
             <button
               ref={skip.saltarRef}
               type="button"
-              onClick={skip.saltar}
+              onClick={() => void skip.saltar()}
               onFocus={skip.mostrar}
               data-saltar-mapa=""
               data-visible={skip.visible ? '' : undefined}
@@ -286,6 +303,8 @@ export default function EducationMapSection() {
 
             <MapCanvas
               pinned
+              capaRef={capaRef}
+              mapaRef={mapaRef}
               mapWidth={geometry?.layout.mapW ?? 0}
               mapHeight={geometry?.layout.mapH ?? 0}
               x={x}
@@ -337,10 +356,21 @@ export default function EducationMapSection() {
           <motion.div
             key="map-overlay"
             className="fixed inset-0 z-[100] flex items-end justify-center p-2 lg:items-center lg:p-6"
+            // El velo se aclara antes que la tarjeta (el mapa asoma pronto) y se oscurece a la
+            // par que sube la siguiente (D9).
+            onUpdate={sinAceleracion}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            animate={{
+              opacity: 1,
+              transition: {
+                duration: reducido ? 0 : TIEMPO.veloApertura / 1000,
+                ease: CURVA.entrada,
+              },
+            }}
+            exit={{
+              opacity: 0,
+              transition: { duration: reducido ? 0 : TIEMPO.veloCierre / 1000, ease: CURVA.salida },
+            }}
           >
             <div
               className="absolute inset-0 bg-black/50"
