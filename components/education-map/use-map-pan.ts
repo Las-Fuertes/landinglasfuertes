@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMotionValue, useMotionValueEvent, useScroll, useSpring } from 'framer-motion';
 import type { MapLayout, MapTrack } from './map-geometry';
 import { progressStops, targetSeries } from './map-geometry';
+import { CURVA, cssCurva, duracionViaje } from './coreografia';
 
 export interface PanGeometry {
   layout: MapLayout;
@@ -62,6 +63,12 @@ export function useMapPan(geometry: PanGeometry | null, enabled: boolean, stopCo
   const y = useSpring(rawY, SPRING);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  /** La capa que se desliza durante un viaje (envuelve al mapa) y la del mapa. */
+  const capaRef = useRef<HTMLDivElement>(null);
+  const mapaRef = useRef<HTMLDivElement>(null);
+  /** Durante un viaje el scroll ya está en el destino y el mapa no le hace caso (D9). */
+  const congeladoRef = useRef(false);
+  const viajeRef = useRef<Animation | null>(null);
   const activeRef = useRef(0);
   const primedRef = useRef(false);
   const seriesRef = useRef<Series | null>(null);
@@ -86,7 +93,7 @@ export function useMapPan(geometry: PanGeometry | null, enabled: boolean, stopCo
     (scrollValue: number) => {
       const geo = geometryRef.current;
       const series = seriesRef.current;
-      if (!geo || !series) return;
+      if (!geo || !series || congeladoRef.current) return;
 
       const progress =
         geo.track.pin > 0 ? clamp01((scrollValue - geo.trackTop) / geo.track.pin) : 0;
@@ -131,5 +138,74 @@ export function useMapPan(geometry: PanGeometry | null, enabled: boolean, stopCo
     apply(window.scrollY);
   }, [enabled, geometry, apply]);
 
-  return { x, y, activeIndex };
+  useEffect(() => () => viajeRef.current?.cancel(), []);
+
+  /**
+   * Viaje de "Siguiente ruta" (D9). En vez de desplazar la página cientos de px frame a frame
+   * (scroll, sticky, evento, React y el spring del mapa, todo en el hilo principal), la página
+   * salta de una vez al destino con el mapa congelado, el mapa se planta en el encuadre de
+   * llegada y la capa que lo envuelve arranca desplazada lo que falta y vuelve a cero con una
+   * animación de la Web Animations API. Es una sola animación de `transform` que corre en el
+   * compositor: el hilo principal no trabaja durante el viaje, y el mapa no se vuelve a pintar.
+   * Al llegar, el nombre de la barra y la parada activa se actualizan.
+   */
+  const viajar = useCallback(
+    (destino: number) =>
+      new Promise<void>(resolve => {
+        viajeRef.current?.cancel();
+        const geo = geometryRef.current;
+        const series = seriesRef.current;
+        const capa = capaRef.current;
+        const mapa = mapaRef.current;
+        if (!geo || !series || !capa || !mapa || geo.track.pin <= 0) {
+          window.scrollTo(0, destino);
+          resolve();
+          return;
+        }
+
+        const { tx, ty } = interpolate(clamp01((destino - geo.trackTop) / geo.track.pin), series);
+        const dx = x.get() - tx;
+        const dy = y.get() - ty;
+
+        congeladoRef.current = true;
+        // El spring queda ya en el destino: `set` lo arranca y `jump` lo planta sin animar.
+        rawX.set(tx);
+        rawY.set(ty);
+        x.jump(tx);
+        y.jump(ty);
+        // framer-motion escribe el transform en su propio frame; aquí se escribe ya, para que el
+        // mapa y la capa que lo compensa cambien en el mismo frame y no haya un salto.
+        mapa.style.transform = `translateX(${tx}px) translateY(${ty}px) translateZ(0)`;
+        window.scrollTo(0, destino);
+
+        const fin = () => {
+          if (viajeRef.current !== anim) return;
+          viajeRef.current = null;
+          congeladoRef.current = false;
+          apply(window.scrollY);
+          resolve();
+        };
+        const anim = capa.animate(
+          [
+            { transform: `translate3d(${dx}px, ${dy}px, 0)` },
+            { transform: 'translate3d(0, 0, 0)' },
+          ],
+          { duration: duracionViaje(Math.hypot(dx, dy)), easing: cssCurva(CURVA.viaje) }
+        );
+        viajeRef.current = anim;
+        anim.onfinish = fin;
+        // Cancelado (desmontaje u otro viaje): si otro viaje ya tomó el relevo, no se descongela.
+        anim.oncancel = () => {
+          if (viajeRef.current === anim) {
+            viajeRef.current = null;
+            congeladoRef.current = false;
+            apply(window.scrollY);
+          }
+          resolve();
+        };
+      }),
+    [apply, rawX, rawY, x, y]
+  );
+
+  return { x, y, activeIndex, capaRef, mapaRef, viajar };
 }

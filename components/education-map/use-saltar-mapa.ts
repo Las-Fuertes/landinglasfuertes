@@ -7,6 +7,28 @@ import {
   registrarRueda,
   SCROLL_FUERTE_PX,
 } from '../../lib/gesto-rueda';
+import { duracionDesplaza, PASO } from './coreografia';
+import { pasarConCortina } from './cortina';
+import { useScrollTween } from './use-scroll-tween';
+
+const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+const TECLAS_SCROLL = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+
+/** Mientras dura el paso a la sección, la rueda, el dedo y las teclas no mueven la página. */
+function frenarEntrada() {
+  const frenar = (e: Event) => e.preventDefault();
+  const frenarTeclas = (e: KeyboardEvent) => {
+    if (TECLAS_SCROLL.has(e.key)) e.preventDefault();
+  };
+  window.addEventListener('wheel', frenar, { passive: false, capture: true });
+  window.addEventListener('touchmove', frenar, { passive: false, capture: true });
+  window.addEventListener('keydown', frenarTeclas, true);
+  return () => {
+    window.removeEventListener('wheel', frenar, true);
+    window.removeEventListener('touchmove', frenar, true);
+    window.removeEventListener('keydown', frenarTeclas, true);
+  };
+}
 
 /**
  * Pausa entre dos eventos de rueda que cierra el gesto aunque no llegue a `FIN_DE_GESTO_MS`. La
@@ -29,7 +51,8 @@ export interface SaltarMapaOptions {
 export interface SaltarMapa {
   visible: boolean;
   saltarRef: RefObject<HTMLButtonElement>;
-  saltar: () => void;
+  /** Lleva a `destino` con la transición de D9 y resuelve al terminar. */
+  saltar: () => Promise<void>;
   /** Para el `onFocus` del botón: con Tab llega a él antes que a las paradas. */
   mostrar: () => void;
 }
@@ -76,18 +99,43 @@ export function useSaltarMapa({
   }, []);
 
   const mostrar = useCallback(() => poner(true), [poner]);
+  const { tweenTo } = useScrollTween();
 
-  const saltar = useCallback(() => {
+  /**
+   * Paso a `destino` (D6 y D9). Cerca (hasta `PASO.umbralPantallas` pantallas), la página se
+   * desplaza con sine.inOut y una duración según la distancia; lejos, cortina. Con
+   * reduced-motion, salto directo. En los tres casos el foco pasa a la sección.
+   */
+  const saltar = useCallback(async () => {
     poner(false);
     const siguiente = document.getElementById(destino);
     if (!siguiente) return;
-    // Con reduced-motion, sin animación: el `smooth` explícito no respeta el CSS (D6).
-    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    siguiente.scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' });
-    // El foco sigue al contenido: si no, se queda en un botón que ya no se ve.
-    if (!siguiente.hasAttribute('tabindex')) siguiente.setAttribute('tabindex', '-1');
-    siguiente.focus({ preventScroll: true });
-  }, [destino, poner]);
+    const y = () => window.scrollY + siguiente.getBoundingClientRect().top;
+    const llegar = () => {
+      window.scrollTo(0, y());
+      // El foco sigue al contenido: si no, se queda en un botón que ya no se ve.
+      if (!siguiente.hasAttribute('tabindex')) siguiente.setAttribute('tabindex', '-1');
+      siguiente.focus({ preventScroll: true });
+    };
+
+    const distancia = Math.abs(siguiente.getBoundingClientRect().top);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || distancia < 2) {
+      llegar();
+      return;
+    }
+
+    const soltar = frenarEntrada();
+    try {
+      if (distancia <= PASO.umbralPantallas * window.innerHeight) {
+        await tweenTo(y(), { duration: duracionDesplaza(distancia), easing: easeInOutSine });
+        llegar();
+      } else {
+        await pasarConCortina(llegar);
+      }
+    } finally {
+      soltar();
+    }
+  }, [destino, poner, tweenTo]);
 
   useEffect(() => {
     if (!activo) {
@@ -177,7 +225,7 @@ export function useSaltarMapa({
         return;
       }
       if (document.activeElement === saltarRef.current) {
-        saltar();
+        void saltar();
         return;
       }
       mostrar();

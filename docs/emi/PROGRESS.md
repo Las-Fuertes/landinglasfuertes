@@ -33,6 +33,11 @@ El slider ya no pinta título, fondo ni padding de sección, y se etiqueta con l
 (`id="principios"`). El footer apunta a `#principios`. El aire del mazo se alineó con los
 frames 1288:913 y 1288:676. Ver D3 y su ampliación en `DECISIONES.md`.
 
+## Hecho: indicador de swipe (D4)
+
+- Johan eligió la mezcla de A y B (2026-09-25, D4). Hecho: un solo
+  componente `pista-deslizar.tsx`; opciones y parámetro `?swipe` borrados.
+
 ## Pendiente: otros
 
 - **Fuente de acento.** La fuente de acento pasará a Bradley Hand en otra iteración (Johan,

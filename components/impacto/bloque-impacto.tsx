@@ -2,13 +2,40 @@
 
 import Image from 'next/image';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, type CSSProperties } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithMarks } from '../../lib/render-text-with-bold';
-import { type Bloque, type Capa } from './bloques.data';
+import { type Bloque, type BloqueId, type Capa } from './bloques.data';
 
 const k = (px: number) => `calc(${px}px * var(--k))`;
 const ANCHO = 390;
+
+/**
+ * Sitio de cada bloque en la rejilla de 12 columnas de desktop (docs/impacto/DECISIONES.md, D1).
+ * Filas intercaladas: el mapa (fila 1) lleva la ilustración a la izquierda, la piscina a la
+ * derecha, y así alternando. El texto ocupa 6 columnas (7 en la copa, para que la frase en
+ * francés no deje "an." sola), unos 55 caracteres por línea a 20 px. Las ilustraciones altas
+ * (lámparas, copa) ocupan 4 columnas y dejan una de aire; las apaisadas (piscina, persona)
+ * ocupan 6 y sangran hasta el borde de la página por su lado, sobre el margen de 40.
+ */
+const DESKTOP: Record<BloqueId, { arte: string; texto: string }> = {
+  piscina: {
+    arte: 'lg:col-span-6 lg:col-start-7 lg:-mr-page-margin',
+    texto: 'lg:col-span-6 lg:col-start-1',
+  },
+  luces: {
+    arte: 'lg:col-span-4 lg:col-start-2',
+    texto: 'lg:col-span-6 lg:col-start-7',
+  },
+  copa: {
+    arte: 'lg:col-span-4 lg:col-start-9',
+    texto: 'lg:col-span-7 lg:col-start-1',
+  },
+  persona: {
+    arte: 'lg:col-span-6 lg:col-start-1 lg:-ml-page-margin',
+    texto: 'lg:col-span-6 lg:col-start-7',
+  },
+};
 
 /** Una capa en porcentaje del lienzo de su bloque (mismo esquema que la Introducción, D13). */
 function CapaImg({
@@ -77,16 +104,17 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
   const ref = useRef<HTMLDivElement>(null);
   const encendido = useInView(ref, { once: true, amount: 0.6 });
   const { lienzo } = bloque;
+  const desktop = DESKTOP[bloque.id];
 
   return (
     <div
       ref={ref}
-      className="impacto-bloque mx-auto w-full"
+      className="impacto-bloque mx-auto w-full max-w-[var(--ancho-bloque)] lg:grid lg:max-w-none lg:grid-cols-12 lg:items-center lg:gap-x-grid-gutter"
       data-encendido={encendido || undefined}
-      style={{ maxWidth: k(ANCHO) }}
+      style={{ ['--ancho-bloque' as string]: k(ANCHO) } as CSSProperties}
     >
       <div
-        className="relative w-full"
+        className={`relative w-full lg:row-start-1 lg:w-auto lg:justify-self-stretch ${desktop.arte}`}
         style={{ aspectRatio: `${ANCHO} / ${lienzo.height}` }}
         aria-hidden="true"
       >
@@ -126,12 +154,16 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         ))}
       </div>
 
+      {/* Imagen y texto a la misma distancia en los cinco bloques (docs/impacto, D2): los lienzos
+          ya van ceñidos al dibujo, así que el aire es solo `mt-xl`. */}
       <div
-        style={{
-          paddingLeft: k(46),
-          paddingRight: k(20),
-          marginTop: k(bloque.texto - lienzo.top - lienzo.height),
-        }}
+        className={`mt-xl pl-[var(--texto-izq)] pr-[var(--texto-der)] lg:row-start-1 lg:mt-0 lg:px-0 ${desktop.texto}`}
+        style={
+          {
+            ['--texto-izq' as string]: k(46),
+            ['--texto-der' as string]: k(20),
+          } as CSSProperties
+        }
       >
         <h3
           className="font-bold leading-tight tracking-[-0.04em] text-black"
@@ -140,8 +172,14 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
           {renderTextWithMarks(t(`impacto.bloques.${bloque.id}.title`), { variante: 'titulo' })}
         </h3>
         <p
-          className="leading-normal text-black"
-          style={{ fontSize: k(16), marginTop: k(10), maxWidth: k(297) }}
+          className="mt-[var(--p-arriba)] max-w-[var(--p-ancho)] text-[length:var(--p-letra)] leading-normal text-black lg:mt-m lg:max-w-none lg:text-balance lg:text-h3 lg:leading-normal"
+          style={
+            {
+              ['--p-letra' as string]: k(16),
+              ['--p-arriba' as string]: k(10),
+              ['--p-ancho' as string]: k(297),
+            } as CSSProperties
+          }
         >
           {t(`impacto.bloques.${bloque.id}.text`)}
         </p>

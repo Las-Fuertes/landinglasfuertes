@@ -19,17 +19,17 @@ import {
   POSES_ABANICO,
   POSES_PILA,
 } from './estampillas.data';
-import { PulgarDeslizar } from './pulgar-deslizar';
+import { PistaDeslizar } from './pista-deslizar';
 import estilos from './principles.module.css';
 
 /** Desde tablet el mazo es abanico; debajo, pila (frames 1288:676 y 1288:913). */
 const MEDIA_ABANICO = '(min-width: 768px)';
 
 /**
- * El pulgar se va la primera vez que la persona usa el slider y no vuelve en esa visita.
- * Vive en el módulo (no en el estado del componente) para que un remontaje no lo traiga.
+ * La pista de "desliza" se va la primera vez que la persona usa el slider y no vuelve en esa
+ * visita. Vive en el módulo (no en el estado del componente) para que un remontaje no la traiga.
  */
-let pulgarUsadoEnEstaVisita = false;
+let pistaUsadaEnEstaVisita = false;
 
 type Props = {
   /**
@@ -56,19 +56,19 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
   const [conFoco, setConFoco] = useState(false);
   const enPantallaRef = useRef(false);
   enPantallaRef.current = enPantalla;
-  const [pulgarVisible, setPulgarVisible] = useState(!pulgarUsadoEnEstaVisita);
+  const [pistaVisible, setPistaVisible] = useState(!pistaUsadaEnEstaVisita);
 
   const configMazo = useRef<ConfigMazo>({ poses: POSES_PILA, reducido: false });
   const efectoMazo = useMemo(() => crearEfectoMazo(configMazo), []);
 
-  /** La persona usó el slider: se va el pulgar (una vez por visita) y se para el autoplay. */
+  /** La persona usó el slider: se va la pista (una vez por visita) y se para el autoplay. */
   const marcarUso = () => {
     interactuadoRef.current = true;
     const sw = swiperRef.current;
     if (sw && !sw.destroyed && sw.autoplay?.running) sw.autoplay.stop();
-    if (pulgarUsadoEnEstaVisita) return;
-    pulgarUsadoEnEstaVisita = true;
-    setPulgarVisible(false);
+    if (pistaUsadaEnEstaVisita) return;
+    pistaUsadaEnEstaVisita = true;
+    setPistaVisible(false);
   };
   const marcarUsoRef = useRef(marcarUso);
   marcarUsoRef.current = marcarUso;
@@ -91,7 +91,7 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
 
   // Autoplay: corre solo con el slider en pantalla, sin el foco del teclado dentro, sin
   // prefers-reduced-motion y hasta la primera interacción. Se decide en un efecto que depende de
-  // la instancia (en estado) y de `enPantalla` (el mismo useInView del pulgar): así sobrevive al
+  // la instancia (en estado) y de `enPantalla` (el mismo useInView de la pista): así sobrevive al
   // doble montaje de StrictMode, que destruye y rehace la instancia de Swiper.
   useEffect(() => {
     if (!swiper || swiper.destroyed || !swiper.autoplay) return;
@@ -232,16 +232,20 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
       >
         {ESTAMPILLAS.map((estampilla, index) => (
           <SwiperSlide key={estampilla.src}>
-            <Image
-              src={estampilla.src}
-              alt={t(estampilla.altKey)}
-              width={ESTAMPILLA_ANCHO_PX}
-              height={ESTAMPILLA_ALTO_PX}
-              draggable={false}
-              className="block h-auto w-full select-none"
-              sizes="(min-width: 1024px) 360px, (min-width: 768px) 320px, 90vw"
-              priority={index === 0}
-            />
+            {/* El cuerpo: lo que mueve el amago de la pista (pista-deslizar.tsx) sin tocar la pose que
+                el efecto mazo pone al slide. */}
+            <div data-estampilla-cuerpo="">
+              <Image
+                src={estampilla.src}
+                alt={t(estampilla.altKey)}
+                width={ESTAMPILLA_ANCHO_PX}
+                height={ESTAMPILLA_ALTO_PX}
+                draggable={false}
+                className="block h-auto w-full select-none"
+                sizes="(min-width: 1024px) 360px, (min-width: 768px) 320px, 90vw"
+                priority={index === 0}
+              />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
@@ -255,8 +259,21 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
         <ChevronRight className="h-6 w-6" strokeWidth={2} aria-hidden />
       </button>
 
-      <div className={estilos.pulgar}>
-        <PulgarDeslizar visible={pulgarVisible} enPantalla={enPantalla} />
+      {/* El hueco de la pista existe siempre y con el mismo alto (en mobile y tablet es su propia
+          fila): aparecer o irse nunca mueve el layout. Es decorativa: las instrucciones para
+          lectores de pantalla van en `estampillas-instrucciones`. */}
+      <div
+        className={estilos.pista}
+        aria-hidden="true"
+        data-pista-swipe=""
+        data-visible={pistaVisible ? '' : undefined}
+      >
+        <PistaDeslizar
+          swiper={swiper}
+          visible={pistaVisible}
+          enPantalla={enPantalla}
+          reducido={reducido}
+        />
       </div>
     </div>
   );

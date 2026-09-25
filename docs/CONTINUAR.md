@@ -46,6 +46,17 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   validar "Voix souveraines : jeunes leaders". Los rótulos dibujados en imágenes se quedan en
   español por decisión de Johan: no proponer traducirlos.
 
+- PR #26 (2026-09-25): Bienvenida cabe entera en cualquier celular (`docs/introduccion/` D9);
+  pista de swipe de EMI = mezcla de "desliza" con flecha dibujada y amago de la estampilla
+  (`docs/emi/` D4); mapa: "Siguiente ruta" en cuatro fases pausadas, telón solo de opacidad para
+  Terminar y Saltar mapa, modal a dos columnas en desktop (`docs/mapa-educativo/` D9 y D10);
+  Impacto a dos columnas alternadas en desktop con el título de sección arriba, distancia única
+  imagen-texto en mobile, entrada pausada tras el telón y primer bloque (título, mapa y texto)
+  visible en el primer viewport (`docs/impacto/` D1 a D3); cinco cambios de redacción en español
+  aprobados (ampliación de D2 en `docs/resaltado/`). Pendiente anotado: el botón flotante Súmate
+  tapa parte del párrafo del primer bloque de Impacto en mobile (se podría ocultar con
+  `data-oculta-flotante`).
+
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 
 ============================================================

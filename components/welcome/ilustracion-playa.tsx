@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import type { CSSProperties } from 'react';
 import { MujerPlaya } from './mujer-playa';
 
 /**
@@ -220,12 +221,28 @@ const DESKTOP: Lienzo = {
 const pct = (v: number, total: number) => `${(v / total) * 100}%`;
 
 /** Una pieza en su caja de Figma, en porcentaje del lienzo que la contiene. */
-export function CapaPieza({ p, lienzo }: { p: Pieza; lienzo: Omit<Lienzo, 'piezas'> }) {
+export function CapaPieza({
+  p,
+  lienzo,
+  contener = false,
+}: {
+  p: Pieza;
+  lienzo: Omit<Lienzo, 'piezas'>;
+  /** `object-contain`: el archivo nunca se estira aunque su caja de Figma no tenga su proporción
+   * exacta (las olas finas y la arena difieren de un 2 a un 3 %). Solo en mobile (D9). */
+  contener?: boolean;
+}) {
   const contenido =
     p.src === MUJER ? (
       <MujerPlaya />
     ) : (
-      <Image src={p.src} alt="" fill sizes="(max-width: 1024px) 100vw, 1280px" />
+      <Image
+        src={p.src}
+        alt=""
+        fill
+        className={contener ? 'object-contain' : undefined}
+        sizes="(max-width: 1024px) 100vw, 1280px"
+      />
     );
   return (
     <div
@@ -249,24 +266,48 @@ export function CapaPieza({ p, lienzo }: { p: Pieza; lienzo: Omit<Lienzo, 'pieza
   );
 }
 
-function Composicion({ lienzo, className }: { lienzo: Lienzo; className: string }) {
+function Composicion({
+  lienzo,
+  className,
+  style,
+  contener,
+}: {
+  lienzo: Lienzo;
+  className: string;
+  style?: CSSProperties;
+  contener?: boolean;
+}) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden ${className}`}
-      style={{ aspectRatio: `${lienzo.ancho} / ${lienzo.alto}` }}
+      className={`relative mx-auto ${className}`}
+      style={{ aspectRatio: `${lienzo.ancho} / ${lienzo.alto}`, ...style }}
     >
       {lienzo.piezas.map((p, i) => (
-        <CapaPieza key={i} p={p} lienzo={lienzo} />
+        <CapaPieza key={i} p={p} lienzo={lienzo} contener={contener} />
       ))}
     </div>
   );
 }
 
+/**
+ * Mobile y tablet (docs/introduccion/DECISIONES.md, D9): el lienzo mide lo que quepa a lo ancho
+ * (100cqw) y a lo alto (100cqh, pasado a ancho con la proporción del lienzo) del contenedor que
+ * le da `welcome.tsx`, así nunca se deforma ni se corta por abajo. Sin `overflow-hidden`: cuando
+ * el lienzo es más estrecho que la pantalla, las olas siguen hasta los bordes (el contenedor las
+ * recorta en horizontal), como en Figma.
+ */
+const ANCHO_MOBILE: CSSProperties = {
+  width: `min(100cqw, calc(100cqh * ${MOBILE.ancho} / ${MOBILE.alto}), 87.5rem)`,
+};
+
 export function IlustracionPlaya() {
   return (
-    <div className="relative mt-10 w-full lg:mt-[2.6875rem]">
-      <Composicion lienzo={MOBILE} className="max-w-[1400px] lg:hidden" />
-      <Composicion lienzo={DESKTOP} className="hidden max-w-screen-xl lg:block" />
+    <div className="relative w-full lg:mt-[2.6875rem]">
+      <Composicion lienzo={MOBILE} className="lg:hidden" style={ANCHO_MOBILE} contener />
+      <Composicion
+        lienzo={DESKTOP}
+        className="hidden w-full max-w-screen-xl overflow-hidden lg:block"
+      />
     </div>
   );
 }

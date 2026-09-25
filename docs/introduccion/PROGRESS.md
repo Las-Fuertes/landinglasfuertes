@@ -27,6 +27,12 @@ lo que sigue abierto sobre la intro (si algo) vive en `docs/CONTINUAR.md` y en l
 El detalle del intento 2 (causas raíz del 1, umbrales, tiempos, qué se verificó y cómo) está en
 `DECISIONES.md`, D2. La ronda 2 (ajustes de la diseñadora y tres bugs de la prueba de Johan), en D3.
 
+### 2026-09-24: Bienvenida cabe entera en el celular (D9)
+
+Rama `24-sep-pulido`, sin commitear. En mobile y tablet el aire y las decoraciones escalan con el
+alto de la pantalla (`--hero-k`) y la ilustración ocupa el alto que sobra sin deformarse: el hero
+mide exactamente la ventana de 320x568 a 768x1024 en es, en y fr, sin solapes. Desktop idéntico.
+
 ## Qué sigue, en orden
 
 Todo lo de D6, D7 y D8 fue aprobado por Johan y está mergeado (PR #20 y #21) y en producción. Lo

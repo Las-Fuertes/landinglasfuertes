@@ -65,6 +65,8 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
   PROGRESS).
 - Donaciones fiel a Figma en mobile y con desktop nuevo (rama `23-sep-emi`): `docs/donaciones/`
   (D1 y D2, pendientes en PROGRESS).
+- Impacto a dos columnas en desktop, entrada tipo telón y primer bloque encajado (PR #26):
+  `docs/impacto/` (D1 a D3, pendientes en PROGRESS).
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

@@ -184,10 +184,16 @@ export type Etiqueta = {
   x: number;
   y: number;
   chico?: boolean;
+  /**
+   * Si está, el chip se ancla por su borde derecho en este x (px del frame) en vez de por el
+   * izquierdo: cuando el mapa se achica para caber en la pantalla y el chip no (D3 de
+   * docs/impacto), crece hacia afuera del mapa y no hacia su vecino. A 390 queda donde estaba.
+   */
+  hasta?: number;
 };
 
 export const ETIQUETAS: Etiqueta[] = [
-  { id: 'islaFuerte', x: 15, y: 202, chico: true },
+  { id: 'islaFuerte', x: 15, y: 202, chico: true, hasta: 77 },
   { id: 'cordoba', x: 56, y: 332 },
   { id: 'bolivar', x: 185, y: 278 },
   { id: 'atlantico', x: 97, y: 181, chico: true },

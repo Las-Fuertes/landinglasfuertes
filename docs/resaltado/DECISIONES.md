@@ -157,3 +157,20 @@ acortado para que el título del modal quepa en dos líneas a 390 px como en es 
 est / passée de 45 à 95 %", Impacto en inglés "==growing stronger==" y "==delivered for==" como
 cuarto chip de los ecoproductos. Título de Donaciones en inglés reformulado a "Comprehensive
 menstrual education needs a committed crew to steer change" (sin "with" ni "crews" sueltas).
+
+**Ampliación 2026-09-24: correcciones de español aprobadas por Johan.** Solo en `locales/es.json`:
+
+- `donations.paragraph1`: "porque nos lleva" pasa a "porque nos llevan" (el sujeto son las
+  acciones colectivas).
+- `donations.paragraph2`: "Cada aporte crea una ola... aunque tu apoyo constante forma" pasa a
+  "... y tu apoyo constante forma" (suma, no contraste).
+- `educationMap.routes.ruta.name`: "Mi ruta\nmi destino" pasa a "Mi ruta,\nmi destino" (se conserva
+  el salto de línea).
+- `quienesSomos.roles.disenadora`: "Diseñadora Gráfica" pasa a "Diseñadora gráfica", como
+  "Directora creativa": el cargo lleva mayúscula solo en su primera palabra. "Red ASE" es nombre
+  propio y "Project Manager" es el término en inglés: no se tocaron.
+- `emi.paragraph2`: "una visión amplia de la integridad" pasa a "de la integralidad".
+
+En inglés y francés no hizo falta ajuste: ya decían "My Route,\nMy Destination" y "Ma route,\nma
+destination", "a broad, holistic vision" y "une vision large et globale", y los dos párrafos de
+Donaciones ya usaban el plural y "and" / "et".
