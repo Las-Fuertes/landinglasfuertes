@@ -57,7 +57,7 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   tapa parte del párrafo del primer bloque de Impacto en mobile (se podría ocultar con
   `data-oculta-flotante`).
 
-- Rama `29-sep-aviso` (2026-09-30): pantalla de aviso de protección de menores antes de la landing
+- PR #27 (2026-09-30, rama `29-sep-aviso`): pantalla de aviso de protección de menores antes de la landing
   (Figma mobile `1425:537`, desktop `1425:699`) con selector de idioma y estrella de mar que salta;
   cookie `lf_aviso=v1` de 365 días puesta por el servidor (`pages/api/aviso.ts`, porque Safari
   limita a 7 días las cookies escritas por JS) y también por JS; script inline sin parpadeo;
@@ -65,8 +65,11 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   imágenes a rastreadores de IA y a Googlebot-Image (el texto sigue indexable para buscadores y
   LLM); `X-Robots-Tag: noimageai, noai` solo en imágenes. Frase de IA precisada por Johan: "ni su
   uso con inteligencia artificial". Verificado por un verificador independiente (aprobado). Ver
-  `docs/aviso/` (D1, D2, PROGRESS). Pendiente: en el preview de Vercel comprobar `robots.txt`, la
-  API de la cookie con `Secure` y la cabecera en `/_next/image`.
+  `docs/aviso/` (D1, D2, PROGRESS). En producción (PR #27, merge `70c769a`,
+  2026-09-30) se comprobó con curl sobre https://www.lasfuertes.org: `robots.txt` con los grupos de
+  IA y Googlebot-Image, `POST /api/aviso` responde 204 con `Set-Cookie ... Max-Age=31536000 ...
+  Secure`, y `X-Robots-Tag: noimageai, noai` en `/images/...` y en `/_next/image`, no en el HTML.
+  El dominio sin www redirige (307) a www.
   QUÉ SIGUE: el feedback de la diseñadora (lo trae Johan en el chat nuevo).
 
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
