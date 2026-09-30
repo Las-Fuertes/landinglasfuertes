@@ -15,6 +15,18 @@ const nextConfig = {
     remotePatterns: [],
     qualities: [75, 85],
   },
+  // Imágenes: señal a los rastreadores de IA de que no las usen (docs/aviso/DECISIONES.md, D2).
+  // Solo en las respuestas de imágenes; el HTML queda sin la cabecera, para que el texto de la
+  // fundación sí se pueda leer e indexar. Ojo: en local (`next dev` y `next start`) el
+  // optimizador `/_next/image` responde antes de aplicar estas cabeceras; en Vercel se aplican
+  // en su capa de rutas, y hay que comprobarlo en el preview con curl.
+  async headers() {
+    const noIA = [{ key: 'X-Robots-Tag', value: 'noimageai, noai' }];
+    return [
+      { source: '/images/:path*', headers: noIA },
+      { source: '/_next/image', headers: noIA },
+    ];
+  },
   // Compiler options
   compiler: {
     // Remove console.log in production

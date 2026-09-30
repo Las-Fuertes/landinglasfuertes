@@ -49,6 +49,10 @@ module.exports = {
         papel: {
           DEFAULT: '#FFF5E8',
         },
+        /** Fondo del aviso de protección de menores (Figma #FDDEB5), un arena más tostado. */
+        arena: {
+          DEFAULT: '#FDDEB5',
+        },
         /** Gris de los departamentos apagados en el mapa de impacto. */
         ash: {
           DEFAULT: '#B3B3B3',

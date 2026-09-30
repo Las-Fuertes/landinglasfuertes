@@ -42,6 +42,10 @@
  *   --clic sel       clic real de ratón (CDP) en el centro del elemento que casa con el selector
  *                    CSS, tras llevarlo al centro de la pantalla. Sirve para abrir el drawer de
  *                    Súmate: `--clic "footer nav button"` o `--clic [data-sumate-flotante]`.
+ *   --aviso          muestra el aviso de protección de menores (la puerta de la primera visita,
+ *                    docs/aviso/DECISIONES.md). Sin este flag, el script fija antes de navegar la
+ *                    cookie `lf_aviso` con la versión vigente, como quien ya aceptó, y la captura
+ *                    muestra la landing: es el comportamiento por defecto (`--aviso-aceptado`).
  *
  * Ejemplos:
  *   node scripts/captura.js --paso 2 --w 1280 --h 832 --out /tmp/paso2.png
@@ -51,6 +55,7 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 const WebSocket = require('next/dist/compiled/ws');
+const { fijarAviso } = require('./aviso-cdp');
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
@@ -131,6 +136,7 @@ async function capturar(browserWs) {
   });
   const s = attach.sessionId;
   await enviar('Page.enable', {}, s);
+  await fijarAviso(enviar, s, url, 'aviso' in args);
   await enviar(
     'Emulation.setDeviceMetricsOverride',
     { width: w, height: h, deviceScaleFactor: 1, mobile: false },

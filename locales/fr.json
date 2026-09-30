@@ -304,5 +304,11 @@
   },
   "lang": {
     "label": "Langue"
+  },
+  "aviso": {
+    "titulo": "Avis de protection des mineures",
+    "texto": "La page que tu vas voir contient des photos de **filles de moins de 18 ans**, mineures au regard de la loi colombienne. Ces photos sont utilisées avec l'autorisation de leurs familles. \n**NOUS N'AUTORISONS PAS** leur utilisation, en aucune circonstance, ni leur utilisation avec l'intelligence artificielle.",
+    "llamado": "Aide-nous à protéger l'intégrité de nos filles \net de nos adolescentes en ligne.",
+    "boton": "J'accepte"
   }
 }

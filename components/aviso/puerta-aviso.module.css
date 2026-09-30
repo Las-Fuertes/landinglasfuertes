@@ -1,0 +1,91 @@
+/*
+ * Medidas del aviso de protección de menores, sacadas de Figma (fileKey ng8HnnYyaDJ2nTWauh7Otb):
+ * mobile 1425:537 (390 de ancho) y desktop 1425:699 (1280x832). Van aquí y no como clases
+ * porque son medidas exactas del frame, como en donations.module.css. Desde `md` (768) se usa
+ * la versión desktop: la columna de 722 se estrecha a lo que quepa.
+ */
+
+.columna {
+  /* Mobile: el texto ocupa x=44 a 356 de 390. Todo el bloque está 5 px a la derecha del
+     centro en Figma (la estrella, el texto y el botón), y se respeta. */
+  width: min(312px, 100%);
+  translate: 5px 0;
+  /* El bloque queda algo por encima del centro: en el frame de 700 empieza en y=159 y deja
+     205 debajo. La mitad de la diferencia, 23 px, sube el bloque. */
+  padding-bottom: 46px;
+}
+
+.estrella {
+  /* Estrella: el SVG mide 59,5 x 51,4 a este tamaño (el grupo de 58,5 más su trazo). */
+  width: 59.51px;
+}
+
+.texto {
+  /* Figma: 13 px, interlineado medido en el render de 16,25 (líneas cada 16,2 px). */
+  margin-top: 49px;
+  font-size: 13px;
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+.llamado {
+  /* Figma: el llamado empieza en y=373 (el aviso, en 260 con 6 líneas) y 2 px más a la derecha. */
+  margin-top: 16px;
+  margin-left: 2px;
+  font-size: 13px;
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+.boton {
+  /* Figma: 109 x 40, radio 4, "ACEPTO" en 14 px ExtraBold; empieza en y=455, en x=142 (3,5 px
+     a la izquierda del centro de la columna). */
+  margin-top: 49.5px;
+  translate: -3.5px 0;
+  min-width: 109px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .columna {
+    /* Desktop: el texto ocupa x=291 a 1013 de 1280, 12 px a la derecha del centro. */
+    width: min(722px, 100%);
+    translate: 12px 0;
+    /* En el frame de 832 el bloque empieza en y=226 y deja 216 debajo: 10 px más abajo. */
+    padding-bottom: 0;
+    padding-top: 10px;
+  }
+
+  .estrella {
+    /* 105,2 x 92,3 el grupo; el SVG con su trazo, 107,5 x 92,7. */
+    width: 107.53px;
+  }
+
+  .texto {
+    /* 16 px, líneas cada 19,5 px. La estrella termina en y=318,4 y el texto empieza en 390. */
+    margin-top: 71.5px;
+    font-size: 16px;
+    line-height: 1.22;
+  }
+
+  .llamado {
+    /* Empieza en y=492 (el aviso termina en 448,5) y 12 px más a la derecha que el aviso. */
+    margin-top: 43.5px;
+    margin-left: 12px;
+    font-size: 16px;
+    line-height: 1.22;
+  }
+
+  .boton {
+    /* 123,5 x 45,3, radio 4,5, 15,9 px: el botón mobile por 1,133. Empieza en y=571. */
+    margin-top: 59.5px;
+    translate: -1px 0;
+    min-width: 123.48px;
+    height: 45.31px;
+    border-radius: 4.53px;
+    padding: 0 18px;
+    font-size: 15.86px;
+  }
+}

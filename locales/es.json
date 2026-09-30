@@ -304,5 +304,11 @@
   },
   "lang": {
     "label": "Idioma"
+  },
+  "aviso": {
+    "titulo": "Aviso de protección de menores",
+    "texto": "La página que verás a continuación contiene fotos de **niñas menores de 18 años** ante la ley colombiana. Estas fotos son usadas con autorización de sus familias. \n**NO AUTORIZAMOS** el uso de las mismas bajo ninguna circunstancia, ni su uso con inteligencia artificial.",
+    "llamado": "Ayúdanos a proteger la integridad de \nnuestras niñas y adolescentes de forma virtual.",
+    "boton": "Acepto"
   }
 }

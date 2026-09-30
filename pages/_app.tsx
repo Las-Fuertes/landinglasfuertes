@@ -3,6 +3,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { MotionConfig } from 'framer-motion';
 import '../styles/global.css';
 import { RoughEdgeFilter } from '../components/layout/rough-edge-filter';
+import { PuertaAviso } from '../components/aviso';
 import { Bricolage_Grotesque } from 'next/font/google';
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -19,6 +20,9 @@ export default function App({ Component, pageProps }: AppProps) {
     // cuando el sistema pide movimiento reducido.
     <MotionConfig reducedMotion="user">
       <div className={bricolageGrotesque.className}>
+        {/* Aviso de protección de menores: una capa sobre todo en la primera visita; el resto
+            de hermanos de este div queda inerte mientras está puesta (docs/aviso/DECISIONES.md). */}
+        <PuertaAviso />
         <RoughEdgeFilter />
         <Component {...pageProps} />
         <GoogleAnalytics gaId={GA_ID} />

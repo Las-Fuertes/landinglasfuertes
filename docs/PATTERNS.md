@@ -48,6 +48,7 @@ Definidos en `tailwind.config.js`. **Se usan por nombre (`bg-blue`, `text-red`),
 | `beige`         | `#FCF5E9` (fondo del sitio)                                |
 | `beige-light`   | `#FAF9F6`                                                  |
 | `cream`         | `#FFEBC6` (fondo de "Quiénes somos")                       |
+| `arena`         | `#FDDEB5` (fondo del aviso de protección de menores)       |
 
 ## Tipografía y espaciado
 
@@ -165,6 +166,13 @@ node scripts/captura.js --ancla quienes-somos --w 390 --h 1240 --out /tmp/q.png
 node scripts/captura.js --ancla intro-paso-2-desktop --w 1280 --h 832 --lang fr --out /tmp/p2.png
 node scripts/captura.js --ancla quienes-somos --w 390 --h 1240 --y 1240 --out /tmp/q2.png  # 2.º tramo
 ```
+
+**El aviso de protección de menores tapa la landing en la primera visita**
+(`docs/aviso/DECISIONES.md`). `scripts/captura.js` y `scripts/medir-resaltado.js` fijan por CDP,
+antes de navegar, la cookie de "ya aceptado" con la versión vigente (`scripts/aviso-cdp.js`, que
+la lee de `components/aviso/aviso.ts`): por defecto se ve la landing. Para ver la puerta,
+`--aviso` (`node scripts/captura.js --aviso --w 390 --h 844`). Un script nuevo con Chrome debe
+usar `fijarAviso` de `scripts/aviso-cdp.js`, o capturará la puerta.
 
 Si el PNG pesa menos de 10 KB, algo salió mal (ancla inexistente o página sin hidratar): míralo.
 
