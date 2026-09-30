@@ -1,3 +1,50 @@
 User-agent: *
 Allow: /
 Disallow: /gracias
+
+# Rastreadores y tokens de IA: pueden leer el texto de la fundación, pero no las fotos.
+# Las fotos son de niñas menores de edad y no autorizamos su uso para entrenar ni alimentar IA.
+# Todas las imágenes del sitio viven en /images/ y el optimizador de Next las sirve en
+# /_next/image. Detalle y lista razonada en docs/aviso/DECISIONES.md, D2.
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: CCBot
+User-agent: Google-Extended
+User-agent: anthropic-ai
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Bytespider
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: meta-externalfetcher
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: ImagesiftBot
+User-agent: omgili
+User-agent: omgilibot
+User-agent: Webzio-Extended
+User-agent: Timpibot
+User-agent: AI2Bot
+User-agent: Ai2Bot-Dolma
+User-agent: YouBot
+User-agent: MistralAI-User
+User-agent: DuckAssistBot
+Allow: /
+Disallow: /images/
+Disallow: /_next/image
+Disallow: /gracias
+
+# Google Imágenes: las fotos de las niñas no deben salir en sus resultados. Googlebot (la
+# búsqueda normal) no se toca: el texto sigue indexable. docs/aviso/DECISIONES.md, D2.
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /images/
+Disallow: /_next/image
+Disallow: /gracias

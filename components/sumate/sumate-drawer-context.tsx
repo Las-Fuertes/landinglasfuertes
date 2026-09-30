@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 import { sendGAEvent } from '@next/third-parties/google';
+import { alAceptarAviso } from '../aviso/aviso';
 
 /** Desde dónde se abrió el drawer. Se registra en GA como `sumate_open` (docs/sumate-drawer, D2). */
 export type SumateOrigen = 'tripulantes' | 'footer' | 'flotante' | 'hash';
@@ -86,9 +87,13 @@ export function SumateDrawerProvider({ children }: { children: ReactNode }) {
         }, 450);
       }
     };
-    revisar();
+    // Con el aviso de protección de menores puesto, el drawer espera a que se acepte.
+    const quitarEspera = alAceptarAviso(revisar);
     window.addEventListener('hashchange', revisar);
-    return () => window.removeEventListener('hashchange', revisar);
+    return () => {
+      quitarEspera();
+      window.removeEventListener('hashchange', revisar);
+    };
   }, [open]);
 
   // Bloqueo del scroll del body. Se compensa el ancho de la barra de scroll para que la página

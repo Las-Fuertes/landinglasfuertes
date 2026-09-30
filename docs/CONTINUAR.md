@@ -57,6 +57,18 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   tapa parte del párrafo del primer bloque de Impacto en mobile (se podría ocultar con
   `data-oculta-flotante`).
 
+- Rama `29-sep-aviso` (2026-09-30): pantalla de aviso de protección de menores antes de la landing
+  (Figma mobile `1425:537`, desktop `1425:699`) con selector de idioma y estrella de mar que salta;
+  cookie `lf_aviso=v1` de 365 días puesta por el servidor (`pages/api/aviso.ts`, porque Safari
+  limita a 7 días las cookies escritas por JS) y también por JS; script inline sin parpadeo;
+  telón de opacidad al aceptar; `<noscript>` que no bloquea la web; `robots.txt` niega SOLO las
+  imágenes a rastreadores de IA y a Googlebot-Image (el texto sigue indexable para buscadores y
+  LLM); `X-Robots-Tag: noimageai, noai` solo en imágenes. Frase de IA precisada por Johan: "ni su
+  uso con inteligencia artificial". Verificado por un verificador independiente (aprobado). Ver
+  `docs/aviso/` (D1, D2, PROGRESS). Pendiente: en el preview de Vercel comprobar `robots.txt`, la
+  API de la cookie con `Secure` y la cabecera en `/_next/image`.
+  QUÉ SIGUE: el feedback de la diseñadora (lo trae Johan en el chat nuevo).
+
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 
 ============================================================
@@ -162,6 +174,11 @@ CÓMO SE VERIFICA (nada se entrega sin mirarlo)
   - `npm run type-check`, `npm run lint`, `npm run build` limpios antes de proponer commit.
 
 REGLAS QUE CUESTAN SI SE SALTAN
+  0. macOS NO tiene el comando `timeout`: no lo pidas en prompts; los scripts CDP llevan su propio
+     tope interno (setTimeout con process.exit). Si un agente muere dos veces por "Agent stalled",
+     no lo reanudes una tercera: mira `git status`, type-check y lint tú, y lanza uno nuevo con el
+     estado como contexto. El límite semanal de Opus se agotó el 2026-09-29 con 4 constructores
+     en paralelo: en semanas cargadas, máximo 2 agentes a la vez.
   1. El dev server va SIEMPRE en localhost:3000, desde el worktree de la rama en curso. Si el
      puerto lo tiene otro worktree (`lsof -ti tcp:3000 -sTCP:LISTEN` y luego `lsof -p <pid> | grep
      cwd`; ojo, sin `-sTCP:LISTEN` sale el navegador), mátalo y arranca el tuyo.

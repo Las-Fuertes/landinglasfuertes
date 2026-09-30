@@ -67,6 +67,9 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
   (D1 y D2, pendientes en PROGRESS).
 - Impacto a dos columnas en desktop, entrada tipo telón y primer bloque encajado (PR #26):
   `docs/impacto/` (D1 a D3, pendientes en PROGRESS).
+- Aviso de protección de menores antes de la landing y bloqueo de imágenes a la IA (rama
+  `29-sep-aviso`): `docs/aviso/` (D1 la puerta con cookie versionada y telón, D2 robots.txt y
+  `X-Robots-Tag`; pendientes en PROGRESS).
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

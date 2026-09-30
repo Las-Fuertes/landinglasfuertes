@@ -16,6 +16,7 @@ import {
   registrarRueda,
   SCROLL_FUERTE_PX,
 } from '../../lib/gesto-rueda';
+import { alAceptarAviso } from '../aviso/aviso';
 
 const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
 /** Arrastre en touch para que dispare UNA parte. */
@@ -237,20 +238,24 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     const hasHash = window.location.hash.length > 0;
     if (reduce || hasHash) return;
 
-    setMode('pin');
+    // Con el aviso de protección de menores puesto, la intro no arranca: espera a que se acepte
+    // y empieza su entrada con el telón de la puerta ya casi ido (docs/aviso/DECISIONES.md, D1).
+    return alAceptarAviso(() => {
+      setMode('pin');
 
-    // ?introPaso=N (docs/PATTERNS.md): fuerza la parte y engancha de inmediato, sin entrada.
-    // Es lo que usa scripts/captura.js para fotografiar cada parte en reposo.
-    const forced = Number(new URLSearchParams(window.location.search).get('introPaso'));
-    if (Number.isInteger(forced) && forced >= 1 && forced <= totalSteps) {
-      stepRef.current = forced - 1;
-      setStepIndex(forced - 1);
-      enganchar(true);
-      return;
-    }
-    // La entrada de la parte 1 al cargar se pide en el mismo render que activa el pin, para
-    // que las piezas ya estén ocultas en el primer pintado.
-    setEntrada(1);
+      // ?introPaso=N (docs/PATTERNS.md): fuerza la parte y engancha de inmediato, sin entrada.
+      // Es lo que usa scripts/captura.js para fotografiar cada parte en reposo.
+      const forced = Number(new URLSearchParams(window.location.search).get('introPaso'));
+      if (Number.isInteger(forced) && forced >= 1 && forced <= totalSteps) {
+        stepRef.current = forced - 1;
+        setStepIndex(forced - 1);
+        enganchar(true);
+        return;
+      }
+      // La entrada de la parte 1 al cargar se pide en el mismo render que activa el pin, para
+      // que las piezas ya estén ocultas en el primer pintado.
+      setEntrada(1);
+    });
   }, [totalSteps, enganchar]);
 
   useEffect(() => {

@@ -304,5 +304,11 @@
   },
   "lang": {
     "label": "Language"
+  },
+  "aviso": {
+    "titulo": "Child protection notice",
+    "texto": "The page you are about to see contains photos of **girls who are minors (under 18)** according to Colombian law. These photos are used with the permission of their families. \n**WE DO NOT AUTHORIZE** their use under any circumstances, nor their use with artificial intelligence.",
+    "llamado": "Help us protect the integrity of our girls \nand adolescents online.",
+    "boton": "I accept"
   }
 }

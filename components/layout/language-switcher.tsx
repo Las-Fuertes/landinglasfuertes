@@ -11,24 +11,37 @@ const LOCALES = [
   { code: 'fr', label: 'FR' },
 ] as const;
 
+type Props = {
+  /**
+   * Dentro del aviso de protección de menores (docs/aviso/DECISIONES.md, D1): siempre visible,
+   * porque la página de fondo puede estar desplazada (un deep link como `/#impacto`) y la puerta
+   * no se desplaza con ella. Misma apariencia y esquina que en la landing.
+   */
+  enPuerta?: boolean;
+};
+
 /**
  * Selector de idioma flotante: visible solo en el tope de la página.
  * Al hacer scroll desaparece; reaparece únicamente al volver arriba del todo.
  */
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ enPuerta = false }: Props) {
   const router = useRouter();
   const { t, locale } = useTranslation();
   const [atTop, setAtTop] = useState(true);
 
   useEffect(() => {
+    if (enPuerta) return;
     const onScroll = () => setAtTop(window.scrollY < 40);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [enPuerta]);
 
   function switchTo(code: string) {
-    router.push(router.asPath, router.asPath, { locale: code, scroll: false });
+    // El hash (p. ej. `#sumate`) se toma de la URL real: `router.asPath` no siempre lo trae
+    // tras la carga, y sin él un deep link se perdería al cambiar de idioma.
+    const destino = router.asPath.split('#')[0] + window.location.hash;
+    router.push(destino, destino, { locale: code, scroll: false });
   }
 
   return (

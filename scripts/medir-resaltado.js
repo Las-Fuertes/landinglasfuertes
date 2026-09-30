@@ -37,6 +37,7 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('next/dist/compiled/ws');
+const { fijarAviso } = require('./aviso-cdp');
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
@@ -337,6 +338,8 @@ async function main(browserWs) {
       });
       const s = a.sessionId;
       await enviar('Page.enable', {}, s);
+      // Sin la cookie del aviso de protección de menores se mediría la puerta, no la landing.
+      await fijarAviso(enviar, s, URL_BASE, false);
       await enviar(
         'Emulation.setDeviceMetricsOverride',
         { width: w, height: h, deviceScaleFactor: 1, mobile: false },
