@@ -9,6 +9,26 @@ export default function Document(props: DocumentProps) {
     <Html lang={locale}>
       <Head>
         <meta name="theme-color" content="#FCF5E9" />
+        {/* Favicon (docs/introduccion/DECISIONES.md, D16): la luna morada contrasta con la pestaña
+            clara del navegador y la crema con la oscura. Primero el respaldo sin `media` (la
+            morada, porque casi todas las pestañas son claras); los navegadores que entienden
+            `media` se quedan con el que coincide. `public/favicon.ico` es la misma morada a 32 px,
+            sin enlace: es para quien lo pide por su cuenta (y quita el 404). El icono de inicio de
+            iOS rellena la transparencia de negro: ahí va la crema. */}
+        <link rel="icon" type="image/png" href="/images/favicons/favico_purple.png" />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/images/favicons/favico_purple.png"
+          media="(prefers-color-scheme: light)"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/images/favicons/favico_yellow.png"
+          media="(prefers-color-scheme: dark)"
+        />
+        <link rel="apple-touch-icon" href="/images/favicons/favico_yellow.png" />
         {/* Aviso de protección de menores (docs/aviso/DECISIONES.md, D1): lee la cookie antes de
             pintar. Con ella, `data-aviso="aceptado"` y la puerta no se pinta ni un frame; sin
             ella, el primer frame ya es la puerta y la página de fondo no se desplaza. */}

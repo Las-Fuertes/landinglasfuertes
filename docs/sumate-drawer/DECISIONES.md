@@ -93,3 +93,53 @@ desvanece. Se probó un fundido de entrada del panel y dejaba un cuadro en opaci
 por id; `/api/bold-signature` y la redirección a `/gracias` no cambian. El único ancla interna,
 "Apoyar este proyecto" (`#donar`), se desplaza a mano dentro del drawer para no cambiar el hash.
 No se pudo probar el checkout real de Bold en local (sin llave en dev ni https).
+
+## D3. Modal a pantalla completa en desktop y look del sitio (2026-09-30)
+
+Pedido de Johan (docs/feedback-30-sep/FEEDBACK.md, punto 8), rama `30-sep`. Figma `1300:1865` es
+guía, no resultado: la iteración anterior (tarjetas blancas redondeadas, sombras grises, chips con
+bordes suaves) no se parecía al resto de la página.
+
+**Forma.** En desktop (lg+) deja de ser lateral: el panel cubre la pantalla (`lg:inset-0`), sobre
+papel, como una página más; entra con un fundido y 24 px de subida (curvas de
+`education-map/coreografia.ts`, con `sinAceleracion` para no repetir el parpadeo de opacidad). En
+móvil y tablet sigue el sheet de `92dvh` desde abajo, ahora sobre papel con el borde de arriba
+rasgado (filtro `footer-rough-edge` sobre una capa sin hijos que se sale por los lados y por
+abajo). El contexto, los disparadores, el deep link, la trampa de foco, Escape, el bloqueo del body
+y el pago no cambiaron. La raíz pasó de `overflow-hidden` a `overflow-clip`: un `scrollIntoView`
+(el de `#donar`) desplazaba la raíz recortada y subía el sheet entero.
+
+**Por qué pantalla completa y no un modal centrado:** el contenido es largo (unos 2.500 px) y en
+Figma es una página; un modal centrado con su propio scroll dejaba dos marcos y poco aire.
+
+**Bordes y fondos.** Una sola pieza, `MarcoRasgado` (`ui.tsx`): capa de color con el filtro
+`map-rough-edge` y encima un recuadro de papel con el mismo filtro (el marco del modal del mapa).
+El relleno va dentro del recuadro filtrado para que se rasgue con él. Tonos: azul con sombra para
+lo elegido (tarjeta de categoría activa, panel, caja de montos), gris para lo secundario
+(tarjetas inactivas, caja de Estados Unidos, ítems de Con cosas y Con tiempo), negro para Difunde.
+El bloque Llegue-Llegue es azul con borde rasgado. Montos, campo "Otro monto" y botones van con
+esquina de 4 px y borde azul de 2 px como en Figma, sin rasgar: son controles.
+
+**Lo nuevo de Figma.** Título en la cinta negra del sitio (`Resaltado tono="negro"`, giro -1,26°);
+cielo de garabatos (nubes, sol rosa, pájaros) y, desde xl, estrella y concha a los lados del panel,
+con vaivén en reposo (`garabato.tsx`, quieto con movimiento reducido); la caja "¿Donas desde
+Estados Unidos?" sale del panel y va debajo, solo con "Con dinero"; despedida con sello rosa de
+borde rasgado y olas, "Te agradecemos desde Isla Fuerte, Colombia" en `font-acento` y un enlace a
+la ubicación. Assets en `public/images/sumate/` (estrella de 389 KB: muchos trazos; solo carga al
+abrir el modal). El sol es `welcome/pink-sun.svg`, el mismo dibujo.
+
+**Lo que se dejó del diseño a propósito.** La tarjeta "Nuestro proyecto ahora mismo" no está en
+Figma y su texto pasó a ser el párrafo de la cabecera: la tarjeta solo se monta si la campaña de
+`sumate.data.ts` tiene foto o meta. Los íconos de las categorías y de los ítems son los de antes.
+
+**Accesibilidad y contraste.** Cerrar es un círculo de 40 px fijo en la esquina. Todos los CTA
+llevan al menos 48 px de alto y van en azul con texto papel: blanco sobre naranja o rosa no llega
+a AA, así que Con cosas y Con tiempo dejaron sus botones de color. El texto de la categoría elegida
+va en azul (el ícono conserva su acento). Grises de texto en `black/75` o más (`black/60` sobre
+papel daba 4,2:1). Errores en negro sobre `red/20` (el rojo sobre papel no llegaba). El campo
+"Otro monto" usa `!` porque la regla base de inputs de `styles/global.css` gana por especificidad.
+
+**Efecto fuera del modal.** `CtaLink` lo usa también `/gracias` ("Reintentar"): toma la forma nueva.
+
+**Copy nuevo** en es, en, fr: `sumate.hero.subtitle` (el texto de EMI de Figma, con "Bolívar"
+corregido), `sumate.unica.text` y `sumate.despedida.*`.

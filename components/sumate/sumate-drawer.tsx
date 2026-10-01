@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { EnDrawerContext, useSumateDrawer } from './sumate-drawer-context';
 import SumateContenido from './sumate-contenido';
+import { CURVA, sinAceleracion } from '../education-map/coreografia';
 
 /** Mismo selector que la trampa de foco de `education-map/route-sheet.tsx`. */
 const FOCUSABLE =
@@ -13,11 +14,11 @@ const FOCUSABLE =
 
 const DESKTOP_QUERY = '(min-width: 1024px)';
 
-/** Entrada ease-out y salida más corta (docs/sumate-drawer/DECISIONES.md, D2). */
-const ENTRADA = { duration: 0.4, ease: [0.22, 1, 0.36, 1] } as const;
-const SALIDA = { duration: 0.22, ease: [0.4, 0, 1, 1] } as const;
+/** Entrada ease-out y salida más corta (D2). Curvas de `education-map/coreografia.ts`. */
+const ENTRADA = { duration: 0.4, ease: CURVA.entrada } as const;
+const SALIDA = { duration: 0.22, ease: CURVA.salida } as const;
 
-/** Desktop entra de lado; móvil y tablet suben desde abajo, como `route-sheet.tsx`. */
+/** Desktop aparece en su sitio; móvil y tablet suben desde abajo, como `route-sheet.tsx`. */
 function useEsDesktop() {
   const [esDesktop, setEsDesktop] = useState(false);
   useEffect(() => {
@@ -31,9 +32,10 @@ function useEsDesktop() {
 }
 
 /**
- * "Súmate a Las Fuertes" como drawer: lateral desde la derecha en lg+ (`max-w-xl`), sheet desde
- * abajo en móvil y tablet dejando una franja arriba. Se abre con `useSumateDrawer().open()`.
- * Con `prefers-reduced-motion` solo hay fundido, sin desplazamiento.
+ * "Súmate a Las Fuertes" (docs/sumate-drawer/DECISIONES.md, D2 y D3). En desktop (lg+) es un
+ * modal a pantalla completa sobre papel, como una página más del sitio (Figma `1300:1865`); en
+ * móvil y tablet sube desde abajo como sheet de `92dvh`, con el borde de arriba rasgado. Se abre
+ * con `useSumateDrawer().open()`. Con `prefers-reduced-motion` solo hay fundido, sin desplazamiento.
  */
 export default function SumateDrawer() {
   const { t } = useTranslation();
@@ -81,15 +83,19 @@ export default function SumateDrawer() {
   );
 
   // Con movimiento reducido el panel aparece en su sitio (solo el overlay funde) y al cerrar se
-  // desvanece. Un fundido de entrada del panel dejaba un cuadro en opacidad 0 al terminar.
-  const entra = reduce ? { opacity: 1 } : esDesktop ? { x: '100%' } : { y: '100%' };
-  const visible = reduce ? { opacity: 1 } : esDesktop ? { x: 0 } : { y: 0 };
-  const sale = reduce ? { opacity: 0 } : entra;
+  // desvanece. Un fundido de entrada del panel dejaba un cuadro en opacidad 0 al terminar; en
+  // desktop la opacidad va con `sinAceleracion` para no repetir ese parpadeo (coreografia.ts).
+  const entra = reduce ? { opacity: 1 } : esDesktop ? { opacity: 0, y: 24 } : { y: '100%' };
+  const visible = reduce ? { opacity: 1 } : esDesktop ? { opacity: 1, y: 0 } : { y: 0 };
+  const sale = reduce ? { opacity: 0 } : esDesktop ? { opacity: 0, y: 12 } : { y: '100%' };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div key="sumate-drawer" className="fixed inset-0 z-[90]">
+        <div key="sumate-drawer" className="fixed inset-0 z-[90] overflow-clip">
+          {/* `overflow-clip` y no `hidden`: un `scrollIntoView` (el de `#donar`) desplazaba la raíz
+              y subía el sheet entero. Velo: en desktop el modal tapa toda la pantalla y el velo
+              solo se ve en el fundido. */}
           <motion.div
             aria-hidden
             className="absolute inset-0 bg-black/50"
@@ -105,29 +111,44 @@ export default function SumateDrawer() {
             aria-modal="true"
             aria-labelledby="sumate-title"
             onKeyDown={onKeyDown}
+            onUpdate={sinAceleracion}
             initial={entra}
             animate={{ ...visible, transition: ENTRADA }}
             exit={{ ...sale, transition: SALIDA }}
-            className="absolute inset-x-0 bottom-0 flex h-[92dvh] flex-col overflow-hidden rounded-t-3xl bg-beige shadow-lg lg:inset-y-0 lg:left-auto lg:right-0 lg:h-full lg:w-full lg:max-w-xl lg:rounded-l-3xl lg:rounded-tr-none"
+            data-sumate-panel=""
+            className="absolute inset-x-0 bottom-0 flex h-[92dvh] flex-col lg:inset-0 lg:h-full"
           >
-            <div className="relative flex shrink-0 items-center justify-end px-m pb-xs pt-m">
-              {/* Asa del sheet: solo decorativa, marca que el panel sube desde abajo. */}
-              <span
-                aria-hidden
-                className="absolute left-1/2 top-s h-1 w-10 -translate-x-1/2 rounded-full bg-black/15 lg:hidden"
-              />
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={close}
-                aria-label={t('sumate.drawer.cerrar')}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-black transition hover:bg-beige-light focus:outline-none focus-visible:ring-2 focus-visible:ring-blue"
-              >
-                <X className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
+            {/* Fondo de papel. En el sheet, el borde de arriba es rasgado (el filtro del footer)
+                y la capa se sale por los lados y por abajo para que solo se rasgue arriba. En
+                desktop cubre la pantalla y no hay borde que rasgar. */}
+            <div
+              aria-hidden
+              className="absolute -inset-x-l -bottom-l top-0 bg-papel [filter:url(#footer-rough-edge)] lg:inset-0 lg:[filter:none]"
+            />
 
-            <div data-drawer-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            {/* Asa del sheet: solo decorativa, marca que el panel sube desde abajo. */}
+            <span
+              aria-hidden
+              className="absolute left-1/2 top-s z-10 h-1 w-10 -translate-x-1/2 rounded-full bg-black/20 lg:hidden"
+            />
+
+            {/* Cerrar: círculo de 40 px como el del modal del mapa, fijo en la esquina mientras
+                el contenido se desplaza debajo. */}
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={close}
+              aria-label={t('sumate.drawer.cerrar')}
+              data-sumate-cerrar=""
+              className="absolute right-m top-m z-20 flex size-10 items-center justify-center rounded-full bg-pink-sol/40 text-black backdrop-blur-sm transition hover:bg-pink-sol focus:outline-none focus-visible:ring-2 focus-visible:ring-black lg:right-xl lg:top-7.5"
+            >
+              <X className="size-5" strokeWidth={2.5} aria-hidden />
+            </button>
+
+            <div
+              data-drawer-scroll
+              className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
+            >
               <EnDrawerContext.Provider value={true}>
                 <SumateContenido />
               </EnDrawerContext.Provider>

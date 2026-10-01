@@ -49,8 +49,11 @@ const ENTRADA_INICIAL_PIEZAS = 0.15;
 const DESFASE: Record<Rol, number> = {
   horizonte: 0,
   burbuja: 0,
+  espiral: 0,
   barco: 0,
   garabato: 0.05,
+  // La bola no entra con los roles: su viaje es propio (`viajeDeLaBola`).
+  bola: 0,
   sol: 0.05,
   agua: 0.1,
   reflejo: 0.1,
@@ -67,8 +70,10 @@ const DURACION: Record<Rol, number> = {
   // La tierra es fondo: solo un fundido de opacidad, suave (D4).
   horizonte: 0.7,
   burbuja: 0.45,
+  espiral: 0.55,
   barco: 0.65,
   garabato: 0.5,
+  bola: 0,
   sol: 0.6,
   agua: 0.45,
   reflejo: 0.45,
@@ -83,8 +88,10 @@ const DURACION: Record<Rol, number> = {
 const ESCALON: Record<Rol, number> = {
   horizonte: 0,
   burbuja: 0.012,
+  espiral: 0.012,
   barco: 0,
   garabato: 0.02,
+  bola: 0,
   sol: 0,
   agua: 0.03,
   reflejo: 0,
@@ -136,9 +143,17 @@ export const RECORTE_ABIERTO = recorte(
 );
 
 /** Estado oculto de un rol. La entrada parte de aquí; la salida va aquí con el sentido opuesto. */
-function oculto(rol: Rol, s: Sentido, i: number): gsap.TweenVars {
+function oculto(rol: Rol, s: Sentido, i: number, el?: HTMLElement): gsap.TweenVars {
   switch (rol) {
     case 'burbuja':
+      return { scale: 0, opacity: 0 };
+    case 'espiral':
+      // La espiral quieta (D16) solo aparece: crece y se funde, sin girar.
+      if (el && esQuieta(el)) return { scale: 0, opacity: 0 };
+      // Entra girando sobre sí misma, en el sentido en que se enrosca (D10).
+      return { scale: 0, rotation: -150 * s, opacity: 0 };
+    case 'bola':
+      // Entra con su propio recorrido (D15); sale con la intro, como el sol, desde la cola.
       return { scale: 0, opacity: 0 };
     case 'persona':
       // La persona tiene su propia animación (`asomar`): sale del doblez del barco.
@@ -192,6 +207,8 @@ const ROLES: Rol[] = [
   'horizonte',
   'garabato',
   'burbuja',
+  'espiral',
+  'bola',
   'sol',
   'nube',
   'agua',
@@ -201,6 +218,9 @@ const ROLES: Rol[] = [
   'persona',
   'texto',
 ];
+
+/** Una pieza marcada `quieta` en los datos: no gira ni se mece, solo aparece (D16). */
+const esQuieta = (el: HTMLElement) => el.dataset.quieta !== undefined;
 
 function piezasDe(raiz: HTMLElement, rol: Rol): HTMLElement[] {
   return Array.from(raiz.querySelectorAll<HTMLElement>(`[data-rol="${rol}"]`));
@@ -226,7 +246,15 @@ function ordenarDesdeElCentro(piezas: HTMLElement[]): HTMLElement[] {
 }
 
 function ordenar(rol: Rol, piezas: HTMLElement[]) {
-  return rol === 'burbuja' ? ordenarDesdeElCentro(piezas) : piezas;
+  return rol === 'burbuja' || rol === 'espiral' ? ordenarDesdeElCentro(piezas) : piezas;
+}
+
+/** Curva de entrada de cada rol. */
+function curvaDeEntrada(rol: Rol) {
+  if (rol === 'burbuja') return 'back.out(1.6)';
+  if (rol === 'espiral') return 'back.out(1.4)';
+  if (rol === 'horizonte') return 'power1.inOut';
+  return 'power3.out';
 }
 
 /**
@@ -383,9 +411,94 @@ export function crearAsomo(raiz: HTMLElement): gsap.core.Tween | null {
   });
 }
 
+/*
+ * Trazos que se dibujan (D10). Una capa con `trazo` se pinta como un SVG en línea: la imagen del
+ * pincel, una máscara con la línea central y una guía invisible con la misma línea. Para
+ * dibujarla, la máscara se despliega con `stroke-dashoffset` (el trazo mide 1 por `pathLength`).
+ * La máscara solo se pone mientras se anima: en reposo la imagen va sin máscara y se ve
+ * exactamente el diseño.
+ */
+
+/**
+ * Largo normalizado de la línea (`pathLength` del SVG). Con 1, GSAP redondea el
+ * `stroke-dashoffset` a píxeles enteros y el dibujo salta de golpe: con 1000 el paso es fino.
+ */
+export const LARGO_TRAZO = 1000;
+
+/** Cuánto dura el dibujo de un trazo (base, pasa por ESCALA_TIEMPO). */
+export const DIBUJO_DURACION = 0.6;
+/** El trazo largo de la parte 1 se escribe más despacio: recorre media pantalla. */
+export const DIBUJO_LINEA_DURACION = 1.05;
+/** En una transición, el trazo se dibuja al final de todo: esto después del arranque de las piezas. */
+export const TRAZO_TRAS_PIEZAS = 0.45;
+
+interface PartesTrazo {
+  imagen: SVGElement;
+  mascara: SVGPathElement;
+  guia: SVGPathElement;
+  id: string;
+}
+
+function partesTrazo(el: Element): PartesTrazo | null {
+  const svg = el.querySelector<SVGSVGElement>('svg[data-trazo]');
+  const imagen = svg?.querySelector<SVGElement>('[data-trazo-imagen]');
+  const mascara = svg?.querySelector<SVGPathElement>('[data-trazo-mascara]');
+  const guia = svg?.querySelector<SVGPathElement>('[data-trazo-guia]');
+  const id = mascara?.parentElement?.id;
+  if (!imagen || !mascara || !guia || !id) return null;
+  return { imagen, mascara, guia, id };
+}
+
+const esTrazo = (el: Element) => !!el.querySelector('svg[data-trazo]');
+
+/**
+ * Pone la máscara con el trazo desplazado `desplazamiento` (en fracciones del largo: 1 no se ve
+ * nada, 0 se ve entero, -0,5 se borró la primera mitad) en el acto, antes del primer pintado. Son
+ * `gsap.set` fuera del timeline: el contexto de GSAP los deshace igual.
+ */
+function enmascarar(p: PartesTrazo, desplazamiento: number) {
+  gsap.set(p.imagen, { attr: { mask: `url(#${p.id})` } });
+  gsap.set(p.mascara, {
+    strokeDasharray: `${LARGO_TRAZO} ${LARGO_TRAZO}`,
+    strokeDashoffset: desplazamiento * LARGO_TRAZO,
+  });
+}
+
+/**
+ * Curva del dibujo de un trazo (D12): empieza despacio y termina rápido, como una mano que toma
+ * impulso. `power2.in` y no `power3.in`: al 25 % del tiempo lleva un 6 % del trazo (con power3,
+ * un 1,6 %, y el primer tercio se leía como una pausa) y termina al doble de su velocidad media.
+ */
+export const CURVA_DIBUJO = 'power2.in';
+
+/** Dibuja el trazo de `el` desde su principio, como si se escribiera. */
+function dibujar(tl: gsap.core.Timeline, el: Element, t: number, duracion = DIBUJO_DURACION) {
+  const p = partesTrazo(el);
+  if (!p) return;
+  enmascarar(p, 1);
+  tl.to(p.mascara, { strokeDashoffset: 0, duration: duracion, ease: CURVA_DIBUJO }, t);
+}
+
+/** Quita la máscara de los trazos de `raiz`: el reposo es la imagen tal cual. */
+function desenmascarar(raiz: HTMLElement) {
+  raiz.querySelectorAll('svg[data-trazo]').forEach(svg => {
+    svg.querySelector('[data-trazo-imagen]')?.removeAttribute('mask');
+    const mascara = svg.querySelector('[data-trazo-mascara]');
+    if (mascara) gsap.set(mascara, { clearProps: 'strokeDasharray,strokeDashoffset' });
+  });
+}
+
+interface OpcionesEntrada {
+  /** Cuándo empiezan a dibujarse los trazos. Por defecto, al final de las piezas. */
+  inicioTrazo?: number;
+  /** Piezas concretas que no entran con su rol (las anima otra cosa). */
+  saltar?: Set<Element>;
+}
+
 /**
  * Añade al timeline la entrada de todas las piezas de `raiz`, excepto las de `excluir`. El texto
- * arranca en `inicioTexto` y el resto de piezas en `inicioPiezas`.
+ * arranca en `inicioTexto` y el resto de piezas en `inicioPiezas`; los trazos amarillos se dibujan
+ * al final (D10).
  */
 function entrar(
   tl: gsap.core.Timeline,
@@ -393,10 +506,11 @@ function entrar(
   s: Sentido,
   inicioTexto: number,
   inicioPiezas: number,
-  excluir: Rol[] = []
+  excluir: Rol[] = [],
+  { inicioTrazo = inicioPiezas + TRAZO_TRAS_PIEZAS, saltar }: OpcionesEntrada = {}
 ) {
   ROLES.filter(r => !excluir.includes(r)).forEach(rol => {
-    const piezas = ordenar(rol, piezasDe(raiz, rol));
+    const piezas = ordenar(rol, piezasDe(raiz, rol)).filter(el => !saltar?.has(el));
     const t = rol === 'texto' ? inicioTexto : inicioPiezas + DESFASE[rol];
     piezas.forEach((el, i) => {
       const ti = t + i * ESCALON[rol];
@@ -405,12 +519,20 @@ function entrar(
         esconderYa(el);
         return;
       }
-      const ease =
-        rol === 'burbuja' ? 'back.out(1.6)' : rol === 'horizonte' ? 'power1.inOut' : 'power3.out';
+      if (rol === 'bola') return;
+      if (esTrazo(el)) {
+        dibujar(tl, el, inicioTrazo);
+        return;
+      }
       const fin = neutro(rol);
       // La rotación del barco la lleva su propio tween de cabeceo, más abajo.
       if (rol === 'barco') delete fin.rotation;
-      tl.fromTo(el, oculto(rol, s, i), { ...fin, duration: DURACION[rol], ease }, ti);
+      tl.fromTo(
+        el,
+        oculto(rol, s, i, el),
+        { ...fin, duration: DURACION[rol], ease: curvaDeEntrada(rol) },
+        ti
+      );
       // El barco cabecea un poco al llegar.
       if (rol === 'barco') {
         tl.fromTo(
@@ -424,14 +546,26 @@ function entrar(
   });
 }
 
-/** Añade al timeline la salida de todas las piezas de `raiz`, excepto las de `excluir`. */
-export function salir(tl: gsap.core.Timeline, raiz: HTMLElement, s: Sentido, excluir: Rol[] = []) {
+/**
+ * Añade al timeline la salida de todas las piezas de `raiz`, excepto las de `excluir` y las de
+ * `saltar`. Todo arranca `inicio` segundos después del principio del timeline.
+ */
+export function salir(
+  tl: gsap.core.Timeline,
+  raiz: HTMLElement,
+  s: Sentido,
+  excluir: Rol[] = [],
+  inicio = 0,
+  saltar?: Set<Element>
+) {
   const opuesto = -s as Sentido;
   ROLES.filter(r => !excluir.includes(r)).forEach(rol => {
     // Las burbujas salen de fuera hacia dentro: el orden de entrada, al revés.
-    const piezas = ordenar(rol, piezasDe(raiz, rol)).reverse();
+    const piezas = ordenar(rol, piezasDe(raiz, rol))
+      .reverse()
+      .filter(el => !saltar?.has(el));
     const esTexto = rol === 'texto';
-    const t = esTexto ? T.SALIDA_TEXTO : T.SALIDA_PIEZAS;
+    const t = inicio + (esTexto ? T.SALIDA_TEXTO : T.SALIDA_PIEZAS);
     const escalon = esTexto
       ? SALIDA_TEXTO_ESCALON
       : Math.min(SALIDA_ESCALON, SALIDA_ABANICO / Math.max(1, piezas.length - 1));
@@ -446,7 +580,7 @@ export function salir(tl: gsap.core.Timeline, raiz: HTMLElement, s: Sentido, exc
         el,
         recortado ? { clipPath: RECORTE_ABIERTO } : {},
         {
-          ...oculto(rol, opuesto, i),
+          ...oculto(rol, opuesto, i, el),
           duration: esTexto
             ? SALIDA_TEXTO_DURACION
             : rol === 'horizonte'
@@ -462,8 +596,14 @@ export function salir(tl: gsap.core.Timeline, raiz: HTMLElement, s: Sentido, exc
 }
 
 /** Caja que envuelve a varias piezas, medida en pantalla. */
-export function cajaDe(piezas: HTMLElement[]) {
-  const rs = piezas.map(p => p.getBoundingClientRect());
+export function cajaDe(
+  piezas: HTMLElement[],
+  medir: (p: HTMLElement) => { left: number; top: number; width: number; height: number } = p =>
+    p.getBoundingClientRect()
+) {
+  const rs = piezas
+    .map(medir)
+    .map(r => ({ left: r.left, top: r.top, right: r.left + r.width, bottom: r.top + r.height }));
   const left = Math.min(...rs.map(r => r.left));
   const top = Math.min(...rs.map(r => r.top));
   const right = Math.max(...rs.map(r => r.right));
@@ -472,6 +612,25 @@ export function cajaDe(piezas: HTMLElement[]) {
 }
 
 type Caja = ReturnType<typeof cajaDe>;
+
+/**
+ * Lo que se ve de una pieza: su caja, o el disco del sol cuando la imagen trae algo más
+ * (`data-disco`, en fracciones de la imagen). El sol de mobile de la parte 2 trae el hueco de su
+ * espiral a la derecha: viajando caja a caja, en el relevo con el sol de la parte 3 (que llena su
+ * caja) el disco saltaba unos 11 px a la derecha y crecía un 39 % en un fotograma (D16).
+ */
+function cajaVisible(el: HTMLElement): Caja {
+  const r = el.getBoundingClientRect();
+  if (!el.dataset.disco) return { left: r.left, top: r.top, width: r.width, height: r.height };
+  const [fx, fy, fw, fh] = el.dataset.disco.split(' ').map(Number);
+  const img = (el.querySelector('img') ?? el).getBoundingClientRect();
+  return {
+    left: img.left + fx * img.width,
+    top: img.top + fy * img.height,
+    width: fw * img.width,
+    height: fh * img.height,
+  };
+}
 
 /**
  * Transformación que lleva una pieza, que vive dentro de la caja `de`, al sitio equivalente
@@ -512,11 +671,21 @@ function viajar(
     const nuevas = piezasDe(destino, rol);
     if (viejas.length === 0 || nuevas.length === 0) return;
     viajaron.push(rol);
-    const cajaVieja = cajaDe(viejas);
-    const cajaNueva = cajaDe(nuevas);
+    // Se mide con los grupos en su sitio: el reposo mece el del barco y, al empezar la transición,
+    // vuelve a cero (`detener`). Medido mecido, la caja del barco viejo salía inflada por el giro y
+    // en el relevo el nuevo era 10 px más ancho (D16).
+    const grupos = [
+      ...new Set([...viejas, ...nuevas].map(el => el.closest<HTMLElement>('[data-grupo]'))),
+    ]
+      .filter((g): g is HTMLElement => !!g)
+      .map(g => [g, g.style.transform] as const);
+    grupos.forEach(([g]) => (g.style.transform = 'none'));
+    const cajaVieja = cajaDe(viejas, cajaVisible);
+    const cajaNueva = cajaDe(nuevas, cajaVisible);
     // Se mide todo antes de crear un solo tween: `fromTo` aplica su estado inicial en el acto.
     const idas = viejas.map(el => mapear(el, cajaVieja, cajaNueva));
     const vueltas = nuevas.map(el => mapear(el, cajaNueva, cajaVieja));
+    grupos.forEach(([g, t]) => (g.style.transform = t));
     viejas.forEach((el, i) => {
       tl.to(el, { ...idas[i], duration: VIAJE_DURACION, ease: 'power3.inOut' }, inicio);
     });
@@ -575,38 +744,450 @@ export function limpiar(raiz: HTMLElement | null) {
   // La persona no: sigue escondida hasta que se asoma (`crearAsomo`).
   const piezas = raiz.querySelectorAll('[data-rol]:not([data-rol="persona"])');
   if (piezas.length) gsap.set(piezas, { clearProps: PROPIEDADES });
-  // La caja interior del barco (el aplastamiento del relevo) solo lleva transform. Con una lista
-  // vacía GSAP avisa en consola, por eso se mira antes.
-  const interiores = raiz.querySelectorAll('[data-rol="barco"] > *');
+  // Las cajas interiores (el aplastamiento del barco en el relevo, el del sol al caer) solo
+  // llevan transform. Con una lista vacía GSAP avisa en consola, por eso se mira antes.
+  const interiores = raiz.querySelectorAll(
+    '[data-rol="barco"] > *, [data-rol="sol"] > *, [data-rol="bola"] > *'
+  );
   if (interiores.length) gsap.set(interiores, { clearProps: 'transform,transformOrigin' });
+  desenmascarar(raiz);
+}
+
+/*
+ * La bolita roja y el sol entre las partes 1 y 2 (D15, reemplaza el salto de D12).
+ *
+ * Tablet y desktop: en la entrada de la parte 1 la bola sale de debajo de las burbujas detrás de la
+ * punta del trazo que se escribe y rueda hasta el final de la cola, donde descansa (su caja en
+ * `intro.data.ts`). Con el gesto a la parte 2 baja rodando por la misma línea, que se recoge hacia
+ * ella desde sus dos puntas, hasta la vertical del sol de la parte 2; ahí, en un fotograma y sin que
+ * se note (es el mismo dibujo, a otra escala, con el giro en una vuelta entera), cambia por el sol,
+ * que amanece: sube despacio y crece hasta su sitio. Nunca hay dos soles ni un fundido.
+ *
+ * Mobile: no hay bola. El sol de la parte 2 cae desde arriba por detrás de las burbujas, que siguen
+ * ahí, y se aplasta un poco al llegar (squash and stretch, D4).
+ *
+ * Al volver a la parte 1 se reproduce la misma ida al revés (`bola-vuelve`): el sol se pone, cambia
+ * por la bola, que sube rodando a la cola mientras la línea se vuelve a extender. Así 1, 2, 1, 2
+ * repite exactamente lo mismo.
+ */
+
+/** Lo que tarda la bola en bajar por la línea hasta la vertical del sol (base). */
+export const DESCENSO_BOLA = 0.95;
+/** Lo que tarda el sol en subir desde donde se paró la bola hasta su sitio (base). */
+export const AMANECER = 0.8;
+/** La parte 1 empieza a irse cuando la bola ya va rodando. */
+const SALIDA_TRAS_DESCENSO = 0.3;
+/** En la entrada de la parte 1, lo que sigue rodando la bola después de que el trazo terminó. */
+const BOLA_TRAS_LINEA = 0.7;
+/** La bola asoma de debajo de las burbujas creciendo desde esto hasta su tamaño. */
+const APARECE_DESDE = 0.6;
+/** Mobile: cuándo empieza a caer el sol, cuánto tarda y cuándo empieza a irse la parte 1. */
+const CAIDA_INICIO = 0.1;
+export const CAIDA_SOL = 0.6;
+const SALIDA_TRAS_CAIDA = 0.45;
+/**
+ * Lo que tarda en aplastarse el sol de mobile al llegar, cuánto, y cómo recupera su forma. Era
+ * 0,62 de alto con `back.out(2.5)`: se hundía 31 px y rebotaba 6 por encima; Johan lo vio
+ * demasiado (D16). Ahora un aterrizaje corto: se aplasta poco y vuelve con un único rebote pequeño.
+ */
+const ATERRIZAR = 0.08;
+const APLASTADA = { x: 1.08, y: 0.88 };
+const RECUPERAR = 0.3;
+const CURVA_RECUPERAR = 'back.out(1.2)';
+/** Muestras de la línea para buscar dónde sale la bola, la cola y la vertical del sol. */
+const MUESTRAS_LINEA = 400;
+/** Una burbuja tapa a la bola si su centro cae dentro de la caja reducida a esto. */
+const CAJA_BURBUJA_UTIL = 0.7;
+
+const lienzoDe = (raiz: HTMLElement) =>
+  (raiz.querySelector<HTMLElement>('[id^="intro-paso-"]') ?? raiz).getBoundingClientRect();
+
+function dentro(x: number, y: number, r: DOMRect, k: number) {
+  const mx = (r.width * (1 - k)) / 2;
+  const my = (r.height * (1 - k)) / 2;
+  return x > r.left + mx && x < r.right - mx && y > r.top + my && y < r.bottom - my;
 }
 
 /**
+ * El disco del sol y el origen (en % de su caja interior) desde el que se aplasta. El sol de mobile
+ * trae su espiral en el mismo lienzo: `data-disco` dice qué parte de la caja interior es el disco.
+ */
+function origenDelDisco(sol: HTMLElement) {
+  const [fx, fy, fw, fh] = (sol.dataset.disco ?? '0 0 1 1').split(' ').map(Number);
+  return `${(fx + fw / 2) * 100}% ${(fy + fh) * 100}%`;
+}
+
+interface Punto {
+  l: number;
+  x: number;
+  y: number;
+}
+
+/** La línea amarilla de la parte 1 con su bola, medidas en pantalla con todo en reposo. */
+interface LineaConBola {
+  bola: HTMLElement;
+  interior: HTMLElement;
+  partes: PartesTrazo;
+  L: number;
+  punto: (l: number) => { x: number; y: number };
+  muestras: Punto[];
+  /** Último punto de la línea tapado por una burbuja: de ahí asoma la bola en la entrada. */
+  lInicio: number;
+  /** Donde descansa la bola: el punto de la línea más cercano a su centro en reposo. */
+  lCola: number;
+  /** Centro de la bola en reposo, en pantalla. */
+  c0: { x: number; y: number };
+  ancho: number;
+  /** Grados que gira la bola por unidad de línea recorrida (rueda sin resbalar). */
+  gradosPorUnidad: number;
+}
+
+/**
+ * Mide la línea y la bola de la parte 1. Hay que llamarla antes de crear un solo tween: un
+ * `fromTo` aplica su estado inicial en el acto (las burbujas a escala 0 no tapan nada).
+ */
+function lineaConBola(raiz: HTMLElement): LineaConBola | null {
+  const bola = raiz.querySelector<HTMLElement>('[data-rol="bola"]');
+  const interior = bola?.firstElementChild as HTMLElement | null;
+  const linea = piezasDe(raiz, 'garabato').find(esTrazo);
+  const partes = linea && partesTrazo(linea);
+  if (!bola || !interior || !partes) return null;
+  const ctm = partes.guia.getScreenCTM();
+  if (!ctm) return null;
+  const L = partes.guia.getTotalLength();
+  const punto = (l: number) => {
+    const q = partes.guia.getPointAtLength(Math.min(Math.max(l, 0), L));
+    const p = new DOMPoint(q.x, q.y).matrixTransform(ctm);
+    return { x: p.x, y: p.y };
+  };
+  const muestras = Array.from({ length: MUESTRAS_LINEA + 1 }, (_, i) => {
+    const l = (L * i) / MUESTRAS_LINEA;
+    return { l, ...punto(l) };
+  });
+  const burbujas = piezasDe(raiz, 'burbuja').map(b => b.getBoundingClientRect());
+  const tapadas = muestras.filter(m => burbujas.some(r => dentro(m.x, m.y, r, CAJA_BURBUJA_UTIL)));
+  const lInicio = tapadas.length ? tapadas[tapadas.length - 1].l : 0;
+
+  const r = bola.getBoundingClientRect();
+  const c0 = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  const d = (m: { x: number; y: number }) => Math.hypot(m.x - c0.x, m.y - c0.y);
+  // El más cercano entre las muestras y, alrededor de él, con un paso diez veces más fino.
+  let cola = muestras.reduce((a, m) => (d(m) < d(a) ? m : a));
+  const paso = L / MUESTRAS_LINEA;
+  for (let i = -10; i <= 10; i++) {
+    const l = cola.l + (paso * i) / 10;
+    const m = { l, ...punto(l) };
+    if (d(m) < d(cola)) cola = m;
+  }
+  if (cola.l <= lInicio) return null;
+  const radio = r.width / 2 || 1;
+  return {
+    bola,
+    interior,
+    partes,
+    L,
+    punto,
+    muestras,
+    lInicio,
+    lCola: cola.l,
+    c0,
+    ancho: r.width,
+    gradosPorUnidad: ((Math.hypot(ctm.a, ctm.b) / radio) * 180) / Math.PI,
+  };
+}
+
+/**
+ * El giro de la bola en cada punto de la línea entre la cola (giro 0, el del diseño) y `lOtro`.
+ * Rueda sin resbalar, ajustado un poco para que en `lOtro` también lleve vueltas enteras: ahí
+ * aparece o cambia por el sol, que tiene el dibujo derecho.
+ */
+function giroDesdeLaCola(g: LineaConBola, lOtro: number) {
+  const total = (lOtro - g.lCola) * g.gradosPorUnidad;
+  const vueltas = Math.max(1, Math.round(Math.abs(total) / 360));
+  const k = total === 0 ? 0 : (vueltas * 360) / Math.abs(total);
+  return (l: number) => (l - g.lCola) * g.gradosPorUnidad * k;
+}
+
+/** Deja ver solo el tramo de la línea entre `a` y `b` (fracciones de su largo). */
+function mostrarTramo(p: PartesTrazo, a: number, b: number) {
+  gsap.set(p.mascara, {
+    strokeDasharray: `${Math.max(0, b - a) * LARGO_TRAZO} ${2 * LARGO_TRAZO}`,
+    strokeDashoffset: -a * LARGO_TRAZO,
+  });
+}
+
+/** Coloca la bola con su centro en `l` de la línea, con su escala y su giro. */
+function ponerBola(g: LineaConBola, l: number, escala: number, giro: number) {
+  const q = g.punto(l);
+  gsap.set(g.bola, { x: q.x - g.c0.x, y: q.y - g.c0.y, scale: escala });
+  gsap.set(g.interior, { rotation: giro });
+}
+
+/** Cómo encaja un relevo de las partes 1 y 2 con la salida y la entrada genéricas. */
+interface Relevo12 {
+  /** Piezas que el relevo anima: la salida y la entrada genéricas no las tocan. */
+  piezas: Set<Element>;
+  /** Cuándo empieza a irse la parte 1, cuándo llega el texto de la 2, sus piezas y su trazo. */
+  salida: number;
+  texto: number;
+  entrada: number;
+  trazo: number;
+}
+
+/**
+ * Tablet y desktop: la bola baja por la línea hasta la vertical del sol de la parte 2 y amanece
+ * como ese sol. Devuelve null si falta algo (mobile no tiene bola).
+ */
+function bolaAmanece(
+  tl: gsap.core.Timeline,
+  origen: HTMLElement,
+  destino: HTMLElement
+): Relevo12 | null {
+  const g = lineaConBola(origen);
+  const sol = destino.querySelector<HTMLElement>('[data-rol="sol"]');
+  const linea = g && (g.partes.guia.closest('[data-rol]') as HTMLElement | null);
+  if (!g || !sol || !linea) return null;
+  // La caja exterior del sol: el reposo solo mueve la interior.
+  const rSol = sol.getBoundingClientRect();
+  const cSol = centro(rSol);
+
+  // Hacia atrás desde la cola, el primer punto de la línea en la vertical del sol. Si la línea no
+  // la cruza antes de meterse bajo las burbujas (tablet), el punto más bajo de ese tramo: la bola
+  // siempre baja, y el sol amanece desde ahí con un poco de arco hacia su sitio.
+  const atras = g.muestras.filter(m => m.l > g.lInicio && m.l < g.lCola).reverse();
+  const lado = Math.sign(g.c0.x - cSol.x) || 1;
+  let lCentro: number | null = null;
+  let previo: Punto = { l: g.lCola, ...g.punto(g.lCola) };
+  for (const m of atras) {
+    if ((m.x - cSol.x) * lado <= 0) {
+      const t = (previo.x - cSol.x) / (previo.x - m.x || 1);
+      lCentro = previo.l + (m.l - previo.l) * t;
+      break;
+    }
+    previo = m;
+  }
+  if (lCentro === null) {
+    lCentro = atras.reduce((a, m) => (m.y > a.y ? m : a), { l: g.lCola, ...g.punto(g.lCola) }).l;
+  }
+  const abajo = g.punto(lCentro);
+  const giro = giroDesdeLaCola(g, lCentro);
+
+  // Un solo estado pinta la bola y el tramo de línea que queda: la bola en `l` y la línea, que se
+  // recoge hacia ella desde su principio (`a`) y desde la cola (detrás de la bola).
+  const e = { l: g.lCola, a: 0 };
+  const pintar = () => {
+    ponerBola(g, e.l, 1, giro(e.l));
+    mostrarTramo(g.partes, e.a, e.l / g.L);
+  };
+  enmascarar(g.partes, 0);
+  pintar();
+  tl.to(
+    e,
+    { l: lCentro, a: lCentro / g.L, duration: DESCENSO_BOLA, ease: 'sine.inOut', onUpdate: pintar },
+    0
+  );
+
+  // El relevo: el sol, invisible hasta ahora, ocupa la caja de la bola y amanece desde ahí.
+  const relevo = DESCENSO_BOLA;
+  gsap.set(sol, { opacity: 0 });
+  tl.set(g.bola, { opacity: 0 }, relevo);
+  tl.fromTo(
+    sol,
+    {
+      x: abajo.x - cSol.x,
+      y: abajo.y - cSol.y,
+      scale: g.ancho / (rSol.width || 1),
+      opacity: 1,
+    },
+    {
+      x: 0,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      duration: AMANECER,
+      ease: 'sine.inOut',
+      immediateRender: false,
+    },
+    relevo
+  );
+  return {
+    piezas: new Set<Element>([g.bola, linea, sol]),
+    salida: SALIDA_TRAS_DESCENSO,
+    texto: relevo - 0.05,
+    entrada: relevo + 0.05,
+    // El espiral se escribe cuando el sol ya casi llegó.
+    trazo: relevo + AMANECER - 0.2,
+  };
+}
+
+/**
+ * Mobile: el sol de la parte 2 cae desde arriba por detrás de las burbujas de la parte 1, que
+ * siguen ahí mientras cae, y se aplasta un poco al llegar. La parte 1 va encima mientras dura.
+ */
+function solCae(
+  tl: gsap.core.Timeline,
+  origen: HTMLElement,
+  destino: HTMLElement
+): Relevo12 | null {
+  const sol = destino.querySelector<HTMLElement>('[data-rol="sol"]');
+  const interior = sol?.firstElementChild as HTMLElement | null;
+  if (!sol || !interior) return null;
+  const lienzo = lienzoDe(destino);
+  const r = sol.getBoundingClientRect();
+  // Por detrás de las burbujas: la parte que sale, encima de la que entra (un `set` fuera del
+  // timeline, que el contexto de GSAP deshace).
+  gsap.set(origen, { zIndex: 1 });
+  tl.fromTo(
+    sol,
+    { y: -(r.bottom - lienzo.top + 2) },
+    { y: 0, duration: CAIDA_SOL, ease: 'power2.in' },
+    CAIDA_INICIO
+  );
+  const aterriza = CAIDA_INICIO + CAIDA_SOL;
+  tl.fromTo(
+    interior,
+    { scaleX: 1, scaleY: 1, transformOrigin: origenDelDisco(sol) },
+    {
+      scaleX: APLASTADA.x,
+      scaleY: APLASTADA.y,
+      duration: ATERRIZAR,
+      ease: 'power2.out',
+      immediateRender: false,
+    },
+    aterriza
+  );
+  tl.to(
+    interior,
+    { scaleX: 1, scaleY: 1, duration: RECUPERAR, ease: CURVA_RECUPERAR },
+    aterriza + ATERRIZAR
+  );
+  return {
+    piezas: new Set<Element>([sol]),
+    salida: SALIDA_TRAS_CAIDA,
+    texto: aterriza + 0.2,
+    entrada: aterriza + 0.3,
+    trazo: aterriza + 0.15,
+  };
+}
+
+/**
+ * Qué hace la transición además de salir y entrar: el relevo de la bola o del sol de la parte 1 a
+ * la 2, o el mismo al revés de la 2 a la 1.
+ */
+export type Relevo = 'bola' | 'bola-vuelve' | null;
+
+/**
  * Transición entre dos partes montadas a la vez. `continuidad` activa el viaje del sol, el
- * barco y las olas (solo entre las partes 2 y 3). El timeline arranca pausado: lo reproduce
- * quien lo pidió, para poder guardarlo antes (saltar lo termina con `progress(1)`).
+ * barco y las olas (solo entre las partes 2 y 3); `relevo`, el de la bola y el sol entre las partes
+ * 1 y 2 (D15). El timeline arranca pausado: lo reproduce quien lo pidió, para poder guardarlo antes
+ * (saltar lo termina con `progress(1)`).
  */
 export function crearTransicion(
   origen: HTMLElement,
   destino: HTMLElement,
   s: Sentido,
-  continuidad: boolean
+  continuidad: boolean,
+  relevo: Relevo = null
 ): gsap.core.Timeline {
+  if (relevo === 'bola-vuelve') {
+    // La ida de la 1 a la 2, armada con las dos partes en reposo, llevada a su final y reproducida
+    // hacia atrás. Va envuelta en un timeline que avanza, para que `progress(1)` siga siendo
+    // "terminar" (deja la parte 1 en reposo) y `onComplete` se dispare como en las demás.
+    const ida = crearTransicion(destino, origen, 1, false, 'bola');
+    ida.progress(1);
+    return gsap.timeline({ paused: true }).add(ida.tweenFromTo(ida.duration(), 0));
+  }
   const tl = gsap.timeline({ paused: true });
+  const r12 =
+    relevo === 'bola' ? (bolaAmanece(tl, origen, destino) ?? solCae(tl, origen, destino)) : null;
+  if (r12) {
+    salir(tl, origen, s, [], r12.salida, r12.piezas);
+    entrar(tl, destino, s, r12.texto, r12.entrada, [], {
+      saltar: r12.piezas,
+      inicioTrazo: r12.trazo,
+    });
+    return tl.timeScale(1 / ESCALA_TIEMPO);
+  }
   // Si sale la persona, el barco espera a que termine de esconderse para empezar a viajar.
   const conPersona = !!origen.querySelector('[data-rol="persona"]');
   const viajaron = continuidad
     ? viajar(tl, origen, destino, conPersona ? VIAJE_TRAS_PERSONA : T.VIAJE)
     : [];
-  salir(tl, origen, s, viajaron);
+  salir(tl, origen, s, viajaron, 0);
   entrar(tl, destino, s, T.ENTRADA_TEXTO, T.ENTRADA_PIEZAS, viajaron);
   return tl.timeScale(1 / ESCALA_TIEMPO);
 }
 
-/** Entrada de la parte 1 (al cargar y al volver desde abajo): el texto primero, luego las piezas. */
+/*
+ * Entrada de la parte 1, al cargar (desde el aviso o con la cookie ya puesta) y al volver desde
+ * abajo (D10). Por pasos: primero el texto; luego las burbujas y las espirales, una a una y
+ * rápido, desde el centro del racimo hacia fuera (los trazos negros sueltos llegan con la pieza
+ * que les toca, sin sumar un paso); al final la línea amarilla se escribe y, en tablet y desktop,
+ * la bola sale de debajo de las burbujas detrás de la punta del trazo y rueda hasta la cola (D15).
+ */
+
+/** Cadencia de la entrada una a una (base). */
+export const UNO_A_UNO = 0.05;
+/** La línea empieza a escribirse cuando la última burbuja ya casi aterrizó. */
+const LINEA_TRAS_ULTIMA = 0.3;
+
+/**
+ * La bola de la entrada: asoma de debajo de las burbujas cuando la punta del trazo pasa por ahí y
+ * rueda hasta la cola. Arranca con la velocidad que le deja el trazo, que termina rápido
+ * (`power2.in`), y frena hasta quedar quieta (`power2.out`): el seguimiento del trazo. Nunca va por
+ * delante de la punta: se mide contra ella en cada fotograma.
+ */
+function rodarHastaLaCola(
+  tl: gsap.core.Timeline,
+  g: LineaConBola,
+  inicioLinea: number,
+  duracion: number
+) {
+  // `power2.in`: la punta va por t² del largo.
+  const asoma = inicioLinea + duracion * Math.sqrt(g.lInicio / g.L);
+  const fin = inicioLinea + duracion + BOLA_TRAS_LINEA;
+  const giro = giroDesdeLaCola(g, g.lInicio);
+  const e = { l: g.lInicio, escala: APARECE_DESDE };
+  const pintar = () => {
+    const t = Math.min(Math.max((tl.time() - inicioLinea) / duracion, 0), 1);
+    const l = Math.min(e.l, g.L * t * t);
+    ponerBola(g, l, e.escala, giro(l));
+  };
+  gsap.set(g.bola, { opacity: 0 });
+  tl.set(g.bola, { opacity: 1 }, asoma);
+  tl.to(e, { escala: 1, duration: 0.2, ease: 'power1.out', onUpdate: pintar }, asoma);
+  tl.to(e, { l: g.lCola, duration: fin - asoma, ease: 'power2.out', onUpdate: pintar }, asoma);
+}
+
 export function crearEntrada(raiz: HTMLElement): gsap.core.Timeline {
   const tl = gsap.timeline({ paused: true });
-  entrar(tl, raiz, 1, 0, ENTRADA_INICIAL_PIEZAS);
+  // Antes de crear un solo tween: con las burbujas ya a escala 0 no se sabría de dónde sale.
+  const g = lineaConBola(raiz);
+  entrar(tl, raiz, 1, 0, ENTRADA_INICIAL_PIEZAS, ['burbuja', 'espiral', 'garabato']);
+  const sueltas = piezasDe(raiz, 'garabato').filter(el => !esTrazo(el));
+  const piezas = ordenarDesdeElCentro([
+    ...piezasDe(raiz, 'burbuja'),
+    ...piezasDe(raiz, 'espiral'),
+    ...sueltas,
+  ]);
+  let paso = 0;
+  piezas.forEach((el, i) => {
+    const rol = el.dataset.rol as Rol;
+    const t = ENTRADA_INICIAL_PIEZAS + paso * UNO_A_UNO;
+    if (rol !== 'garabato') paso++;
+    tl.fromTo(
+      el,
+      oculto(rol, 1, i, el),
+      { ...neutro(rol), duration: DURACION[rol], ease: curvaDeEntrada(rol) },
+      t
+    );
+  });
+  const inicioLinea =
+    ENTRADA_INICIAL_PIEZAS + Math.max(0, paso - 1) * UNO_A_UNO + LINEA_TRAS_ULTIMA;
+  piezasDe(raiz, 'garabato')
+    .filter(esTrazo)
+    .forEach(el => dibujar(tl, el, inicioLinea, DIBUJO_LINEA_DURACION));
+  if (g) rodarHastaLaCola(tl, g, inicioLinea, DIBUJO_LINEA_DURACION);
   return tl.timeScale(1 / ESCALA_TIEMPO);
 }
 
@@ -699,6 +1280,14 @@ export const NIVEL_REPOSO_POR_DEFECTO: NivelReposo = 'medio';
 export function nivelReposoDe(valor: string | null): NivelReposo {
   return valor === 'alto' || valor === 'medio' ? valor : NIVEL_REPOSO_POR_DEFECTO;
 }
+
+/**
+ * Una vuelta entera de una espiral negra en reposo, en segundos reales. Era 24 (D10); Johan pidió
+ * al menos 1,5 veces más rápido (D15): 14 s es 1,71 veces.
+ */
+const ESPIRAL_VUELTA_S = 14;
+/** Lo que tarda una espiral en volver a su giro de diseño al detenerse. */
+const ESPIRAL_VUELTA_FINAL_S = 0.6;
 
 /** Lo que tarda en volver a su sitio cuando empieza una transición. Igual en los dos niveles. */
 const VUELTA_S = 0.35;
@@ -800,8 +1389,10 @@ export function crearReposo(
       oscilar(e, 'scale', (R.SOL_ESCALA - 1) / 2, R.SOL_S, azar(i + 50), 1 + (R.SOL_ESCALA - 1) / 2)
     )
   );
+  // Las cintas amarillas (los trazos que se escriben) se quedan quietas una vez dibujadas (D12):
+  // solo se balancean los garabatos negros sueltos.
   piezasDe(raiz, 'garabato')
-    .filter(el => !cortada(el))
+    .filter(el => !cortada(el) && !esTrazo(el))
     .forEach((el, i) => {
       const radio = Math.max(el.offsetWidth, el.offsetHeight) / 2;
       const giro = Math.min(
@@ -810,6 +1401,26 @@ export function crearReposo(
       );
       mover(interior(el), e =>
         oscilar(e, 'rotation', giro, entre(R.GARABATO_S, azar(i + 60)), azar(i + 70))
+      );
+    });
+  // Las espirales negras de la parte 1 giran despacio sobre sí mismas, sin fin (D10). Van aparte de
+  // `tocados`: al detenerse no se desenroscan de golpe, terminan la vuelta que llevan.
+  const espirales: HTMLElement[] = [];
+  // La espiral quieta (Vector 1282, D16) no gira: Johan la quiere fija, distinta de las demás.
+  piezasDe(raiz, 'espiral')
+    .filter(el => !esQuieta(el))
+    .forEach((el, i) => {
+      const e = interior(el);
+      if (!e) return;
+      espirales.push(e);
+      const sentido = i % 2 === 0 ? 1 : -1;
+      tls.push(
+        gsap.timeline().to(e, {
+          rotation: `+=${360 * sentido}`,
+          duration: ESPIRAL_VUELTA_S,
+          ease: 'none',
+          repeat: -1,
+        })
       );
     });
   piezasDe(raiz, 'reflejo').forEach(el =>
@@ -841,6 +1452,20 @@ export function crearReposo(
     reanudar: () => tls.forEach(t => t.resume()),
     detener: () => {
       tls.forEach(t => t.kill());
+      espirales.forEach(e => {
+        // Termina la vuelta que lleva por el camino corto, sin prisa, y queda en su sitio.
+        const giro = Number(gsap.getProperty(e, 'rotation')) % 360;
+        gsap.set(e, { rotation: giro });
+        gsap.to(e, {
+          rotation: Math.abs(giro) > 180 ? 360 * Math.sign(giro) : 0,
+          duration: ESPIRAL_VUELTA_FINAL_S,
+          ease: 'sine.out',
+          overwrite: 'auto',
+          onComplete: () => {
+            gsap.set(e, { clearProps: 'transform' });
+          },
+        });
+      });
       if (tocados.length === 0) return;
       // La opacidad solo vuelve donde se tocó (el reflejo): en las demás cajas no se escribe.
       if (conOpacidad.length) {

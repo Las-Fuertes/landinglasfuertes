@@ -386,3 +386,70 @@ reduced-motion a 390x844, dibujada desde el primer instante y sin animaciones. S
 `scratchpad/swipe/mezcla-<ms>-<ancho>.png` a 300 (se escribe la palabra), 1000 (se traza la
 flecha), 2300 (tirón) y 2750 ms (sobrepaso), más `mezcla-2300-390x664.png`,
 `mezcla-2300-1024x768.png`, `mezcla-reducido-*` y `mezcla-tras-uso-*`.
+
+---
+
+## D5. Estampillas compuestas en HTML con el texto en Pangolin (2026-10-01)
+
+**Pedido** (`docs/feedback-30-sep/FEEDBACK-2.md`, EMI): "cambiar las cards" según los frames
+`1297:5`, `1297:6`, `1297:4` y `1297:2`. Son los mismos nodos de las estampillas de D3; la
+diseñadora los rehízo con el texto en **Pangolin** (la nueva fuente de acento,
+docs/navegacion D3) en vez de la letra manuscrita anterior. Foto, recorte, marco e icono no
+cambiaron.
+
+**Qué.** Cada estampilla deja de ser una imagen con el texto horneado y se compone en HTML
+(`components/principles/estampilla.tsx`, datos en `estampillas.data.ts`, CSS en
+`principles.module.css`), capa por capa como en Figma: marco de color (rosa del sol o azul cielo
+`#2CA0FF`), papel `papel`, la foto (export 2x del rectángulo de la foto, 648x619, webp 82, de 66 a
+102 KB, en `public/images/principles/estampillas/fotos/`), el degradado oscuro, el cuadro del
+icono y su SVG (descargados de Figma, en `.../estampillas/iconos/`; la chancla de 1297:2 va dos
+veces, 2 px una sobre otra, como en Figma) y el texto. Las medidas van en px del frame de 349x333
+y se pasan a porcentajes; el texto mide 25/349 del ancho con `container-type: inline-size`
+(25,8 px a 360), girado -5,11 grados, interlineado 0,76 (1297:5 y 1297:6) o 0,804 (las otras), y
+tracking -0,04 em en 1297:2.
+
+**Por qué en vivo y no otro export.** Con la fuente del sitio el texto ya puede ser texto: se
+traduce (antes se quedaba siempre en español) y lo leen los lectores de pantalla sin alt
+duplicado. Las claves `principles.estampillas.1..4` pasan de alt ("Estampilla: ...") al texto
+visible, con `\n` donde Figma corta la línea. En francés se acortaron dos para que quepan en dos
+líneas como en español: "Éducation menstruelle, / carte du changement" y "Unies on fleurit /
+unies on est plus fortes" (con la frase larga salían 3 y 4 líneas).
+
+**Degradado.** Figma mezcla color y opacidad por separado (el gris 102 aclara mientras se
+desvanece); CSS los premultiplica y con las dos paradas de `get_design_context` la foto salía
+hasta un 25 % más oscura a media altura. Cinco paradas reproducen la mezcla de Figma: el brillo
+medido por filas queda a 1-5 niveles (de 255) del `get_screenshot` en las cuatro.
+
+**El slider no cambia.** Abanico desde 768, pila debajo, efecto mazo, arrastre interrumpible,
+flechas, autoplay y la pista "desliza" siguen igual: el componente solo cambia lo que hay dentro de
+`[data-estampilla-cuerpo]`. La proporción es la misma (333/349 contra 669/701 del export de
+antes), así que `--alto` y las poses no se movieron.
+
+**Pendiente.** ~~El azul `#2CA0FF` no tiene token~~ Resuelto por el verificador 3 (2026-10-01):
+es el token `blue.cielo` de `tailwind.config.js` y `principles.module.css` lo lee con
+`theme('colors.blue.cielo')`. Las cuatro `estampilla-*.webp` de D3
+quedan sin uso en `public/images/principles/estampillas/` (no se borran, regla de assets).
+
+**Verificado (2026-10-01).** Clon de cada estampilla a 349 y 360 de ancho contra
+`get_screenshot` de su frame (`scratchpad/r2-J/comparar-1..4.png`); en y fr en dos líneas
+(`card-*-390-en.png`, `card-*-390-fr.png`); dos arrastres seguidos (el segundo a mitad de la
+transición del primero) avanzan 0 a 2 a 390 y 1280; ArrowRight avanza 0 a 1 y para el autoplay;
+cero errores de consola.
+
+---
+
+## D6. Más aire abajo en EMI (2026-10-01)
+
+**Pedido** (FEEDBACK-2, EMI): el padding inferior se veía muy corto frente al superior.
+
+**Qué.** La sección suma `pb-xl md:pb-m lg:pb-xl` (`components/emi/emi-section.tsx`). Se iguala
+lo que se ve, no el CSS: arriba, del borde de la sección al sello "EMI"; abajo, de lo último
+visible (la pista "desliza" en mobile y tablet, el abanico en desktop) al final de la sección.
+
+| Ancho       | Arriba | Abajo antes | Abajo después |
+| ----------- | ------ | ----------- | ------------- |
+| 390         | 47     | 8           | 48            |
+| 768         | 47     | 31          | 46            |
+| 1280 y 1920 | 68     | 29          | 69            |
+
+La sección crece 40 px en mobile, 14 en tablet y 40 en desktop.

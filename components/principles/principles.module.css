@@ -6,13 +6,13 @@
  * --ancho: ancho de la estampilla de enfrente.
  *   mobile  349 de 390 del frame 1288:913 (89,5vw), con tope en 349px.
  *   tablet  320px (el abanico entero cabe en 768 menos los márgenes).
- *   desktop 360px (alto 343). El frame 1288:676 dibuja la estampilla apaisada (467x333); el
- *           export 1297:x es casi cuadrado, así que se iguala el ALTO del diseño (333), no el
+ *   desktop 360px (alto 343). El frame 1288:676 dibuja la estampilla apaisada (467x333); la
+ *           estampilla 1297:x es casi cuadrada, así que se iguala el ALTO del diseño (333), no el
  *           ancho: con 400px el abanico crecía 50px y se comía el pie del frame de 956.
  */
 .escenario {
   --ancho: min(349px, 89.5vw);
-  --alto: calc(var(--ancho) * 669 / 701);
+  --alto: calc(var(--ancho) * 333 / 349);
   /* Mobile (1288:913): la de enfrente empieza 97 px bajo el borde de abajo de la cinta (545 a
      642) y la sección EMI deja 15 (mb-m): 86 px, 0,258 del alto. */
   --aire-arriba: calc(var(--alto) * 0.258);
@@ -95,4 +95,60 @@
     width: auto;
     justify-content: flex-start;
   }
+}
+
+/*
+ * Una estampilla (estampilla.tsx, docs/emi/DECISIONES.md D5): frame de Figma de 349 x 333. Es
+ * contenedor de su propio ancho, así el texto escala con ella: cuerpo de 25 sobre 349.
+ */
+.estampilla {
+  --marco: theme('colors.pink.sol');
+  position: relative;
+  width: 100%;
+  aspect-ratio: 349 / 333;
+  container-type: inline-size;
+  background: var(--marco);
+  border-radius: 0.15%;
+}
+
+/* Azul cielo del marco de 1297:6 y 1297:2 (token `blue.cielo` de tailwind.config.js). */
+.estampilla[data-tono='azul'] {
+  --marco: theme('colors.blue.cielo');
+}
+
+.cuadro {
+  background: var(--marco);
+}
+
+/* Degradado de Figma (Rectangle 68 de cada frame): negro al 78 % abajo a gris 102 transparente
+   arriba, casi vertical (0,74 grados; 0,8 en 1297:5, que termina en el 91 %). Figma mezcla color
+   y opacidad por separado (el gris aclara mientras se desvanece); CSS los mezcla premultiplicados
+   y con solo dos paradas oscurecía la foto hasta un 25 % más. Las paradas intermedias repiten la
+   mezcla de Figma (medido contra get_screenshot de cada frame). */
+.degradado {
+  background-image: linear-gradient(
+    0.74deg,
+    rgb(0 0 0 / 0.78) 0%,
+    rgb(26 26 26 / 0.585) 24.9%,
+    rgb(51 51 51 / 0.39) 49.7%,
+    rgb(76 76 76 / 0.195) 74.6%,
+    rgb(102 102 102 / 0) 99.4%
+  );
+}
+
+.estampilla[data-nodo-figma='1297:5'] .degradado {
+  background-image: linear-gradient(
+    0.8deg,
+    rgb(0 0 0 / 0.78) 0%,
+    rgb(26 26 26 / 0.585) 22.9%,
+    rgb(51 51 51 / 0.39) 45.7%,
+    rgb(76 76 76 / 0.195) 68.6%,
+    rgb(102 102 102 / 0) 91.4%
+  );
+}
+
+.texto {
+  margin: 0;
+  font-size: calc(100cqw * 25 / 349);
+  transform: translate(-50%, -50%) rotate(-5.11deg);
 }

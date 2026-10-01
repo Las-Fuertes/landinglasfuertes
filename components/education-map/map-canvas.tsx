@@ -5,9 +5,9 @@ import { motion, type MotionValue } from 'framer-motion';
 import { MAP_ASPECT, MAP_ROUTES, MAP_WIDTHS, VIEWBOX } from './education-map.data';
 import MapHotspot from './map-hotspot';
 
-/** Mapa de 2026-09-24 (docs/mapa-educativo/DECISIONES.md, D1). El de antes (`map-*`) se conserva. */
+/** Mapa de 2026-09-30 (docs/mapa-educativo/DECISIONES.md, D11). Los de antes (`map-*`, `mapa-ruta-*`) se conservan. */
 const srcSet = (ext: 'avif' | 'webp') =>
-  MAP_WIDTHS.map(w => `/images/education-map/mapa-ruta-${w}.${ext} ${w}w`).join(', ');
+  MAP_WIDTHS.map(w => `/images/education-map/mapa-isla-${w}.${ext} ${w}w`).join(', ');
 
 export interface MapCanvasProps {
   /** Con recorrido: tamaño en px y traslación animada. Sin él: ancho completo. */
@@ -67,7 +67,7 @@ export default function MapCanvas({
         <source type="image/webp" srcSet={srcSet('webp')} sizes={sizes} />
         {/* Decorativo: el significado lo cargan los botones de cada parada. */}
         <img
-          src="/images/education-map/mapa-ruta-1600.webp"
+          src="/images/education-map/mapa-isla-1600.webp"
           alt=""
           width={VIEWBOX.w}
           height={VIEWBOX.h}

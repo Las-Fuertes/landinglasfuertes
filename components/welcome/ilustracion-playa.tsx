@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import { MujerPlaya } from './mujer-playa';
+import { NubeDeriva, type Deriva } from './nube-deriva';
 
 /**
  * La ilustración de la playa de Bienvenida, por capas, con dos composiciones de Figma
@@ -27,6 +28,8 @@ export type Pieza = {
   ancho: number;
   alto: number;
   inset?: string;
+  /** Solo nubes: su deriva en reposo (D11). */
+  deriva?: Deriva;
 };
 
 export type Lienzo = {
@@ -244,6 +247,13 @@ export function CapaPieza({
         sizes="(max-width: 1024px) 100vw, 1280px"
       />
     );
+  const caja = p.inset ? (
+    <div className="absolute" style={{ inset: p.inset }}>
+      {contenido}
+    </div>
+  ) : (
+    contenido
+  );
   return (
     <div
       className="absolute"
@@ -255,13 +265,7 @@ export function CapaPieza({
         height: pct(p.alto, lienzo.alto),
       }}
     >
-      {p.inset ? (
-        <div className="absolute" style={{ inset: p.inset }}>
-          {contenido}
-        </div>
-      ) : (
-        contenido
-      )}
+      {p.deriva ? <NubeDeriva deriva={p.deriva}>{caja}</NubeDeriva> : caja}
     </div>
   );
 }
@@ -300,13 +304,28 @@ const ANCHO_MOBILE: CSSProperties = {
   width: `min(100cqw, calc(100cqh * ${MOBILE.ancho} / ${MOBILE.alto}), 87.5rem)`,
 };
 
+/**
+ * Desktop: el ancho de la pantalla con tope en 1280 (el frame), como siempre. En pantallas altas y
+ * estrechas para su alto (D13) crece con el alto, hasta igualarlo en px: así su alto ronda el 22 %
+ * de la pantalla en vez de quedarse pequeño en medio de mucho aire (a 1024 x 1366 pasa de 210 a
+ * 247 de palmera). Nunca más del 118 % de la pantalla: el dibujo ocupa x 136 a 1168 del frame, y a
+ * ese ancho, centrado, sigue entero dentro; lo que sobra es aire del lienzo que recorta la página.
+ */
+const ANCHO_DESKTOP: CSSProperties = {
+  width: 'min(118%, max(min(100%, 80rem), 100dvh))',
+};
+
 export function IlustracionPlaya() {
   return (
-    <div className="relative w-full lg:mt-[2.6875rem]">
+    // Desktop: 43 de aire bajo el texto (Figma 1280:9) hasta 832 de alto; desde ahí suma el 40 %
+    // de lo que la pantalla tenga de más, con tope en 160 (docs/introduccion/DECISIONES.md, D13).
+    // `flex justify-center` centra el lienzo aunque sea más ancho que la pantalla.
+    <div className="relative w-full lg:mt-[clamp(2.6875rem,calc(2.6875rem_+_(100dvh_-_52rem)_*_0.4),10rem)] lg:flex lg:justify-center">
       <Composicion lienzo={MOBILE} className="lg:hidden" style={ANCHO_MOBILE} contener />
       <Composicion
         lienzo={DESKTOP}
-        className="hidden w-full max-w-screen-xl overflow-hidden lg:block"
+        className="hidden overflow-hidden lg:block lg:shrink-0"
+        style={ANCHO_DESKTOP}
       />
     </div>
   );

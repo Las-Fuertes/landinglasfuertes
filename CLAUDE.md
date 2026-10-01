@@ -70,6 +70,12 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
 - Aviso de protección de menores antes de la landing y bloqueo de imágenes a la IA (rama
   `29-sep-aviso`): `docs/aviso/` (D1 la puerta con cookie versionada y telón, D2 robots.txt y
   `X-Robots-Tag`; pendientes en PROGRESS).
+- Feedback del 30-sep (PR #29, rama `30-sep-feedback`, 2026-10-01): intro por pasos con "Saltar
+  intro" y flechas, navegación flotante, footer nuevo con transparencia, `/terminos`, fuente
+  Pangolin, CTA flotante Súmate, mapa y modales nuevos, nubes y olas, Impacto a pantalla completa con imán de JS, Quiénes
+  somos final, Súmate a pantalla completa, escala de aire. Roadmap, estado y qué sigue en
+  `docs/feedback-30-sep/ROADMAP.md`; decisiones en la carpeta de cada sección y en
+  `docs/navegacion/` y `docs/quienes-somos/` (nuevas).
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

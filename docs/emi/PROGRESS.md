@@ -38,10 +38,20 @@ frames 1288:913 y 1288:676. Ver D3 y su ampliación en `DECISIONES.md`.
 - Johan eligió la mezcla de A y B (2026-09-25, D4). Hecho: un solo
   componente `pista-deslizar.tsx`; opciones y parámetro `?swipe` borrados.
 
+## Hecho: segunda ronda de feedback (2026-10-01, rama `30-sep`, sin commitear)
+
+- Estampillas compuestas en HTML con el texto en Pangolin y traducido (D5).
+- Más aire abajo en la sección: 48 / 46 / 69 px contra 47 / 47 / 68 arriba (D6).
+- La fuente de acento es Pangolin (docs/navegacion D3, ampliación); el plan de Bradley Hand queda
+  descartado.
+- Los toques de Swiper ya no bloquean el scroll: sus `touchstart` y `touchmove` se vuelven a poner
+  como pasivos y el slider sigue arrastrando igual; el scroll vertical sobre el slider ya no espera
+  al hilo principal (docs/introduccion/DECISIONES.md, D14, ampliación de la rueda y Swiper).
+
 ## Pendiente: otros
 
-- **Fuente de acento.** La fuente de acento pasará a Bradley Hand en otra iteración (Johan,
-  2026-09-23): no es de Google Fonts, hace falta el archivo con licencia web.
+- Token de Tailwind para el azul `#2CA0FF` de las estampillas (D5).
+
 - **Hero en pantallas bajas** (D1): a 1280x720 la mujer se corta 53 px y a 390x664 casi entera. Si
   Johan lo quiere dentro de la pantalla, la opción es comprimir el aire con `clamp(..., dvh, ...)`
   (arriba, bajo el sol, entre texto y playa y abajo), sabiendo que a 720 se come casi todo.

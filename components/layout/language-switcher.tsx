@@ -23,6 +23,8 @@ type Props = {
 /**
  * Selector de idioma flotante: visible solo en el tope de la página.
  * Al hacer scroll desaparece; reaparece únicamente al volver arriba del todo.
+ * El CTA "Súmate" flotante (`components/sumate/sumate-flotante.tsx`) copia su forma y su esquina
+ * (docs/navegacion/DECISIONES.md, D1): si cambia una, cambia la otra.
  */
 export default function LanguageSwitcher({ enPuerta = false }: Props) {
   const router = useRouter();

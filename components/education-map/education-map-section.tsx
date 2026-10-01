@@ -294,7 +294,7 @@ export default function EducationMapSection() {
               onFocus={skip.mostrar}
               data-saltar-mapa=""
               data-visible={skip.visible ? '' : undefined}
-              className={`absolute right-page-margin top-m z-30 rounded-full border border-black/10 bg-white/80 px-5 py-2 text-sm font-bold text-black shadow-lg backdrop-blur-sm transition duration-300 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
+              className={`absolute right-page-margin top-m z-30 min-h-10 rounded-full border border-black/10 bg-white/80 px-5 py-2 text-sm font-bold text-black shadow-lg backdrop-blur-sm transition duration-300 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
                 skip.visible ? 'opacity-100' : 'pointer-events-none opacity-0'
               }`}
             >
@@ -316,9 +316,10 @@ export default function EducationMapSection() {
 
             <div
               ref={barRef}
-              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-s bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 pb-m pt-l"
+              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center justify-center gap-xs bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 py-s"
             >
-              {/* Compacto (D7): el alto de esta barra se le resta al área visible de cada parada. */}
+              {/* Compacto (D7, y más en D13): el alto de esta barra se le resta al área visible de
+                  cada parada. Mismo aire arriba y abajo, para que nombre y puntos queden centrados. */}
               <p className="text-center text-[0.95rem] font-bold leading-tight text-black">
                 {routeName(activeIndex).replace(/\n/g, ' ')}
               </p>
@@ -355,7 +356,7 @@ export default function EducationMapSection() {
         {isOpen && (
           <motion.div
             key="map-overlay"
-            className="fixed inset-0 z-[100] flex items-end justify-center p-2 lg:items-center lg:p-6"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-2 lg:p-6"
             // El velo se aclara antes que la tarjeta (el mapa asoma pronto) y se oscurece a la
             // par que sube la siguiente (D9).
             onUpdate={sinAceleracion}

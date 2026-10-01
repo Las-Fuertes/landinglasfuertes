@@ -264,3 +264,291 @@ etiquetas tapan más del dibujo, pero se leen.
 
 **Ojo:** el botón flotante "Súmate" puede tapar el final del párrafo en mobile (se ve en las
 capturas a 360). Es un pendiente conocido del botón, no de este encaje.
+
+---
+
+## D4. Pantalla completa con imán, aire del título y entradas pausadas (2026-09-30)
+
+**Feedback del 30 de septiembre** (`docs/feedback-30-sep/FEEDBACK.md`, punto 6, y decisión 2 de
+`ROADMAP.md`): cada par texto más imagen del alto de la pantalla, navegado con scroll libre con
+imán; el título de la sección muy pegado al mapa; las entradas muy rápidas, salvo la luz, que se
+queda.
+
+### 1. Una pantalla por par, con imán solo en Impacto
+
+- La cabecera con el mapa y cada uno de los cuatro bloques van en una pantalla `min-h-dvh` (crece
+  si el contenido no cabe, nunca lo corta) con `snap-start`. Los bloques se centran en vertical con
+  `py-20`, así en reposo nada queda bajo la navegación flotante. Se quitó el aire fijo entre
+  bloques (`k(120)` / `lg:mt-24`) y el de abajo de la sección: ahora lo da la pantalla.
+- **El imán solo existe mientras Impacto está arriba.** `useIman` (`components/impacto/use-iman.ts`)
+  pone `snap-y snap-proximity` en `<html>` cuando la sección cruza una franja del 1 % del alto en
+  el borde superior de la pantalla (IntersectionObserver con `rootMargin: 0 0 -99% 0`), y la quita
+  al salir. Con la intro o el Mapa educativo arriba, `<html>` tiene `scroll-snap-type: none`, así
+  que ni el pin de la intro ni el mapa (que avanza por posición de scroll y llega a Impacto con
+  `scrollTo` fotograma a fotograma) ven un imán. No hizo falta ninguna regla global en
+  `styles/`: las clases de Tailwind van escritas en el hook.
+- **Un último punto de imán** al pie de la sección (un `div` de 1 px en `top-full`), que coincide
+  con el tope de Quiénes somos: salir hacia abajo también encaja, sin tocar esa sección.
+- **`proximity`, no `mandatory`.** Probado por CDP con `mandatory` puesto en Impacto: un
+  `scrollTo(0, 0)` (lo que hace "Inicio" de la navegación flotante) se quedaba atrapado en
+  Impacto (scrollY 8616 en vez de 0), porque Chrome encaja también los saltos por código al punto
+  de imán más cercano. Con `proximity`, Chrome solo encaja si el reposo cae a menos de un tercio
+  de pantalla de un punto: un scroll corto vuelve al bloque, uno a medio camino se queda donde
+  quedó (scroll libre) y nunca atrapa.
+- Si una pantalla es más alta que el viewport, el imán deja leerla entera (Chrome permite
+  cualquier posición dentro de un área de imán más alta que la pantalla).
+
+### 2. Aire del título
+
+- Título a mapa: de `k(12)` a `k(40)` en mobile y tablet (40 y 50 px, el `mt-xl` que separa
+  dibujo y texto en todos los bloques, D2) y de `lg:mb-xl` a `lg:mb-xxl` (65) en desktop.
+- Aire arriba del título en mobile: de 20 a 80 (`spacing.20`). A 390 el título entero quedaba al
+  lado del botón de la navegación flotante (que llega a 64 px; en inglés, la primera línea
+  empezaba 1 px a su derecha). Tablet `xl` escalado (50), desktop 48 como antes.
+- El encaje de D3 se conserva: `--resto` suma el aire nuevo (`calc(328px * --k + --aire-arriba)`
+  en mobile y tablet, 219 px en desktop), y la primera pantalla sigue cabiendo entera. El costo:
+  el mapa en mobile baja de 385 a 320 px de ancho a 390x844 (párrafo hasta 794, 818 en francés).
+
+### 3. Entradas: una secuencia por bloque, al asentarse
+
+Antes cada bloque se encendía al 60 % en pantalla, todavía en movimiento, y solo se animaba la
+ilustración (agua en 1,6 s, extras a 1,3 s): se llegaba a la mitad. Ahora `useAsentado`
+(`components/impacto/use-asentado.ts`) espera a que el scroll se detenga (`scrollend`, o 150 ms
+sin `scroll` en Safari) con el 90 % del bloque visible, y arranca una sola línea de tiempo (CSS
+en `styles/global.css`, bloque de Impacto):
+
+| ms               | Qué entra                                                                      |
+| ---------------- | ------------------------------------------------------------------------------ |
+| 0 a 800          | título, aparece y sube 8 px (curva de `FadeIn`)                                |
+| 200 a 1000       | párrafo, igual: el texto llega primero (regla 2)                               |
+| 350 a 1350       | la ilustración en su estado "antes", aparece y sube 6 px (regla 6)             |
+| 1500 en adelante | el cambio: agua 2,2 s, líquido 2 s, color 2,4 s, en sine.inOut (`CURVA.viaje`) |
+| 3400 + i x 200   | extras, rebote de 600 ms, uno tras otro                                        |
+
+**La luz no cambia:** mismos keyframes, misma duración (1,5 s, `steps(1, end)`) y mismo desfase
+entre lámparas (1,24 s). Solo arranca en su turno de la secuencia (`--inicio`, 1,5 s), como el
+resto de los cambios, en vez de a la vez que el bloque aparece. La primera fila (título de
+sección y mapa) no cambia: su entrada ya era la pausada de D2 y D3, ajustada al telón.
+
+**Reduced motion:** `useAsentado` enciende todos los bloques al montar y los retrasos van a 0:
+todo en su estado final sin entrada. El imán se queda.
+
+### Verificación (CDP a 390x844, 768x1024, 1280x800, 1512x982 y 1920x1080)
+
+- `scroll-snap-type` es `none` en la intro (y 0), en cada parada del mapa y medio viewport antes
+  de Impacto; con Impacto arriba, `y proximity`.
+- Rueda de 0,2 pantallas desde el tope de cada una de las 5 pantallas: vuelve al tope exacto
+  (0 px) en los 5 tamaños. Desde la última, 0,85 pantallas: encaja en el tope de Quiénes somos.
+  Hacia arriba desde la primera: queda libre en el mapa, sin volver.
+- "Terminar" del mapa (flujo real: última parada, clic en el pie) deja Impacto en su tope, con el
+  telón, en los 5 tamaños.
+- Cada pantalla mide exactamente el alto del viewport; ningún título, párrafo ni etiqueta queda
+  fuera de pantalla ni bajo el botón de la navegación; sin scroll horizontal.
+- Línea de tiempo muestreada (piscina y lámparas) y reduced motion sondeado.
+- Capturas `<ancho>x<alto>-b<n>.png` y `-terminar.png` en el scratchpad de la sesión (`ola3E/`).
+
+### Ampliación (2026-10-01): el imán pasa a JS y deja de atrapar la rueda; los bloques altos caben
+
+**Qué desmintió la verificación.** El segundo verificador encontró que el imán de CSS
+(`scroll-snap-type: y proximity`) atrapaba la rueda del ratón: muesca a muesca (100 px cada 100 a
+250 ms), Chrome vuelve a encajar al terminar cada desplazamiento discreto, y como 100 px está
+siempre dentro del tercio de pantalla, devolvía al tope del bloque. 10 muescas terminaban en +0.
+La verificación original solo había probado eventos sueltos de 0,2 pantallas. Además, en el tope
+de Quiénes somos el imán seguía puesto porque el IntersectionObserver contaba como intersección
+un contacto de 0 px (Impacto con `bottom = 0`).
+
+**Qué se hizo.** Se abandonó `scroll-snap` de CSS. `useIman` ya no pone clases en `<html>`
+(`scroll-snap-type` es `none` en toda la página) y asienta con `scrollTo` suave solo cuando el
+movimiento terminó (`scrollend`, con respaldo de 150 ms sin `scroll`, rueda ni toque). Reglas:
+
+- Solo si hubo un gesto de la persona (rueda, toque, tecla, clic en la barra de scroll) desde el
+  último reposo. Los `scrollTo` del código ("Inicio", "Terminar" del mapa) no se tocan.
+- Solo entre el tope de Impacto y el de Quiénes somos (un rango, no un observador: el hallazgo
+  del contacto de 0 px desaparece).
+- Solo hacia adelante, en la dirección del último movimiento. Nunca devuelve: por eso ninguna
+  muesca puede deshacer la anterior.
+- Va al punto siguiente si está a menos del 30 % del alto, o si el gesto salió de un punto y
+  recorrió al menos el 15 % (el empujón que pasa de pantalla, la sensación de imán). Un gesto
+  menor (0,05 pantallas) se queda donde quedó.
+- No asienta con el dedo puesto, ni dentro de una pantalla más alta que el viewport mientras se
+  lee dentro de ella, ni con movimiento reducido (ahí el scroll es libre del todo).
+- Los puntos son los elementos con `data-iman` y el pie de la sección; se quitó el `div` de 1 px.
+
+Se descartó la alternativa de mantener CSS snap solo en bloques que caben: el atrapado viene del
+reasiento de Chrome tras cada muesca, que pasa igual con un solo punto de imán por bloque.
+
+**Bloques altos.** Las lámparas y la copa medían 968 px a 1000x800, 798 a 375x667 y 783 a
+360x740. En mobile y tablet la ilustración se topa al alto que deja libre la pantalla
+(`--fuera-del-arte` en la pantalla del bloque: 80 arriba, 15 abajo, separación y unos 13 rem de
+texto, todo por `--k`) y se encoge centrada; el aire de abajo baja de 80 a `pb-m` (abajo no hay
+nada fijo). Desktop (`lg`) no cambia.
+
+**Verificado por CDP (2026-10-01)**, scratchpad `verif2-arreglos/` (`iman.js`, `altos.js`,
+`mapa.js`): las cuatro pantallas miden exactamente el viewport en 1000x800, 375x667, 360x740,
+1280x800, 1512x982, 1920x1080 y 390x844 (es, en y fr en los tres bajos). Rueda de 100 px cada
+150 y 250 ms atraviesa Impacto entero hacia abajo y hacia arriba en 1280x800, 390x844, 1920x1080
+y 375x667 (37 a 52 muescas), y desde el tope de Quiénes somos sigue bajando (100, 200 ... 600).
+0,2 pantallas desde un punto: asienta en el siguiente (0 px de error) hacia abajo y hacia arriba
+en los cuatro tamaños; 0,05: se queda donde quedó. PageDown y Espacio avanzan una pantalla.
+"Inicio" llega a 0. "Terminar" del mapa deja Impacto en top 0 a 390, 1000, 1280 y 1920.
+
+## D5. Título fijo, mapa centrado y texto primero en las transiciones (2026-10-01)
+
+**Feedback** (`docs/feedback-30-sep/FEEDBACK-2.md`, sección Impacto): en desktop el mapa se veía
+muy arriba; con el imán quedaba un espacio en blanco durante la transición entre bloques que daba
+la percepción de que no pasaba nada; el título de la sección debía acompañar cada impacto, tipo
+sticky, como ya lo hacía con el mapa.
+
+### 1. El título de la sección, fijo arriba
+
+- El título sale de `MapaImpacto` a su propio componente, `TituloImpacto`
+  (`components/impacto/titulo-impacto.tsx`), hijo directo de la sección, con `sticky top-0`,
+  fondo beige opaco y `z-10` (la navegación flotante, `z-[80]`, sigue encima). Como su caja
+  contenedora es la sección entera, se queda en top 0 mientras se recorren el mapa y los cuatro
+  bloques, y se suelta solo cuando el pie de la sección lo empuja: al llegar a Quiénes somos ya
+  está fuera de pantalla (top igual a menos su alto).
+- Mide exactamente `--alto-titulo`, definido en la sección: el aire de arriba de D4 (80 en
+  mobile, 40 por `--k` en tablet, 48 en desktop), dos líneas del título (2 rem por `--k`) y `s`
+  abajo. Da 154 px en mobile, 140 en tablet y 148 en desktop.
+- Cada pantalla (la del mapa y las de los bloques) mide al menos el alto útil,
+  `100dvh - --alto-titulo`, centra su contenido en él (`flex justify-center`, `py-m`) y lleva
+  `scroll-margin-top: --alto-titulo`. El tope de la ilustración en mobile y tablet
+  (`--fuera-del-arte`) y el del mapa (`--resto`) restan el título en vez del aire de antes.
+- La entrada del título es la de D2 (aparece y sube, sin cortina encima); el mapa la sigue a
+  250 ms leyendo el momento en que empezó (`onInicio` en la sección, `inicioTitulo` en el mapa).
+
+### 2. El mapa, centrado en el alto útil
+
+La fila del mapa ya no cuelga del título con `mb-xxl`: es una pantalla más, centrada en el alto
+útil. En desktop el mapa mide como mucho el alto útil menos 40 arriba y abajo
+(`--resto: --alto-titulo + 2 xl` en `styles/global.css`) y, si su columna es más estrecha (1920),
+queda centrado con aire parejo. En mobile `--resto` es el título, `2 m` de la pantalla y 200 por
+`--k` del cierre con su separación (con 184, en francés a 390 la pantalla crecía 13 px).
+
+### 3. El imán con el título encima
+
+- Los puntos de imán restan el `scroll-margin-top` de cada pantalla: asientan con la pantalla
+  justo debajo del título. El paso entre puntos es el alto útil y el último (al tope de Quiénes
+  somos) un viewport, porque ahí el título se suelta.
+- La regla de "pantalla más alta que el viewport" compara con el alto útil.
+- **Hallazgo:** PageDown y Espacio avanzan el viewport entero, que ahora es más que el alto útil:
+  pasaban el punto siguiente por el alto del título y el imán, que solo va hacia adelante, los
+  llevaba al de después (saltaban un bloque). Tras una tecla de página, si el movimiento pasó un
+  punto por no más que el alto del título, el imán vuelve a ese punto. La rueda no cambia: nunca
+  devuelve.
+
+### 4. Texto primero, sin esperar al asentado
+
+`useAsentado` se reemplazó por `useEntradaBloque` (`components/impacto/use-entrada-bloque.ts`),
+con dos disparadores:
+
+- `data-entrada`: cuando la pantalla del bloque asoma (IntersectionObserver al 1 % de la
+  pantalla, no del bloque: el dibujo de la piscina queda más abajo y tardaba 450 ms en asomar).
+  Entran el título (0 a 800 ms), el párrafo (150 a 950) y la ilustración en su estado "antes"
+  (200 a 1200), mientras el imán todavía la está trayendo. Con umbral 0 la pantalla siguiente,
+  pegada al borde inferior sin un píxel a la vista, ya contaba como intersección y entraba sin
+  que nadie la viera: por eso el 1 %.
+- `data-encendido` con `--inicio`: cuando el bloque se asienta (90 % visible bajo el título,
+  scroll detenido). El cambio a "después" llega a 1,5 s de la entrada, como en D4, pero nunca
+  antes de 0,4 s tras asentarse. Así el carácter pausado se mantiene y la ilustración nunca se
+  transforma fuera de la vista.
+- **La luz no cambia:** mismos keyframes, duración, `steps(1, end)` y desfase; solo arranca en
+  su `--inicio`, como en D4.
+- Reducido: los dos disparadores se dan al montar y los retrasos van a 0.
+
+### Verificación (CDP, 2026-10-01; scripts en el scratchpad de la sesión, `r2-L/`)
+
+- Centro del mapa contra centro del alto útil: 0 px de diferencia a 1024x768, 1280x800,
+  1512x982 y 1920x1080 (`geo.js`).
+- Cada bloque cabe bajo el título y la navegación no toca ni el título ni el texto en 390x844,
+  375x667, 360x740, 768x1024, 1000x800, 1024x768, 1280x800, 1512x982 y 1920x1080, en es, en y fr
+  (0 fallas).
+- Top del título: 0 en todo el recorrido; menos su alto al tope de Quiénes somos.
+- Transición con rueda (0,2 pantallas, el imán completa): el texto entrante supera opacidad 0 a
+  los 153 ms (primera muestra) en los cuatro bloques a 390x844, 375x667, 1280x800 y 1920x1080
+  (`trans.js`).
+- Rueda de 100 px cada 150 y 250 ms atraviesa Impacto en ambos sentidos a 1280x800 y 390x844;
+  0,2 pantallas asienta en el siguiente (0 px); PageDown y Espacio avanzan un bloque; "Inicio"
+  llega a 0; "Terminar" y "Saltar mapa" dejan Impacto en top 0 (`iman.js`, `mapa.js`).
+- Reducido: título, mapa y los cuatro bloques en opacidad 1 a los 80 ms.
+- `npm run type-check` y `npm run lint` limpios.
+
+**Ampliación (2026-10-01, docs/introduccion/DECISIONES.md D14).** El "pegado" del dedo en Impacto
+no venía del imán sino de dos listeners de toque no pasivos que cubrían toda la página (el de la
+intro en `window` y el de Swiper en `document`): cada arrastre esperaba al hilo principal, y las
+entradas de los bloques lo ocupan hasta 220 ms. Arreglado en D14. El imán, además, ya no asienta
+si la página se movió desde el último `scroll` visto o si fue hace menos de 150 ms, para no
+empujar a media inercia cuando el hilo estuvo ocupado.
+
+## D6. Título centrado en su franja e imán que no toma el mando (2026-10-01)
+
+**Feedback** (`docs/feedback-30-sep/FEEDBACK-3.md`, sección Impacto): el título se veía muy abajo
+y mal acomodado; el imán acomodaba muy rápido y, con alguien haciendo scroll, parecía tomar el
+mando. Pedido: esperar al menos medio segundo y acomodar empezando lento y terminando rápido.
+
+### 1. El título, centrado en su franja
+
+Medido antes del cambio: a 1280x800 la franja medía 148 y el texto quedaba con 45 px arriba y 6
+abajo; a 390x844, 62 arriba y 7 abajo (a 3,6 px del pie del CTA "Súmate").
+
+- La sección define ahora `--aire-arriba` y `--aire-abajo`, y `--alto-titulo` es su suma más las
+  dos líneas (4 rem por `--k`). `TituloImpacto` mide `--alto-titulo` con `pt-[--aire-arriba]` en
+  todos los tamaños: se quitó la excepción mobile de la ronda 3.
+- **Tablet y desktop:** 25 por `--k` arriba y abajo (31 en tablet, 35 en desktop). El CTA flotante
+  (x 40 a 137, y 16 a 58) no cruza en horizontal el título centrado desde 768, así que el título
+  sube libre y queda centrado en la franja entera. Franja de 143 (tablet) y 160 (desktop).
+- **Mobile:** el CTA sí cae encima de la primera línea en horizontal, así que la franja reserva su
+  alto: 64 + 10 arriba, 16 abajo. El título queda centrado entre el pie del CTA y el pie de la
+  franja (13,6 y 13 px de aire visible). La franja pasa de 138 a 154; los bloques siguen cabiendo
+  porque la ilustración se topa con `--fuera-del-arte`, que ya restaba `--alto-titulo`.
+- Descartado centrar en mobile contra el tope de la franja: con el título por debajo del CTA
+  exigiría unos 62 px abajo, una franja de 193 que se come un 29 % de la pantalla.
+
+### 2. El imán, con medio segundo de quietud y curva propia
+
+- **Quietud:** `QUIETO_MS` pasa de 150 a 500. Cuenta desde el último `scroll` visto y desde el
+  último gesto (rueda, dedo, tecla, clic en la barra), y no corre con el dedo puesto ni durante la
+  inercia (la comprobación de D14 de `docs/introduccion/` se conserva con el silencio nuevo).
+- **Animación propia con `requestAnimationFrame`**, porque `scrollTo({ behavior: 'smooth' })` no
+  admite curva ni se puede cancelar. Curva cúbica de entrada (`t³`): el primer tercio del tiempo
+  recorre un 4 % del tramo, el último un 70 %. Así el arranque se lee como continuación del reposo
+  y no como un tirón; el final rápido es lo que pidió Johan.
+- **Duración** 600 ms más 300 por fracción de pantalla recorrida, con tope en 900 (un tramo de
+  0,75 pantallas, el típico tras soltar a un cuarto, dura unos 825). Menos de 600 con `t³` se lee
+  como un salto; más de 900, sumado al medio segundo de espera, deja la página más de 1,4 s en
+  movimiento sin la persona.
+- **Cancelable:** cualquier rueda, toque, tecla o clic, o un `scroll` que no sea el que el propio
+  asentado acaba de poner, para la animación en el mismo evento. El gesto siguiente se mide desde
+  donde la dejó el asentado (`yAnimado`), no desde `scrollY`: la rueda es pasiva y Chrome ya movió
+  la página cuando llega su evento; medido desde `scrollY` el gesto daba 0 y el imán no volvía a
+  actuar (hallazgo de la verificación). El `scrollend` que Chrome lanza en cada fotograma del
+  asentado se ignora.
+- Se conserva todo lo de D4 y D5: nunca hacia atrás, la rueda muesca a muesca atraviesa (con 500
+  ms de espera, entre muescas nunca actúa), PageDown/PageUp/Espacio un bloque, sin imán con
+  movimiento reducido, y los `scrollTo` del código ("Inicio", "Terminar", "Saltar mapa") no se
+  tocan.
+
+### Verificación (CDP, 2026-10-01; scratchpad de la sesión, `r4-P/`)
+
+- Título (`geo.js`, `matriz.txt`): aire arriba y abajo de 32 y 31 (1280x800 y 1920x1080), 28,3 y
+  27,5 (768x1024 y 1000x800), y 13,6 desde el CTA y 13 abajo en mobile (390x844, 375x667,
+  360x740), en es, en y fr. Ningún renglón del título cruza el CTA. Las cinco pantallas caben
+  bajo la franja (arte y texto dentro, alto igual al útil) en los 7 tamaños y 3 idiomas.
+- Imán (`traza.js`, muestras cada 16 ms tras una rueda de 0,25 pantallas): primer movimiento a
+  575 a 595 ms del fin del scroll (el asentado empieza a 500; el primer píxel con `t³` llega unos
+  70 ms después); duración 687 a 722 ms; velocidad por tercios 0,12 a 0,15, 0,55 a 0,62 y 1,19 a
+  1,40 px/ms, hacia abajo y hacia arriba, a 1280x800 y 390x844; llega al punto exacto. Una rueda
+  a 300 ms de la primera reinicia la espera (el imán se mueve a 649 ms de la segunda). Una rueda
+  hacia arriba en pleno asentado lo corta (235 a 90: sigue al usuario) y luego asienta en el punto
+  de arriba, que quedó a menos del 30 %. Un clic más `scrollTo(0)` durante el asentado llega a 0.
+- `iman.js`: muesca a muesca (100 px cada 150 y 250 ms) atraviesa Impacto en ambos sentidos a
+  1280x800 (36 muescas) y 390x844 (39); 0,2 pantallas asienta en el siguiente y en el anterior
+  (0 px); 0,05 se queda; PageDown y Espacio avanzan un bloque exacto; desde Quiénes somos sigue
+  bajando.
+- Toque emulado (`t4/touch.js impacto`, CPU 1 y 4, arrastres cada 700 y 1100 ms, que caen en la
+  espera o en pleno asentado): ningún arrastre queda quieto más de 100 ms (máximos 16 a 87 ms; una
+  corrida a CPU 4 dio 105 en el primer arrastre, antes de cualquier imán, y la repetición 0
+  fallas). Reducido: tras 0,25 pantallas queda donde quedó. "Saltar mapa" y "Terminar" dejan
+  Impacto en top 0 (`mapa.js`).
+- `npm run type-check` y `npm run lint` limpios. Capturas `titulo-390x844.png` y
+  `titulo-1280x800.png`.

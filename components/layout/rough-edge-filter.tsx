@@ -1,5 +1,5 @@
 /**
- * Filtro de borde rasgado que usan el resaltado (`.resaltado-pieza` en styles/global.css), la
+ * Filtros de borde rasgado. El primero (`map-rough-edge`) lo usan el resaltado (`.resaltado-pieza` en styles/global.css), la
  * cinta del título de Donaciones y el marco del panel del mapa educativo.
  *
  * La región vertical (3 % del alto) es corta a propósito: limita lo que el borde rasgado sale por
@@ -27,6 +27,25 @@ export function RoughEdgeFilter() {
             in="SourceGraphic"
             in2="noise"
             scale="6"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+        {/* Borde rasgado del bloque azul del footer (Figma `1402:248`, docs/navegacion, D2):
+            dientes más finos y más hondos que los del chip, porque el bloque es mucho mayor.
+            Solo se aplica a una capa de fondo sin hijos, así el texto no se deforma. */}
+        <filter id="footer-rough-edge" x="-2%" y="-10%" width="104%" height="120%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.22"
+            numOctaves="3"
+            seed="11"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="9"
             xChannelSelector="R"
             yChannelSelector="G"
           />

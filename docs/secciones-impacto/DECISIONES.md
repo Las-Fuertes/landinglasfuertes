@@ -684,3 +684,5 @@ el procedimiento esta en `docs/PATTERNS.md`.
 ---
 
 **Ampliación 2026-09-24:** desde esta fecha Impacto en desktop (>= 1024) va a dos columnas con filas intercaladas, lo que deja D7 solo para tablet; decisión, propuesta y verificación en `docs/impacto/DECISIONES.md` (D1) y `docs/impacto/PROGRESS.md`.
+
+**Ampliación 2026-09-30:** Quiénes somos pasa al diseño final de Figma (desktop `1437:1518`, mobile `1219:985`, tablet con las fichas de desktop en dos columnas) y el equipo baja a ocho personas; esto reemplaza D27 y amplía D7 y D21. Decisiones y verificación en `docs/quienes-somos/DECISIONES.md` (D1 y D2) y `docs/quienes-somos/PROGRESS.md`.

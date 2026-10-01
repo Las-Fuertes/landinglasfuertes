@@ -6,7 +6,7 @@ import { Laptop, Camera, Backpack, BookOpen, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Resaltado } from '../layout/resaltado';
 import { SEDE_LOCATION, buildWhatsAppHref } from './sumate.data';
-import { CtaLink, DisabledCta } from './ui';
+import { CtaLink, DisabledCta, MarcoRasgado } from './ui';
 
 const ITEMS = [
   { key: 'sumate.especie.item1', icon: Laptop },
@@ -23,10 +23,12 @@ export default function DonarCosas() {
   return (
     <div className="mx-auto max-w-xl">
       {/* Donación en especie */}
-      <h4 className="text-center text-[1.3rem] font-bold leading-tight text-black md:text-[1.5rem]">
+      <h4 className="text-center text-[1.3rem] font-bold leading-tight tracking-[-0.04em] text-black md:text-[1.875rem]">
         {t('sumate.especie.title')}
       </h4>
-      <p className="mt-3 text-center leading-relaxed text-black">{t('sumate.especie.text')}</p>
+      <p className="mt-s text-center text-base leading-normal text-black md:text-h4">
+        {t('sumate.especie.text')}
+      </p>
 
       <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 md:gap-3">
         {ITEMS.map(({ key, icon: Icon }, i) => (
@@ -36,14 +38,17 @@ export default function DonarCosas() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35 }}
-            className={`flex items-center gap-3 rounded-2xl border-2 border-black/5 bg-beige-light px-4 py-3.5 ${
+            className={`relative flex items-center gap-3 px-4 py-3.5 ${
               i % 2 === 0 ? '-rotate-1' : 'rotate-1'
             }`}
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange/15">
+            <MarcoRasgado tono="gris" grosor="fino" />
+            <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange/15">
               <Icon className="h-5 w-5 text-orange" strokeWidth={2} aria-hidden />
             </span>
-            <span className="text-[0.95rem] font-bold leading-snug text-black">{t(key)}</span>
+            <span className="relative text-[0.95rem] font-bold leading-snug text-black">
+              {t(key)}
+            </span>
           </motion.div>
         ))}
       </div>
@@ -55,7 +60,6 @@ export default function DonarCosas() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => sendGAEvent('event', 'especie_whatsapp_click', {})}
-            colorClassName="bg-orange text-white hover:bg-orange/85"
           >
             {t('sumate.especie.cta')}
           </CtaLink>
@@ -65,13 +69,15 @@ export default function DonarCosas() {
       </div>
 
       {/* Llegue-Llegue */}
-      <div className="mt-10 rounded-3xl bg-blue p-6 md:p-8">
-        <p className="text-center">
+      {/* Bloque azul con el borde rasgado del footer, sobre una capa sin hijos (D3). */}
+      <div className="relative mt-xl px-6 py-xl md:px-xl">
+        <div aria-hidden className="absolute inset-0 bg-blue [filter:url(#map-rough-edge)]" />
+        <p className="relative text-center">
           <Resaltado tono="papel" partir={false} className="text-[0.85rem] uppercase tracking-wide">
             Llegue-Llegue
           </Resaltado>
         </p>
-        <h4 className="mt-3 text-center text-[1.3rem] font-bold leading-tight text-white">
+        <h4 className="relative mt-3 text-center text-[1.3rem] font-bold leading-tight text-papel">
           {/* El nombre no se parte por el guion (con `text-wrap: balance` quedaba "Llegue- / Llegue"). */}
           {t('sumate.llegue.title')
             .split(/(Llegue-Llegue)/)
@@ -85,29 +91,31 @@ export default function DonarCosas() {
               )
             )}
         </h4>
-        <p className="mt-3 text-center leading-relaxed text-white/90">{t('sumate.llegue.text')}</p>
-        <p className="mt-3 text-center leading-relaxed text-white/90">
+        <p className="relative mt-3 text-center leading-relaxed text-papel">
+          {t('sumate.llegue.text')}
+        </p>
+        <p className="relative mt-3 text-center leading-relaxed text-papel">
           {t('sumate.llegue.donateNote')}
         </p>
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[0.9rem] text-white/80">
+        <p className="relative mt-4 flex items-center justify-center gap-1.5 text-center text-[0.9rem] text-papel">
           <MapPin className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
           <span>
             <strong>{t('sumate.llegue.locationLabel')}</strong> {SEDE_LOCATION}
           </span>
         </p>
-        <div className="mt-6 text-center">
+        <div className="relative mt-6 text-center">
           {ropaHref ? (
             <a
               href={ropaHref}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => sendGAEvent('event', 'lleguellegue_click', {})}
-              className="inline-flex h-[3.25rem] w-full items-center justify-center rounded-lg bg-white px-7 text-center text-[1.05rem] font-bold uppercase tracking-tight text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue md:w-auto"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded bg-papel px-7 py-s text-center text-sm font-extrabold uppercase leading-tight tracking-tight text-blue transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-papel focus-visible:ring-offset-2 focus-visible:ring-offset-blue md:w-auto"
             >
               {t('sumate.llegue.cta')}
             </a>
           ) : (
-            <DisabledCta>{t('sumate.whatsappUnavailable')}</DisabledCta>
+            <DisabledCta sobreAzul>{t('sumate.whatsappUnavailable')}</DisabledCta>
           )}
         </div>
       </div>

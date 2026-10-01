@@ -18,6 +18,20 @@ Hecho en la rama `23-sep-emi`, sin commitear (ver DECISIONES.md, D1 y D2):
 a 0 o 1 px del frame a 390 y 1280; clic real en el botón (`--clic "#tripulantes button"`) abre el
 drawer con `#sumate`. `npm run type-check` y `npm run lint` limpios.
 
+## 2026-09-30 (D3)
+
+Rama `30-sep`, sin commitear: olas y barco animados (capas nuevas en `public/images/donations/`:
+`olas-desktop-<vector>.svg`, `olas-mobile-1..7.svg`, `barco-*-casco.svg`, `barco-*-ondas.svg`),
+mar pegado al borde izquierdo en desktop como en el Figma actual (x -13), sección de al menos una
+pantalla con más aire arriba y entre el botón y las olas. Verificado por CDP (cifras en D3);
+`type-check` y `lint` limpios.
+
+## 2026-10-01 (D4)
+
+El mar se reparte en pantallas muy anchas: cada ola se corre a la derecha una fracción de lo que
+sobra sobre 1512; hasta 1512 nada cambia. Mayor hueco sin olas a 2560 de 554 a 252 px. Verificado
+por CDP (D4). Falta que Johan lo mire en una pantalla ancha real.
+
 ## Pendientes
 
 1. **Decidir con la diseñadora**: el botón mobile está en x=111, no centrado, como el frame. Si era
@@ -27,6 +41,9 @@ drawer con `#sumate`. `npm run type-check` y `npm run lint` limpios.
    ajusta la traducción.
 3. **Limpieza**: `.donation-title-chip` en `styles/global.css` y los assets viejos ya no se usan.
    Se dejaron por la regla de no borrar assets; se retiran cuando Johan lo diga.
-4. **Propuesta de movimiento (no implementada)**: el barco meciéndose sutil en reposo (giro de 3
-   a 4 grados, ciclo de 4 a 5 s, con las ondas respirando en opacidad), según el punto 8 del
-   lenguaje de movimiento. Requeriría separar barco y ondas en SVG aparte.
+4. ~~Propuesta de movimiento~~: hecha en D3.
+5. **Prueba de Johan de D3**: si el vaivén se nota poco o mucho, las cifras están juntas al final
+   de `donations.module.css` y en `OLAS_*` de `donations-section.tsx`. El aire nuevo (128/48 en
+   mobile, 220/80 desde `md`) no viene de un frame: validarlo con diseño.
+6. **Limpieza**: `olas-desktop.svg`, `olas-mobile.svg`, `barco-desktop.svg` y `barco-mobile.svg`
+   quedaron sin uso (las capas los reemplazan). No se borran sin que Johan lo diga.

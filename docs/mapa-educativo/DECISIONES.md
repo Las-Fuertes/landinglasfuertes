@@ -479,3 +479,175 @@ y fr, 45 casos): tarjeta de 896 x 464 en todos, 58 % del alto a 800, 52 % a 900 
 párrafo y pie sin solapes. `node scripts/medir-resaltado.js --usos modal` en los tres idiomas y los
 cinco anchos por defecto: 75 pasan, 0 fallan. Mobile y tablet medidos de nuevo a 390x844 y
 768x1024: mismas posiciones que D8.
+
+**Cambiada por D11 (2026-09-30):** el modal desktop sigue ahora los frames de Figma (foto a la
+izquierda con marco, título y edades centrados arriba) y mobile se centra en vertical.
+
+## D11. Mapa 1431:985, modales desktop de Figma, modal mobile centrado y tamaños accesibles
+
+**Fecha:** 2026-09-30, rama `30-sep` (feedback del 30 de septiembre, punto 5;
+`docs/feedback-30-sep/FEEDBACK.md`). Mecánica sin cambios: el mapa sigue avanzando por posición
+de scroll (decisión de Johan), "Terminar" sigue llevando a Impacto con el telón, y la sección
+conserva `data-oculta-flotante`.
+
+**Mapa nuevo (Figma `1431:985`).** El frame entero, 1280 x 1039, con la isla dentro y el mar
+`#78C2FF` (exactamente `blue-700`) alrededor. La isla ocupa más del lienzo que en `966:11627` y
+los caminos ya no se salen del dibujo, así que no hizo falta alargar el lienzo con mar (D1).
+
+- Export a 4x (`design-assets/education-map/mapa-1431-985-4x.png`, 5120 x 4156) y el SVG fuente
+  (`mapa-1431-985.svg`, 4 MB por el trazo a mano: por eso se sirve raster, como en D1).
+  Derivados `public/images/education-map/mapa-isla-{1200,1600,2400,3200,4000}.{avif,webp}`.
+  Los anteriores (`mapa-ruta-*`, `map-*`) se conservan sin uso.
+- `education-map.data.ts`: `VIEWBOX` 1280 x 1039 y, por parada, caja del grupo, cinta (unión de
+  sus rectángulos negros) y punto (anillo de 27,71) medidos en el frame, que ahora es el lienzo
+  (ya no hay `ORIGEN_X`). Grupos: Talleres `1431:1411`, Clubes `1431:1004`, Mi ruta `1431:1064`,
+  ChiquiFuertes `1431:1259`, Voces `1431:1098`.
+- `SILUETA` (D7) medida de nuevo sobre el export a 4x.
+- Zoom mobile, cámara por parada, encuadre de entrada bajo el título y barra inferior salen de
+  los datos (D2 y D7), así que no hubo que tocar constantes. En desktop el mapa sigue con su
+  `clamp` (1150 a 1600 de ancho): a 1280x800 mide 1150 x 933 (antes 1150 x 1067) y la isla se
+  ve más grande porque llena más el lienzo.
+
+**Medido por CDP** (porcentaje de la caja de cada parada dentro del stage menos la barra):
+
+| Ventana  | Activa | Peor otra por parada (1 a 5)    |
+| -------- | ------ | ------------------------------- |
+| 390x844  | 100 %  | 0 · 5,6 (Talleres) · 0 · 0 · 0  |
+| 360x800  | 100 %  | 0 · 7,1 (Talleres) · 0 · 0 · 0  |
+| 428x746  | 100 %  | 0 · 5,1 (Talleres) · 0 · 0 · 0  |
+| 768x1024 | 100 %  | 0 · 12,2 (Talleres) · 0 · 0 · 0 |
+
+Ninguna parada deja fuera su ilustración y el título de entrada queda sobre el mar a 428x746.
+
+**Modales desktop (lg).** Seis frames para cinco paradas: `1335:2046` Talleres, `1338:2690`
+Clubes, `1338:3182` **duplicado exacto de Clubes** (mismo contenido y geometría; las capturas
+difieren en 61 bytes de 3 millones, ruido de render), `1338:3669` Mi ruta, `1338:4157`
+Chiquifuertes y `1338:4644` Voces. No hay frame de intro ni de estado. Sustituyen la tarjeta a dos
+columnas de D10, hecha sin guía.
+
+- Tarjeta de papel de 954 x 682 (alto mínimo; baja a 90 dvh en pantallas cortas), con el mismo
+  borde rasgado. Título en cinta centrado arriba a 50 px, chip de edades centrado debajo; foto de
+  369 x 340 con marco negro de 3 px a la izquierda; a su derecha el párrafo (18 px) centrado en el
+  alto de la foto y el pie a ras de su borde inferior.
+- Posiciones medidas a 1280x800 contra Figma, relativas a la tarjeta: título 88 (Figma 89), chip
+  148 (145), foto 80, 220 (79, 217), párrafo en x 505 (502), cerrar a 30 del borde de arriba y 40
+  del de la derecha (igual).
+- Fotos: el recorte de Figma de cada máscara a 2x (738 x 680), en
+  `public/images/education-map/routes/<id>-desktop.{avif,webp}`, servido con `<source media>`
+  solo desde 1024. Mobile sigue con las suyas.
+- Adorno de pájaros (Vector 1313, `public/images/education-map/modal/pajaros.svg`, girado 15°):
+  abajo a la izquierda de la foto en Talleres, Clubes y Voces, abajo a la derecha en Mi ruta,
+  arriba a la izquierda en Chiquifuertes (`MODAL_DESKTOP` en `education-map.data.ts`). Entra con
+  la foto.
+- En desktop el nombre va en una sola cinta como en Figma (`unaLinea`): se juntan las líneas que el
+  locale separa con `\n` para mobile. Voces conserva sus dos cintas. Sin copy nuevo: los tres
+  idiomas caben en una línea a 1280.
+
+**No se siguió de Figma, a propósito:**
+
+- Voces: en Figma las dos cintas se pisan (interlineado de 49 px con fuente de 50). Se mantiene
+  1,2 por la regla de no solape del resaltado (`docs/PATTERNS.md`); la foto baja 34 px.
+- El ancho de la cinta abraza el texto (patrón del sitio); en Figma algunas son barras fijas más
+  anchas (Chiquifuertes).
+- Copy: se mantiene el de los locales. Figma pone "Edades: 10 a 14 años" en Clubes (el locale dice
+  6 a 11), "Mi ruta mi destino" sin coma y "SIGUIENTE RUTA" en Voces (aquí "Terminar", D6).
+- Botones de 40 px de alto (Figma 29): lo pide el punto de accesibilidad. Texto de 12 px (Figma 10) para que no se vea perdido en el botón más alto.
+
+**Mobile y tablet (< 1024).** La tarjeta ya no se apoya abajo: se centra en vertical, ocupa el
+88 % del alto como mínimo (hasta el alto de la pantalla menos 16 px) y el 96 % del ancho a 390,
+con más relleno (36 px a los lados, 64 arriba, 40 abajo). El alto sobrante se reparte con
+márgenes automáticos en el título y el pie (no con `justify-center`, que escondería el principio
+si hay scroll). Se quitó el `translate` de tablet de D8.
+
+| Ventana  | Tarjeta (ancho x alto) | Libre arriba / abajo | Scroll interno   |
+| -------- | ---------------------- | -------------------- | ---------------- |
+| 390x844  | 374 x 743 a 793        | 25 a 51, igual       | no               |
+| 390x664  | 374 x 648              | 8 / 8                | no (foto encoge) |
+| 768x1024 | 448 x 901              | 61 / 61              | no               |
+
+Antes, a 390x844: 366 x 643 a 749, 32 px abajo y 63 a 169 arriba.
+
+**Accesibilidad.** Cerrar: círculo de 30 x 30 (`size-7.5`; se añadió `7.5: 1.875rem` al
+`spacing` de `tailwind.config.js`). "Atrás" y "Siguiente ruta"/"Terminar": 40 px de alto como
+mínimo (Atrás 55 x 40, Siguiente 143 x 40, Terminar 96 x 40). "Saltar mapa": `min-h-10`. La barra
+inferior no tiene botones (nombre y puntos decorativos). Medido por CDP en las cinco paradas a
+390x844, 390x664, 768x1024, 1280x800, 1512x982 y 1920x1080.
+
+**Verificado también:** "Terminar" en Voces a 390x844 y 1280x800 deja `#impacto` en top 0 con el
+foco en la sección; en, fr y es a 1280 sin scroll en ninguna parada.
+`node scripts/medir-resaltado.js --usos modal` (es, en, fr; 390, 1280, 1920): separación entre
+cintas y con el texto PASA en todos; a 1280 y 1920 marca FALLA solo por "exceso 27" (el aire
+lateral de 0,27 em a 50 px da 27 px, y el script tiene tope 24 pensado para títulos de 40 px o
+menos; en Figma las cintas son aún más anchas). Evidencia en el scratchpad de la sesión
+`4a102619`, carpeta `ola2C/` (`cdp.js`, capturas `d1280-*`, `m390-*`, `p-*`, montajes `lado-*`).
+
+## D12. Cintas del título que se pisan, marco de pincel en la foto y edades confirmadas
+
+**Fecha:** 2026-10-01, rama `30-sep` (segunda ronda de feedback de Johan,
+`docs/feedback-30-sep/FEEDBACK-2.md`, sección "Mapa"). Solo cambia el modal de parada en desktop
+(lg); mobile y tablet quedan como en D11.
+
+**Cintas que se pisan (Johan aprueba romper la regla de no solape aquí).** En Figma las dos
+cintas de Voces se montan 9 px (rectángulos de 64 y 59 px de alto con una fuente de 50). Se hace
+como opción local del modal, en las clases del `h3` de `route-sheet.tsx`, sin tocar
+`components/layout/resaltado.tsx` ni `styles/global.css`, así el resto del sitio sigue sin solape
+(`docs/resaltado/DECISIONES.md`, D1):
+
+- Interlineado de 1 em (`lg:leading-none`) y fondo de 1,18 em
+  (`lg:[&_.resaltado]:[--fondo-alto:1.18em]`): cada cinta pisa 0,18 em a la siguiente, 9 px a
+  50 px, lo mismo que Figma.
+- La primera pieza va encima (`lg:[&_.resaltado-pieza--inicio]:z-[1]`): cada pieza es su propio
+  contexto de apilado (lleva `transform`), así que si la segunda fuera encima taparía los rasgos
+  bajos de la primera línea ("g", "j", "p" en inglés y francés).
+- Con la caja del título más baja, el fondo sobresale por debajo y el chip de edades lo pisa
+  4,5 px, como en Figma (4,2). El relleno de arriba pasa de 5,5 a 6 rem (`lg:pt-24`) para que la
+  cinta quede donde estaba: relativo a la tarjeta, cinta a 91,5 (Figma 92), chip a 146 (Figma
+  145), foto a 218.
+- Solo Voces tiene dos cintas en desktop en los tres idiomas: el resto va en una (`unaLinea`,
+  D11), así que en ellos solo cambia el pisado del chip.
+
+**Marco de pincel de la foto.** En Figma el marco no es un borde: es `Rectangle 155`, 369 x 340,
+con un trazo de pincel ("brush" `GRINDHOUSE`, tipo `STRETCH`) de 3 px centrado en el borde, el
+mismo en los cinco modales (los cinco exports SVG son idénticos byte a byte). Se exportó como
+vector de 372 x 343 a `public/images/education-map/modal/marco-foto.svg` (copia de la fuente en
+`design-assets/education-map/modal-desktop/marco-foto-1338-2583.svg`) y va como `<img>` encima de
+la foto, 1,5 px hacia fuera por lado, debajo de los pájaros (como en las capas de Figma), y entra
+con la foto. Se quitó el `border` CSS de 3 px. La foto sigue siendo el recorte rectangular de D11
+(la máscara de Figma es un rectángulo plano).
+
+**Mobile y tablet sin marco.** Los frames mobile (`894:754` y siguientes, D8) no usan la pieza: la
+foto es un rectángulo redondeado (radio 11) sin trazo. Los pinceles `GRINDHOUSE` de esos frames
+son los caminos del mapa de fondo. No se cambió nada en mobile.
+
+**Edades.** Las pedidas (Talleres 10 a 14, Clubes 6 a 11, Mi ruta 12 a 14, Chiquifuertes 6 a 10)
+ya eran las de los locales en es, en y fr desde D8 y D11, y es el único sitio donde salen
+(`educationMap.routes.<id>.age`; ni `education-map.data.ts` ni el SVG del mapa las llevan). No hubo
+que editar. Queda pendiente la duda de Johan sobre Mi ruta. Figma sigue diciendo "10 a 14" en
+Clubes: manda el pedido de Johan.
+
+**Medido por CDP** (`r2-K/cdp.js modales`, scratchpad de la sesión `4a102619`): solape entre las
+cintas de Voces de 9 px a 1280x800 en es, en y fr y a 1920x1080 en es; las otras cuatro paradas
+con una sola cinta. Marco visible y de 372 x 343 en desktop; oculto en mobile (390x844, foto con
+radio 12 y cintas a -4 px, sin cambios). Sin scroll interno en ninguna parada. Edades correctas en
+los tres idiomas. Consola sin errores (solo el aviso de `sizes` de `paso2-sol.png`, de la intro).
+Capturas `d-1280x800-<lang>-modal-<id>.png`, `d-1920x1080-es-*`, `m-390x844-es-*` y las de Figma
+`figma-<id>-<nodo>.png`; `c-ours.png` y `c-figma.png` son el mismo recorte de la esquina del
+marco, prácticamente iguales.
+
+**Consecuencia conocida.** `node scripts/medir-resaltado.js --usos modal` marcará FALLA de
+separación entre cintas en Voces a 1280 y 1920: es el solape aprobado, no un error.
+
+## D13. Barra inferior mobile más baja y con el contenido centrado (2026-10-01)
+
+**Feedback** (ronda 3, `docs/feedback-30-sep/ROADMAP.md`): la barra azul de abajo que marca el
+estado de cada ruta (nombre de la parada y cinco puntos) seguía muy alta en mobile.
+
+- Pasa de `pt-l pb-m gap-s` (25 arriba, 15 abajo, 10 entre nombre y puntos) a `py-s gap-xs` con
+  `justify-center`: mismo aire arriba y abajo, contenido centrado en las dos direcciones. El
+  degradado y el texto no cambian.
+- La barra no tiene botones (D11), así que no aplica el mínimo táctil de 40.
+- Como su alto se le resta al área visible de cada parada (`insetBottom`, D7), las paradas se
+  recalculan solas con el alto nuevo.
+- Medido por CDP en 360, 390, 428 y 768: alto de 77 a 52; márgenes del contenido 10 arriba y 10
+  abajo (antes 25 y 15), izquierda y derecha iguales en los cuatro anchos. Capturas antes y
+  después en el scratchpad de la sesión (`r3-N/mapa-<ancho>-antes.png` y `-despues.png`).

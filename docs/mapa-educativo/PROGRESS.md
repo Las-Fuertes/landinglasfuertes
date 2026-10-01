@@ -3,7 +3,11 @@
 Rama `24-sep-mapa` desde `origin/main` `5bae81e`. Sin commitear (2026-09-24). Decisiones en
 `DECISIONES.md` (D1 mapa y orden, D2 zoom, D3 título, D4 salto, D5 flotante, D6 Terminar lleva a Impacto,
 D7 título y barra en pantallas bajas, D8 modales, D9 coreografía de Siguiente ruta y Terminar, D10
-modal a dos columnas en desktop).
+modal a dos columnas en desktop, D11 mapa 1431:985 y modales de Figma, D12 cintas que se pisan,
+marco de pincel y edades).
+
+Tanda del 2026-09-30 en la rama `30-sep` (desde `origin/main` `21bca2d`, sin commitear): D11.
+Segunda ronda del 2026-10-01, misma rama y sin commitear: D12.
 
 Tanda del 2026-09-24 en la rama `24-sep-pulido` (desde `origin/main` `4518852`, sin commitear):
 D9 y D10.
@@ -41,6 +45,17 @@ D9 y D10.
 - Modal de parada a dos columnas en desktop, 896 x 464, sin scroll en 1280, 1440 y 1920 en los tres
   idiomas (D10). Evidencia de D9 y D10 en el scratchpad de la sesión `3826136d`, carpeta
   `mapa-anim/`.
+- Mapa nuevo (Figma `1431:985`, 1280 x 1039) con paradas, silueta y derivados `mapa-isla-*`; zoom y
+  cámara por parada cumplen D2 (activa 100 %, peor otra 12,2 %) (D11).
+- Modales desktop fieles a los frames de Figma (1338:3182 es un duplicado de Clubes), con los
+  recortes de foto y el adorno de pájaros de Figma; mobile y tablet centrados y más altos; cerrar
+  de 30 x 30 y botones de 40 de alto (D11). Evidencia en el scratchpad de la sesión `4a102619`,
+  carpeta `ola2C/`.
+
+- Modal desktop (D12): las cintas del título se pisan 9 px como en Figma (opción local, el resto
+  del sitio sin solape), la foto lleva el marco de pincel exportado de Figma
+  (`modal/marco-foto.svg`) en vez del borde CSS, y las edades pedidas ya eran las de los locales.
+  Evidencia en el scratchpad de la sesión `4a102619`, carpeta `r2-K/`.
 
 ## Verificado (2026-09-24)
 
@@ -83,4 +98,12 @@ con scripts CDP propios en la misma carpeta (`cdp.js` arnés; `capturas.js`, `de
 6. Con el modal de Clubes abierto y la página quieta, la traza de Chrome marca todos los frames
    como perdidos (también con el código anterior; en las otras paradas no). No se ve en pantalla en
    headless; si en un celular se nota calor o batería en esa parada, investigar ahí.
-7. Desktop del modal (D10) sin diseño de Figma: adaptación a validar con la diseñadora.
+7. ~~Desktop del modal (D10) sin diseño de Figma~~: resuelto con los frames de Figma (D11).
+8. ~~Copy de Clubes~~: Johan confirmó 6 a 11 (D12). Sigue su duda sobre Mi ruta (12 a 14).
+9. ~~Título de Voces en desktop~~: resuelto en D12, las cintas se pisan como en Figma.
+   `scripts/medir-resaltado.js --usos modal` marcará ese solape como FALLA: es lo aprobado.
+10. `scripts/medir-resaltado.js` marca "exceso 27" en el título del modal desktop (50 px): el tope
+    de 24 px del script es para títulos de 40 px o menos. Decidir si se sube el tope o se ajusta
+    el aire lateral solo en ese uso.
+11. Tablet (768x1024): la tarjeta mide 448 x 901, estrecha y alta. Si se quiere más ancha, falta
+    frame de Figma.

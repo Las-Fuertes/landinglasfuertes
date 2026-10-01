@@ -372,10 +372,10 @@ html[data-intro-anima] [data-intro-estatica] {
 }
 
 @media (min-width: 1024px) {
-  /* 48 de aire arriba, 90 del título, 40 hasta la fila y 16 de margen abajo. Las etiquetas
-     escalan con el mapa, sin bajar del tamaño de mobile. */
+  /* El título fijo (D5) y 40 de aire arriba y abajo del mapa, que se centra en el alto útil.
+     Las etiquetas escalan con el mapa, sin bajar del tamaño de mobile. */
   .impacto-mapa {
-    --resto: 194px;
+    --resto: calc(var(--alto-titulo, 0px) + theme('spacing.xl') * 2);
     --u: max(1px, calc(min(100cqw, (100svh - var(--resto)) * 390.124 / 531.224) / 390));
   }
 }
@@ -451,14 +451,56 @@ html[data-intro-anima] [data-intro-estatica] {
   }
 }
 
-/* Bloques de impacto: las capas "después" entran cuando el bloque recibe `data-encendido`.
-   `--subir` es un barrido de abajo arriba (el agua que llena la piscina): el "después" se
-   descubre y el "antes" se recorta con el mismo reloj, así nunca se ven los dos a la vez.
-   `--fundido` cruza las opacidades. `--parpadeo` las enciende a golpes. Los extras rematan con
-   un rebote, uno tras otro. */
+/* Bloques de impacto (docs/impacto/DECISIONES.md, D4 y D5). Dos disparadores por bloque
+   (`useEntradaBloque`):
+
+   `data-entrada`, en cuanto el bloque asoma en pantalla, aún en movimiento (D5): el texto llega
+   primero y la ilustración detrás, así la pantalla que llega nunca está vacía.
+     título            0 a 800 ms     aparece y sube 8 px (la curva de `FadeIn`)
+     párrafo         150 a 950        igual, detrás del título
+     ilustración     200 a 1200       el estado "antes" aparece y sube 6 px, suave; en mobile va
+                                      arriba del texto y es lo que más hueco deja si tarda
+
+   `data-encendido`, cuando el bloque se asienta, con `--inicio` (los segundos que faltan para
+   llegar a 1,5 s desde la entrada, y nunca menos de 0,4 s tras asentarse):
+     cambio          --inicio en adelante   agua 2,2 s, líquido 2 s, color 2,4 s (sine.inOut);
+                                            las lámparas chispean con su animación de siempre
+     extras          --inicio + 1,9 s + i x 200 ms, rebote de 600 ms, uno tras otro
+
+   `--subir` descubre el "después" y recorta el "antes" con el mismo reloj, así nunca se ven los
+   dos a la vez. */
+.impacto-bloque {
+  --inicio: 1.5s;
+}
+
+.impacto-texto > *,
+.impacto-arte {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--paso, 0s),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--paso, 0s);
+}
+
+.impacto-texto > :nth-child(2) {
+  --paso: 0.15s;
+}
+
+.impacto-arte {
+  --paso: 0.2s;
+  transform: translate3d(0, 6px, 0);
+  transition-duration: 1s;
+}
+
+.impacto-bloque[data-entrada] .impacto-texto > *,
+.impacto-bloque[data-entrada] .impacto-arte {
+  opacity: 1;
+  transform: none;
+}
+
 .impacto-antes--subir,
 .impacto-despues--subir {
-  transition: clip-path 1.6s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: clip-path 2.2s cubic-bezier(0.37, 0, 0.63, 1) var(--inicio);
 }
 
 .impacto-despues--subir {
@@ -479,7 +521,7 @@ html[data-intro-anima] [data-intro-estatica] {
 
 .impacto-despues--llenar .impacto-capa {
   clip-path: inset(100% 0 0 0);
-  transition: clip-path 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: clip-path 2s cubic-bezier(0.37, 0, 0.63, 1) var(--inicio);
 }
 
 .impacto-bloque[data-encendido] .impacto-despues--llenar .impacto-capa {
@@ -488,7 +530,7 @@ html[data-intro-anima] [data-intro-estatica] {
 
 .impacto-despues--florecer {
   clip-path: circle(0% at 50% 60%);
-  transition: clip-path 1.8s cubic-bezier(0.45, 0, 0.55, 1);
+  transition: clip-path 2.4s cubic-bezier(0.37, 0, 0.63, 1) var(--inicio);
 }
 
 .impacto-bloque[data-encendido] .impacto-despues--florecer {
@@ -497,8 +539,8 @@ html[data-intro-anima] [data-intro-estatica] {
 
 .impacto-antes--fundido,
 .impacto-despues--fundido .impacto-capa {
-  transition: opacity 0.9s ease;
-  transition-delay: var(--delay, 0s);
+  transition: opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1);
+  transition-delay: calc(var(--inicio) + var(--delay, 0s));
 }
 
 .impacto-despues--fundido .impacto-capa {
@@ -570,20 +612,22 @@ html[data-intro-anima] [data-intro-estatica] {
 }
 
 .impacto-bloque[data-encendido] .impacto-despues--parpadeo .impacto-capa--titilar {
-  animation: impacto-lampara-titilar 1.5s steps(1, end) var(--delay, 0s) forwards;
+  animation: impacto-lampara-titilar 1.5s steps(1, end) calc(var(--inicio) + var(--delay, 0s))
+    forwards;
 }
 
 .impacto-bloque[data-encendido] .impacto-despues--parpadeo .impacto-capa--encender {
-  animation: impacto-lampara-encender 0.01s steps(1, end) var(--delay, 0s) forwards;
+  animation: impacto-lampara-encender 0.01s steps(1, end) calc(var(--inicio) + var(--delay, 0s))
+    forwards;
 }
 
 .impacto-extra {
   opacity: 0;
   transform: scale(0.6);
   transition:
-    opacity 0.35s ease,
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-delay: calc(1.3s + var(--i, 0) * 0.12s);
+    opacity 0.45s ease,
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(var(--inicio) + 1.9s + var(--i, 0) * 0.2s);
 }
 
 .impacto-bloque[data-encendido] .impacto-extra {
@@ -593,9 +637,10 @@ html[data-intro-anima] [data-intro-estatica] {
 
 @media (prefers-reduced-motion: reduce) {
   /* El bloque general de arriba deja la duración en casi cero, pero no toca los retrasos: sin
-     esto, una lámpara seguiría esperando su turno más de un segundo. */
-  .impacto-extra,
-  .impacto-capa {
+     esto, una lámpara seguiría esperando su turno más de un segundo. `useEntradaBloque` enciende
+     el bloque desde el principio, así que todo se ve en su estado final sin entrada. */
+  .impacto-bloque,
+  .impacto-bloque * {
     transition-delay: 0s !important;
     animation-delay: 0s !important;
   }
