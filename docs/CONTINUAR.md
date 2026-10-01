@@ -72,9 +72,9 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   El dominio sin www redirige (307) a www.
   QUÉ SIGUE: el feedback de la diseñadora (lo trae Johan en el chat nuevo).
 
-- Rama `30-sep` (2026-09-30 a 2026-10-01): cuatro rondas de feedback de Johan y la diseñadora,
-  todas construidas y verificadas por verificadores independientes. Mira `git log` y `git status`
-  de esa rama para saber si ya se mergeó. El estado ronda por ronda, lo pendiente y el orden de lo
+- PR #29 (2026-10-01, rama `30-sep-feedback`): cinco rondas de feedback de Johan y la diseñadora,
+  todas construidas y verificadas por verificadores independientes; type-check, lint y build
+  limpios. El estado ronda por ronda, lo pendiente y el orden de lo
   que sigue están en `docs/feedback-30-sep/ROADMAP.md`, y el feedback literal en `FEEDBACK.md`,
   `FEEDBACK-2.md` y `FEEDBACK-3.md`. Resumen:
   - Intro: entrada por pasos, cintas que se dibujan con ease-in y quedan quietas, bola roja que en
@@ -93,6 +93,10 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   - Súmate: modal a pantalla completa en desktop.
   - Escala de aire título-texto: `docs/feedback-30-sep/AIRE.md`.
   - Bug de producción del "dedo pegado" (D14): causa y arreglo.
+  - Favicon claro y oscuro; espiral de arriba a la izquierda quieta (D16).
+  QUÉ SIGUE: probar en producción el pago con Bold y el plan mensual (https://mpago.la/1bHZ1uA);
+  borrar en Vercel `NEXT_PUBLIC_MP_SUBSCRIPTION_URL`; pendientes abiertos en
+  `docs/feedback-30-sep/ROADMAP.md`; y el feedback nuevo que traiga Johan.
 
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 

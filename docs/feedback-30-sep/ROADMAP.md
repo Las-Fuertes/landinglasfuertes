@@ -246,3 +246,11 @@ plan mensual.
   salto 2 a 3 en mobile era el relevo de la imagen del sol (disco desplazado 10,7 px), ahora sin
   picos ida y vuelta; favicon morado en tema claro, crema en oscuro y iOS, `favicon.ico` con
   `sips`; sin 404 ni aviso de `sizes`. Ronda pequeña: sin verificador independiente aparte.
+
+## Cierre (2026-10-01)
+
+PR #29 desde la rama `30-sep-feedback` (el worktree `30-sep` quedó en esa rama). type-check,
+lint y build limpios antes del commit. Pendiente tras el merge: probar el pago con Bold y el plan
+mensual en producción; borrar `NEXT_PUBLIC_MP_SUBSCRIPTION_URL` en Vercel; si se reactiva el
+menú flotante, revisar que no cruce el título de Impacto en tablet; intro en tablet apaisada
+(1000x800) sin ajustar.
