@@ -1,11 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { useInView } from 'framer-motion';
 import { useRef, type CSSProperties } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithMarks } from '../../lib/render-text-with-bold';
 import { type Bloque, type BloqueId, type Capa } from './bloques.data';
+import { useEntradaBloque } from './use-entrada-bloque';
 
 const k = (px: number) => `calc(${px}px * var(--k))`;
 const ANCHO = 390;
@@ -95,14 +95,17 @@ function CapaImg({
 
 /**
  * Un bloque de impacto: ilustración con estado "antes" y "después" (D8), título en chips y
- * párrafo. Las capas de `despues` entran cuando el bloque lleva un rato en viewport (agua que
- * sube o fundido, según `entrada`) y los `extras` rematan con un rebote. Todo en CSS
- * (`.impacto-bloque` en styles/global.css) disparado por `data-encendido`.
+ * párrafo. La secuencia va en CSS (`.impacto-bloque` en styles/global.css) con dos disparadores
+ * (`useEntradaBloque`, docs/impacto/DECISIONES.md, D5): en cuanto el bloque asoma recibe
+ * `data-entrada` y entran el título, el párrafo y la ilustración en su estado "antes"; cuando se
+ * asienta recibe `data-encendido` con `--inicio`, y tras esa pausa llega el cambio a "después"
+ * (agua que sube, líquido que llena, color que florece, lámparas que chispean) y los `extras`
+ * rematando con un rebote.
  */
 export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
-  const encendido = useInView(ref, { once: true, amount: 0.6 });
+  const { entrada, inicio } = useEntradaBloque(ref);
   const { lienzo } = bloque;
   const desktop = DESKTOP[bloque.id];
 
@@ -110,12 +113,26 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
     <div
       ref={ref}
       className="impacto-bloque mx-auto w-full max-w-[var(--ancho-bloque)] lg:grid lg:max-w-none lg:grid-cols-12 lg:items-center lg:gap-x-grid-gutter"
-      data-encendido={encendido || undefined}
-      style={{ ['--ancho-bloque' as string]: k(ANCHO) } as CSSProperties}
+      data-entrada={entrada || undefined}
+      data-encendido={inicio !== null || undefined}
+      style={
+        {
+          ['--ancho-bloque' as string]: k(ANCHO),
+          ['--inicio' as string]: inicio === null ? undefined : `${inicio}s`,
+        } as CSSProperties
+      }
     >
+      {/* En mobile y tablet la ilustración se topa al alto que deja libre la pantalla
+          (`--fuera-del-arte`: título fijo, aire de la pantalla, separación y texto) y se encoge centrada; así
+          las lámparas y la copa caben en pantallas bajas (ampliación de D4). En `lg` no se topa. */}
       <div
-        className={`relative w-full lg:row-start-1 lg:w-auto lg:justify-self-stretch ${desktop.arte}`}
-        style={{ aspectRatio: `${ANCHO} / ${lienzo.height}` }}
+        className={`impacto-arte relative mx-auto w-full max-w-[calc((100dvh-var(--fuera-del-arte,0rem))*var(--proporcion))] lg:row-start-1 lg:mx-0 lg:w-auto lg:max-w-none lg:justify-self-stretch ${desktop.arte}`}
+        style={
+          {
+            aspectRatio: `${ANCHO} / ${lienzo.height}`,
+            ['--proporcion' as string]: ANCHO / lienzo.height,
+          } as CSSProperties
+        }
         aria-hidden="true"
       >
         {bloque.base?.map(capa => (
@@ -157,7 +174,7 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
       {/* Imagen y texto a la misma distancia en los cinco bloques (docs/impacto, D2): los lienzos
           ya van ceñidos al dibujo, así que el aire es solo `mt-xl`. */}
       <div
-        className={`mt-xl pl-[var(--texto-izq)] pr-[var(--texto-der)] lg:row-start-1 lg:mt-0 lg:px-0 ${desktop.texto}`}
+        className={`impacto-texto mt-xl pl-[var(--texto-izq)] pr-[var(--texto-der)] lg:row-start-1 lg:mt-0 lg:px-0 ${desktop.texto}`}
         style={
           {
             ['--texto-izq' as string]: k(46),

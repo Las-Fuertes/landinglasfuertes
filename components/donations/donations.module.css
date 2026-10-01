@@ -8,11 +8,16 @@
 
 /* ---------- Contenedor ---------- */
 
+/* La sección mide al menos una pantalla (D3): el contenido ocupa el alto que sobra sobre las olas
+   y se centra en él. Más aire que el frame arriba y, sobre todo, entre el botón y las olas. */
 .contenido {
   /* Mismo inset que el PageGrid (24 px bajo 380, 40 desde 380), para colocar el botón mobile. */
   --inset: 1.5rem;
-  /* Mobile: la primera línea del título empieza en y=101 del frame. */
-  padding-top: 101px;
+  flex: 1 0 auto;
+  align-content: center;
+  /* Mobile: en el frame el título empieza en y=101 y el botón queda a 11 de las olas. */
+  padding-top: 8rem;
+  padding-bottom: 3rem;
 }
 
 @media (min-width: 380px) {
@@ -23,8 +28,9 @@
 
 @media (min-width: 768px) {
   .contenido {
-    /* Desktop: la primera línea del título empieza en y=205 del frame. */
-    padding-top: 205px;
+    /* Desktop: en el frame el título empieza en y=205 y el botón queda a 28,77 de las olas. */
+    padding-top: 13.75rem;
+    padding-bottom: 5rem;
   }
 }
 
@@ -210,6 +216,7 @@
   left: 207.27px;
   top: 77.64px;
   width: 223.7px;
+  aspect-ratio: 223.704 / 174.175;
   pointer-events: none;
 }
 
@@ -222,6 +229,7 @@
   left: 64.754%;
   top: 72.44px;
   width: 36.936%;
+  aspect-ratio: 413.684 / 323.134;
   pointer-events: none;
 }
 
@@ -278,27 +286,158 @@
 
 /* ---------- Olas ---------- */
 
-/* Mobile: el SVG compuesto cubre y=708 a 871 del frame; el botón termina en 697. */
+/* Mobile: las capas `olas-mobile-<n>.svg` cubren y=708 a 871 del frame con 24 px de margen por
+   lado y 8 arriba y abajo (viewBox -24 700 438 179), para que el vaivén no deje ver el borde del
+   viewBox; la caja de 390 x 163 es el dibujo y el margen sale por fuera. */
 .olasMobile {
-  margin-top: 11px;
+  position: relative;
+  aspect-ratio: 390 / 163;
+  --amplitud: 7px;
 }
 
-/* Desktop: el grupo 1294:1752 (export 1714,34 x 245,04) empieza en x=42,09 y 28,77 bajo el
-   botón, y deja 59 px de azul hasta el final del frame. Escala con el ancho de pantalla, con
-   tope en 1512 para que a 1920 no crezca de más; su ancho (1,34 veces la pantalla) cubre
-   siempre el borde derecho. */
+.olaMobile {
+  position: absolute;
+  left: calc(-24 / 390 * 100%);
+  top: calc(-8 / 163 * 100%);
+  width: calc(438 / 390 * 100%);
+  height: calc(179 / 163 * 100%);
+}
+
+/* Desktop: el grupo 1294:1752 (export 1714,34 x 245,04) empieza en x=-13 del frame (-15,91 con
+   el inset del export), así que el mar sale del borde izquierdo en todos los anchos; su borde
+   superior queda 28,77 bajo el botón en el frame. Escala con el ancho de pantalla, con tope en
+   1512 para que a 1920 no crezca de más; su ancho (1,34 veces la pantalla) cubre siempre el borde
+   derecho. Deja 59 px de azul bajo las olas, como el frame. */
 .olasDesktop {
   --base: min(100vw, 1512px);
+  --amplitud: calc(var(--base) * 10 / 1280);
   position: relative;
-  margin-top: 28.77px;
   height: calc(var(--base) * 304.23 / 1280);
 }
 
-.olasDesktopImagen {
+.olaDesktop {
+  /* Pantallas muy anchas (D4): lo que sobra sobre 1512 (el mar ya no crece) se reparte corriendo
+     cada ola a la derecha `--peso` veces; `100%` es el ancho de la sección. Hasta 1512 vale 0. */
+  --sobra: max(0px, 100% - 1512px);
   position: absolute;
   top: 0;
-  left: calc(var(--base) * 42.09 / 1280);
+  left: calc(var(--base) * -15.91 / 1280 + var(--sobra) * var(--peso, 0));
   width: calc(var(--base) * 1714.34 / 1280);
-  max-width: none;
-  height: auto;
+  aspect-ratio: 1714.34 / 245.039;
+}
+
+/* Las dos olas sueltas del extremo derecho del export: a 1920 asoman en el borde derecho, y desde
+   ahí lo siguen a la misma distancia (antes de 1920 quedan fuera, como siempre). */
+.olaBorde {
+  --sobra: max(0px, 100% - 1920px);
+}
+
+/* ---------- Barco: dos capas del mismo export ---------- */
+
+.capa {
+  position: absolute;
+  inset: 0;
+}
+
+/* El casco gira alrededor del centro de su base (la línea de flotación del frame). */
+.mecer {
+  transform-origin: 49% 78%;
+}
+
+/* ---------- Vida en reposo (D3) ----------
+   Solo corre con `data-reposo` en la sección (lo pone `useReposoTripulantes`): sin él, el primer
+   y único fotograma es el diseño. `pausa` la congela fuera de pantalla, sin perder la fase.
+   Cifras del lenguaje de movimiento (docs/PATTERNS.md, punto 8): olas de lado 7 px en mobile y
+   10 de 1280 en desktop, ciclos de 3,6 a 5,4 s; el barco gira 3 grados cada 4,6 s, sube 4 a 6 px
+   cada 3,8 s y sus ondas respiran hasta 0,6 de opacidad cada 3,4 s. */
+
+:global([data-reposo]) .olaMobile,
+:global([data-reposo]) .olaDesktop {
+  animation: ola-vaiven var(--ciclo) ease-in-out infinite alternate;
+}
+
+:global([data-reposo]) .mecer {
+  animation: barco-mecer 4.6s linear infinite;
+}
+
+:global([data-reposo]) .flotar {
+  --flote: -4px;
+  animation: barco-flotar 1.9s ease-in-out infinite alternate;
+}
+
+@media (min-width: 768px) {
+  :global([data-reposo]) .flotar {
+    --flote: -6px;
+  }
+}
+
+:global([data-reposo]) .ondasBarco {
+  animation: ondas-respirar 1.7s ease-in-out infinite alternate;
+}
+
+:global([data-reposo='pausa']) .olaMobile,
+:global([data-reposo='pausa']) .olaDesktop,
+:global([data-reposo='pausa']) .mecer,
+:global([data-reposo='pausa']) .flotar,
+:global([data-reposo='pausa']) .ondasBarco {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .olaMobile,
+  .olaDesktop,
+  .mecer,
+  .flotar,
+  .ondasBarco {
+    animation: none !important;
+  }
+}
+
+/* Cada ola va de su sitio hacia `--lado` y vuelve (alternate): la que toca un borde se aleja de
+   él, así nunca asoma su extremo. */
+@keyframes ola-vaiven {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(var(--lado) * var(--amplitud)));
+  }
+}
+
+/* Un seno de 0 a +3, a -3 y a 0 sin frenar en el cero: el primer tramo sale con la misma velocidad
+   con la que llega el último (sine.out y sine.in), y los extremos frenan (sine.inOut). */
+@keyframes barco-mecer {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+  }
+  25% {
+    transform: rotate(3deg);
+    animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  }
+  75% {
+    transform: rotate(-3deg);
+    animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes barco-flotar {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--flote));
+  }
+}
+
+@keyframes ondas-respirar {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.6;
+  }
 }

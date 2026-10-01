@@ -41,7 +41,7 @@
  *   --param k=v      añade un parámetro más a la URL.
  *   --clic sel       clic real de ratón (CDP) en el centro del elemento que casa con el selector
  *                    CSS, tras llevarlo al centro de la pantalla. Sirve para abrir el drawer de
- *                    Súmate: `--clic "footer nav button"` o `--clic [data-sumate-flotante]`.
+ *                    Súmate: `--clic [data-footer-dona]`; la navegación flotante: `--clic [data-nav-boton]`.
  *   --aviso          muestra el aviso de protección de menores (la puerta de la primera visita,
  *                    docs/aviso/DECISIONES.md). Sin este flag, el script fija antes de navegar la
  *                    cookie `lf_aviso` con la versión vigente, como quien ya aceptó, y la captura

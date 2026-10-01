@@ -1,7 +1,7 @@
 # Arranque de sesión nueva (feedback de secciones)
 
 Pega el bloque de abajo como primer mensaje en un chat nuevo y completa la parte marcada. Está
-escrito para alguien sin ningún contexto previo. Actualizado: 2026-09-24.
+escrito para alguien sin ningún contexto previo. Actualizado: 2026-10-01.
 
 ---
 
@@ -72,6 +72,28 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   El dominio sin www redirige (307) a www.
   QUÉ SIGUE: el feedback de la diseñadora (lo trae Johan en el chat nuevo).
 
+- Rama `30-sep` (2026-09-30 a 2026-10-01): cuatro rondas de feedback de Johan y la diseñadora,
+  todas construidas y verificadas por verificadores independientes. Mira `git log` y `git status`
+  de esa rama para saber si ya se mergeó. El estado ronda por ronda, lo pendiente y el orden de lo
+  que sigue están en `docs/feedback-30-sep/ROADMAP.md`, y el feedback literal en `FEEDBACK.md`,
+  `FEEDBACK-2.md` y `FEEDBACK-3.md`. Resumen:
+  - Intro: entrada por pasos, cintas que se dibujan con ease-in y quedan quietas, bola roja que en
+    desktop llega a la cola y baja por la línea como amanecer (D15), "Saltar intro" y flechas
+    accesibles (D10).
+  - Navegación: CTA flotante "Súmate" gemelo del selector de idioma; el menú está apagado con
+    `MENU_ACTIVO = false`.
+  - Footer nuevo con menú de Transparencia, página `/terminos` con datos legales reales, fuente de
+    acento Pangolin.
+  - Mapa: SVG nuevo, modales de Figma con marco de pincel.
+  - Bienvenida: nubes a la deriva y layout en pantallas altas.
+  - Tripulantes: olas y barco animados.
+  - EMI: cards nuevas.
+  - Impacto: título sticky e imán de JS con espera y curva (D4 a D6).
+  - Quiénes somos: diseño final.
+  - Súmate: modal a pantalla completa en desktop.
+  - Escala de aire título-texto: `docs/feedback-30-sep/AIRE.md`.
+  - Bug de producción del "dedo pegado" (D14): causa y arreglo.
+
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 
 ============================================================
@@ -93,15 +115,18 @@ ANTES DE TOCAR NADA, lee en este orden:
                                           (12 preferencias de Johan aprobadas en varias rondas)
   3. docs/sumate-drawer/PROGRESS.md       pendientes abiertos del drawer y del orden nuevo
   4. docs/sumate-drawer/DECISIONES.md     D1 (orden) y D2 (drawer)
-  5. Solo si el feedback toca la intro o Bienvenida: docs/introduccion/DECISIONES.md (D2 a D8) y
-                                          docs/introduccion/PROGRESS.md (todo mergeado; queda
-                                          pendiente elegir nivel de reposo)
+  5. Solo si el feedback toca la intro o Bienvenida: docs/introduccion/DECISIONES.md (D2 a D16;
+                                          D10 navegación accesible, D14 dedo pegado, D15 bola y
+                                          amanecer, D16 espiral quieta) y PROGRESS.md
   6. Solo si toca EMI o el slider de principios: docs/emi/DECISIONES.md y PROGRESS.md
   7. Solo si toca Donaciones:              docs/donaciones/DECISIONES.md y PROGRESS.md
   8. Solo si toca el mapa educativo:       docs/mapa-educativo/DECISIONES.md y PROGRESS.md (rama
                                           `24-sep-mapa`, sin commitear; no tocar sin coordinar)
-  9. Solo si toca Impacto o Quiénes somos: docs/secciones-impacto/DECISIONES.md (historial cerrado:
-                                          se consulta, no se reescribe; se le añaden ampliaciones)
+  9. Solo si toca Impacto o Quiénes somos: docs/impacto/DECISIONES.md (D1 a D6: imán de JS,
+                                          título sticky) y docs/quienes-somos/; el historial
+                                          viejo está en docs/secciones-impacto/ (no se reescribe)
+ 10. Navegación flotante, footer, /terminos, fuente: docs/navegacion/DECISIONES.md (D1 a D5)
+ 11. Contexto de la última tanda: docs/feedback-30-sep/ROADMAP.md (cómo se orquestó, lecciones)
 
 MAPA DE SECCIONES (componente -> título visible)
   components/intro/            Introducción (3 partes, pin con GSAP)
@@ -110,19 +135,25 @@ MAPA DE SECCIONES (componente -> título visible)
                                (contiene el slider de principios y su título en cinta, id `principios`)
   components/principles/       el slider "Así lo comprendimos nosotras" (Swiper), dentro de EMI
   components/donations/        "Dirigir el cambio ... tripulantes comprometidos"
-  components/education-map/    "Cómo hacemos de nuestro mapa educativo la ruta ..." (en curso)
+  components/education-map/    "Cómo hacemos de nuestro mapa educativo la ruta ..."
   components/impacto/          "Así se ve el impacto en acción"           id `impacto`
   components/quienes-somos/    "¿Quiénes somos?"
   components/sumate/           drawer "Súmate a Las Fuertes": useSumateDrawer().open('<origen>')
-  components/layout/footer.tsx footer
+  components/layout/footer.tsx footer (con menú de Transparencia, components/layout/transparencia.data.ts)
+  pages/terminos.tsx           Términos y condiciones (es/en/fr)
 
 DECISIONES DE JOHAN QUE NO DEBEN VOLVER A PROPONERSE
   - El botón flotante de Súmate en mobile tapa la mano de la mujer de Bienvenida: se deja así.
   - Las nubes que sangran por el borde a 1024 y 1920: se quedan así.
   - El mapa educativo sigue avanzando por posición de scroll, NO por "un gesto, una parada" como
     la intro (Johan, 2026-09-24: "dejémoslo como está, no le hagamos nada más").
-  - La fuente de acento pasará de Homemade Apple a "Bradley Hand" en otra iteración; hace falta el
-    archivo con licencia web (no está en Google Fonts). No proponer el cambio sin ese archivo.
+  - La fuente de acento es Pangolin (`font-acento`), tras el review de la diseñadora del
+    2026-10-01. Ya no se habla de Bradley Hand ni de Indie Flower.
+  - El menú flotante está apagado a propósito: Súmate es el CTA más importante y va solo.
+  - Impacto: imán de JS, nunca CSS scroll-snap (atrapa la rueda muesca a muesca en Chrome).
+  - El sol de la parte 2 aparece cerca del centro; en mobile cae bajo las bubbles.
+  - Las cintas del título del modal Voces se pisan (solape aprobado solo ahí).
+  - Términos: el correo es fundacionlasfuertes@gmail.com; no hay dirección ni ley aplicable.
 
 PENDIENTES CONOCIDOS (anotados, no pedidos; solo se tocan si Johan los pide)
   - Elegir el nivel de reposo de la intro (`?reposo=medio` o `?reposo=alto`) y borrar el que no
@@ -181,7 +212,15 @@ REGLAS QUE CUESTAN SI SE SALTAN
      tope interno (setTimeout con process.exit). Si un agente muere dos veces por "Agent stalled",
      no lo reanudes una tercera: mira `git status`, type-check y lint tú, y lanza uno nuevo con el
      estado como contexto. El límite semanal de Opus se agotó el 2026-09-29 con 4 constructores
-     en paralelo: en semanas cargadas, máximo 2 agentes a la vez.
+     en paralelo: en semanas cargadas, máximo 2 agentes a la vez. El 2026-10-01 el límite de
+     sesión cortó agentes cuatro veces (HTTP 429): se retoman con SendMessage por su id cuando se
+     reinicia, pidiéndoles mirar `git status`; nunca se relanzan desde cero.
+  0b. Scroll táctil y de rueda (D14): un listener `touchmove` o `wheel` no pasivo en `window` o
+     `document` hace que TODO el scroll de la página espere al hilo principal (el "dedo pegado").
+     Solo se registran mientras pueden actuar; Swiper los pone siempre y hay que re-registrarlos
+     pasivos. Se mide con la traza del compositor por CDP y CPU x4, no mirando frames.
+  0c. Si dos agentes escriben decisiones en el mismo DECISIONES.md, pueden repetir número (pasó con
+     D13): revisa la numeración con grep al terminar cada ola.
   1. El dev server va SIEMPRE en localhost:3000, desde el worktree de la rama en curso. Si el
      puerto lo tiene otro worktree (`lsof -ti tcp:3000 -sTCP:LISTEN` y luego `lsof -p <pid> | grep
      cwd`; ojo, sin `-sTCP:LISTEN` sale el navegador), mátalo y arranca el tuyo.

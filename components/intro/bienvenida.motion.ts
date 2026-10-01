@@ -140,13 +140,19 @@ function centroDelDisco(bienvenida: HTMLElement) {
  */
 export function crearLlegada(
   origen: HTMLElement,
-  bienvenida: HTMLElement
+  bienvenida: HTMLElement,
+  /**
+   * Con "Saltar intro" (D12) se llega desde cualquier parte: el sol rojo solo viaja desde la
+   * parte 3, que es la que lo tiene en su sitio; desde las otras sale con ellas y el sol rosado
+   * aparece estirándose en el mismo instante del relevo.
+   */
+  viajaElSol = true
 ): { tl: gsap.core.Timeline; deshacer: () => void } {
   const tl = gsap.timeline({ paused: true });
   let viajero: HTMLElement | null = null;
 
   // 1. La intro sale con su coreografía, menos el sol, que viaja.
-  salir(tl, origen, 1, ['sol']);
+  salir(tl, origen, 1, viajaElSol ? ['sol'] : []);
   const inicioViaje = LLEGADA.SOL_VIAJE;
   const viaje = LLEGADA.SOL_VIAJE_DURACION;
 
@@ -155,9 +161,10 @@ export function crearLlegada(
   //    La parte recorta lo que se sale de su lienzo y en móvil el sol rosado cae fuera de él: el
   //    que viaja es una copia del sol rojo colgada de la capa fija (solo la recorta la
   //    pantalla), puesta encima del original, que se oculta en el mismo fotograma.
-  const original = origen.querySelector<HTMLElement>('[data-rol="sol"]');
+  const original = viajaElSol ? origen.querySelector<HTMLElement>('[data-rol="sol"]') : null;
   const disco = bienvenida.querySelector<HTMLElement>('[data-rol="sol"]');
   const relevo = inicioViaje + viaje;
+  const hundido = { yPercent: HUNDIMIENTO, scaleY: APLASTADO, transformOrigin: '50% 100%' };
   if (original && disco && origen.parentElement) {
     const r = original.getBoundingClientRect();
     const rojo = original.cloneNode(true) as HTMLElement;
@@ -176,7 +183,6 @@ export function crearLlegada(
     gsap.set(original, { opacity: 0 });
     const ida = mapear(rojo, cajaDe([rojo]), cajaDe([disco]));
     tl.to(rojo, { ...ida, duration: viaje, ease: 'power3.inOut' }, inicioViaje);
-    const hundido = { yPercent: HUNDIMIENTO, scaleY: APLASTADO, transformOrigin: '50% 100%' };
     const interiorRojo = rojo.firstElementChild as HTMLElement | null;
     if (interiorRojo) {
       tl.to(
@@ -186,6 +192,8 @@ export function crearLlegada(
       );
     }
     tl.set(rojo, { opacity: 0 }, relevo);
+  }
+  if (disco) {
     // Invisible ya, antes del primer pintado (ver D3: un `fromTo` de duración cero no sirve).
     gsap.set(disco, { opacity: 0 });
     tl.set(disco, { opacity: 1 }, relevo);
@@ -303,6 +311,16 @@ export function crearLlegada(
       t('flor')
     );
   });
+
+  // Etiqueta `asentada`: donde acaba todo lo que no es fondo. Desde ahí solo terminan de aparecer
+  // las nubes y las gaviotas y la llegada se ve quieta: un dedo nuevo la termina en el acto, en
+  // vez de quedarse retenido hasta el final (D13).
+  const fondo = new Set<Element>([...piezas(bienvenida, 'nube'), ...piezas(bienvenida, 'gaviota')]);
+  const finales = tl
+    .getChildren(false, true, true)
+    .filter(c => !(c instanceof gsap.core.Tween) || !c.targets().some(x => fondo.has(x as Element)))
+    .map(c => c.endTime());
+  tl.addLabel('asentada', Math.max(0, ...finales));
 
   return { tl: tl.timeScale(1 / ESCALA_TIEMPO), deshacer: () => viajero?.remove() };
 }

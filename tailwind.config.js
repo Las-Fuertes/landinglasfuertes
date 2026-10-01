@@ -16,6 +16,8 @@ module.exports = {
           DEFAULT: '#0413D8',
           700: '#78C2FF', // light blue
           300: '#030fa5', // dark blue
+          /** Azul cielo del marco de las estampillas de EMI (Figma 1297:6 y 1297:2, #2CA0FF). */
+          cielo: '#2CA0FF',
         },
         purple: {
           DEFAULT: '#b3b8f0',
@@ -48,6 +50,8 @@ module.exports = {
         /** Papel de Donaciones: la cinta del título, el texto y el botón (Figma #FFF5E8). */
         papel: {
           DEFAULT: '#FFF5E8',
+          /** Círculo del botón de la navegación flotante (Figma #FBE6C9). */
+          tostado: '#FBE6C9',
         },
         /** Fondo del aviso de protección de menores (Figma #FDDEB5), un arena más tostado. */
         arena: {
@@ -57,6 +61,14 @@ module.exports = {
         ash: {
           DEFAULT: '#B3B3B3',
         },
+      },
+
+      /* ================================
+         FONTS
+         ================================ */
+      fontFamily: {
+        /** Letra manuscrita de los acentos: Pangolin, cargada en pages/_app.tsx. */
+        acento: ['var(--font-acento)', 'cursive'],
       },
 
       /* ================================
@@ -70,8 +82,6 @@ module.exports = {
         h3: ['20px', { lineHeight: '1.3', fontWeight: '400' }],
         h4: ['18px', { lineHeight: '1.4', fontWeight: '400' }],
         'p-lg': ['14px', { lineHeight: '1.6', fontWeight: '400' }],
-        /** Línea manuscrita de Bienvenida en desktop; interlineado de `leading-snug`. */
-        'p-md': ['15px', { lineHeight: '1.375' }],
         'p-sm': ['13px', { lineHeight: '1.6', fontWeight: '400' }],
       },
 
@@ -89,6 +99,8 @@ module.exports = {
         'page-margin': '40px',
         /** Page grid: gutter between columns */
         'grid-gutter': '25px',
+        /** 30px: botón de cerrar del modal del mapa (docs/mapa-educativo/DECISIONES.md, D11) */
+        7.5: '1.875rem',
       },
     },
   },

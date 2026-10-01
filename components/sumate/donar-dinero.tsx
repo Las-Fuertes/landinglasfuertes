@@ -7,13 +7,12 @@ import { useTranslation } from '../../hooks/useTranslation';
 import {
   BOLD_API_KEY,
   DIRECT_TRANSFER,
-  GIVE_LIVELY_URL,
   MIN_AMOUNT_COP,
   MP_SUBSCRIPTION_URL,
   SUGGESTED_AMOUNTS_COP,
   formatCop,
 } from './sumate.data';
-import { CtaButton, CtaLink, DisabledCta } from './ui';
+import { CtaButton, CtaLink, DisabledCta, MarcoRasgado } from './ui';
 
 const BOLD_BUTTON_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js';
 
@@ -91,12 +90,12 @@ export default function DonarDinero() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto max-w-[39.25rem]">
       {/* Toggle Una vez / Cada mes */}
       <div
         role="tablist"
         aria-label={t('sumate.wizard.question')}
-        className="mx-auto flex w-full max-w-xs rounded-full border border-black/10 bg-beige p-1"
+        className="mx-auto flex w-fit min-w-[14.75rem] max-w-full rounded-full border border-black/10 bg-papel p-1"
       >
         {(['once', 'monthly'] as const).map(freq => {
           const active = frequency === freq;
@@ -110,8 +109,8 @@ export default function DonarDinero() {
                 setFrequency(freq);
                 resetBoldButton();
               }}
-              className={`flex-1 rounded-full px-4 py-2 text-[0.95rem] font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
-                active ? 'bg-blue text-white' : 'text-black hover:text-blue'
+              className={`min-h-10 flex-1 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
+                active ? 'bg-blue text-papel' : 'text-black hover:text-blue'
               }`}
             >
               {t(`sumate.wizard.${freq === 'once' ? 'once' : 'monthly'}`)}
@@ -127,17 +126,23 @@ export default function DonarDinero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="mt-6"
+          className="mt-l"
         >
-          <p className="text-center leading-relaxed text-black">{t('sumate.unica.text')}</p>
+          <p className="text-center text-base leading-normal text-black md:text-h4">
+            {t('sumate.unica.text')}
+          </p>
 
-          <fieldset className="mt-6">
-            <legend className="mx-auto text-center text-[0.95rem] font-bold uppercase tracking-wide text-black/70">
+          {/* Figma 1300:2080: caja de borde azul con sombra alrededor de los montos. */}
+          <fieldset className="relative mt-l px-s pb-l pt-m md:mt-xl md:px-[3.375rem] md:pb-xl md:pt-l">
+            <MarcoRasgado tono="azul" grosor="fino" sombra />
+            <legend className="sr-only">{t('sumate.unica.amountLabel')}</legend>
+            {/* La leyenda de un fieldset no se deja poner dentro de la caja: la visible va aparte. */}
+            <p aria-hidden className="relative text-center text-sm font-bold uppercase text-black">
               {t('sumate.unica.amountLabel')}
-            </legend>
+            </p>
             {/* Montos como chips grandes, con la rotación juguetona de los chips del sitio */}
             {/* En pantallas ultra angostas (<350px) los chips se apilan para no recortar cifras */}
-            <div className="mt-3 grid grid-cols-1 gap-2 min-[350px]:grid-cols-3 md:gap-3">
+            <div className="relative mt-m grid grid-cols-1 gap-s min-[350px]:grid-cols-3 md:mt-l md:gap-[3.25rem]">
               {SUGGESTED_AMOUNTS_COP.map((amount, i) => {
                 const active = !customAmount && selectedAmount === amount;
                 const tilt = i % 2 === 0 ? '-rotate-1' : 'rotate-1';
@@ -152,10 +157,10 @@ export default function DonarDinero() {
                       setCustomAmount('');
                       resetBoldButton();
                     }}
-                    className={`whitespace-nowrap rounded-2xl border-2 px-1 py-4 text-[clamp(0.75rem,3.6vw,1.05rem)] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:text-[1.2rem] ${
+                    className={`min-h-[3.25rem] whitespace-nowrap rounded border-2 border-blue px-1 py-s text-[clamp(0.75rem,3.6vw,1.05rem)] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-papel md:text-[1.1rem] ${
                       active
-                        ? `border-blue bg-blue text-white shadow-md ${tilt}`
-                        : 'border-black/10 bg-beige-light text-black hover:border-blue'
+                        ? `bg-blue text-papel shadow-md ${tilt}`
+                        : 'bg-white/60 text-black hover:bg-white'
                     }`}
                   >
                     {/* Sin espacio tras el $: en pantallas angostas cada píxel cuenta */}
@@ -164,7 +169,7 @@ export default function DonarDinero() {
                 );
               })}
             </div>
-            <div className="relative mt-3">
+            <div className="relative mt-m">
               <input
                 type="number"
                 inputMode="numeric"
@@ -177,32 +182,38 @@ export default function DonarDinero() {
                 }}
                 placeholder={t('sumate.unica.customPlaceholder')}
                 aria-label={t('sumate.unica.customPlaceholder')}
-                className={`h-14 w-full rounded-2xl border-2 px-4 text-center text-[1.05rem] font-bold transition focus:ring-0 ${
-                  customAmount
-                    ? 'border-blue bg-white text-blue'
-                    : 'border-black/10 bg-beige-light text-black focus:border-blue'
+                // Con `!`: la regla base de inputs de styles/global.css (borde gris de 1 px, texto de 14)
+                // gana por especificidad a las utilidades.
+                className={`h-12 w-full rounded !border-2 !border-blue !px-4 text-center !text-[1.05rem] font-bold transition placeholder:font-normal placeholder:!text-black/70 focus:ring-2 focus:ring-blue/30 ${
+                  customAmount ? '!bg-white !text-blue' : '!bg-white/60 !text-black'
                 }`}
               />
             </div>
           </fieldset>
 
           {validationError && (
-            <p role="alert" className="mt-3 text-center text-[0.9rem] font-bold text-red">
+            <p
+              role="alert"
+              className="mt-m bg-red/20 px-s py-xs text-center text-sm font-bold text-black"
+            >
               {validationError}
             </p>
           )}
           {status === 'error' && (
-            <p role="alert" className="mt-3 text-center text-[0.9rem] font-bold text-red">
+            <p
+              role="alert"
+              className="mt-m bg-red/20 px-s py-xs text-center text-sm font-bold text-black"
+            >
               {t('sumate.unica.error')}
             </p>
           )}
 
-          <div className="mt-6">
+          <div className="mt-l text-center md:mt-[2.125rem]">
             {boldConfigured ? (
               <CtaButton
                 onClick={iniciarDonacion}
                 disabled={status === 'loading'}
-                className={`h-14 text-[1.15rem] md:w-full ${status === 'ready' ? 'hidden' : ''}`}
+                className={`md:min-w-[17.75rem] ${status === 'ready' ? 'hidden' : ''}`}
               >
                 {status === 'loading'
                   ? t('sumate.unica.loading')
@@ -216,7 +227,7 @@ export default function DonarDinero() {
             <div ref={boldContainerRef} aria-live="polite" className="[&_button]:w-full" />
             {/* El hint (con los métodos de pago) solo aparece cuando el botón de Bold está listo */}
             {status === 'ready' && (
-              <p className="mt-2 text-center text-[0.9rem] leading-relaxed text-black/70">
+              <p className="mt-s text-center text-sm leading-relaxed text-black/80">
                 {t('sumate.unica.readyHint')}
               </p>
             )}
@@ -228,17 +239,19 @@ export default function DonarDinero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="mt-6"
+          className="mt-l"
         >
-          <p className="text-center leading-relaxed text-black">{t('sumate.mensual.text')}</p>
-          <div className="mt-6">
+          <p className="text-center text-base leading-normal text-black md:text-h4">
+            {t('sumate.mensual.text')}
+          </p>
+          <div className="mt-l text-center">
             {MP_SUBSCRIPTION_URL ? (
               <CtaLink
                 href={MP_SUBSCRIPTION_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => sendGAEvent('event', 'suscripcion_click', {})}
-                className="h-14 text-[1.15rem] md:w-full"
+                className="md:min-w-[17.75rem]"
               >
                 {t('sumate.mensual.cta')}
               </CtaLink>
@@ -247,7 +260,7 @@ export default function DonarDinero() {
             )}
           </div>
           {DIRECT_TRANSFER.nequi && (
-            <p className="mt-4 text-center text-[0.9rem] leading-relaxed text-black/70">
+            <p className="mt-m text-center text-sm leading-relaxed text-black/80">
               {t('sumate.mensual.fallback', { number: DIRECT_TRANSFER.nequi })}
             </p>
           )}
@@ -255,7 +268,7 @@ export default function DonarDinero() {
       )}
 
       {(DIRECT_TRANSFER.nequi || DIRECT_TRANSFER.bancolombia) && frequency === 'once' && (
-        <div className="mt-6 border-t border-black/10 pt-4 text-[0.9rem] leading-relaxed text-black">
+        <div className="mt-l border-t border-black/15 pt-m text-sm leading-relaxed text-black">
           <p className="font-bold">{t('sumate.unica.transferTitle')}</p>
           {DIRECT_TRANSFER.nequi && (
             <p>{t('sumate.unica.transferNequi', { number: DIRECT_TRANSFER.nequi })}</p>
@@ -265,29 +278,6 @@ export default function DonarDinero() {
           )}
         </div>
       )}
-
-      {/* Donantes en Estados Unidos: Give Lively vía Caring for Colombia (501c3).
-          SOLO aplica para USA (deducción de impuestos allá); desde otros países
-          el camino es la tarjeta internacional del widget. */}
-      <div className="mt-6 rounded-2xl border-2 border-blue/15 bg-beige-light p-4 min-[380px]:p-5">
-        <p className="text-center text-[1rem] font-bold text-black">
-          <span aria-hidden>🇺🇸</span> {t('sumate.usa.title')}
-        </p>
-        <p className="mt-2 text-center text-[0.9rem] leading-relaxed text-black/70">
-          {t('sumate.usa.text')}
-        </p>
-        <div className="mt-4 text-center">
-          <a
-            href={GIVE_LIVELY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => sendGAEvent('event', 'usa_givelively_click', {})}
-            className="inline-flex h-12 w-full items-center justify-center rounded-lg border-2 border-blue bg-white px-6 text-[0.95rem] font-bold uppercase tracking-tight text-blue transition hover:bg-blue hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:w-auto"
-          >
-            {t('sumate.usa.cta')}
-          </a>
-        </div>
-      </div>
     </div>
   );
 }

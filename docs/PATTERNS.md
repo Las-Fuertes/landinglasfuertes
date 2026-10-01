@@ -58,11 +58,28 @@ Escala de texto: `text-h1` (40px), `text-h2` (30px), `text-h3` (20px), `text-h4`
 Espaciado: `xs` 5px, `s` 10px, `m` 15px, `l` 25px, `xl` 40px, `xxl` 65px. Más
 `page-margin` (40px) y `grid-gutter` (25px), que usa el `PageGrid`.
 
+**Aire entre el título de una sección y lo que sigue** (feedback del 30 de septiembre, punto 9;
+`docs/feedback-30-sep/AIRE.md`). Dos valores, por nombre:
+
+| Qué hay bajo el título de la sección              | Mobile y tablet | Desktop (`lg+`) |
+| ------------------------------------------------- | --------------- | --------------- |
+| Texto (párrafo, pregunta, subtítulo)              | `xl` (40 px)    | `xl` (40 px)    |
+| Un dibujo o un componente grande (mapa, selector) | `xl` (40 px)    | `xxl` (65 px)   |
+
+Se mide de caja a caja (borde inferior del título, borde superior de lo siguiente). Fuera de la
+escala, a propósito: los subtítulos dentro de una sección (bloques de Impacto, apartados de
+`/terminos`, columnas del footer) van con `s` o `m` pegados a su texto; la intro y el título del
+mapa educativo sobre el mar son composiciones medidas; la Bienvenida es un hero de Figma en el que
+título, subtítulo manuscrito y garabato son una sola pieza; Donaciones sigue a Figma (47 y 69 px).
+Una sección nueva usa `mt-xl` en el primer elemento bajo el título, salvo que encaje en la segunda
+fila.
+
 Cortes de línea: todos los títulos (`h1` a `h6`) llevan `text-wrap: balance` y los párrafos
 (`p`, `li`) `text-wrap: pretty`, desde `@layer base` de `styles/global.css`. No hace falta
 `text-balance` en cada título; para quitarlo en un uso, `text-wrap` (utilidad de Tailwind).
 
-Fuente manuscrita puntual: `Homemade_Apple` vía `next/font/google`, ver `components/welcome/welcome.tsx`.
+Fuente manuscrita de los acentos: **Pangolin** (desde el 2026-10-01; antes Indie Flower), cargada una vez en `pages/_app.tsx` como
+`--font-acento`; se usa con la clase `font-acento` (docs/navegacion/DECISIONES.md, D3).
 
 ## Copy e i18n
 
@@ -332,19 +349,26 @@ const sumate = useSumateDrawer();
 - Abrir pone `#sumate` en la URL con `history.replaceState` y cerrar lo quita, sin scroll.
   `/#sumate` y `/#donar` abren el drawer al cargar (el segundo baja hasta "¿Cómo quieres ayudar?").
 - Fuera del provider (otra página), `open()` navega a `/#sumate`.
-- Forma: lateral derecho `lg:max-w-xl` en desktop; sheet de `92dvh` desde abajo en móvil y
-  tablet, como `education-map/route-sheet.tsx`. Trampa de foco con el mismo `FOCUSABLE`.
-- Dentro del drawer, `useEnDrawer()` vale `true`: `FadeIn` se muestra sin entrada. Las piezas de
-  Súmate no usan clases `lg:`, así que en el drawer desktop (576 px) se ven en su versión `md:`.
-  Si una pieza necesita otro trato ahí, usa `enDrawer ? 'lg:...' : ''` (ver el barco de
-  `proyecto-destacado.tsx`).
+- Forma (desde el 2026-09-30, `docs/sumate-drawer/DECISIONES.md`, D3): en desktop (`lg+`) es un
+  modal a pantalla completa (`lg:inset-0 lg:h-full`), sobre papel como una página más, que entra
+  con un fundido y 24 px de subida. En móvil y tablet sigue siendo una sheet de `92dvh` desde
+  abajo, sobre papel y con el borde de arriba rasgado (filtro `footer-rough-edge`), como
+  `education-map/route-sheet.tsx`. Ya no hay drawer lateral. Trampa de foco con el mismo
+  `FOCUSABLE`; la raíz es `overflow-clip` (con `overflow-hidden`, el `scrollIntoView` de `#donar`
+  subía la sheet entera).
+- Dentro del drawer, `useEnDrawer()` vale `true`: `FadeIn` se muestra sin entrada. Como en desktop
+  ocupa toda la pantalla, las piezas de Súmate usan `lg:` con normalidad (título, selector de
+  categorías). Si una pieza necesita otro trato dentro del drawer que fuera de él, usa
+  `enDrawer ? 'lg:...' : ''` (ver `proyecto-destacado.tsx`).
 - Un enlace a un ancla interna (`#donar`) dentro del drawer se desplaza a mano con
   `scrollIntoView` y `preventDefault`: un `href="#..."` normal cambiaría el hash de la URL.
-- Para capturarlo: `node scripts/captura.js --clic "footer nav button" --w 1440 --h 900 --tras 900`
+- Para capturarlo: `node scripts/captura.js --clic [data-footer-dona] --w 1440 --h 900 --tras 900`
   o `--hash sumate`. El scroll interno es `[data-drawer-scroll]`.
 
-**Secciones que retiran el botón flotante: `data-oculta-flotante`.** Una sección con este
-atributo esconde el botón "Súmate" mientras está en pantalla y lo devuelve al salir (hoy, el Mapa
+**Secciones que retiran la navegación flotante: `data-oculta-flotante`.** Desde el 2026-09-30 el
+botón "Súmate" es una navegación flotante arriba a la izquierda con Inicio y Súmate
+(docs/navegacion/DECISIONES.md, D1); hereda todo lo que sigue. Una sección con este
+atributo la esconde mientras está en pantalla y lo devuelve al salir (hoy, el Mapa
 educativo; ver `docs/mapa-educativo/DECISIONES.md`, D5). Para sumar otra no hay que tocar el botón:
 
 ```tsx
@@ -385,8 +409,8 @@ Tablet se verifica a 1000 de ancho, nunca a 1024 (a 1024 exacto gana desktop).
 - **No hay svgr configurado**: un `.svg` importado no se vuelve componente React. Si el SVG
   necesita animarse por path (como el mapa de Colombia), va escrito como componente React inline en
   `components/`, no como archivo en `public/`.
-- Las imágenes se renderizan con `next/image`. Existe además `components/app-image/`, un wrapper
-  con caché propia; mira su `README.md` antes de usarlo.
+- Las imágenes se renderizan con `next/image`. El wrapper con caché propia
+  (`components/app-image/`) se borró el 2026-10-01 por no tener uso.
 
 ## Mapa de impacto: mapeo path -> territorio
 

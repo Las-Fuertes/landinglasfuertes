@@ -1,0 +1,72 @@
+/*
+ * Escala de la sección (docs/quienes-somos/DECISIONES.md, D1). `--k` multiplica toda medida en px
+ * de lienzo de Figma: 1 en mobile (frame de 390); 1,05 en tablet, que usa las fichas de desktop
+ * en dos columnas; 1 en desktop (frame de 1280) y 1,15 desde 1536, para que en 1920 la rejilla no
+ * quede como una isla chica en medio de la pantalla.
+ */
+.seccion {
+  --k: 1;
+  --ancho: calc(390px * var(--k));
+  --parrafo: calc(16px * var(--k));
+  --nombre: calc(21.3px * var(--k));
+  --cargo: calc(14px * var(--k));
+  --arriba: calc(93px * var(--k));
+  --abajo: calc(95px * var(--k));
+  --antes-equipo: calc(60px * var(--k));
+  /* Mobile, foto a la izquierda: el texto llega hasta 383 de 390, 33 px dentro del margen. */
+  --sobra: calc(-33px * var(--k));
+  /* Conchas al título, y foto al nombre en las fichas centradas y en desktop. */
+  --al-titulo: calc(20px * var(--k));
+  --al-nombre: calc(20px * var(--k));
+  /* Ancho de cada ficha en la rejilla desktop. */
+  --ficha: calc(310px * var(--k));
+  padding-top: var(--arriba);
+  padding-bottom: var(--abajo);
+}
+
+@media (min-width: 768px) {
+  .seccion {
+    --k: 1.05;
+    /* Dos columnas de 310 más los dos márgenes de página. */
+    --ancho: calc(620px * var(--k) + 80px);
+    --parrafo: calc(17px * var(--k));
+    --arriba: calc(70px * var(--k));
+    --abajo: calc(120px * var(--k));
+    --antes-equipo: calc(70px * var(--k));
+  }
+}
+
+@media (min-width: 1024px) {
+  .seccion {
+    --k: 1;
+    /* Tres columnas de 310 más los dos márgenes de página. */
+    --ancho: calc(930px * var(--k) + 80px);
+    --parrafo: calc(18px * var(--k));
+    --arriba: calc(58px * var(--k));
+    --abajo: calc(135px * var(--k));
+    --antes-equipo: calc(80px * var(--k));
+  }
+}
+
+@media (min-width: 1536px) {
+  .seccion {
+    --k: 1.15;
+  }
+}
+
+/* El recorte de la foto: mobile por defecto, el de desktop desde tablet (fichas de desktop). */
+.encuadre {
+  left: var(--m-x);
+  top: var(--m-y);
+  width: var(--m-ancho);
+  height: var(--m-alto);
+}
+
+@media (min-width: 768px) {
+  .encuadre {
+    left: var(--d-x);
+    top: var(--d-y);
+    width: var(--d-ancho);
+    height: var(--d-alto);
+  }
+}

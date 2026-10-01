@@ -5,13 +5,13 @@
   },
   "intro": {
     "label": "Introduction",
-    "saltar": "Skip animation"
+    "saltar": "Skip intro",
+    "anterior": "Go back one step in the introduction",
+    "siguiente": "Go forward one step in the introduction",
+    "navegacion": "Introduction navigation",
+    "paso": "Part {n} of {total} of the introduction"
   },
   "hero": {
-    "mainTitle1": "Something powerful",
-    "mainTitle2": "is coming",
-    "subtitle1": "Even though you can't see it yet, what's coming",
-    "subtitle2": "will be an incredible surprise.",
     "section1": {
       "text1": "Half the world menstruates,",
       "text2": "but ==talking about menstruation==",
@@ -71,38 +71,6 @@
     "paragraph2": "A living proposal, woven from experience on Isla Fuerte and other territories in Colombia. Here we understood that menstrual education is not enough on its own: **we need a broad, holistic vision** that allows every girl to inhabit her body with freedom and pride.",
     "comprendimos": "How we came to understand it:"
   },
-  "content": {
-    "intro": "We are building a space for {emi} to mark a new milestone in Colombia.",
-    "emi": "Comprehensive Menstrual Education (CME)",
-    "since": "Since 2021, Las Fuertes has created safe spaces where information breaks down barriers of silence and transforms lives.",
-    "thanks": "Thank you for being here. Follow us and be part of the change."
-  },
-  "cta": {
-    "button": "I want to be part of the change",
-    "subtitle": "Contact us and join the CME revolution"
-  },
-  "modal": {
-    "title": "Contact Us",
-    "description": "Tell us what interests you about Las Fuertes or Comprehensive Menstrual Education",
-    "form": {
-      "name": "Name",
-      "email": "Email",
-      "message": "Message",
-      "namePlaceholder": "What's your name?",
-      "emailPlaceholder": "your@email.com",
-      "messagePlaceholder": "Tell us what interests you about Las Fuertes or CME...",
-      "submit": "Send message",
-      "sending": "Sending..."
-    },
-    "success": {
-      "title": "Message sent!",
-      "message": "Thank you for contacting us. We'll get back to you soon.",
-      "button": "Send another message"
-    },
-    "error": "There was an error sending the message. Please try again.",
-    "close": "Close"
-  },
-  "timestamp": "Generated on",
   "principles": {
     "title": "How we came to understand it:",
     "prev": "Previous stamp",
@@ -111,10 +79,10 @@
     "pista": "swipe",
     "rolCarrusel": "carousel",
     "estampillas": {
-      "1": "Stamp: Every girl is a sea of rights",
-      "2": "Stamp: Menstrual education as a map for change",
-      "3": "Stamp: Together we bloom, together we are stronger",
-      "4": "Stamp: I am strong, I decide"
+      "1": "Every girl is\na sea of rights",
+      "2": "Menstrual education\nas a map for change",
+      "3": "Together we bloom\ntogether we are stronger",
+      "4": "I am strong, I decide"
     }
   },
   "donations": {
@@ -172,7 +140,7 @@
   "sumate": {
     "hero": {
       "title": "Join Las Fuertes",
-      "subtitle": "Every girl on Isla Fuerte deserves tools to build her future. You can be part of that today, from wherever you are."
+      "subtitle": "Through EMI we walk alongside girls and teenagers on Isla Fuerte, Bolívar, and in other parts of Colombia as they learn about and live their cycle with freedom and confidence. Your support becomes workshops, materials and safe spaces."
     },
     "proyecto": {
       "label": "Our project right now",
@@ -184,7 +152,7 @@
     },
     "unica": {
       "title": "Give once",
-      "text": "Your contribution turns directly into workshops, materials and opportunities for the girls on the island. You choose how much.",
+      "text": "Your contribution becomes workshops, materials and opportunities for the girls on the island and in other parts of Colombia. You choose how much.",
       "amountLabel": "Amount in Colombian pesos",
       "customPlaceholder": "Other amount",
       "cta": "Donate now",
@@ -236,7 +204,7 @@
     },
     "difunde": {
       "title": "Spread the word",
-      "text": "Can't donate yet? You can still help: follow us on Instagram, where we share everything we do; share our work; and tell someone who has an unused laptop or camera stored away.",
+      "text": "Can't donate yet? You can still help: follow us on {instagram} and {linkedin}, where we share everything we do; share our work; and tell someone who has an unused laptop or camera stored away.",
       "cta": "Follow us on Instagram"
     },
     "whatsappUnavailable": "Very soon you'll be able to reach us here.",
@@ -256,8 +224,13 @@
       "text": "Only if you're in the USA: you can give in dollars, once or monthly, through our partner Caring for Colombia, and your donation is tax-deductible there. Giving from any other country? Use the form above with your international card.",
       "cta": "Donate from the USA"
     },
+    "despedida": {
+      "gracias": "Thank you from Isla Fuerte, Colombia",
+      "ubicacion": "Want to know exactly where we are? Use this",
+      "ubicacionEnlace": "link",
+      "ubicacionAria": "See where Isla Fuerte is on Google Maps (opens in a new tab)"
+    },
     "drawer": {
-      "flotante": "Join us",
       "flotanteAria": "Join Las Fuertes: open the ways to help",
       "cerrar": "Close the Join Las Fuertes panel"
     }
@@ -269,7 +242,10 @@
       "coordinadora": "ASE Network Coordinator",
       "fundadora": "Founder and General Director",
       "cofundadora": "Co-Founder and Creative Director",
-      "projectManager": "Project Manager",
+      "educadora": "Menstrual Educator and Curriculum Development",
+      "estrategaCrecimiento": "Growth Strategist",
+      "estrategaComunicaciones": "Communications Strategist",
+      "estrategaAlianzas": "Partnerships and Sales Strategist",
       "disenadora": "Graphic Designer"
     }
   },
@@ -291,16 +267,63 @@
     "copied": "Link copied!"
   },
   "footer": {
-    "tagline": "Comprehensive Menstrual Education from Isla Fuerte, Colombia.",
-    "navTitle": "Explore",
-    "navWelcome": "Welcome",
-    "navPrinciples": "Our principles",
-    "navSumate": "Join us",
-    "helpTitle": "Want to help?",
-    "contact": "Contact us",
-    "followUs": "Follow us on Instagram",
-    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
-    "madeWith": "Made with love from the island."
+    "tagline": "Comprehensive menstrual education for life",
+    "apoyarTitulo": "Want to support us?",
+    "dona": "Donate here",
+    "instagram": "Follow us on Instagram",
+    "linkedin": "Follow us on LinkedIn",
+    "fundacionTitulo": "The foundation",
+    "transparencia": "Transparency",
+    "terminos": "Terms and conditions",
+    "transparenciaMenu": "Financial statements by year",
+    "transparenciaAnio": "Financial statements {anio}",
+    "nuevaPestana": "(opens in a new tab)",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia"
+  },
+  "nav": {
+    "etiqueta": "Navigation",
+    "abrir": "Open menu",
+    "cerrar": "Close menu",
+    "inicio": "Home",
+    "sumate": "Join us"
+  },
+  "terminos": {
+    "metaTitulo": "Terms and conditions · Las Fuertes",
+    "metaDescripcion": "How we protect the photos of our girls, what the site stores in your browser and how donations to Fundación Las Fuertes work.",
+    "titulo": "Terms and conditions",
+    "actualizado": "Last updated: October 1, 2026",
+    "intro": "By browsing this site you accept these terms. We wrote them plainly, with no fine print: if something is unclear, write to us.",
+    "logoAria": "Las Fuertes: back to home",
+    "secciones": {
+      "responsable": {
+        "titulo": "Who we are",
+        "p1": "This site belongs to **Fundación Las Fuertes**, an organization from Isla Fuerte, Bolívar, Colombia, that supports girls and adolescents through Comprehensive Menstrual Education (CME).",
+        "p2": "Tax ID (NIT): 901.809.186-3. Legal representative: Karoll Adriana Lopez Lozano, Colombian citizenship ID (cédula) 52.717.530.",
+        "p3": "You can write to us at fundacionlasfuertes@gmail.com, on Instagram (@las.fuertes) or on LinkedIn (Fundación Las Fuertes)."
+      },
+      "menores": {
+        "titulo": "Child protection and use of the photos",
+        "p1": "This site contains photos of **girls who are minors (under 18)** according to Colombian law. We use them with the permission of their families and only to tell the story of the foundation's work.",
+        "p2": "**We do not authorize** copying, downloading, sharing, modifying or publishing these photos anywhere else, under any circumstances. Nor do we authorize their use with **artificial intelligence**: not to train models, not to feed them, and not to generate images from them.",
+        "p3": "That is why, before you enter, the site shows a child protection notice that you have to accept. Accepting it means you commit to respecting these conditions.",
+        "p4": "We ask machines too: our robots.txt file closes the image folders to known artificial intelligence crawlers and to Google Images, and every image on the site is served with the X-Robots-Tag header \"noimageai, noai\". The foundation's text remains public."
+      },
+      "cookies": {
+        "titulo": "Cookies and data in your browser",
+        "p1": "**lf_aviso**: remembers that you already accepted the child protection notice, so we don't show it on every visit. It lasts 365 days, applies to the whole site and holds no personal data: only the version of the notice you accepted. If we change the notice, we'll ask you again. If you delete it or browse in private mode, the notice comes back.",
+        "p2": "**Google Analytics**: we measure, in aggregate, how the site is used (for example, how many people open Join us or click to donate). Google Analytics uses its own cookies for this. We don't use it to identify you.",
+        "p3": "The site stores nothing else in your browser: no accounts, no forms and no local storage."
+      },
+      "donaciones": {
+        "titulo": "Donations",
+        "p1": "You can support the foundation from **Join us**, the panel opened by the \"Join us\", \"I want to contribute\" and \"Donate here\" buttons.",
+        "p2": "**One-time donation (Colombia)**: the payment is processed by **Bold**, in Colombian pesos, with a minimum of COP 5,000. This site never sees or stores your card or account details: it only prepares the donation reference and amount, and Bold makes the charge. When you finish, Bold emails you the receipt and brings you back to a thank-you page with the reference and the payment status.",
+        "p3": "**Monthly donation**: made through a **Mercado Pago** subscription. Mercado Pago sends you a receipt for each charge, and you can manage or cancel the subscription from your account at any time.",
+        "p4": "**From the United States**: you can donate through our partner Caring for Colombia, a 501(c)(3) organization, on the Give Lively platform. Those donations follow that platform's terms.",
+        "p5": "**Time and goods**: volunteering and in-kind donations are coordinated over WhatsApp; there you only share what you decide to write to us.",
+        "p6": "**Refunds and tax matters** (such as donation certificates): handled by writing directly to the foundation at fundacionlasfuertes@gmail.com."
+      }
+    }
   },
   "lang": {
     "label": "Language"

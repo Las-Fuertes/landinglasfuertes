@@ -8,6 +8,14 @@
  * El orden del arreglo ES el orden de apilado: el primero queda al fondo.
  */
 
+import {
+  TRAZO_ESPIRAL_2,
+  TRAZO_ESPIRAL_2_MOBILE,
+  TRAZO_PASO_1,
+  TRAZO_PASO_3,
+  type Trazo,
+} from './intro.trazos';
+
 /** Lienzo del frame mobile de Figma. Todo lo de aquí se mide contra esto. */
 export const CANVAS = { width: 390, height: 700 } as const;
 
@@ -17,7 +25,9 @@ export const CANVAS = { width: 390, height: 700 } as const;
  */
 export type Rol =
   | 'burbuja'
+  | 'espiral'
   | 'garabato'
+  | 'bola'
   | 'horizonte'
   | 'sol'
   | 'nube'
@@ -54,6 +64,23 @@ export interface IntroLayer {
   opacity?: number;
   /** Transformación extra (espejado), cuando el diseño la aplica. */
   flipY?: boolean;
+  /**
+   * Línea central del trazo, para los trazos amarillos que se dibujan como si se escribieran
+   * (D10). La capa se pinta con un SVG en línea que enmascara la imagen con esta línea.
+   */
+  trazo?: Trazo;
+  /** La capa solo existe con el pin, no en la intro estática. */
+  soloPin?: boolean;
+  /**
+   * Qué parte de la imagen es el disco del sol, en fracciones de su caja (x, y, ancho, alto),
+   * cuando la imagen trae algo más. La bolita de la parte 1 salta a ese disco (D12).
+   */
+  disco?: { x: number; y: number; w: number; h: number };
+  /**
+   * Una espiral que no gira ni se mece: solo aparece y desaparece (escala y opacidad). Es "Vector
+   * 1282", la de arriba a la izquierda de la parte 1 (D16).
+   */
+  quieta?: boolean;
 }
 
 const P = '/images/intro/';
@@ -63,6 +90,7 @@ export const STEP_1_LAYERS: IntroLayer[] = [
   {
     src: `${P}paso1-squiggle-grande.svg`,
     rol: 'garabato',
+    trazo: TRAZO_PASO_1,
     box: { left: -70, top: 59, width: 735.246, height: 422.035 },
     rotate: 6.45,
     inner: { width: 700.885, height: 345.531 },
@@ -137,19 +165,19 @@ export const STEP_1_LAYERS: IntroLayer[] = [
   },
   {
     src: `${P}paso1-espiral-1259.svg`,
-    rol: 'garabato',
+    rol: 'espiral',
     box: { left: 285.59, top: 163.7, width: 32.769, height: 30.8 },
     inset: '-1.63% -3.57% -4.17% -3.92%',
   },
   {
     src: `${P}paso1-espiral-1261.svg`,
-    rol: 'garabato',
+    rol: 'espiral',
     box: { left: 336.59, top: 383.39, width: 28.556, height: 31.525 },
     inset: '-2.69% -3.64% -3.5% -3.85%',
   },
   {
     src: `${P}paso1-espiral-1266.svg`,
-    rol: 'garabato',
+    rol: 'espiral',
     box: { left: 63.09, top: 434.3, width: 27.62, height: 27.088 },
     inset: '-3.21% -3.88% -5.3% -3.28%',
   },
@@ -159,7 +187,7 @@ export const STEP_1_LAYERS: IntroLayer[] = [
     box: { left: 0, top: 198.46, width: 136.293, height: 133.296 },
   },
   {
-    src: `${P}paso1-elipse-73.svg`,
+    src: `${P}paso1-elipse-70.svg`,
     rol: 'burbuja',
     box: { left: 140.63, top: 232.48, width: 105.317, height: 105.317 },
     rotate: -2.61,
@@ -195,7 +223,8 @@ export const STEP_1_LAYERS: IntroLayer[] = [
   },
   {
     src: `${P}paso1-espiral-1282.svg`,
-    rol: 'garabato',
+    rol: 'espiral',
+    quieta: true,
     box: { left: 54, top: 107, width: 41.502, height: 48.496 },
     inset: '-0.83% -1.55% -1.33% -3.02%',
   },
@@ -320,10 +349,24 @@ const PASO_2_BARCO: IntroLayer[] = [
   },
 ];
 
-/** El sol con su espiral amarilla, tal cual viene en mobile (una sola capa). */
+/**
+ * El sol con su espiral amarilla en mobile. En Figma es un solo grupo (`Group 235`); se sirve en
+ * dos capas con la misma caja, el sol y el espiral, para que el sol caiga solo y el espiral se
+ * dibuje al final (D10). Los dos SVG son el mismo export partido por su relleno.
+ */
 const PASO_2_SOL_MOBILE: IntroLayer = {
-  src: `${P}paso2-sol-squiggle.svg`,
+  src: `${P}paso2-sol-mobile.svg`,
   rol: 'sol',
+  box: { left: 149, top: 66, width: 107.919, height: 93 },
+  inset: '0 0 -2.29% 0',
+  // El disco es el único path del SVG: caja (1,78, 1,54, 77,62 x 81,47) en un viewBox de
+  // 107,92 x 95,13, medida con getBBox (D12).
+  disco: { x: 0.0165, y: 0.0162, w: 0.7192, h: 0.8564 },
+};
+const PASO_2_ESPIRAL_MOBILE: IntroLayer = {
+  src: `${P}paso2-espiral-mobile.svg`,
+  rol: 'garabato',
+  trazo: TRAZO_ESPIRAL_2_MOBILE,
   box: { left: 149, top: 66, width: 107.919, height: 93 },
   inset: '0 0 -2.29% 0',
 };
@@ -385,6 +428,7 @@ const PASO_3_NUBE = (left: number, top: number, width: number, height: number): 
 const PASO_3_GARABATO = (left: number, top: number, width: number, height: number): IntroLayer => ({
   src: `${P}paso3-squiggle.svg`,
   rol: 'garabato',
+  trazo: TRAZO_PASO_3,
   box: { left, top, width, height },
   inset: '-5.41% 0 -28.64% -2.06%',
 });
@@ -462,7 +506,7 @@ export interface IntroVariant {
   sangra?: string[];
   /**
    * Escala y desplazamiento de cada grupo compartido del paso, respecto al lienzo
-   * mobile. En mobile se omite: los grupos se pintan tal cual.
+   * mobile. Sin él, los grupos se pintan tal cual (mobile, salvo el racimo de la parte 1, D12).
    */
   groups?: Record<string, GroupTransform>;
   /** Capas propias de este breakpoint, ya en px de SU lienzo. Van debajo de los grupos. */
@@ -485,6 +529,16 @@ const MOBILE = { width: 390, height: 700 };
 const TABLET = { width: 1024, height: 1366 };
 const DESKTOP = { width: 1280, height: 832 };
 
+/**
+ * La bolita roja de la parte 1 (D10, D15). En tablet y desktop descansa al final de la cola de la
+ * línea amarilla: llega rodando en la entrada y, con el gesto a la parte 2, baja por la línea hasta
+ * la vertical del sol y amanece como ese sol. Su caja pone su centro sobre la línea central del
+ * trazo, en el último punto en que la bola cabe entera en el lienzo con 8 px de aire (medido con
+ * `getPointAtLength` contra el lienzo de cada breakpoint). Mobile no tiene bola: el diseño no la
+ * trae y la cola sale de la pantalla (D15).
+ */
+const bola = (capa: IntroLayer): IntroLayer => ({ ...capa, rol: 'bola' });
+
 const PASO_1_TEXTO = [['hero.section1.text1'], ['hero.section1.text2', 'hero.section1.text3']];
 
 const PASO_1: IntroStep = {
@@ -494,12 +548,17 @@ const PASO_1: IntroStep = {
   variants: {
     mobile: {
       canvas: MOBILE,
-      own: [STEP_1_LAYERS[0]],
+      // Figma 1159:735 (2026-10-01): el racimo a escala 0,92625 y movido, la línea 38,8 px a la
+      // derecha. Medido con "Group 249" (burbuja g) y "Vector 1282" (espiral 1282), D12.
+      groups: { burbujas: { scale: 0.92625, dx: 15, dy: 35.9 } },
+      own: [{ ...STEP_1_LAYERS[0], box: { ...STEP_1_LAYERS[0].box, left: -31.207 } }],
       texts: [
         {
-          left: 30,
+          // Figma 1159:735 da 275 en x 56 (tres líneas en español). Se deja en 300, centrada en
+          // el mismo eje: con 275 el francés pasaba a cuatro líneas y chocaba con los botones (D12).
+          left: 44,
           top: 536,
-          width: 330,
+          width: 300,
           size: 20,
           align: 'center',
           rol: 'texto',
@@ -515,10 +574,12 @@ const PASO_1: IntroStep = {
         {
           src: `${P}paso1-squiggle-grande.svg`,
           rol: 'garabato',
+          trazo: TRAZO_PASO_1,
           box: { left: 6.255, top: 84, width: 1393.172, height: 919.065 },
           inset: '-0.47% 0 -1.35% -0.71%',
         },
-        PASO_3_SOL(939, 806, 0.6547),
+        // Al final de la cola, en el borde derecho del lienzo (D15). Antes, la del diseño en 939, 806.
+        bola(PASO_3_SOL(967.55, 934.67, 0.6547)),
       ],
       texts: [
         {
@@ -535,15 +596,19 @@ const PASO_1: IntroStep = {
     },
     desktop: {
       canvas: DESKTOP,
-      groups: { burbujas: { scale: 1.2988, dx: 92, dy: 66 } },
+      // Figma 1152:287 (2026-10-01): el racimo 46 px a la derecha y 19 arriba (D12).
+      groups: { burbujas: { scale: 1.2988, dx: 138, dy: 47.04 } },
       own: [
         {
           src: `${P}paso1-squiggle-grande.svg`,
           rol: 'garabato',
+          trazo: TRAZO_PASO_1,
           box: { left: 10.9, top: 80.47, width: 1279.254, height: 630.662 },
           inset: '-0.47% 0 -1.35% -0.71%',
         },
-        PASO_3_SOL(1171, 550, 0.6547),
+        // Al final de la cola (D15). Figma la pone en 1069, 559 ("Group 235", 1224:2), a media
+        // cola; Johan pidió que la bola llegue al final y descanse ahí.
+        bola(PASO_3_SOL(1223.54, 565.03, 0.6547)),
       ],
       texts: [
         {
@@ -573,6 +638,7 @@ const PASO_2_SOL_GRANDE = (left: number, top: number) => PASO_3_SOL(left, top, 1
 const PASO_2_ESPIRAL = (left: number, top: number): IntroLayer => ({
   src: `${P}paso2-espiral.svg`,
   rol: 'garabato',
+  trazo: TRAZO_ESPIRAL_2,
   box: { left, top, width: 74.069, height: 105.197 },
   inset: '-2.33% 0 -2.73% -5.86%',
 });
@@ -583,7 +649,7 @@ const PASO_2: IntroStep = {
   variants: {
     mobile: {
       canvas: MOBILE,
-      own: [PASO_2_SOL_MOBILE],
+      own: [PASO_2_SOL_MOBILE, PASO_2_ESPIRAL_MOBILE],
       texts: [
         {
           left: 53,

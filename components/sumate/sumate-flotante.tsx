@@ -1,6 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
+import { useRouter } from 'next/router';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useSumateDrawer } from './sumate-drawer-context';
 
@@ -8,36 +11,38 @@ import { useSumateDrawer } from './sumate-drawer-context';
 const ID_TRAS_INTRO = 'bienvenida';
 /**
  * Mientras la intro trae a Bienvenida (docs/introduccion/DECISIONES.md, D6), la página ya está en
- * Bienvenida pero la intro sigue en pantalla con su botón de saltar abajo a la derecha: el botón
- * espera a que termine. La intro marca `<html>` con este atributo mientras tanto.
+ * Bienvenida pero la intro sigue en pantalla: la navegación espera a que termine. La intro marca
+ * `<html>` con este atributo mientras tanto.
  */
 const LLEGANDO = 'data-intro-llegando';
 /**
- * Toda sección con este atributo retira el botón mientras está en pantalla (hoy, el Mapa
+ * Toda sección con este atributo retira la navegación mientras está en pantalla (hoy, el Mapa
  * educativo: docs/mapa-educativo/DECISIONES.md, D5). Para sumar otra basta con ponerle
- * `data-oculta-flotante=""`; el botón la encuentra solo, aunque se monte más tarde.
+ * `data-oculta-flotante=""`; la navegación la encuentra sola, aunque se monte más tarde.
  */
 const OCULTA = 'data-oculta-flotante';
 /**
  * Cuánto tiene que entrar la sección para contar como "en pantalla": un 10 % por arriba y por
- * abajo no cuenta, así una franja que apenas asoma no hace parpadear el botón.
+ * abajo no cuenta, así una franja que apenas asoma no hace parpadear la navegación.
  */
 const MARGEN_OCULTA = '-10% 0px -10% 0px';
-
+/** Mismo umbral que el selector de idioma para "arriba del todo". */
+const ARRIBA_PX = 40;
 /**
- * Botón fijo "Súmate" abajo a la derecha. Aparece solo después de la intro (ni enganchada ni
- * visible: con el pin la intro ocupa la pantalla y la página está arriba del todo) y se oculta
- * mientras el drawer está abierto o mientras una sección con `data-oculta-flotante` está en
- * pantalla. Se oculta con opacidad y no se desmonta, para que el foco pueda volver a él al
- * cerrar el drawer.
+ * Ronda 3 (docs/navegacion/DECISIONES.md, ampliación de D1): el menú (hamburguesa con "Inicio" y
+ * "Súmate") queda apagado TEMPORALMENTE y en su lugar se ve solo el CTA "Súmate", en la misma
+ * esquina y con la misma visibilidad. Para volver al menú basta con poner esto en `true`.
  */
-export default function SumateFlotante() {
-  const { t } = useTranslation();
-  const { isOpen, open } = useSumateDrawer();
+const MENU_ACTIVO: boolean = false;
+/** Curva de entrada del sitio (la de `FadeIn`). */
+const ENTRADA = [0.22, 1, 0.36, 1] as const;
+
+/** Las mismas tres razones de siempre para no mostrarse: la intro, el drawer y las secciones. */
+function useVisible(drawerAbierto: boolean) {
   const [trasIntro, setTrasIntro] = useState(false);
   const [tapado, setTapado] = useState(false);
 
-  // Secciones que piden no tener el botón encima. Un IntersectionObserver por todas; si se
+  // Secciones que piden no tener la navegación encima. Un IntersectionObserver por todas; si se
   // monta o desmonta alguna, se vuelve a buscar.
   useEffect(() => {
     const dentro = new Set<Element>();
@@ -92,7 +97,11 @@ export default function SumateFlotante() {
       raf = 0;
       const el = document.getElementById(ID_TRAS_INTRO);
       const llegando = document.documentElement.hasAttribute(LLEGANDO);
-      setTrasIntro(el ? el.getBoundingClientRect().top <= 0 && !llegando : false);
+      // En otra página (Términos) no hay intro: la navegación releva al selector de idioma, que
+      // solo se ve arriba del todo (`scrollY < 40`, language-switcher.tsx).
+      setTrasIntro(
+        el ? el.getBoundingClientRect().top <= 0 && !llegando : window.scrollY >= ARRIBA_PX
+      );
     };
     const programar = () => {
       if (!raf) raf = requestAnimationFrame(medir);
@@ -110,23 +119,200 @@ export default function SumateFlotante() {
     };
   }, []);
 
-  const visible = trasIntro && !isOpen && !tapado;
+  return trasIntro && !drawerAbierto && !tapado;
+}
+
+/**
+ * Navegación flotante (Figma `1402:225`; docs/navegacion/DECISIONES.md, D1). Reemplaza al botón
+ * "Súmate" fijo y hereda su comportamiento: aparece solo después de la intro, se retira con el
+ * drawer abierto y sobre las secciones con `data-oculta-flotante`, y se oculta con opacidad sin
+ * desmontarse (queda `inert`), para que el foco pueda volver al botón al cerrar el drawer.
+ *
+ * Cerrada es un círculo con el ícono de menú arriba a la izquierda; abierta, una píldora de papel
+ * con "Inicio" (lleva arriba del todo, a la intro) y "Súmate" (abre el drawer). Es un disclosure:
+ * `aria-expanded` y `aria-controls` en el botón, Escape cierra y devuelve el foco al botón, y
+ * cierra también al elegir una entrada, al hacer clic fuera o al salir el foco de la navegación.
+ * El selector de idioma vive en la misma esquina pero solo con la página arriba del todo, donde
+ * esta navegación nunca se muestra.
+ */
+export default function SumateFlotante() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { isOpen: drawerAbierto, open: abrirDrawer } = useSumateDrawer();
+  const visible = useVisible(drawerAbierto);
+  const reducido = useReducedMotion();
+  const [abierto, setAbierto] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const botonRef = useRef<HTMLButtonElement>(null);
+  const idLista = useId();
+
+  const cerrar = useCallback((devolverFoco: boolean) => {
+    setAbierto(false);
+    if (devolverFoco) botonRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  // Si la navegación se retira (el mapa, el drawer, la vuelta a la intro), el menú se cierra.
+  useEffect(() => {
+    if (!visible) setAbierto(false);
+  }, [visible]);
+
+  // Clic fuera y Escape.
+  useEffect(() => {
+    if (!abierto) return;
+    const alPulsar = (e: PointerEvent) => {
+      if (!navRef.current?.contains(e.target as Node)) cerrar(false);
+    };
+    const alTecla = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      // Que la intro u otra capa no reciban también este Escape.
+      e.stopPropagation();
+      cerrar(true);
+    };
+    document.addEventListener('pointerdown', alPulsar);
+    document.addEventListener('keydown', alTecla, true);
+    return () => {
+      document.removeEventListener('pointerdown', alPulsar);
+      document.removeEventListener('keydown', alTecla, true);
+    };
+  }, [abierto, cerrar]);
+
+  const irAInicio = () => {
+    setAbierto(false);
+    // Fuera de la home (Términos), Inicio lleva a la home en el mismo idioma.
+    if (!document.getElementById(ID_TRAS_INTRO)) {
+      router.push('/');
+      return;
+    }
+    // Salto directo: un recorrido suave de toda la página pasaría por el pin de la intro a
+    // medio camino. El foco va a `main`, para que el siguiente Tab entre en la intro.
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    const main = document.querySelector('main');
+    if (main) {
+      if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+      main.focus({ preventScroll: true });
+    }
+  };
+
+  const irASumate = () => {
+    // El foco pasa antes al botón del menú: el drawer lo guarda como disparador y lo devuelve
+    // ahí al cerrar, porque "Súmate" ya no estará en pantalla.
+    cerrar(true);
+    abrirDrawer('flotante');
+  };
+
+  const entrada = reducido ? { duration: 0 } : { duration: 0.35, ease: ENTRADA };
+  const itemClase =
+    'inline-flex h-10 shrink-0 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue';
+
+  const claseVisible = visible
+    ? 'translate-y-0 opacity-100'
+    : 'pointer-events-none -translate-y-3 opacity-0';
+
+  if (!MENU_ACTIVO)
+    return (
+      <nav
+        aria-label={t('nav.etiqueta')}
+        aria-hidden={!visible || undefined}
+        inert={!visible}
+        data-nav-flotante=""
+        data-visible={visible ? '' : undefined}
+        className={`fixed left-page-margin top-4 z-[80] transition duration-300 ${claseVisible}`}
+      >
+        {/* Misma forma que el selector de idioma (language-switcher.tsx), en su mismo sitio:
+            píldora blanca translúcida con borde fino, sombra y 4 de relleno, y dentro un chip
+            azul como el del idioma activo, misma letra. Así la esquina no cambia de forma al
+            pasar de uno a otro; lo que lo hace CTA es el chip azul, más ancho, en mayúsculas
+            extrabold (blanco sobre `blue` pasa AA de sobra). Toda la píldora es el botón. */}
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          aria-label={t('sumate.drawer.flotanteAria')}
+          onClick={() => abrirDrawer('flotante')}
+          data-sumate-flotante=""
+          className="group flex rounded-full border border-black/10 bg-white/80 p-1 shadow-lg backdrop-blur-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2"
+        >
+          <span className="whitespace-nowrap rounded-full bg-blue px-m py-1.5 text-[0.85rem] font-extrabold uppercase text-white transition-colors group-hover:bg-blue-300">
+            {t('nav.sumate')}
+          </span>
+        </button>
+      </nav>
+    );
 
   return (
-    <button
-      type="button"
-      aria-haspopup="dialog"
-      aria-label={t('sumate.drawer.flotanteAria')}
+    <nav
+      ref={navRef}
+      aria-label={t('nav.etiqueta')}
       aria-hidden={!visible || undefined}
-      tabIndex={visible ? 0 : -1}
-      onClick={() => open('flotante')}
-      data-sumate-flotante=""
+      inert={!visible}
+      data-nav-flotante=""
       data-visible={visible ? '' : undefined}
-      className={`fixed bottom-l right-l z-[80] inline-flex h-12 items-center justify-center rounded-lg border-2 border-white bg-blue px-l text-[1rem] font-bold uppercase tracking-tight text-white shadow-lg transition duration-300 hover:bg-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 md:h-[3.25rem] md:px-7 md:text-[1.05rem] ${
-        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
-      }`}
+      data-abierto={abierto ? '' : undefined}
+      onBlur={e => {
+        if (abierto && !navRef.current?.contains(e.relatedTarget as Node | null)) cerrar(false);
+      }}
+      className={`fixed left-m top-m z-[80] transition duration-300 lg:left-l lg:top-l ${claseVisible}`}
     >
-      {t('sumate.drawer.flotante')}
-    </button>
+      <div
+        className={`flex items-center rounded-full transition-[background-color,box-shadow] duration-300 ${
+          abierto ? 'bg-papel shadow-md' : 'bg-transparent shadow-none'
+        }`}
+      >
+        <button
+          ref={botonRef}
+          type="button"
+          aria-expanded={abierto}
+          aria-controls={abierto ? idLista : undefined}
+          aria-label={abierto ? t('nav.cerrar') : t('nav.abrir')}
+          onClick={() => setAbierto(a => !a)}
+          data-nav-boton=""
+          className="m-xs inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-papel-tostado text-black shadow-md transition-colors hover:bg-arena focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2"
+        >
+          {abierto ? (
+            <X className="h-5 w-5" strokeWidth={2.25} aria-hidden />
+          ) : (
+            <Menu className="h-6 w-6" strokeWidth={2.25} aria-hidden />
+          )}
+        </button>
+
+        <AnimatePresence initial={false}>
+          {abierto && (
+            <motion.ul
+              id={idLista}
+              key="lista"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 'auto', opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={entrada}
+              className="flex items-center gap-m overflow-hidden"
+            >
+              <li className="ml-m">
+                <button
+                  type="button"
+                  onClick={irAInicio}
+                  data-nav-inicio=""
+                  className={`${itemClase} whitespace-nowrap px-s text-[0.77rem] uppercase tracking-[0.05em] text-black hover:text-blue`}
+                >
+                  {t('nav.inicio')}
+                </button>
+              </li>
+              <li className="py-xs pr-s">
+                <button
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-label={t('sumate.drawer.flotanteAria')}
+                  onClick={irASumate}
+                  data-sumate-flotante=""
+                  className={`${itemClase} group`}
+                >
+                  <span className="inline-flex h-7 min-w-[5.75rem] items-center justify-center whitespace-nowrap rounded-full border border-black bg-black px-m text-[0.65rem] font-extrabold uppercase text-papel transition-colors group-hover:bg-blue-300">
+                    {t('nav.sumate')}
+                  </span>
+                </button>
+              </li>
+            </motion.ul>
+          )}
+        </AnimatePresence>
+      </div>
+    </nav>
   );
 }

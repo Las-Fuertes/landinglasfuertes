@@ -9,13 +9,7 @@ import {
   useState,
 } from 'react';
 import type { Sentido } from './intro.motion';
-import {
-  FIN_DE_GESTO_MS,
-  GESTOS_FUERTES,
-  type GestoRueda,
-  registrarRueda,
-  SCROLL_FUERTE_PX,
-} from '../../lib/gesto-rueda';
+import { FIN_DE_GESTO_MS, type GestoRueda, registrarRueda } from '../../lib/gesto-rueda';
 import { alAceptarAviso } from '../aviso/aviso';
 
 const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
@@ -32,9 +26,14 @@ export interface Transicion {
   id: number;
 }
 
-/** Un timeline de GSAP visto desde aquí: solo hace falta poder terminarlo de golpe. */
+/**
+ * Un timeline de GSAP visto desde aquí: hace falta poder terminarlo de golpe y, en la llegada a
+ * Bienvenida, saber si ya pasó su etiqueta `asentada` (lo que queda solo es fondo).
+ */
 interface Terminable {
   progress(value: number): unknown;
+  time?(): number;
+  labels?: Record<string, number>;
 }
 
 export interface IntroPinState {
@@ -56,7 +55,6 @@ export interface IntroPinState {
   /** El componente avisa cuando el timeline de la llegada terminó. */
   terminarLlegada: () => void;
   engaged: boolean;
-  saltarVisible: boolean;
   placeholderRef: RefObject<HTMLDivElement>;
   saltarRef: RefObject<HTMLButtonElement>;
   /** El timeline que corre ahora (transición o entrada). Lo escribe el componente. */
@@ -64,6 +62,11 @@ export interface IntroPinState {
   /** El componente avisa cuando el timeline de la transición terminó. */
   terminarTransicion: () => void;
   saltar: () => void;
+  /**
+   * Un paso adelante o atrás desde los botones de la intro (D10), como un gesto. No hace nada si
+   * ya corre una transición.
+   */
+  irA: (sentido: Sentido) => void;
 }
 
 /**
@@ -89,8 +92,9 @@ const esCampoDeTexto = (el: EventTarget | null) =>
  * - Solo engancha un gesto hacia abajo que empieza con la página arriba del todo. Al subir
  *   desde abajo no hay enganche ni reversa: cuando la intro sale de la pantalla por arriba
  *   vuelve a la parte 1 sin animar, y al reaparecer la parte 1 reproduce su entrada.
- * - Scroll fuerte (un gesto de más de `SCROLL_FUERTE_PX`, o `GESTOS_FUERTES` gestos durante
- *   una transición), Tab o Escape muestran el botón de saltar.
+ * - "Saltar intro" y las dos flechas (D10) están siempre a mano en reposo: los pinta el componente
+ *   y llaman a `saltar` e `irA`. Tab recorre la página con normalidad; Escape lleva el foco a
+ *   "Saltar intro".
  */
 export function useIntroPin(totalSteps: number): IntroPinState {
   const [mode, setMode] = useState<'fallback' | 'pin'>('fallback');
@@ -99,7 +103,6 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   const [entrada, setEntrada] = useState(0);
   const [llegada, setLlegada] = useState(0);
   const [engaged, setEngaged] = useState(false);
-  const [saltarVisible, setSaltarVisible] = useState(false);
 
   const placeholderRef = useRef<HTMLDivElement>(null!);
   const saltarRef = useRef<HTMLButtonElement>(null!);
@@ -113,13 +116,19 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   /** Corre la llegada a Bienvenida: la página se desplaza por código y la capa sigue fija. */
   const llegandoRef = useRef(false);
   /**
-   * Tras la llegada, el resto del gesto que la disparó (la inercia, o el mismo dedo) se sigue
-   * tragando: si no, al soltar la capa fija la página seguiría bajando más allá de Bienvenida.
+   * Tras la llegada, el resto del gesto de rueda que la disparó (la inercia) se sigue tragando:
+   * si no, al soltar la capa fija la página seguiría bajando más allá de Bienvenida. El dedo no
+   * (D13): al terminar la llegada queda libre en el acto.
    */
   const tragarRef = useRef(false);
+  /**
+   * Pone o quita el `touchmove` bloqueante y vuelve pasiva o no la rueda según haga falta (D14).
+   * Lo escribe el efecto de los listeners; lo llaman `enganchar` y `terminarLlegada` para soltar
+   * el dedo y la rueda en cuanto la página es libre.
+   */
+  const sincronizarRef = useRef<() => void>(() => {});
   /** La intro salió por arriba: al reaparecer, la parte 1 reproduce su entrada. */
   const salioRef = useRef(false);
-  const gestosDuranteRef = useRef(0);
   const gestoRef = useRef<Gesto>({
     vivo: false,
     consumido: false,
@@ -135,7 +144,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   const enganchar = useCallback((valor: boolean) => {
     engagedRef.current = valor;
     setEngaged(valor);
-    if (!valor) setSaltarVisible(false);
+    sincronizarRef.current();
   }, []);
 
   const terminarTransicion = useCallback(() => {
@@ -160,7 +169,13 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     setLlegada(0);
     engagedRef.current = false;
     setEngaged(false);
-    setSaltarVisible(false);
+    sincronizarRef.current();
+    // Si se llegó con la flecha de avanzar, el foco sigue al contenido: Bienvenida.
+    const bienvenida = document.getElementById('bienvenida');
+    if (bienvenida && placeholderRef.current?.contains(document.activeElement)) {
+      if (!bienvenida.hasAttribute('tabindex')) bienvenida.setAttribute('tabindex', '-1');
+      bienvenida.focus({ preventScroll: true });
+    }
   }, []);
 
   /** Termina de golpe lo que esté corriendo. `progress(1)` dispara su `onComplete`. */
@@ -187,7 +202,6 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         terminarTimeline();
         corriendoRef.current = true;
         llegandoRef.current = true;
-        gestosDuranteRef.current = 0;
         setLlegada(++transicionIdRef.current);
         return true;
       }
@@ -199,7 +213,6 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       // Si la parte 1 todavía está entrando, se termina en el acto y se sigue.
       terminarTimeline();
       corriendoRef.current = true;
-      gestosDuranteRef.current = 0;
       const t: Transicion = {
         desde: stepRef.current,
         hacia: siguiente,
@@ -214,13 +227,28 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     [totalSteps, desenganchar, enganchar, terminarTimeline]
   );
 
-  const mostrarSaltar = useCallback(() => setSaltarVisible(true), []);
-
   const saltar = useCallback(() => {
-    terminarTimeline();
-    enganchar(false);
     // Lleva a la primera sección tras la intro, Bienvenida (docs/sumate-drawer/DECISIONES.md, D1).
     const siguiente = document.getElementById('bienvenida');
+    // Como el gesto desde la parte 3 (D6), desde la parte en que esté (D12): la intro sale con
+    // su coreografía y Bienvenida entra por piezas, el texto primero. Antes se llegaba con un
+    // desplazamiento y Bienvenida ya en reposo: se perdía su entrada.
+    if (siguiente && !llegandoRef.current) {
+      terminarTimeline();
+      if (!engagedRef.current) {
+        // Los botones viven en la intro: si la página se movió un poco, se vuelve arriba antes
+        // de enganchar, para que la capa fija no se suelte en el acto.
+        if (window.scrollY > ARRIBA_PX) window.scrollTo({ top: 0, behavior: 'instant' });
+        enganchar(true);
+      }
+      corriendoRef.current = true;
+      llegandoRef.current = true;
+      setLlegada(++transicionIdRef.current);
+      return;
+    }
+    // A media llegada, saltar la termina: Bienvenida queda en reposo.
+    terminarTimeline();
+    enganchar(false);
     if (!siguiente) return;
     // Espera a que la capa fija se suelte antes de desplazarse.
     requestAnimationFrame(() => {
@@ -230,6 +258,19 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       siguiente.focus({ preventScroll: true });
     });
   }, [enganchar, terminarTimeline]);
+
+  const irA = useCallback(
+    (sentido: Sentido) => {
+      if (corriendoRef.current) return;
+      // Los botones viven en la intro: si la página se movió un poco, se vuelve arriba antes de
+      // enganchar, para que la capa fija no se suelte en el acto.
+      if (!engagedRef.current && window.scrollY > ARRIBA_PX) {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+      avanzar(sentido);
+    },
+    [avanzar]
+  );
 
   // Decide el modo una sola vez, tras montar. Nunca se revierte: si arranca en 'fallback'
   // (reduced-motion o hash en la URL) se queda ahí, sin listeners ni capa fija.
@@ -262,10 +303,18 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     if (mode !== 'pin') return;
 
     const arriba = () => window.scrollY <= ARRIBA_PX;
+    /** Si la rueda se escucha ahora con `passive: false` (ver `sincronizar`). */
+    let ruedaBloquea: boolean | null = null;
 
     const onWheel = (e: WheelEvent) => {
       // El pellizco del trackpad llega como rueda con ctrlKey: es zoom, no un gesto de la intro.
       if (e.ctrlKey) return;
+      // Fuera de la zona de la intro la rueda se escucha pasiva (D14): sigue registrando el gesto,
+      // para que uno que llega arriba no se confunda con uno nuevo, pero no puede frenar nada.
+      const puede = ruedaBloquea === true;
+      const frenar = () => {
+        if (puede) e.preventDefault();
+      };
       const sentido: Sentido | 0 = e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0;
       if (sentido === 0) return;
       const abs = Math.abs(e.deltaY);
@@ -276,62 +325,75 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       if (registrarRueda(g, sentido, abs)) {
         tragarRef.current = false;
         g.inicioY = window.scrollY;
+        sincronizar();
       }
       window.clearTimeout(finDeGestoRef.current);
       finDeGestoRef.current = window.setTimeout(() => {
         gestoRef.current.vivo = false;
+        sincronizar();
       }, FIN_DE_GESTO_MS);
       g.acumulado += abs;
 
       if (engagedRef.current) {
-        if (g.acumulado > SCROLL_FUERTE_PX) mostrarSaltar();
         if (g.consumido) {
-          e.preventDefault();
+          frenar();
           return;
         }
         g.consumido = true;
         if (corriendoRef.current) {
-          // Un gesto nuevo mientras corre la transición: se traga entero y se cuenta.
-          e.preventDefault();
-          if (++gestosDuranteRef.current >= GESTOS_FUERTES) mostrarSaltar();
+          // Un gesto nuevo mientras corre la transición: se traga entero.
+          frenar();
           return;
         }
-        if (avanzar(sentido)) e.preventDefault();
+        if (avanzar(sentido)) frenar();
         return;
       }
 
       // El resto del gesto que llevó a Bienvenida no mueve la página (D6).
       if (tragarRef.current && g.consumido) {
-        e.preventDefault();
+        frenar();
         return;
       }
 
       // Sin enganchar: solo un gesto hacia abajo que empezó arriba del todo entra a la intro.
       if (!g.consumido && sentido === 1 && g.inicioY <= ARRIBA_PX && arriba()) {
         g.consumido = true;
-        if (avanzar(1)) e.preventDefault();
+        if (avanzar(1)) frenar();
       }
     };
 
     const onKeydown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey || esCampoDeTexto(e.target)) return;
 
-      if (engagedRef.current && (e.key === 'Tab' || e.key === 'Escape')) {
-        // Nadie se queda atrapado: con teclado aparece el botón de saltar y recibe el foco.
-        if (document.activeElement === saltarRef.current) {
-          if (e.key === 'Escape') saltar();
-          return;
-        }
-        e.preventDefault();
-        mostrarSaltar();
-        requestAnimationFrame(() => saltarRef.current?.focus());
+      // Tab recorre la página con normalidad: "Saltar intro" y las flechas son lo primero que
+      // encuentra dentro de la intro (D10). Escape lleva el foco a "Saltar intro".
+      if (engagedRef.current && e.key === 'Escape') {
+        saltarRef.current?.focus();
         return;
       }
 
+      // Durante una transición o la llegada, los botones están escondidos (inert) y el siguiente
+      // enfocable está fuera de la intro: Tab desplazaría la página y soltaría la capa fija a
+      // mitad de camino. El foco se queda en el grupo de la navegación, que lo devuelve a los
+      // botones al reaparecer (D10). En reposo, Tab sale de la intro con normalidad.
+      if (e.key === 'Tab' && engagedRef.current && corriendoRef.current) {
+        e.preventDefault();
+        const grupo = placeholderRef.current?.querySelector<HTMLElement>('[data-intro-navegacion]');
+        if (grupo && !grupo.contains(document.activeElement)) grupo.focus({ preventScroll: true });
+        return;
+      }
+
+      // Espacio avanza como en cualquier página, salvo sobre un botón (que se pulsa).
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      const espacioLibre =
+        target === document.body ||
+        (!!target &&
+          !!placeholderRef.current?.contains(target) &&
+          !target.closest('button, a, [role="button"]'));
       let sentido: Sentido | 0 = 0;
       if (e.key === 'ArrowDown' || e.key === 'PageDown') sentido = 1;
       else if (e.key === 'ArrowUp' || e.key === 'PageUp') sentido = -1;
-      else if (e.key === ' ' && e.target === document.body) sentido = e.shiftKey ? -1 : 1;
+      else if (e.key === ' ' && espacioLibre) sentido = e.shiftKey ? -1 : 1;
       if (sentido === 0) return;
 
       if (engagedRef.current) {
@@ -347,6 +409,13 @@ export function useIntroPin(totalSteps: number): IntroPinState {
 
     const onTouchStart = (e: TouchEvent) => {
       tragarRef.current = false;
+      // Un dedo nuevo cuando la llegada ya solo anima el fondo (nubes, gaviotas) la termina: se
+      // ve quieta y el dedo no puede quedar retenido por ella (D13).
+      const tl = timelineRef.current;
+      const asentada = tl?.labels?.asentada;
+      if (llegandoRef.current && asentada !== undefined && (tl?.time?.() ?? 0) >= asentada) {
+        terminarTimeline();
+      }
       const y = e.touches[0]?.clientY;
       touchRef.current = y === undefined ? null : { y, inicioY: window.scrollY, hecho: false };
     };
@@ -359,11 +428,8 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       const sentido: Sentido = delta > 0 ? 1 : -1;
 
       if (!engagedRef.current) {
-        // El dedo que llevó a Bienvenida no sigue moviendo la página al soltarse la capa (D6).
-        if (t.hecho && tragarRef.current) {
-          e.preventDefault();
-          return;
-        }
+        // Al terminar la llegada el dedo queda libre aunque siga puesto (D13): antes se tragaba
+        // hasta levantarlo y la página se quedaba pegada a Bienvenida.
         // Sin enganchar solo interesa un dedo que sube con la página arriba del todo. Se
         // retiene el scroll nativo desde el primer movimiento para que no se escape.
         if (t.hecho || sentido !== 1 || t.inicioY > ARRIBA_PX || !arriba()) return;
@@ -376,10 +442,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
 
       if (t.hecho || corriendoRef.current) {
         e.preventDefault();
-        if (!t.hecho && corriendoRef.current) {
-          t.hecho = true;
-          if (++gestosDuranteRef.current >= GESTOS_FUERTES) mostrarSaltar();
-        }
+        if (!t.hecho && corriendoRef.current) t.hecho = true;
         return;
       }
       // Desde la parte 1 hacia arriba se suelta en el acto, para que el mismo dedo siga con el
@@ -402,6 +465,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     // Red de seguridad: si la página se movió por otra vía (barra de scroll, un enlace, el foco
     // saltando a otra sección), la capa fija se suelta.
     const onScroll = () => {
+      sincronizar();
       // La llegada a Bienvenida desplaza la página por código con la capa aún fija.
       if (llegandoRef.current) return;
       if (engagedRef.current) {
@@ -418,14 +482,40 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       }
     };
 
-    window.addEventListener('wheel', onWheel, { passive: false });
+    // El `touchmove` que puede frenar el dedo y la rueda que puede frenar la página solo son no
+    // pasivos cuando hace falta (D14): con la página arriba del todo (donde la intro engancha),
+    // enganchada o durante la llegada; la rueda, además, mientras dura el gesto que trajo hasta
+    // Bienvenida (su inercia se traga, D6). Un listener no pasivo en `window` vuelve bloqueante
+    // TODO toque o TODA rueda de la página: el navegador no empieza a desplazar hasta que el hilo
+    // principal lo atiende, y si está ocupado (fin de la llegada, entradas de Impacto) la página
+    // se queda pegada lo que dure esa tarea. Se revisa en cada `scroll`, al enganchar o soltar,
+    // al terminar la llegada y al abrir o cerrar un gesto de rueda.
+    let conToque = false;
+    const sincronizar = () => {
+      const hace = llegandoRef.current || engagedRef.current || arriba();
+      if (hace !== conToque) {
+        conToque = hace;
+        if (hace) window.addEventListener('touchmove', onTouchMove, { passive: false });
+        else window.removeEventListener('touchmove', onTouchMove);
+      }
+      const rueda = hace || (tragarRef.current && gestoRef.current.vivo);
+      if (rueda !== ruedaBloquea) {
+        // El mismo listener cambia de `passive`: hay que quitarlo y volver a ponerlo.
+        if (ruedaBloquea !== null) window.removeEventListener('wheel', onWheel);
+        window.addEventListener('wheel', onWheel, { passive: !rueda });
+        ruedaBloquea = rueda;
+      }
+    };
+    sincronizarRef.current = sincronizar;
+    sincronizar();
+
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
+      sincronizarRef.current = () => {};
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKeydown);
       window.removeEventListener('touchstart', onTouchStart);
@@ -434,7 +524,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       window.removeEventListener('scroll', onScroll);
       window.clearTimeout(finDeGestoRef.current);
     };
-  }, [mode, totalSteps, avanzar, desenganchar, enganchar, mostrarSaltar, saltar]);
+  }, [mode, totalSteps, avanzar, desenganchar, enganchar, terminarTimeline]);
 
   // Reinicio al salir por arriba: la intro vuelve a la parte 1 sin animar, y cuando reaparece
   // (subiendo desde Bienvenida) la parte 1 reproduce su entrada.
@@ -474,11 +564,11 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     llegada,
     terminarLlegada,
     engaged,
-    saltarVisible,
     placeholderRef,
     saltarRef,
     timelineRef,
     terminarTransicion,
     saltar,
+    irA,
   };
 }

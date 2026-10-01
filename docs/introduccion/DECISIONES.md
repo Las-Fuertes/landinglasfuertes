@@ -891,3 +891,750 @@ Capturas `antes-<ancho>x<alto>-<lang>.png` y `despues-...`, `llegada-<ancho>x<al
 y no se deforma, pero es pequeña, y el botón de Súmate tapa buena parte de la mujer. Por debajo de
 568 de alto (celular apaisado) el hero vuelve a crecer: la ilustración tiene un mínimo de 7rem.
 Safari usa `dvh` y container queries desde la versión 16; no se probó en un iPhone físico.
+
+---
+
+## D10. Feedback del 30 de septiembre: colores nuevos, entrada por pasos, viaje de la bola, trazos que se escriben y navegación accesible
+
+**Contexto.** Punto 1 de `docs/feedback-30-sep/FEEDBACK.md` y la respuesta 1 de Johan en
+`docs/feedback-30-sep/ROADMAP.md`. Rama `30-sep`, frente A de la ola 1, sin commitear.
+
+### 1. Colores de las burbujas (Figma `1152:287`)
+
+Los colores viven dentro de los SVG de cada burbuja, no en clases: no hizo falta ningún color nuevo
+en `tailwind.config.js`. Se reemplazaron los 12 SVG de la parte 1 (`paso1-burbuja-a` a `-j`,
+`paso1-elipse-71`, `-73`) por los exports de Figma, casados capa a capa por orden y caja, con los
+números redondeados a 2 decimales (el export trae 4 a 6 y pesaba el doble; a este tamaño no se
+distingue). La segunda sombra, que antes reusaba `paso1-elipse-73`, ahora tiene su color propio y
+su archivo, `paso1-elipse-70.svg`. La geometría no cambió: los tres breakpoints usan las mismas
+capas.
+
+**Queda anotado, no se tocó:** en `1152:287` (desktop) y `1159:735` (mobile) la diseñadora además
+movió el racimo (desktop: unos 46 px a la derecha y 19 arriba; mobile: más chico, escala 0,93,
+y la línea amarilla 39 px a la derecha) y en desktop la bolita está en otra parte de la línea. El
+encargo era de color; mover la composición es otra decisión.
+
+### 2. Entrada de la parte 1, por pasos (`crearEntrada`)
+
+Al llegar desde el aviso o con la cookie ya puesta: primero el texto (como siempre, el texto
+manda); luego las burbujas y las espirales negras **una a una**, cada 50 ms base (70 ms reales),
+desde el centro del racimo hacia fuera. Los trazos negros sueltos entran con la pieza que les toca,
+sin sumar un paso. Las espirales tienen rol propio, `espiral`: entran girando (-150° a 0 con
+`back.out`) y en reposo **giran despacio sin fin**, una vuelta cada 24 s, alternando el sentido
+(antes se balanceaban como un garabato). Al final, la línea amarilla se escribe (1,05 s base). La
+entrada entera dura unos 3,4 s; un gesto a mitad la termina y pasa a la parte 2, como antes.
+
+### 3. Trazos que se escriben (parte 1, espiral de la parte 2, trazo de la parte 3)
+
+En Figma cada trazo amarillo es un vector con pincel; el SVG servido es el pincel convertido a
+relleno, sin `stroke` que animar. Pero Figma guarda la línea central del vector (`vectorPaths`),
+y esa es la que se copió a `components/intro/intro.trazos.ts` (nodos `1230:94`, `1230:96`,
+`1230:98`). Una capa con `trazo` se pinta con un SVG en línea: la misma imagen del pincel,
+enmascarada por esa línea con un `stroke` 1,8 veces el grosor del pincel que se despliega con
+`stroke-dashoffset`. **La máscara solo se pone mientras se anima**: en reposo la imagen va tal cual
+(el reposo es sagrado).
+
+- **Grosor de la máscara medido:** con la máscara completa, píxeles amarillos que se pierden frente
+  a la imagen sin máscara, parte 1 a 1280: 1551 con 1,2x, 40 con 1,5x, 0 con 1,8x. Se eligió 1,8:
+  cubre todo el pincel y destapa lo mínimo del tramo vecino donde la línea se cruza consigo misma.
+- **`pathLength` es 1000, no 1:** con 1, GSAP redondea `stroke-dashoffset` a píxeles enteros y el
+  dibujo saltaba de golpe de 1 a 0.
+- En mobile, el sol y su espiral eran un solo SVG: se partió por relleno en `paso2-sol-mobile.svg`
+  y `paso2-espiral-mobile.svg`, misma caja. Así el sol cae solo y el espiral se dibuja al final.
+  `paso2-sol-squiggle.svg` se queda en `public/` sin uso (regla del repo: no se borran assets).
+- En las transiciones, el trazo de la parte que entra se dibuja al final de todo (0,45 s base
+  después del arranque de las piezas, 0,6 s de dibujo). Al salir, se barre con el recorte de
+  siempre.
+
+### 4. El viaje de la bola entre las partes 1 y 2 (`viajeDeLaBola`)
+
+La bolita roja **no está en la parte 1 en reposo** (con el pin lleva `invisible`; tablet y desktop
+tienen la del diseño, rol `bola`; mobile no la tiene en Figma y usa una propia, `soloPin`, del
+tamaño proporcional al sol de la parte 2). Con el primer gesto hacia la parte 2:
+
+1. La bola aparece debajo de las burbujas, en el último punto de la línea que queda tapado por
+   una (medido en pantalla), y rueda por la línea central (`getPointAtLength` y `getScreenCTM`)
+   hasta donde la pone el diseño (desktop: 1194, 576, a 1 px del sitio de Figma) o, en mobile, hasta
+   donde la línea llega al 90 % del ancho. Gira lo que avanza entre su radio.
+2. La línea se va borrando desde su principio detrás de la bola y la alcanza cuando cae.
+3. Las burbujas y el texto se van cuando la bola ya salió del racimo (el texto, lo último).
+4. La bola cae por el borde de abajo, estirándose; el sol de la parte 2 entra cayendo desde
+   arriba del lienzo, como si fuera la misma bola que sigue cayendo, y se aplasta un poco al
+   llegar (squash). El espiral se escribe al final.
+
+**Al retroceder (2 a 1)** el sol sube por donde cayó y la parte 1 entra con su coreografía de
+siempre, sin bola (la bola desaparece limpia porque en la parte 1 en reposo no existe). Así ir,
+volver e ir repite el mismo viaje, sin estados a medias. La transición 1 a 2 dura unos 3,4 s.
+
+### 5. "Saltar intro" y las flechas (`intro-navegacion.tsx`)
+
+Reemplazan al botón "Saltar animación", que solo salía con un scroll fuerte, Tab o Escape. El
+problema de fondo: con el ratón arrastrando la barra lateral o con una tableta, la intro pasa
+derecho al hero; no se intenta frenar la barra, las flechas son la salida.
+
+- Tres botones reales abajo a la derecha: "Saltar intro" (lleva a `#bienvenida` y le pasa el
+  foco, como antes), retroceder (solo si hay parte anterior) y avanzar (siempre; desde la parte 3
+  lleva a Bienvenida, como un gesto). Sin puntos. 40x40 mínimo, borde fino y fondo papel.
+- Se ven en reposo y se esconden durante cualquier entrada, transición o llegada: aparecen al final
+  de cada una con un fundido de 300 ms. Escondidos, su grupo es `inert`. Si el foco estaba en uno,
+  pasa al contenedor (`tabIndex=-1`, no inert) y vuelve al mismo botón al reaparecer: quien pulsa
+  Enter sobre la flecha puede seguir pulsando.
+- Son lo primero de la intro en el DOM: Tab llega a ellos justo después del selector de idioma.
+  Ya no hay trampa de Tab: Tab recorre la página normal. Escape lleva el foco a "Saltar intro".
+  Flechas, AvPág, RePág y Espacio (también con el foco en el contenedor) avanzan y retroceden.
+- **Ampliación (2026-09-30, hallazgo del verificador):** durante una transición o la llegada a
+  Bienvenida, Tab no puede sacar el foco de la intro. Antes, con los botones inert, Tab saltaba a
+  "Estampilla anterior" de EMI, la página bajaba y la capa fija se soltaba a mitad de camino. Ahora
+  `use-intro-pin.ts` cancela Tab (y Shift+Tab) mientras corre la transición y deja el foco en el
+  grupo de la navegación (`data-intro-navegacion`); al reaparecer los botones, el foco pasa a
+  avanzar (o al botón que tenía). En reposo Tab sale de la intro como siempre. Medido por CDP:
+  Enter en avanzar más Tab a los 500 ms deja el foco en el grupo, `scrollY = 0`, parte 2, y al
+  terminar el foco está en avanzar; antes quedaba en EMI con `scrollY = 1993` y la intro en la 1.
+- Un `aria-live` oculto anuncia "Parte N de 3 de la introducción". Copies nuevos en `intro.*` de
+  los tres idiomas (`saltar`, `anterior`, `siguiente`, `navegacion`, `paso`).
+- Con `prefers-reduced-motion` no hay pin: se sirve la intro estática de siempre, sin trazos
+  animados ni botones, y se ve el diseño tal cual (en tablet y desktop, con la bolita de Figma).
+
+### Verificado (2026-09-30, CDP, dev server en :3000)
+
+- `type-check` y `lint` limpios.
+- Reposo `--quieto` de las 3 partes a 390x844, 1280x800 y 1920x1080: colores de Figma, línea y
+  espirales enteras, sin bola, botones visibles.
+- Entrada al cargar (1280 y 390): burbujas una a una, línea escribiéndose de 2,1 a 3,3 s; botones
+  con opacidad 0 e `inert` hasta los 3,4 s y visibles a los 3,9 s; sin máscara en reposo.
+- Viaje 1 a 2 a 1 a 2 (1280): la bola pasa por (428, 318), (640, 359), (684, 708), (1069, 584),
+  para en (1194, 576) y cae; el sol llega a `top = 103`. La segunda ida repite la primera con 0 a
+  9 px de diferencia (latencia del sondeo). Al volver, el sol sube y la bola queda `hidden`.
+  También a 390x844 y 1000x1366.
+- Teclado: Tab 4 llega a "Saltar intro"; Enter en avanzar deja el foco en el contenedor durante la
+  transición y lo devuelve a avanzar al terminar; ArrowUp, ArrowDown, PageDown, PageUp y Espacio
+  mueven un paso; Escape enfoca "Saltar intro" y Enter lleva a Bienvenida (`top = 0`, foco en la
+  sección).
+- `--reducido`: intro estática, 0 botones, 0 máscaras.
+- Recorrido completo (1 a 2 a 3 a 2 a 1): en cada reposo, una parte montada, 0 piezas con estilos
+  animados y botones visibles.
+
+Scripts y capturas en
+`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/ola1A/`.
+
+### Lo que no se pudo verificar
+
+- Un trackpad, una tableta y un lector de pantalla de verdad (VoiceOver): el anuncio y el orden se
+  comprobaron por DOM, no escuchándolos.
+- Safari: la máscara es un atributo `mask` de SVG sobre un `<image>`, que Safari soporta, pero no
+  se probó.
+
+## D11. Bienvenida: las nubes derivan y la nube nueva de desktop (feedback del 30 de septiembre)
+
+**Lo que pidió Johan (2026-09-30, punto 3 de `docs/feedback-30-sep/FEEDBACK.md`):** las nubes con un
+leve movimiento de derecha a izquierda, unas más rápidas que otras, muy sutil; y en desktop "un
+par de nubes más" según Figma `1280:9`. Rama `30-sep`, sin commitear.
+
+### Qué cambió en el frame 1280:9
+
+Comparado con lo construido en D7 (`get_metadata` y `get_design_context`): **una nube nueva**,
+"Vector 1313" (x 1145, y 139, 146,6 x 54,2), que es el mismo dibujo que "Vector 5" (el export de
+Figma tiene los mismos paths que `left-cloud.svg`, así que se reutiliza el archivo) y sangra por la
+derecha a 1280. Y **"Vector 5" se movió** a la izquierda: de x 208,64 a 123,64 (con el inset). Las
+demás nubes, gaviotas, texto e ilustración siguen en su sitio. El frame creció a 934 de alto, sin
+contenido nuevo abajo: no se tocó el alto del hero. Sigue vigente la decisión de D7: las nubes que
+sangran a 1024 y 1920 se quedan así (a 1024, "1313" asoma unos 10 px).
+
+### La deriva
+
+- **CSS, no GSAP** (`components/welcome/nubes.module.css` y `nube-deriva.tsx`). Cada nube tiene una
+  caja interior nueva que deriva; la de fuera (`data-rol="nube"`) sigue siendo la que mueve la
+  entrada desde la intro (`bienvenida.motion.ts`, sin tocar), así que las dos se suman sin pisarse.
+- **Forma del ciclo:** de su sitio hacia la izquierda en el 62 % del ciclo y de vuelta en el resto,
+  los dos tramos con sine.inOut: la velocidad es 0 en los extremos, sin salto al reiniciar. Se
+  eligió el vaivén lento frente a un bucle que cruza la pantalla porque este último descoloca la
+  composición de Figma y obliga a duplicar nubes. La ida es más larga que la vuelta, así que se lee
+  como "hacia la izquierda".
+- **Cifras** (px hacia la izquierda, segundos por ciclo): desktop "Vector 5" 18 / 13, "Vector 7"
+  12 / 8,5, "1310" 20 / 11, "1313" 10 / 12 (corta: sangra 16 px por la derecha a 1280 y no debe
+  descubrir su extremo, regla 8), "1309" (la del borde izquierdo) 14 / 10; mobile y tablet, la
+  izquierda 12 / 12 y la derecha 9 / 8,5. Velocidades medias de 0,8 a 1,8 px/s: muy sutil, pero en
+  3 s se ve.
+- **Cuándo corre:** `useReposoBienvenida` (`welcome.tsx`) pone `data-deriva="corre"` o `"pausa"`
+  en la sección con las mismas condiciones que el resto del reposo (atributo `data-intro-anima`,
+  sin `?quieto=1`, pausa fuera de pantalla y con la pestaña oculta). Sin el atributo no hay
+  animación: el único fotograma es el diseño. `prefers-reduced-motion` la apaga también por CSS.
+
+### Medido por CDP (`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/ola2D/sonda.js`, transform calculado a 0, 1,5 y 3 s)
+
+- 1280x800: las cinco nubes se mueven a ritmos distintos (a los 3 s: -8,1, -9,8, -11,7, -5,1 y
+  -9,3 px). 390x844: -6,1 y -7,3 px. Con `--reducido`: `none` en las tres muestras, sin atributo.
+- Página arriba del todo: `data-deriva="pausa"`.
+- Llegada desde la parte 3 (`--paso 3 --gesto 120`, 1280x832, 4,5 s): `#bienvenida` en top 0, sin
+  `data-intro-llegando`, las siete nubes con opacidad 1 y sin transform en la caja de fuera, la
+  deriva corriendo.
+- Sin scroll horizontal (`scrollWidth == clientWidth`) a 390, 768, 1024, 1280, 1512 y 1920.
+- Capturas `--quieto` `bienv-<ancho>x<alto>.png` y `llegada-1280.png` en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/ola2D/despues/`; a 1280x832
+  coincide con `get_screenshot` de 1280:9.
+
+## D12. Segunda ronda del 30 de septiembre: la bola salta al sol, cintas quietas, dibujo que acelera, "Saltar intro" con entrada y composición de la parte 1
+
+**Lo que pidió Johan (2026-10-01, `docs/feedback-30-sep/FEEDBACK-2.md`, "Intro y Bienvenida").** Rama
+`30-sep`, sin commitear. Seis puntos; cada uno con su porqué.
+
+### 1. La bola cae en la mitad y se convierte en el sol de la parte 2 (`viajeDeLaBola`)
+
+**Reemplazado por D15 (2026-10-01):** el salto no gustó; ahora la bola baja por la línea y el sol
+amanece.
+
+**Antes (D10):** la bola rodaba hasta su sitio en la línea (desktop, x 1194, a la derecha), caía por
+el borde de abajo y el sol de la parte 2 entraba cayendo desde arriba en x 614. Dos verticales
+distintas: no se leía como la misma bola (lo marcó también el verificador 1).
+
+**Ahora:** la bola rueda igual hasta su sitio, se agacha (anticipación, 0,08 s base), salta y
+describe una **parábola** hasta el disco del sol de la parte 2, en la mitad de la pantalla, creciendo
+hasta su ancho por el camino y girando hasta la vuelta entera siguiente (cae con el dibujo derecho).
+Al caer se aplasta (0,07 s) y en el aplastamiento máximo cambia en un fotograma por el sol, aplastado
+igual, que se estira con `back.out(2.5)`. Es el relevo del barco 2 a 3 (D4, variante b): nunca hay
+dos soles ni fundido. En tablet y desktop la bola y el sol son el mismo dibujo (`paso3-sol.svg` a
+0,6547 y 1,444), así que crecer es exacto; en mobile el sol es otro SVG que trae el espiral en el
+mismo lienzo y la capa lleva `disco` (la parte de la imagen que es el disco, medida con `getBBox`)
+para saber adónde saltar y desde dónde aplastarse.
+
+- **La parábola:** x a velocidad constante y y con vértice a 0,6 altos del sol por encima de su
+  centro (sin salirse del lienzo visible), así frena al subir y acelera al caer sobre el sol: "cae
+  en la mitad". Un solo estado pinta la bola en cada fotograma; el giro va en la caja interior y la
+  deformación en la exterior, para que el squash sea siempre vertical aunque haya rodado.
+- **Interpretación, para confirmar con Johan:** el feedback dice "donde cae el sol de la parte 3".
+  El sol de la parte 3 no está en la mitad (desktop x 217, mobile x 83, a 398 y 107 px del de la
+  parte 2), y la bola se convierte en el sol de la parte 2. Se leyó como "en la mitad, donde queda el
+  sol": la bola cae sobre el sol de la parte 2 en su sitio de Figma. Si quería mover el sol de la
+  parte 2 a la vertical del de la parte 3, es cambiar el destino (`discoDe`) y el diseño.
+- Constantes nuevas: `AGACHARSE`, `VUELO_BOLA` (0,55), `ATERRIZAR`, `AGACHADA`, `ESTIRADA`,
+  `APLASTADA`, `ALTURA_SOBRE_SOL`. Salen `CAIDA_BOLA`, `CAIDA_SOL`, `SOL_APLASTADO` y compañía.
+  Al volver (2 a 1) no cambia: el sol sube por donde vino. La transición sigue en unos 3,4 s.
+
+### 2. Las cintas amarillas, una vez dibujadas, se quedan quietas
+
+`crearReposo` ya no balancea los garabatos que son trazos que se escriben (la línea de la parte 1,
+el espiral de la parte 2 y el trazo de la parte 3); los garabatos negros sueltos, las burbujas y las
+espirales negras siguen moviéndose como pidió Johan en D10. Matiza la regla 8 de
+`docs/PATTERNS.md` ("vida en reposo"): las cintas no cuentan entre las piezas que se mueven.
+
+### 3. El dibujo de las cintas empieza despacio y termina rápido
+
+`CURVA_DIBUJO = 'power2.in'` en `dibujar` (antes `sine.inOut`). Se eligió power2 y no power3: al
+25 % del tiempo lleva un 6 % del trazo y termina al doble de su velocidad media, que se lee como una
+mano que toma impulso; con power3 el primer tercio dejaba un 1,6 % y se leía como una pausa antes de
+dibujar. Vale para la entrada de la parte 1 y para los trazos de las partes 2 y 3.
+
+### 4. "Saltar intro" ya no se pierde la entrada de Bienvenida
+
+Antes `saltar` soltaba la capa fija y desplazaba la página con `scrollIntoView`: Bienvenida
+aparecía en reposo. Ahora es la misma **llegada** del gesto desde la parte 3 (D6), desde la parte en
+que esté: engancha (volviendo arriba si la página se movió unos px), la intro sale con su coreografía
+y Bienvenida entra por piezas, el texto primero. El sol rojo solo viaja al rosado desde la parte 3
+(`crearLlegada(origen, bienvenida, viajaElSol)`); desde las otras, el sol sale con su parte y el
+rosado aparece estirándose en el mismo instante del relevo. A media llegada, saltar la termina
+(`progress(1)`) como antes. Teclado: Enter o Espacio sobre el botón; al terminar el foco pasa a
+`#bienvenida`. Con `prefers-reduced-motion` no hay pin ni botón: la intro estática y Bienvenida en
+su estado final.
+
+### 5. Composición de la parte 1 según Figma
+
+- **Desktop (`1152:287`):** el racimo pasa a `dx 138, dy 47,04` (antes 92 y 66; misma escala
+  1,2988), medido con "Group 249" y "Vector 1282". La bolita, "Group 235" (`1224:2`), a (1069, 559).
+  La línea y el texto no cambiaron.
+- **Mobile (`1159:735`):** el racimo a escala 0,92625 con `dx 15, dy 35,9` (el grupo `burbujas`
+  ahora también se transforma en mobile) y la línea en x -31,207 (38,8 px a la derecha). Texto
+  centrado en el mismo eje con 300 de ancho (Figma 275: con 275 el francés pasaba a cuatro líneas
+  y chocaba con los botones a 375x667).
+- **Tablet:** no hay frame; se deja como estaba.
+- `intro.trazos.ts` no cambia: la línea es el mismo vector (`1230:94`/`1177:1705`), del mismo
+  tamaño; solo se movió su caja.
+
+### 6. Bienvenida desktop: la nube del borde izquierdo
+
+La nube "muy a la izquierda" es "Vector 1309" (la gris que sale del borde): iba siempre pegada al
+borde de la pantalla y a 1512 o 1920 quedaba sola, a 116 o 320 px del resto de la composición. Ahora
+`left: max(0rem, 50% - 40rem)`: hasta 1280 sale del borde de la pantalla como antes (a 1024 igual,
+-55 px) y desde ahí sigue al frame de 1280 (x -55 del frame, como en Figma `1280:9`). "Vector 5" y
+"Vector 1313" ya estaban en su sitio. **Para Johan:** esto cambia lo decidido en D7 sobre 1920 (la
+nube pegada al borde): ahora a 1920 queda en x 265, junto al resto; la derecha a 1024 sigue
+sangrando igual.
+
+### Medido (CDP, dev server en :3000, scripts en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r2-I/`)
+
+- Relevo bola a sol (`bola.js`), último fotograma de la bola contra el primero del sol: diferencia
+  de centro x 0 px e y de 0,3 a 2,4 px, ancho 128 contra 126 (1280x800), 93 contra 93 (390x844), 128
+  contra 127 (1920x1080), 125 contra 125 (1000x1366). 0 fotogramas con bola y sol a la vez. Centro del
+  sol al terminar: 614 a 1280 (mitad 640), 190 a 390 (mitad 195), 934 a 1920 (mitad 960): su sitio de
+  Figma. Respecto al sol de la parte 3: 398, 107 y 398 px en x (ver la interpretación del punto 1).
+- 1 a 2 a 1 a 2: la segunda ida repite la primera (relevo a los 2262 a 2296 ms, mismas cifras); al
+  volver, parte 1 y bola `hidden`.
+- Cintas (`cintas.js`): transform calculado de la imagen de cada cinta y sus cajas, dos muestras
+  separadas 2 s en reposo, partes 1, 2 y 3 a 1280x800 y 390x844: idénticos. En la parte 1 siguen
+  moviéndose 17 de 17 burbujas y espirales y 4 de 4 garabatos negros.
+- Curva (`curva.js`, espiral de la parte 2 a 1280): dura 783 ms; progreso al 25 % del tiempo 3,1 %
+  (teórico 6,25 %), al 50 % 17 %, al 75 % 46 %.
+- Saltar (`saltar.js`): clic en la parte 1 y en la 2 a 1280, Enter a 390, Espacio en la parte 3:
+  opacidad del texto de Bienvenida 0 a los 0 y 300 ms, 0,94 / 0,6 / 0 a los 900 ms y 1 a los 4,5 s;
+  `#bienvenida` en top 0 todo el tiempo, foco final en `#bienvenida`. `--reducido`: 0 botones,
+  intro estática, Bienvenida con opacidad 1.
+- Foco de D10 (`foco.js`): Enter en avanzar y Tab a los 500 ms deja el foco en el grupo, scrollY 0;
+  al terminar, foco en avanzar; Escape enfoca "Saltar intro".
+- Nube 1309 (`nube.js`): x -55, -55, 61 y 265 a 1024, 1280, 1512 y 1920 (Figma relativo al frame:
+  -55 a 1280, 61, 265). Sin scroll horizontal.
+- `npm run type-check` y `npm run lint` limpios.
+
+Capturas en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r2-I/`: `p1-<ancho>.png` (parte 1 en reposo, contra `1152:287`), `p1-375x667-<idioma>.png`,
+`caida-<ancho>.png` (el sol al terminar), `vuelo-1280-<ms>.png` (la parábola), `bienv-<ancho>.png`
+y `antes/`, `saltar-*.png`.
+
+### Sin probar
+
+Trackpad físico, Safari y lector de pantalla, como en D10.
+
+---
+
+## D13. Bienvenida en pantallas altas: la composición se centra y el hueco tiene tope
+
+**Lo que pidió Johan (2026-10-01, ronda 3, frente O):** desde unos 970 px de alto el espacio entre
+el texto y la palmera era enorme (286 px a 1920x1080, 628 a 1024x1366) y se veía mal diseñado.
+Repartir mejor la altura sin perder Figma en 800 a 900 ni D9.
+
+**Causa.** En desktop la ilustración iba con `mt-auto`: todo el alto de más caía en un solo
+hueco bajo el texto. En mobile y tablet la ilustración se queda con el alto que sobra (D9), pero
+cuando llega a su ancho máximo (el de la pantalla) ya no crece y el resto quedaba también en ese
+hueco (96 a 430x932, 99 a 820x1180).
+
+**Qué se hizo** (solo `components/welcome/welcome.tsx` e `ilustracion-playa.tsx`; nada en
+`components/intro/`, mismos `data-rol` y estructura de piezas):
+
+- **Un grupo de composición** dentro de la sección (`relative flex flex-1 flex-col
+justify-center`) con el decorado de desktop dentro, para que nubes y gaviotas se muevan con el
+  sol y el texto.
+- **Desktop:** el grupo mide lo suyo y la sección lo centra (`lg:justify-center`). El hueco bajo el
+  texto es 43 (Figma `1280:9`) hasta 832 de alto y suma el 40 % de lo que sobra, con tope en 160:
+  `clamp(2.6875rem, 2.6875rem + (100dvh - 52rem) * 0.4, 10rem)`. Lo demás se reparte igual arriba
+  y abajo.
+- **Desktop alto y estrecho:** el lienzo de la playa crece con el alto (`min(118%, max(min(100%,
+80rem), 100dvh))`): a 1024x1366 la palmera pasa de 210 a 247. El 118 % es el máximo con el que el
+  dibujo (x 136 a 1168 del frame) sigue entero en pantalla; el lienzo se centra con `flex
+justify-center` y lo que sobra lo recorta la página. A 1280 de ancho o más no cambia hasta que
+  el alto pasa del ancho del frame.
+- **Mobile y tablet:** el contenedor de la ilustración tiene tope de alto, el del lienzo a su ancho
+  máximo (`calc(min(100vw, 87.5rem) * 243 / 390)`); pasado ese alto el grupo centra lo que queda
+  arriba y abajo. Mientras la ilustración no llega a su ancho, D9 sigue igual.
+
+**Medido por CDP** (`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r3-O/sonda.js hero`, `?quieto=1#bienvenida`, px desde el borde de arriba de
+la sección; hueco = palmera menos final del párrafo):
+
+| Ventana   | Hueco antes | Hueco después | Sol (top) | Aire bajo la ilustración | Palmera (alto) |
+| --------- | ----------- | ------------- | --------- | ------------------------ | -------------- |
+| 1280x832  | 43          | 43            | 88        | 58                       | 262            |
+| 1512x982  | (sin medir) | 103           | 131       | 101                      | 262            |
+| 1280x1080 | 286         | 142           | 160       | 131 (antes 58)           | 262            |
+| 1920x1080 | 286         | 142           | 160       | 131                      | 262            |
+| 1512x1200 | 406         | 160           | 211       | 182                      | 262            |
+| 1920x1200 | 406         | 160           | 211       | 182                      | 262            |
+| 1440x1300 | 506         | 160           | 259       | 229                      | 266            |
+| 1024x1366 | 628         | 160           | 302       | 272                      | 210 a 247      |
+| 390x844   | 39          | 39            | 72        | 52                       | 216            |
+| 430x932   | 96          | 40            | 102 (74)  | 82 (54)                  | 253            |
+| 768x1024  | 40          | 40            | 74        | 55                       | 390            |
+| 820x1180  | 99          | 40            | 104 (74)  | 84 (55)                  | 482            |
+
+A 1280x832, 1024x768, 390x844, 768x1024 y 375x667 todo queda igual que antes (D9 intacto). Sin
+solapes (hueco mínimo 27 a 375x667), ilustración entera dentro de la sección en todos (aire
+inferior de 36 a 272) y 0 de scroll horizontal.
+
+**Llegada desde la intro** (`captura.js --paso 3 --gesto 120` y `--paso 1 --clic
+[data-accion=saltar]`, 1920x1200 y 390x844): a los 300 ms el sol rojo viaja y Bienvenida está
+entrando; a los 4,5 s `#bienvenida` en top 0 con el alto de la ventana, sin
+`data-intro-llegando`, texto con opacidad 1, 0 piezas con opacidad menor que 1 y el CTA visible.
+`--reducido` sin errores de consola.
+
+Capturas `antes/hero-<ancho>x<alto>.png`, `despues/hero-*.png` y `despues/llegada-*.png` en
+`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r3-O/`.
+
+**Para Johan.** Es una propuesta: el 40 % y el tope de 160 son una perilla cada uno en
+`ilustracion-playa.tsx`. En 1024x1366 (iPad Pro vertical, que usa la composición desktop) sigue
+habiendo aire arriba y abajo (unos 300 y 270): la alternativa sería usar ahí la composición de
+tablet, que es otra decisión.
+
+## D14. El dedo se quedaba pegado al llegar a Bienvenida y en Impacto (2026-10-01)
+
+**Contexto.** Johan, en producción (`21bca2d`) y en su celular: "sobre todo en Bienvenida: cuando
+termina la animación hago scroll con el dedo y la página se queda pegada un momento y luego se
+suelta. Pasa lo mismo en Impacto". Rama `30-sep`, sin commitear.
+
+### Causa raíz: tres mecanismos, dos de ellos ya en producción
+
+1. **Todo toque de la página era bloqueante** (producción y rama). Había dos listeners de toque
+   no pasivos que cubren la página entera: el `touchmove` de `use-intro-pin.ts` en `window`
+   (`passive: false`, puesto para siempre desde que la intro arranca) y el `touchstart` y
+   `touchmove` que Swiper (el slider de Principios) cuelga de `document` con `passive: false`.
+   Con eso el compositor de Chrome no puede empezar a desplazar hasta que el hilo principal
+   atiende el evento: si está ocupado (el fin de la llegada, las entradas de Impacto), el dedo se
+   queda quieto lo que dure esa tarea y luego "se suelta". Medido en la traza del compositor
+   (`InputHandlerProxy::HandleTouchMove`): en producción, en Bienvenida y en Impacto, **15 de 15**
+   `touchmove` salen con `DID_NOT_HANDLE` (esperan al hilo principal); con el arreglo, **15 de 15**
+   con `DID_HANDLE_NON_BLOCKING`. Tareas largas medidas a CPU x4 a x6 en Impacto: 218 ms (rama) y
+   220 ms (producción); en un arrastre que coincidió con una, `scrollY` no se movió en los
+   primeros 200 ms (antes: 0 px a +100 y +200 ms; con el arreglo, ningún arrastre de 14 queda
+   quieto y ningún `touchmove` es `cancelable`).
+2. **La cola de la llegada se comía los dedos** (producción y rama). Durante toda la llegada
+   (unos 3,2 s en producción) cada `touchmove` se cancela, pero el último tramo solo terminan de
+   aparecer nubes y gaviotas: la página se ve quieta y no responde. Serie de arrastres cada medio
+   segundo tras el gesto: en producción el de 2648 ms no mueve nada y el primero que mueve es el
+   de 3249 ms.
+3. **Un dedo puesto durante la llegada quedaba retenido hasta levantarlo** (solo rama). El
+   "tragar el resto del gesto" de D6 se aplicaba a cualquier dedo marcado como hecho, también a
+   uno que se apoyó durante la llegada: si seguía arrastrando, se cancelaban **216 de 216**
+   `touchmove` después del fin y la página no pasaba de Bienvenida (844 px fijos 2,4 s). En
+   producción no siempre se ve porque el nodo tocado se desmonta y sus eventos ya no llegan a
+   `window`.
+
+Descartado: `overflow`, `touch-action` y `scroll-behavior` de `html` y `body` están en `visible`,
+`auto` y `auto` en Bienvenida y en Impacto; no hay `scrollTo` del código durante el arrastre.
+
+### Arreglo (cambio mínimo)
+
+- `use-intro-pin.ts`: el `touchmove` no pasivo se pone y se quita según haga falta
+  (`sincronizar`): solo con la página arriba del todo (donde la intro engancha), enganchada o
+  durante la llegada. Se revisa en cada `scroll` y al terminar la llegada. Fuera de eso no hay
+  listener bloqueante de la intro. Al terminar la llegada el dedo queda libre aunque siga puesto
+  (la regla de tragar de D6 queda solo para la inercia de la rueda).
+- `bienvenida.motion.ts`: la llegada lleva la etiqueta `asentada`, donde termina todo lo que no
+  es fondo (nubes y gaviotas). Un dedo nuevo desde ahí termina la llegada con `progress(1)` y
+  desplaza en el acto. Antes de esa etiqueta se sigue tragando, como en D6.
+- `principles-section.tsx`: los eventos de Swiper (`detachEvents` y `attachEvents`) solo con el
+  slider a menos de un cuarto de pantalla (`IntersectionObserver`, `rootMargin: 25%`), con un
+  `update` al volver.
+- `use-iman.ts` (Impacto, docs/impacto/DECISIONES.md D4): además de no actuar con un dedo puesto,
+  no asienta si la página se movió desde el último `scroll` visto o si ese fue hace menos de
+  150 ms; así un temporizador retrasado por el hilo ocupado no empuja a media inercia. Cuenta los
+  dedos que quedan al soltar (`touches.length`).
+
+### Verificado
+
+Toque emulado por CDP a 390x844 (`Input.dispatchTouchEvent`), con el servidor de desarrollo.
+
+- Dedo apoyado durante la llegada que sigue subiendo: antes 216 de 216 cancelados tras el fin y
+  `scrollY` fijo en 844; ahora 0 de 197 y la página sigue al dedo desde el fin (859 a +200 ms).
+- Serie de arrastres tras el gesto: el de 2681 ms ya mueve 105 px (pasó `asentada`); el de
+  2083 ms se sigue tragando.
+- Intro 1 -> 2 -> 3 -> Bienvenida por toque; bajar con el dedo hasta arriba y volver a entrar
+  1 -> 2 -> 3; slider de Principios cambia de tarjeta con un arrastre tras llegar desde arriba.
+- Rueda de 100 px cada 150 ms atraviesa Impacto en ambos sentidos a 1280x800 y 390x844 sin un
+  solo retroceso; PageDown, PageUp y Espacio asientan en los puntos. (Corregido tras la
+  verificación 4: Espacio avanza un bloque igual que PageDown, 5048 a 5700, 6353 y 7005 a 1280.
+  El "se pasa del bloque" que se anotó aquí era un fallo de la sonda, que mandaba la tecla en
+  repetición: `rawKeyDown` más `char` por CDP genera keydown `Unidentified` que cortan el paso.)
+- Imán: con el dedo quieto 800 ms tras arrastrar, `scrollY` no cambia; asienta al soltar.
+- `npm run type-check` y `npm run lint` limpios.
+
+Trazas y tablas: `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r3-M/`
+(`traza-scrollY.txt`, sondas `sonda.js`, `sonda2.js`, `sonda4.js`).
+
+**Lección.** Un listener de `touchmove` o `wheel` con `passive: false` en `window` o `document`
+vuelve bloqueante todo el scroll de la página, aunque su código no haga nada fuera de su zona.
+Se pone solo mientras puede actuar. Y una librería puede hacerlo por su cuenta (Swiper).
+
+### Ampliación (2026-10-01): la rueda y Swiper
+
+La verificación 4 encontró dos restos del mismo mecanismo 1, los dos de la misma familia.
+
+**La rueda.** La intro dejaba su `wheel` en `window` con `passive: false` desde que montaba y para
+siempre: toda rueda y trackpad de la página se despachaba bloqueante y esperaba al hilo principal,
+aunque la intro ya no estuviera en pantalla. Medido a 1280x800 con CPU x4
+(`InputRouterImpl::MouseWheelEventHandled`): 10 de 10 eventos bloqueantes en Bienvenida, EMI e
+Impacto; con el arreglo, 0 de 10 (`SET_NON_BLOCKING`, y `cancelable` false en una sonda pasiva).
+
+- `use-intro-pin.ts`: el mismo `onWheel` se escucha siempre, pero solo es no pasivo cuando puede
+  frenar: página arriba del todo, intro enganchada, llegada en curso o, después de la llegada,
+  mientras sigue vivo el gesto que la disparó (su inercia se traga, D6). Fuera de eso se quita y se
+  vuelve a poner con `passive: true`. No se quita del todo a propósito: sigue registrando el gesto
+  (`registrarRueda`), así un gesto de subida que llega arriba no se confunde con uno nuevo y la
+  bajada que sigue sí engancha. Dentro del handler, `preventDefault` solo se llama si el listener
+  era no pasivo en ese evento.
+- `sincronizar` (antes solo el toque) decide las dos cosas y corre en cada `scroll`, en `enganchar`
+  (al enganchar y al soltar), al terminar la llegada y al abrir o cerrar un gesto de rueda. Llamarlo
+  desde `enganchar` arregla además un resto: si la página salía de la intro enganchada por un
+  desplazamiento de un solo `scroll` (un `scrollTo` instantáneo), el `touchmove` bloqueante se
+  quedaba puesto hasta el siguiente `scroll`.
+
+**Swiper.** Swiper 12.1.3 cuelga `touchstart` y `touchmove` de `document` y `touchstart` del slider
+con `passive: false` dentro de su `events` y no hay opción que lo cambie (`passiveListeners` solo
+toca otros listeners, `touchEventsTarget` solo el elemento del `pointerdown`, `touchStartPreventDefault`
+el `pointerdown`, `cssMode` cambia el slider entero y el efecto mazo no funciona con él). El arreglo
+anterior (soltarlos lejos del slider) dejaba bloqueante todo toque a un cuarto de pantalla del
+slider: 20 de 20 `touchmove` con `DID_NOT_HANDLE`, también el scroll vertical sobre el slider.
+
+- `principles-section.tsx`: tras crearse la instancia, esos tres listeners se quitan y se vuelven a
+  poner, los mismos handlers con el mismo `capture`, con `passive: true` (`pasivizarToques`).
+  Sustituye al `IntersectionObserver` de D14. Lo único que hacían como no pasivos era frenar el
+  scroll de la página durante un arrastre horizontal, y eso ya lo hace `touch-action: pan-y` del
+  mazo. El `touchstart` solo guarda el dedo; el `touchmove` sigue moviendo la tarjeta. Los
+  `pointerdown` y `pointermove` no pasivos que quedan no bloquean el scroll (los eventos de puntero
+  nunca lo hacen). El `detachEvents` de Swiper al destruirse los quita igual.
+- Descartado: dejar a Swiper solo con eventos de puntero. Swiper 12 ignora `pointercancel` fuera de
+  Safari (`onTouchEnd` en swiper-core), así que tras un scroll vertical sobre el slider se quedaría
+  con el `pointerId` viejo y no aceptaría el siguiente dedo. Se descartó leyendo el código, sin
+  probarlo.
+
+**Verificado** (CDP, servidor de desarrollo, CPU x4; tablas y scripts en
+`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/verif4-arreglos/`,
+`TABLA.md`):
+
+- Toque a 390x844: Bienvenida, EMI fuera y sobre el slider pasan de 20 de 20 `touchmove`
+  bloqueantes a 0 de 20; Impacto ya estaba en 0. Ningún listener no pasivo de toque o rueda en
+  `window`, `document` ni el slider fuera de la intro. Arriba del todo sigue bloqueante a propósito.
+- Intro por trackpad a 1280x800: un paso por gesto (1, 2, 3, Bienvenida en 800 exacto). Una
+  inercia de 9,6 s que sobrevive 6 s a la llegada no mueve la página de 800 (la rueda sigue no
+  pasiva mientras dura) y al cerrar el gesto la rueda vuelve a pasiva y la siguiente muesca mueve.
+  Subida con inercia desde Bienvenida que llega arriba y, sin silencio, un gesto hacia abajo: entra
+  a la parte 2. Con ratón (muescas de 100 hacia arriba hasta 0): una muesca abajo, parte 2; otra,
+  parte 3. ArrowUp retrocede un paso.
+- Intro por toque (1, 2, 3, Bienvenida) y "Saltar intro" a 390x844: llegan; el primer arrastre
+  tras la llegada no queda quieto más de 100 ms.
+- Slider: un arrastre cambia de tarjeta, también tras alejarse y volver; dos arrastres seguidos
+  (el segundo a 150 ms, con la transición en curso) avanzan dos; a mitad de arrastre la tarjeta ya
+  se movió; un arrastre vertical sobre el slider baja la página 279 px sin cambiar de tarjeta y el
+  horizontal siguiente funciona. Autoplay avanza antes de tocarlo y la pista se ve.
+- Rueda de 100 px cada 150 ms por Impacto en ambos sentidos a 1280x800 y 390x844: 0 retrocesos. A
+  1280 queda 1 muesca sin movimiento en la bajada, igual con la rueda bloqueante de antes (no es de
+  este cambio).
+- `npm run type-check` y `npm run lint` limpios.
+
+## D15. Cuarta ronda (2026-10-01): espirales más rápidas, la bola descansa en la cola y el sol amanece
+
+**Lo que pidió Johan (`docs/feedback-30-sep/FEEDBACK-3.md`, "Intro").** Rama `30-sep`, frente Q,
+sin commitear. El salto de la bola de D12 (parábola hasta el sol) no gustó: las transiciones de la
+parte 2 a la 3 y de la 3 a Bienvenida, donde las piezas viajan sin saltar, son superiores. Hacía
+falta más sutileza.
+
+### 1. Espirales
+
+- **Más rápidas:** `ESPIRAL_VUELTA_S` pasa de 24 a 14 s por vuelta, 1,71 veces (pedido: al menos
+  1,5). Medido por CDP a 1280x800, giro calculado de la caja interior cada 1,5 s: antes 15 °/s
+  (24 s por vuelta), ahora 25,7 °/s (14 s).
+- **La espiral "un poco diferente" de arriba a la izquierda** es "Vector 1282" (Figma `1163:1178`
+  en desktop, `1420:429` en mobile): la única con forma de bucle, fuera del racimo, arriba a la
+  izquierda. En producción (`21bca2d`) tenía rol `garabato` y solo se balanceaba unos grados, al
+  lado de las otras tres que giran. En esta rama ya tenía rol `espiral` (cambio sin commitear de
+  una ronda anterior) y gira como las demás, ahora también a 14 s. Medido: su giro pasa de 16° a
+  93° en 3 s, igual que las otras tres (en sentidos alternos). **Para Johan:** si lo que vio fue
+  producción o un preview, es eso; si en `localhost` la ve quieta, avisar con el ancho.
+- Las cintas amarillas siguen quietas una vez dibujadas (D12, punto 2).
+
+### 2. Tablet y desktop: la bola descansa al final de la cola y amanece como el sol
+
+**Reemplaza el punto 1 de D12** (rodar hasta el sitio de Figma, agacharse, saltar en parábola y
+aplastarse sobre el sol). Salen `viajeDeLaBola`, `subirSol`, `discoDe` y sus constantes; entran
+`lineaConBola`, `bolaAmanece`, `solCae`, `rodarHastaLaCola` y el relevo `bola-vuelve`
+(`components/intro/intro.motion.ts`).
+
+- **En reposo, la bola está al final de la cola.** Su caja en `intro.data.ts` pone su centro sobre
+  la línea central del trazo en el último punto donde cabe entera en el lienzo con 8 px de aire
+  (desktop 1223,54, 565,03; tablet 967,55, 934,67; antes, la de Figma en 1069, 559 y 939, 806). La
+  línea real termina 10 px fuera del lienzo de desktop y 343 fuera del de tablet: en el borde la
+  bola quedaría cortada. Ya no está oculta con el pin, y la intro estática (`prefers-reduced-motion`)
+  la muestra en el mismo sitio: estado final coherente.
+- **Entrada (carga):** aparece **mientras la cinta se dibuja**, no después. Asoma de debajo de las
+  burbujas cuando la punta del trazo pasa por ahí, creciendo de 0,6 a 1, y rueda (gira lo que avanza
+  entre su radio) hasta la cola con `power2.out`. Por qué así: el trazo termina rápido (`power2.in`,
+  D12) y la bola toma ese impulso y frena hasta quedarse quieta, que es seguimiento (regla 10); las
+  entradas se solapan en vez de ir en bloque (regla 1); y es un detalle que llega tarde, al final de
+  todo (regla 7). Nunca va por delante de la punta: en cada fotograma se limita a ella. Sigue 0,7 s
+  base tras el trazo; la entrada entera dura unos 4,2 s (antes 3,4).
+- **Gesto a la parte 2:** la bola baja rodando por la misma línea, hacia atrás, hasta la vertical del
+  sol de la parte 2 (`sine.inOut`, 0,95 s base). La línea se recoge hacia ella desde sus dos puntas
+  (la cola, detrás de la bola, y el principio, desde las burbujas), y las dos llegan con ella. Ahí,
+  en un fotograma, cambia por el sol: es el mismo dibujo (`paso3-sol.svg`) a otra escala, y el giro
+  de la bola se ajusta para llegar con vueltas enteras, así que el cambio no se ve. El sol amanece
+  desde ese punto: sube y crece hasta su sitio (0,8 s base, `sine.inOut`, arranca y llega despacio).
+  Nunca hay dos soles ni fundido, como en el viaje del sol de la parte 2 a la 3. La parte 1 sale
+  desde 0,3 s base (el texto, lo último); el texto de la 2 llega cuando la bola se para y el espiral
+  se escribe cuando el sol casi llegó. Unos 3 s en total (antes 3,4).
+- **"Centrada horizontalmente" se leyó como la vertical del sol de la parte 2** (614 a 1280, la mitad
+  es 640): así el amanecer es una subida recta. **Tablet:** la línea no cruza esa vertical antes de
+  meterse bajo las burbujas; la bola baja hasta el punto más bajo de ese tramo y el sol amanece desde
+  ahí con un arco suave hacia su sitio (304 px a la izquierda en 760 de subida a 1000x1366).
+- **Volver a la parte 1 (`bola-vuelve`)** es la ida armada con las dos partes en reposo, llevada a su
+  final y reproducida hacia atrás, dentro de un timeline que avanza (así `progress(1)` sigue
+  dejando la parte 1 en reposo y `onComplete` se dispara igual). El sol se pone, cambia por la bola
+  y esta sube rodando a la cola mientras la línea se vuelve a extender. El texto sigue mandando: al
+  revés, el de la parte 2 se va antes de que llegue el de la 1. 1, 2, 1, 2 repite las mismas cifras.
+- **"Saltar intro"** desde la parte 1: la bola sale con la intro (rol `bola` con estado oculto escala
+  0 y opacidad 0, como las demás piezas).
+
+### 3. Mobile: el sol cae por detrás de las burbujas
+
+- **Sin bola en la carga ni en reposo.** Mobile no la tiene en Figma (`1159:735`) y la cola sale de
+  la pantalla por la derecha en mitad de su curva: no hay un "final de la cola" visible donde
+  descansar, solo el borde de la pantalla. Sale `BOLA_MOBILE`.
+- **Gesto a la parte 2:** el sol de la parte 2 cae desde arriba del lienzo (`power2.in`, 0,6 s base)
+  mientras las burbujas siguen ahí (la parte 1 va encima, `zIndex` 1 solo durante la transición):
+  cae por detrás de ellas hasta su sitio, que queda tocando el racimo, y se aplasta un poco al
+  llegar (squash and stretch, D4). Las burbujas empiezan a irse a los 0,45 s base. **Para Johan:**
+  "cae por debajo de las bubbles" se leyó como "por detrás"; el sol de la parte 2 está arriba del
+  racimo, no debajo.
+- Volver es la misma caída al revés: el sol sube por detrás de las burbujas que vuelven.
+
+### Conservado
+
+Entrada por pasos (texto, burbujas una a una, cinta con `power2.in`), "Saltar intro" y flechas (D10),
+foco retenido durante las transiciones, listeners de D14 sin tocar (`use-intro-pin.ts` no cambió),
+llegada a Bienvenida.
+
+### Medido (CDP, dev server en :3000, scripts y capturas en `/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r4-Q/`)
+
+`viaje.js` (bola por fotograma, muestras cada 50 ms contra la línea central muestreada en 3000
+puntos), `movil.js`, `ver1282.js`, `cintas.js`, `saltar.js`, `foco.js`, `oyentes.js`:
+
+| Ventana   | Bola al terminar la carga          | Distancia máx. al trazo | Bola parada en x / sol x       | Relevo (ms) | Sol final    | Dos soles |
+| --------- | ---------------------------------- | ----------------------- | ------------------------------ | ----------- | ------------ | --------- |
+| 1280x800  | 1247,8, 574,3 (a 0,3 px del trazo) | 0,4 px                  | 614,7 / 614,4                  | 1377, 1375  | 614,4, 142,8 | 0         |
+| 1920x1080 | 1567,8, 714,3 (0,3)                | 0,4 px                  | 934,5 / 934,4                  | 1369, 1378  | 934,4, 282,8 | 0         |
+| 1000x1366 | 968,5, 953,5 (0,5)                 | 0,5 px                  | 794,6 (punto más bajo) / 490,6 | 1366        | 490,6, 236,5 | 0         |
+
+- Relevo bola a sol: último fotograma de la bola contra el primero del sol, 0,1 a 0,3 px de centro y
+  el mismo ancho (48,4 a 1280). Paso máximo por fotograma: bola 15 px, sol 13 px (sin saltos).
+- 1, 2, 1, 2: misma cifra en las dos idas; al volver, la bola en su sitio de reposo con transform
+  `none` y opacidad 1, parte 1.
+- 390x844: el sol cae en x 203 constante (su sitio), termina con dx 0 y dy 0 respecto a su sitio en
+  `?introPaso=2`; aterriza a 1052 y 1045 ms con 6 de 13 burbujas aún visibles; parte 1 con `zIndex`
+  1 durante la caída; ninguna bola montada.
+- Cintas: idénticas tras 2 s en las partes 1 a 3 a 1280 y 390; se mueven 17 de 17 burbujas y
+  espirales y 4 de 4 garabatos negros de la parte 1.
+- "Saltar intro" (clic en las partes 1 y 2 a 1280, Enter a 390, Espacio en la 3): igual que en D12
+  (texto de Bienvenida 0 / 0,94 / 1 a 0, 900 y 4500 ms, foco final en `#bienvenida`); la bola tiene
+  opacidad 0 a los 900 ms. `--reducido`: 0 botones, intro estática, Bienvenida con opacidad 1.
+- Foco: Enter en avanzar y Tab a los 500 ms deja el foco en el grupo con `scrollY` 0; al terminar,
+  en avanzar; Escape enfoca "Saltar intro".
+- Listeners (`DOMDebugger.getEventListeners` en `window` y `document`): arriba del todo, `wheel` y
+  `touchmove` no pasivos (a propósito, D14); en Bienvenida y en Impacto, ninguno, a 1280 y 390.
+- `npm run type-check` y `npm run lint` limpios.
+
+Capturas: `carga-<ancho>.png` (carga terminada), `descenso-<ancho>.png` (mitad del descenso),
+`amanecer-<ancho>.png` (el sol subiendo), `caida-390x844.png` (mitad de la caída), `sol-390x844.png`,
+`espiral1282-recorte-t0.png` y `-t3.png` (recortes de 180 px, por eso pesan menos de 10 KB).
+
+### Sin probar
+
+Trackpad físico, Safari y lector de pantalla, como en D10 y D12.
+
+## D16. Quinta ronda (2026-10-01): la espiral de arriba queda quieta, el sol aterriza suave, el sol de mobile ya no salta en el relevo y hay favicon
+
+Rama `30-sep`, frente R, sin commitear. Scripts y capturas en
+`/private/tmp/claude-501/-Users-johaneto-orca-workspaces-landinglasfuertes-30-sep/4a102619-4612-4f9a-b653-f5d38898f6f9/scratchpad/r5-R/`.
+
+### 1. La espiral de arriba a la izquierda NO se anima (corrige la lectura de D15)
+
+**D15 leyó al revés el pedido.** Johan señaló la espiral "un poco diferente" de arriba a la
+izquierda de la parte 1 y D15 entendió que debía girar como las demás. Lo que Johan quiere es lo
+contrario: **esa espiral queda quieta**, ni gira ni se mece. Mandó una captura (garabato negro en
+espiral, tipo resorte, sobre crema con una franja amarilla); comparada con un recorte de 180 px
+alrededor de cada espiral, es "Vector 1282" (`paso1-espiral-1282.svg`, Figma `1163:1178` en
+desktop, `1420:429` en mobile), la única fuera del racimo y junto a la cinta amarilla.
+
+- Conserva el rol `espiral` (entra con las burbujas, en su turno) y lleva una marca nueva en los
+  datos, `quieta: true` (`IntroLayer.quieta`, `data-quieta` en el DOM).
+- **Entrada y salida:** solo aparece y desaparece (escala de 0 a 1 con `back.out(1.4)` y
+  opacidad), sin los -150° de giro de las demás (`oculto` mira `esQuieta`).
+- **Reposo:** `crearReposo` la salta; tampoco entra en los garabatos que se mecen. Las otras tres
+  siguen girando a 14 s por vuelta, en sentidos alternos.
+
+Medido (`espiral.js`, 1280x800 y 390x844): durante la entrada, giro máximo 0° en la 1282 contra
+82° a 147° en las otras tres; en reposo, transform `none` idéntico en dos muestras separadas 2 s,
+y las otras pasan de 73,3° a 124,7° (1280) y de 99,4° a 150,9° (390): 25,7 °/s, 14 s por vuelta.
+Recorte: `espiral1282-390x844.png` y `espiral1282-1280x800.png` (180 px, por eso pesan menos de
+10 KB).
+
+### 2. Mobile, parte 1 a 2: el sol aterriza sin tanto rebote
+
+El rebote no era de la caída (que llega a su sitio con `power2.in`, sin pasarse) sino del squash
+al llegar: se aplastaba a 0,62 de alto y 1,2 de ancho y volvía con `back.out(2.5)`, que se estiraba
+por encima de su tamaño. Ahora el aterrizaje es corto: se aplasta a 0,88 de alto y 1,08 de ancho
+(0,08 s base) y recupera su forma en 0,3 s con `back.out(1.2)`, un solo rebote pequeño
+(`APLASTADA`, `RECUPERAR`, `CURVA_RECUPERAR` en `intro.motion.ts`). La caída y los tiempos del
+texto y la salida de la parte 1 no cambian.
+
+Medido (`sol.js`, borde superior del disco por fotograma desde que la caja llega a su sitio):
+
+| Ventana | Hundido bajo el final, antes / ahora | Por encima del final, antes / ahora | Escala y mín./máx., antes / ahora | Cambios de sentido |
+| ------- | ------------------------------------ | ----------------------------------- | --------------------------------- | ------------------ |
+| 390x844 | 31,5 / 10 px                         | 6 / 0,5 px                          | 0,62-1,072 / 0,88-1,006           | 2 / 1              |
+| 360x740 | 29 / 9,2 px                          | 5,5 / 0,5 px                        | 0,62-1,072 / 0,88-1,006           | 2 / 1              |
+| 430x932 | 34,7 / 11 px                         | 6,6 / 0,6 px                        | 0,62-1,072 / 0,88-1,006           | 2 / 1              |
+
+### 3. Mobile, parte 2 a 3: el salto del sol en el relevo
+
+**Causa:** el sol de mobile de la parte 2 (`paso2-sol-mobile.svg`) trae en su caja el hueco de la
+espiral amarilla: el disco ocupa solo el 72 % del ancho y el 86 % del alto, arriba a la izquierda
+(`disco` en los datos, D12). El sol de la parte 3 llena su caja. El viaje de D3 lleva caja a caja,
+así que a mitad del deslizamiento, en el fotograma del relevo, el disco visible saltaba **10,7 px
+hacia la derecha** (mientras todo iba a la izquierda a unos 6 px por fotograma) y crecía 23,7 px de
+ancho de golpe. Desktop y tablet usan para la parte 2 el mismo sol de la 3 y no tenían el salto.
+
+**Arreglo:** el viaje mide lo que se ve (`cajaVisible`): para una pieza con `data-disco`, el disco
+dentro de su imagen; para las demás, su caja como antes (`cajaDe` acepta una función de medida).
+De paso, las cajas se miden con los grupos sin el mecido del reposo (`data-grupo` con
+`transform: none` mientras se mide, y se restaura): medido mecido, la caja del barco viejo salía
+inflada por el giro y en el relevo el barco nuevo era 10 px más ancho; ahora la diferencia es la
+que crece el barco en un fotograma (4,4 px, igual sin reposo con `?quieto=1`).
+
+Medido (`disco.js`, centro del disco visible por fotograma con rAF, la pieza visible de las dos;
+ida 2 a 3 y vuelta 3 a 2; también con toques emulados a DPR 3 en 390x844):
+
+| Ventana         | Relevo, dx del fotograma y sus vecinos (px), antes | Ahora, ida            | Ahora, vuelta      | Ancho en el relevo, antes / ahora |
+| --------------- | -------------------------------------------------- | --------------------- | ------------------ | --------------------------------- |
+| 390x844         | -6,27 / **+4,67** / -5,73                          | -5,76 / -6,19 / -5,08 | 5,07 / 6,22 / 5,45 | +23,7 / +1,6 px                   |
+| 360x740         |                                                    | -5,32 / -5,70 / -4,69 | 4,70 / 5,43 / 5,03 | +1,4 px                           |
+| 430x932         |                                                    | -5,96 / -6,83 / -5,97 | 5,62 / 6,49 / 6,37 | +1,6 px                           |
+| 390x844, táctil |                                                    | -5,41 / -6,48 / -5,08 | 5,39 / 5,59 / 5,79 | +1,2 px                           |
+
+Sin picos en ningún fotograma (un delta mayor que el doble de sus dos vecinos y de 1 px) en el sol
+ni en el barco, ni en ninguna pieza de las partes 2 y 3 (`todo.js`). Nota sobre el criterio "pico
+mayor que 2 veces la media": con `power3.inOut` el tramo central va unas 3 veces más rápido que la
+media del recorrido (390x844: media 1,9 px, máximo 6,2), sin discontinuidad; por eso se compara
+con los fotogramas vecinos. Desktop sin cambios: relevo del sol a 1280x800 -20,2 / -22,0 / -20,2.
+
+### 4. Favicon
+
+Johan dejó dos lunas de 134x134 con fondo transparente en
+`public/images/favicons/`: `favico_purple.png` (luna azul morada, oscura) y `favico_yellow.png`
+(luna crema, clara). Copiadas del checkout principal sin borrar los originales.
+
+- **Tema claro del navegador** (pestaña clara): la morada, que contrasta con ella. **Tema oscuro**
+  (pestaña oscura): la crema, que en una pestaña clara casi no se vería. Van como
+  `<link rel="icon" media="(prefers-color-scheme: light|dark)">` en `pages/_document.tsx`.
+- **Respaldo sin `media`:** la morada, porque casi todas las pestañas son claras. Va primero; los
+  navegadores que entienden `media` se quedan con el que coincide.
+- **`apple-touch-icon`:** la crema. iOS rellena la transparencia de negro en la pantalla de inicio,
+  y sobre negro la morada apenas se ve.
+- **`public/favicon.ico`:** la morada a 32x32, hecha con `sips` de macOS
+  (`sips -z 32 32` y `sips -s format ico`, 4,4 KB, sin dependencias). No se enlaza: es para quien
+  pide `/favicon.ico` por su cuenta, y quita el 404.
+- **De paso, el aviso de `sizes`:** next/image avisaba de que `paso2-sol.png` (el reflejo del sol
+  de la parte 2) tenía `sizes="100vw"` sin ocupar la pantalla. Cada capa calcula ahora su `sizes`
+  como la fracción del lienzo que ocupa su caja (`sizesDe`, el lienzo nunca pasa del ancho de la
+  pantalla; las que sangran siguen en `100vw`), y la precarga usa el mismo valor para reutilizar la
+  descarga.
+
+Medido: `curl -sI` da 200 en `/favicon.ico` y en las dos PNG; consola a 390x844, 1280x800 y
+1024x1366 recorriendo la intro (`consola.js`): ningún 4xx ni 5xx, sin el aviso de `sizes`. Queda
+un aviso de desarrollo de HMR (`isrManifest`) que no es de este frente.
+
+### Conservado y regresiones
+
+Desktop 1280x800 (`viaje.js`, D15): bola al terminar la carga en 1247,8, 574,3 (a 0,3 px del
+trazo), relevo bola a sol en 614,5 / 614,4, sol final 614,4, 142,8, cero fotogramas con dos soles,
+1, 2, 1, 2 igual. Rueda (`verif5/intro-rueda.js`): un paso por gesto, el tercero llega a
+Bienvenida; listeners como en D14. `npm run type-check` y `npm run lint` limpios.
+
+Capturas: `carga-1280x800.png`, `descenso-1280x800.png`, `amanecer-1280x800.png`,
+`carga-390x844.png`, `sol-aterriza-390x844.png`, `parte2-390x844.png`,
+`desliza-mitad-390x844.png`, `parte3-390x844.png`, `desliza-<ancho>-mitad.png`.
+
+### Sin probar
+
+Teléfono real (el aterrizaje y el deslizamiento solo se midieron en Chrome headless, también con
+toques emulados) y el favicon en Safari y Firefox con tema oscuro.

@@ -40,9 +40,12 @@ export default function EmiSection() {
   const sigla = locale === 'en' ? 'CME' : 'EMI';
 
   return (
+    // Aire de abajo (docs/emi/DECISIONES.md, D6): lo último visible (la pista "desliza" en mobile y
+    // tablet, el abanico en desktop) queda a la misma distancia del final que el sello del
+    // principio: 47 / 47 / 68 px de arriba contra 48 / 46 / 69 de abajo a 390 / 768 / 1280.
     <section
       id="emi"
-      className="relative w-full bg-cream pt-[3.25rem] lg:pt-[4.6875rem]"
+      className="relative w-full bg-cream pb-xl pt-[3.25rem] md:pb-m lg:pb-xl lg:pt-[4.6875rem]"
       aria-labelledby="emi-title"
     >
       <PageGrid>
@@ -70,7 +73,7 @@ export default function EmiSection() {
             </h2>
           </FadeIn>
 
-          <FadeIn delay={0.16} className="mt-[1.125rem] w-full lg:mt-9 lg:max-w-[50.375rem]">
+          <FadeIn delay={0.16} className="mt-xl w-full lg:max-w-[50.375rem]">
             <div className="text-left text-base leading-[1.2] text-black lg:text-h4 lg:leading-[1.2]">
               <p>{renderTextWithBold(t('emi.paragraph1'))}</p>
               <p className="mt-[1.2em]">{renderTextWithBold(t('emi.paragraph2'))}</p>

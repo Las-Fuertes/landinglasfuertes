@@ -1,0 +1,39 @@
+/*
+ * Deriva de las nubes de Bienvenida (docs/introduccion/DECISIONES.md, D11). Cada nube va de su
+ * sitio hacia la izquierda y vuelve, despacio y sin frenazos: el tramo hacia la izquierda dura el
+ * 62 % del ciclo y la vuelta el resto, los dos con sine.inOut, así que la velocidad es 0 en los
+ * extremos y el bucle no tiene costura. `--amplitud` y `--ciclo` los pone cada nube: unas van más
+ * rápido que otras.
+ *
+ * Solo corre con `data-deriva` en la sección (lo pone `useReposoBienvenida` en `welcome.tsx`, con
+ * las mismas condiciones que el resto del reposo): sin él, el único fotograma es el diseño.
+ * `pausa` la congela fuera de pantalla sin perder la fase. La caja animada es interior: la de
+ * fuera (`data-rol="nube"`) la mueve la entrada desde la intro (`bienvenida.motion.ts`).
+ */
+:global([data-deriva]) .deriva {
+  animation: nube-deriva var(--ciclo) infinite;
+}
+
+:global([data-deriva='pausa']) .deriva {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deriva {
+    animation: none !important;
+  }
+}
+
+@keyframes nube-deriva {
+  0% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  }
+  62% {
+    transform: translateX(calc(-1 * var(--amplitud)));
+    animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

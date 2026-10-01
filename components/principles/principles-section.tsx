@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -12,15 +11,40 @@ import 'swiper/css';
 
 import { useTranslation } from '../../hooks/useTranslation';
 import { crearEfectoMazo, repintarMazo, type ConfigMazo } from './efecto-mazo';
-import {
-  ESTAMPILLAS,
-  ESTAMPILLA_ALTO_PX,
-  ESTAMPILLA_ANCHO_PX,
-  POSES_ABANICO,
-  POSES_PILA,
-} from './estampillas.data';
+import Estampilla from './estampilla';
+import { ESTAMPILLAS, POSES_ABANICO, POSES_PILA } from './estampillas.data';
 import { PistaDeslizar } from './pista-deslizar';
 import estilos from './principles.module.css';
+
+/** Los handlers que Swiper guarda en la instancia al llamar a `attachEvents` (no están tipados). */
+type HandlersDeToque = {
+  onTouchStart?: (e: Event) => void;
+  onTouchMove?: (e: Event) => void;
+  onDocumentTouchStart?: (e: Event) => void;
+};
+
+/**
+ * Vuelve a poner como pasivos los listeners de toque que Swiper registra con `passive: false`
+ * (`events` en swiper-core). Mismo handler, mismo `capture`: el `detachEvents` de Swiper al
+ * destruirse los quita igual, porque `removeEventListener` no mira `passive`.
+ */
+function pasivizarToques(swiper: SwiperClass) {
+  const { onTouchStart, onTouchMove, onDocumentTouchStart } = swiper as unknown as HandlersDeToque;
+  const capture = !!swiper.params.nested;
+  const el = swiper.el;
+  if (onDocumentTouchStart) {
+    document.removeEventListener('touchstart', onDocumentTouchStart, { capture });
+    document.addEventListener('touchstart', onDocumentTouchStart, { passive: true, capture });
+  }
+  if (onTouchStart) {
+    el.removeEventListener('touchstart', onTouchStart);
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+  }
+  if (onTouchMove) {
+    document.removeEventListener('touchmove', onTouchMove, { capture });
+    document.addEventListener('touchmove', onTouchMove, { passive: true, capture });
+  }
+}
 
 /** Desde tablet el mazo es abanico; debajo, pila (frames 1288:676 y 1288:913). */
 const MEDIA_ABANICO = '(min-width: 768px)';
@@ -105,6 +129,19 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
     return () => {
       if (!swiper.destroyed && swiper.autoplay?.running) swiper.autoplay.stop();
     };
+  }, [swiper]);
+
+  // Los toques de Swiper, pasivos (docs/introduccion/DECISIONES.md, D14). Swiper 12 cuelga
+  // `touchstart` y `touchmove` de `document` (y `touchstart` del slider) con `passive: false`, y
+  // ninguna opción lo cambia: eso vuelve bloqueante cualquier toque de la página, también el
+  // scroll vertical sobre el slider, y el dedo se queda pegado mientras el hilo principal está
+  // ocupado (la entrada de las estampillas). Esos tres listeners solo guardan el dedo y siguen el
+  // arrastre; lo único que frenaban era el scroll de la página durante un arrastre horizontal, y
+  // eso ya lo hace `touch-action: pan-y` (principles.module.css). Se cambian por los mismos
+  // listeners pasivos: el arrastre sigue igual y ningún toque espera al hilo principal.
+  useEffect(() => {
+    if (!swiper || swiper.destroyed || !swiper.el) return;
+    pasivizarToques(swiper);
   }, [swiper]);
 
   // Anuncio para lectores de pantalla: "polite" cuando nadie más mueve el slider (autoplay
@@ -231,20 +268,11 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
         className={`principles-swiper ${estilos.mazo}`}
       >
         {ESTAMPILLAS.map((estampilla, index) => (
-          <SwiperSlide key={estampilla.src}>
+          <SwiperSlide key={estampilla.nodoFigma}>
             {/* El cuerpo: lo que mueve el amago de la pista (pista-deslizar.tsx) sin tocar la pose que
                 el efecto mazo pone al slide. */}
             <div data-estampilla-cuerpo="">
-              <Image
-                src={estampilla.src}
-                alt={t(estampilla.altKey)}
-                width={ESTAMPILLA_ANCHO_PX}
-                height={ESTAMPILLA_ALTO_PX}
-                draggable={false}
-                className="block h-auto w-full select-none"
-                sizes="(min-width: 1024px) 360px, (min-width: 768px) 320px, 90vw"
-                priority={index === 0}
-              />
+              <Estampilla estampilla={estampilla} prioridad={index === 0} />
             </div>
           </SwiperSlide>
         ))}

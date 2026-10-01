@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Homemade_Apple } from 'next/font/google';
 import type { Swiper as SwiperClass } from 'swiper';
 
 import { useTranslation } from '../../hooks/useTranslation';
@@ -12,7 +11,7 @@ import { useTranslation } from '../../hooks/useTranslation';
  * del 2026-09-25: la mezcla de las opciones A y B). Un solo gesto en tres tiempos:
  *
  * 1. El texto llega primero (regla 2): "desliza" se escribe de izquierda a derecha en la letra
- *    manuscrita del sitio (Homemade Apple), 0,9 s.
+ *    manuscrita del sitio (Pangolin, `font-acento`), 0,9 s.
  * 2. La flecha curva, dibujada a mano, se traza desde la palabra hacia la izquierda (pathLength,
  *    que framer-motion lleva con stroke-dashoffset), 0,9 s solapada con el texto, y la punta se
  *    marca al final, 0,3 s.
@@ -35,8 +34,6 @@ import { useTranslation } from '../../hooks/useTranslation';
  * y sin amago. Es decorativa (aria-hidden en el hueco): las instrucciones para lectores de
  * pantalla van en `principles.instrucciones`.
  */
-
-const letraManuscrita = Homemade_Apple({ subsets: ['latin'], weight: ['400'] });
 
 const AMAGO_MS = 1500;
 const ESPERA_TRAS_CAMBIO_MS = 1800;
@@ -207,7 +204,7 @@ export function PistaDeslizar({ swiper, visible, enPantalla, reducido }: Props) 
         />
       </svg>
       <motion.span
-        className={`${letraManuscrita.className} block whitespace-nowrap pt-xs text-h4 leading-none`}
+        className="font-acento block whitespace-nowrap pt-xs text-[1.5rem] leading-none"
         initial={{ clipPath: 'inset(-50% 100% -50% 0)' }}
         animate={
           trazo ? { clipPath: 'inset(-50% 0% -50% 0)' } : { clipPath: 'inset(-50% 100% -50% 0)' }

@@ -5,13 +5,13 @@
   },
   "intro": {
     "label": "Introduction",
-    "saltar": "Passer l'animation"
+    "saltar": "Passer l'intro",
+    "anterior": "Revenir d'une étape dans l'introduction",
+    "siguiente": "Avancer d'une étape dans l'introduction",
+    "navegacion": "Navigation de l'introduction",
+    "paso": "Partie {n} sur {total} de l'introduction"
   },
   "hero": {
-    "mainTitle1": "Quelque chose de puissant",
-    "mainTitle2": "arrive",
-    "subtitle1": "Même si tu ne peux pas encore le voir, ce qui arrive",
-    "subtitle2": "sera une surprise incroyable.",
     "section1": {
       "text1": "La moitié du monde a ses règles,",
       "text2": "mais ==parler de menstruation==",
@@ -71,38 +71,6 @@
     "paragraph2": "Une proposition vivante, tissée à partir de l'expérience à Isla Fuerte et dans d'autres territoires de Colombie ; nous avons compris ici que l'éducation menstruelle ne suffit pas à elle seule : **nous avons besoin d'une vision large et globale** qui permette à chaque fille d'habiter son corps avec liberté et fierté.",
     "comprendimos": "Voici comment nous l'avons compris :"
   },
-  "content": {
-    "intro": "Nous construisons un espace pour que l'{emi} marque un nouveau jalon en Colombie.",
-    "emi": "Éducation Menstruelle Intégrale (EMI)",
-    "since": "Depuis 2021, Las Fuertes a créé des espaces sûrs où l'information brise les barrières du silence et transforme les vies.",
-    "thanks": "Merci d'être ici. Suis-nous et fais partie du changement."
-  },
-  "cta": {
-    "button": "Je veux faire partie du changement",
-    "subtitle": "Contacte-nous et rejoins la révolution EMI"
-  },
-  "modal": {
-    "title": "Contacte-nous",
-    "description": "Dis-nous ce qui t'intéresse à propos de Las Fuertes ou de l'Éducation Menstruelle Intégrale",
-    "form": {
-      "name": "Nom",
-      "email": "E-mail",
-      "message": "Message",
-      "namePlaceholder": "Comment tu t'appelles ?",
-      "emailPlaceholder": "ton@email.com",
-      "messagePlaceholder": "Dis-nous ce qui t'intéresse à propos de Las Fuertes ou de l'EMI...",
-      "submit": "Envoyer le message",
-      "sending": "Envoi en cours..."
-    },
-    "success": {
-      "title": "Message envoyé !",
-      "message": "Merci de nous avoir écrit. Nous te répondrons bientôt.",
-      "button": "Envoyer un autre message"
-    },
-    "error": "Une erreur s'est produite lors de l'envoi du message. Réessaie, s'il te plaît.",
-    "close": "Fermer"
-  },
-  "timestamp": "Généré le",
   "principles": {
     "title": "Voici comment nous l'avons compris :",
     "prev": "Timbre précédent",
@@ -111,10 +79,10 @@
     "pista": "glisse",
     "rolCarrusel": "carrousel",
     "estampillas": {
-      "1": "Timbre : Chaque fille est une mer de droits",
-      "2": "Timbre : L'éducation menstruelle comme carte du changement",
-      "3": "Timbre : Ensemble nous fleurissons, ensemble nous sommes plus fortes",
-      "4": "Timbre : Je suis forte, je décide"
+      "1": "Chaque fille est\nune mer de droits",
+      "2": "Éducation menstruelle,\ncarte du changement",
+      "3": "Unies on fleurit\nunies on est plus fortes",
+      "4": "Je suis forte, je décide"
     }
   },
   "donations": {
@@ -172,7 +140,7 @@
   "sumate": {
     "hero": {
       "title": "Rejoins Las Fuertes",
-      "subtitle": "Chaque fille d'Isla Fuerte mérite des outils pour construire son avenir. Tu peux en faire partie dès aujourd'hui, où que tu sois."
+      "subtitle": "Avec l'EMI, nous accompagnons des filles et des adolescentes d'Isla Fuerte, Bolívar, et d'autres territoires de Colombie pour qu'elles connaissent et vivent leur cycle avec liberté et confiance. Ton soutien se transforme en ateliers, en matériel et en espaces sûrs."
     },
     "proyecto": {
       "label": "Notre projet en ce moment",
@@ -184,7 +152,7 @@
     },
     "unica": {
       "title": "Fais un don ponctuel",
-      "text": "Ta contribution se transforme directement en ateliers, matériels et opportunités pour les filles de l'île. Tu choisis le montant.",
+      "text": "Ta contribution se transforme en ateliers, en matériel et en opportunités pour les filles de l'île et d'autres territoires de Colombie. Tu choisis le montant.",
       "amountLabel": "Montant en pesos colombiens",
       "customPlaceholder": "Autre montant",
       "cta": "Faire un don",
@@ -236,7 +204,7 @@
     },
     "difunde": {
       "title": "Fais passer le mot",
-      "text": "Tu ne peux pas encore donner ? Tu aides aussi comme ça : suis-nous sur Instagram, où nous publions tout ce que nous faisons ; partage notre travail ; et parle de nous à quelqu'un qui a un ordinateur ou un appareil photo inutilisé.",
+      "text": "Tu ne peux pas encore donner ? Tu aides aussi comme ça : suis-nous sur {instagram} et {linkedin}, où nous publions tout ce que nous faisons ; partage notre travail ; et parle de nous à quelqu'un qui a un ordinateur ou un appareil photo inutilisé.",
       "cta": "Suis-nous sur Instagram"
     },
     "whatsappUnavailable": "Très bientôt tu pourras nous contacter ici.",
@@ -256,8 +224,13 @@
       "text": "Uniquement si tu es aux États-Unis : tu peux donner en dollars, une fois ou chaque mois, via notre partenaire Caring for Colombia, et ton don y est déductible des impôts. Depuis tout autre pays ? Utilise le formulaire ci-dessus avec ta carte internationale.",
       "cta": "Donner depuis les États-Unis"
     },
+    "despedida": {
+      "gracias": "Merci depuis Isla Fuerte, Colombie",
+      "ubicacion": "Tu veux savoir où nous sommes exactement ? Utilise ce",
+      "ubicacionEnlace": "lien",
+      "ubicacionAria": "Voir où se trouve Isla Fuerte sur Google Maps (s'ouvre dans un nouvel onglet)"
+    },
     "drawer": {
-      "flotante": "Rejoins-nous",
       "flotanteAria": "Rejoins Las Fuertes : ouvre les façons d'aider",
       "cerrar": "Fermer le panneau Rejoins Las Fuertes"
     }
@@ -269,7 +242,10 @@
       "coordinadora": "Coordinatrice du réseau ASE",
       "fundadora": "Fondatrice et directrice générale",
       "cofundadora": "Cofondatrice et directrice créative",
-      "projectManager": "Cheffe de projet",
+      "educadora": "Éducatrice menstruelle et développement pédagogique",
+      "estrategaCrecimiento": "Stratège de croissance",
+      "estrategaComunicaciones": "Stratège en communication",
+      "estrategaAlianzas": "Stratège en partenariats et ventes",
       "disenadora": "Graphiste"
     }
   },
@@ -291,16 +267,63 @@
     "copied": "Lien copié !"
   },
   "footer": {
-    "tagline": "Éducation Menstruelle Intégrale depuis Isla Fuerte, Colombie.",
-    "navTitle": "Explorer",
-    "navWelcome": "Bienvenue",
-    "navPrinciples": "Nos principes",
-    "navSumate": "Rejoins-nous",
-    "helpTitle": "Envie d'aider ?",
-    "contact": "Contacte-nous",
-    "followUs": "Suis-nous sur Instagram",
-    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombie",
-    "madeWith": "Fait avec amour depuis l'île."
+    "tagline": "Éducation menstruelle intégrale pour la vie",
+    "apoyarTitulo": "Tu veux nous soutenir ?",
+    "dona": "Fais un don ici",
+    "instagram": "Suis-nous sur Instagram",
+    "linkedin": "Suis-nous sur LinkedIn",
+    "fundacionTitulo": "La fondation",
+    "transparencia": "Transparence",
+    "terminos": "Conditions générales",
+    "transparenciaMenu": "États financiers par année",
+    "transparenciaAnio": "États financiers {anio}",
+    "nuevaPestana": "(s’ouvre dans un nouvel onglet)",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombie"
+  },
+  "nav": {
+    "etiqueta": "Navigation",
+    "abrir": "Ouvrir le menu",
+    "cerrar": "Fermer le menu",
+    "inicio": "Accueil",
+    "sumate": "Rejoins-nous"
+  },
+  "terminos": {
+    "metaTitulo": "Conditions générales · Las Fuertes",
+    "metaDescripcion": "Comment nous protégeons les photos de nos filles, ce que le site garde dans ton navigateur et comment fonctionnent les dons à la Fundación Las Fuertes.",
+    "titulo": "Conditions générales",
+    "actualizado": "Dernière mise à jour : 1er octobre 2026",
+    "intro": "En naviguant sur ce site, tu acceptes ces conditions. Nous les avons écrites clairement, sans petits caractères : si quelque chose n’est pas clair, écris-nous.",
+    "logoAria": "Las Fuertes : retour à l’accueil",
+    "secciones": {
+      "responsable": {
+        "titulo": "Qui sommes-nous",
+        "p1": "Ce site appartient à la **Fundación Las Fuertes**, une organisation d’Isla Fuerte, Bolívar, Colombie, qui accompagne les filles et les adolescentes avec l’Éducation Menstruelle Intégrale (EMI).",
+        "p2": "NIT : 901.809.186-3. Représentante légale : Karoll Adriana Lopez Lozano, carte d’identité colombienne (cédula) n° 52.717.530.",
+        "p3": "Tu peux nous écrire à fundacionlasfuertes@gmail.com, sur Instagram (@las.fuertes) ou sur LinkedIn (Fundación Las Fuertes)."
+      },
+      "menores": {
+        "titulo": "Protection des mineures et usage des photos",
+        "p1": "Ce site contient des photos de **filles de moins de 18 ans**, mineures au regard de la loi colombienne. Nous les utilisons avec l’autorisation de leurs familles et seulement pour raconter le travail de la fondation.",
+        "p2": "**Nous n’autorisons pas** la copie, le téléchargement, le partage, la modification ni la publication de ces photos ailleurs, en aucune circonstance. Nous n’autorisons pas non plus leur utilisation avec l’**intelligence artificielle** : ni pour entraîner des modèles, ni pour les alimenter, ni pour générer des images à partir d’elles.",
+        "p3": "C’est pourquoi, avant d’entrer, le site t’affiche un avis de protection des mineures que tu dois accepter. L’accepter, c’est t’engager à respecter ces conditions.",
+        "p4": "Nous le demandons aussi aux machines : notre fichier robots.txt ferme les dossiers d’images aux robots d’intelligence artificielle connus et à Google Images, et toutes les images du site sont servies avec l’en-tête X-Robots-Tag « noimageai, noai ». Le texte de la fondation reste public."
+      },
+      "cookies": {
+        "titulo": "Cookies et données dans ton navigateur",
+        "p1": "**lf_aviso** : retient que tu as déjà accepté l’avis de protection des mineures, pour ne pas te le montrer à chaque visite. Il dure 365 jours, vaut pour tout le site et ne contient aucune donnée personnelle : seulement la version de l’avis que tu as acceptée. Si nous changeons l’avis, nous te le redemanderons. Si tu le supprimes ou navigues en mode privé, l’avis revient.",
+        "p2": "**Google Analytics** : nous mesurons de façon agrégée comment le site est utilisé (par exemple, combien de personnes ouvrent Rejoins-nous ou cliquent pour faire un don). Google Analytics utilise ses propres cookies pour cela. Nous ne l’utilisons pas pour t’identifier.",
+        "p3": "Le site ne garde rien d’autre dans ton navigateur : pas de compte, pas de formulaire, pas de stockage local."
+      },
+      "donaciones": {
+        "titulo": "Dons",
+        "p1": "Tu peux soutenir la fondation depuis **Rejoins-nous**, le panneau qu’ouvrent les boutons « Rejoins-nous », « Je veux contribuer » et « Fais un don ici ».",
+        "p2": "**Don ponctuel (Colombie)** : le paiement est traité par **Bold**, en pesos colombiens, avec un minimum de 5 000 COP. Ce site ne voit ni ne garde les données de ta carte ou de ton compte : il prépare seulement la référence et le montant du don, et Bold effectue le paiement. À la fin, Bold t’envoie le reçu par e-mail et te ramène à une page de remerciement avec la référence et l’état du paiement.",
+        "p3": "**Don mensuel** : il se fait avec un abonnement **Mercado Pago**. Mercado Pago t’envoie le reçu de chaque prélèvement et tu peux gérer ou annuler l’abonnement depuis ton compte quand tu veux.",
+        "p4": "**Depuis les États-Unis** : tu peux faire un don via notre partenaire Caring for Colombia, une organisation 501(c)(3), sur la plateforme Give Lively. Ces dons suivent les conditions de cette plateforme.",
+        "p5": "**Du temps et des objets** : le bénévolat et les dons en nature se coordonnent par WhatsApp ; là, tu partages seulement ce que tu décides de nous écrire.",
+        "p6": "**Remboursements et questions fiscales** (comme les reçus de dons) : ils se gèrent en écrivant directement à la fondation à fundacionlasfuertes@gmail.com."
+      }
+    }
   },
   "lang": {
     "label": "Langue"

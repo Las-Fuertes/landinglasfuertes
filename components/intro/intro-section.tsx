@@ -2,7 +2,7 @@
 
 import gsap from 'gsap';
 import Image from 'next/image';
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithMarks } from '../../lib/render-text-with-bold';
 import {
@@ -13,17 +13,21 @@ import {
   type IntroStep,
   type IntroVariant,
 } from './intro.data';
+import type { Trazo } from './intro.trazos';
 import { crearLlegada, limpiarBienvenida } from './bienvenida.motion';
 import {
   crearAsomo,
   crearEntrada,
   crearReposo,
   crearTransicion,
+  LARGO_TRAZO,
   limpiar,
+  type Relevo,
   NIVEL_REPOSO_POR_DEFECTO,
   nivelReposoDe,
   type NivelReposo,
 } from './intro.motion';
+import { IntroNavegacion } from './intro-navegacion';
 import { useBreakpoint } from './use-breakpoint';
 import { useIntroPin } from './use-intro-pin';
 
@@ -42,7 +46,69 @@ const ANCHO_MAXIMO: Record<Breakpoint, number> = { mobile: 430, tablet: 1024, de
 
 const SIN_TRANSFORMAR: GroupTransform = { scale: 1, dx: 0, dy: 0 };
 
+/**
+ * La máscara que dibuja un trazo es esto más gruesa que el pincel de Figma: cubre lo que el
+ * pincel se ensancha sin llegar a destapar antes de tiempo el tramo vecino donde la línea se
+ * cruza consigo misma (D10, medido).
+ */
+const MASCARA_GROSOR = 1.8;
+
+/** `inset` de Figma ("-0.47% 0 -1.35% -0.71%") a lo que la imagen sobresale por cada lado (0,0047...). */
+function sobresale(inset: string | undefined) {
+  const v = (inset ?? '0').split(/\s+/).map(x => -(parseFloat(x) || 0) / 100);
+  const [arriba, derecha = arriba, abajo = arriba, izquierda = derecha] = v;
+  return { arriba, derecha, abajo, izquierda };
+}
+
+/**
+ * Un trazo amarillo que se dibuja (D10): la misma imagen del pincel, en un SVG en línea con la
+ * línea central de Figma dos veces, como máscara y como guía. Ocupa la caja del `inset`, igual
+ * que la imagen; la línea se coloca dentro con lo que la imagen sobresale de la caja. En reposo
+ * la imagen va sin máscara (la animación se la pone y se la quita).
+ */
+function ImagenConTrazo({ src, trazo, inset }: { src: string; trazo: Trazo; inset?: string }) {
+  const id = `trazo-${useId().replace(/:/g, '')}`;
+  const { caja, d, dx = 0, dy = 0, grosor } = trazo;
+  const s = sobresale(inset);
+  const w = caja.w * (1 + s.izquierda + s.derecha);
+  const h = caja.h * (1 + s.arriba + s.abajo);
+  const mover = `translate(${caja.w * s.izquierda + dx} ${caja.h * s.arriba + dy})`;
+  return (
+    <svg
+      data-trazo=""
+      aria-hidden
+      className="absolute inset-0 block h-full w-full overflow-visible"
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+    >
+      <mask id={id} maskUnits="userSpaceOnUse" x={-w} y={-h} width={3 * w} height={3 * h}>
+        <path
+          data-trazo-mascara=""
+          d={d}
+          transform={mover}
+          pathLength={LARGO_TRAZO}
+          fill="none"
+          stroke="white"
+          strokeWidth={grosor * MASCARA_GROSOR}
+          strokeLinejoin="round"
+        />
+      </mask>
+      <image data-trazo-imagen="" href={src} width={w} height={h} preserveAspectRatio="none" />
+      <path data-trazo-guia="" d={d} transform={mover} fill="none" stroke="none" />
+    </svg>
+  );
+}
+
 /** Aplica la transformación del grupo a una capa definida en el lienzo mobile. */
+/**
+ * `sizes` de una capa: la fracción del lienzo que ocupa su caja. El lienzo nunca pasa del ancho de
+ * la pantalla, así que es un tope; con "100vw" next/image avisaba en la consola (D16). Una capa que
+ * sangra sí ocupa toda la pantalla.
+ */
+function sizesDe(ancho: number, anchoLienzo: number, sangra = false) {
+  return sangra ? '100vw' : `${Math.min(100, Math.ceil((ancho / anchoLienzo) * 100))}vw`;
+}
+
 function transformar(layer: IntroLayer, g: GroupTransform): IntroLayer {
   if (g === SIN_TRANSFORMAR) return layer;
   return {
@@ -81,8 +147,11 @@ function Capa({
 
   // Los SVG del diseño traen preserveAspectRatio="none": se estiran a su caja, que es
   // lo que queremos porque las proporciones ya vienen en los datos.
-  const img = (
-    <Image src={layer.src} alt="" fill sizes="100vw" loading={eager ? 'eager' : undefined} />
+  const sizes = sizesDe(box.width, canvas.width, sangra);
+  const img = layer.trazo ? (
+    <ImagenConTrazo src={layer.src} trazo={layer.trazo} inset={inset} />
+  ) : (
+    <Image src={layer.src} alt="" fill sizes={sizes} loading={eager ? 'eager' : undefined} />
   );
   const conInset = inset ? (
     <div className="absolute" style={{ inset }}>
@@ -130,7 +199,19 @@ function Capa({
     );
 
   return (
-    <div className="absolute" style={caja} data-rol={layer.rol} data-i={indice}>
+    <div
+      className="absolute"
+      style={caja}
+      data-rol={layer.rol}
+      data-i={indice}
+      data-solo-pin={layer.soloPin ? '' : undefined}
+      data-quieta={layer.quieta ? '' : undefined}
+      data-disco={
+        layer.disco
+          ? `${layer.disco.x} ${layer.disco.y} ${layer.disco.w} ${layer.disco.h}`
+          : undefined
+      }
+    >
       {opacity === undefined ? (
         contenido
       ) : (
@@ -153,6 +234,7 @@ function Paso({
   breakpoint,
   eager = false,
   agrupar = false,
+  pin = false,
 }: {
   /** Id único por breakpoint, para poder capturar cada uno por separado. */
   ancla: string;
@@ -166,6 +248,8 @@ function Paso({
    * es lo que mueve el movimiento en reposo del barco, con la persona dentro (D5).
    */
   agrupar?: boolean;
+  /** Montado por el pin (no el respaldo estático): hay bolita y capas que solo existen con él. */
+  pin?: boolean;
 }) {
   const { t } = useTranslation();
   const { canvas, own, texts } = variant;
@@ -178,11 +262,12 @@ function Paso({
 
   const sangran = new Set(variant.sangra ?? []);
   const capas: ReactNode[] = [];
-  own.forEach((l, i) =>
+  own.forEach((l, i) => {
+    if (l.soloPin && !pin) return;
     capas.push(
       <Capa key={`own-${i}`} layer={l} canvas={canvas} indice={capas.length} eager={eager} />
-    )
-  );
+    );
+  });
   let indice = capas.length;
   Object.entries(groups).forEach(([nombre, layers]) => {
     const g = variant.groups?.[nombre] ?? SIN_TRANSFORMAR;
@@ -258,17 +343,27 @@ function resolverPaso(paso: IntroStep, bp: Breakpoint) {
  * propia animación. Mismas props que `Capa`, así el navegador reutiliza la misma descarga.
  */
 function PrecargaImagenes({ breakpoint }: { breakpoint: Breakpoint }) {
-  const srcs = new Set<string>();
+  // El mismo `sizes` que tendrá la capa, para que el navegador reutilice la descarga.
+  const srcs = new Map<string, string>();
   INTRO_STEPS.forEach(paso => {
     const { variant } = resolverPaso(paso, breakpoint);
-    variant.own.forEach(l => srcs.add(l.src));
-    Object.values(paso.groups).forEach(ls => ls.forEach(l => srcs.add(l.src)));
+    const sangran = new Set(variant.sangra ?? []);
+    variant.own.forEach(l => srcs.set(l.src, sizesDe(l.box.width, variant.canvas.width)));
+    Object.entries(paso.groups).forEach(([nombre, ls]) => {
+      const g = variant.groups?.[nombre] ?? SIN_TRANSFORMAR;
+      ls.forEach(l =>
+        srcs.set(
+          l.src,
+          sizesDe(transformar(l, g).box.width, variant.canvas.width, sangran.has(nombre))
+        )
+      );
+    });
   });
   return (
     <div aria-hidden className="hidden">
-      {Array.from(srcs).map(src => (
+      {Array.from(srcs).map(([src, sizes]) => (
         <div key={src} className="relative">
-          <Image src={src} alt="" fill sizes="100vw" loading="eager" />
+          <Image src={src} alt="" fill sizes={sizes} loading="eager" />
         </div>
       ))}
     </div>
@@ -319,6 +414,11 @@ export default function IntroSection() {
   const nivelReposo = useRef<NivelReposo>(NIVEL_REPOSO_POR_DEFECTO);
   /** La persona de la parte 3 se asoma después de la transición que lleva a ella. */
   const personaPendiente = useRef(false);
+  /**
+   * Corre (o está por correr) la entrada de la parte 1: los botones esperan a que termine (D10).
+   * Arranca en true para que no asomen en el primer pintado del pin, antes de la entrada.
+   */
+  const [entrando, setEntrando] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -328,7 +428,10 @@ export default function IntroSection() {
 
   // Con `?introPaso=N` no hay entrada: la intro ya está quieta desde que se activa el pin.
   useEffect(() => {
-    if (pin.mode === 'pin' && pin.entrada === 0) setReposo(r => r + 1);
+    if (pin.mode === 'pin' && pin.entrada === 0) {
+      setReposo(r => r + 1);
+      setEntrando(false);
+    }
   }, [pin.mode, pin.entrada]);
 
   // La transición se arma antes del primer pintado de la parte que entra, para que no asome
@@ -346,8 +449,16 @@ export default function IntroSection() {
     const continuidad = Math.min(transicion.desde, transicion.hacia) === 1;
     // Hacia la parte 3 la persona se asomará al final; desde ella, se esconde con la salida.
     personaPendiente.current = !!destino.querySelector('[data-rol="persona"]');
+    // Entre las partes 1 y 2, la bolita roja baja por la línea y amanece como el sol (en mobile, el
+    // sol cae tras las burbujas); al volver, lo mismo deshecho (D15).
+    const relevo: Relevo =
+      transicion.desde === 0 && transicion.hacia === 1
+        ? 'bola'
+        : transicion.desde === 1 && transicion.hacia === 0
+          ? 'bola-vuelve'
+          : null;
     const ctx = gsap.context(() => {
-      const tl = crearTransicion(origen, destino, transicion.sentido, continuidad);
+      const tl = crearTransicion(origen, destino, transicion.sentido, continuidad, relevo);
       tl.eventCallback('onComplete', () => {
         limpiar(destino);
         terminarTransicion();
@@ -366,7 +477,9 @@ export default function IntroSection() {
   // no se ve. Al terminar, la capa se suelta y el scroll vuelve a ser nativo.
   useLayoutEffect(() => {
     if (!llegada) return;
-    const origen = pasosRef.current[INTRO_STEPS.length - 1];
+    // Por gesto se llega desde la parte 3; con "Saltar intro", desde cualquiera (D12).
+    const origen = pasosRef.current[pin.stepIndex];
+    const desdeLaUltima = pin.stepIndex === INTRO_STEPS.length - 1;
     const bienvenida = document.getElementById('bienvenida');
     // La persona de la parte 3 no se asoma: sale con la intro, desde donde esté.
     personaPendiente.current = false;
@@ -383,7 +496,7 @@ export default function IntroSection() {
       behavior: 'instant',
     });
     const ctx = gsap.context(() => {
-      const { tl, deshacer } = crearLlegada(origen, bienvenida);
+      const { tl, deshacer } = crearLlegada(origen, bienvenida, desdeLaUltima);
       tl.eventCallback('onComplete', () => {
         limpiarBienvenida(bienvenida);
         terminarLlegada();
@@ -396,7 +509,8 @@ export default function IntroSection() {
       ctx.revert();
       document.documentElement.removeAttribute('data-intro-llegando');
     };
-  }, [llegada, timelineRef, terminarLlegada]);
+    // `pin.stepIndex` no cambia durante la llegada: al terminar vuelve a 0 junto con `llegada`.
+  }, [llegada, pin.stepIndex, timelineRef, terminarLlegada]);
 
   // Entrada de la parte 1: al cargar y cada vez que la intro reaparece subiendo desde abajo.
   useLayoutEffect(() => {
@@ -404,11 +518,13 @@ export default function IntroSection() {
     const raiz = pasosRef.current[0];
     if (!raiz) return;
     let vivo = true;
+    setEntrando(true);
     const ctx = gsap.context(() => {
       const tl = crearEntrada(raiz);
       tl.eventCallback('onComplete', () => {
         limpiar(raiz);
         if (timelineRef.current === tl) timelineRef.current = null;
+        setEntrando(false);
         setReposo(r => r + 1);
       });
       timelineRef.current = tl;
@@ -419,6 +535,7 @@ export default function IntroSection() {
     return () => {
       vivo = false;
       ctx.revert();
+      setEntrando(false);
     };
   }, [entrada, timelineRef]);
 
@@ -512,6 +629,9 @@ export default function IntroSection() {
     );
   }
 
+  // Los botones se ven cuando la intro está quieta: ni entrada, ni transición, ni llegada (D10).
+  const quieta = !transicion && !llegada && !entrando;
+
   // Quieta, solo está montada la parte actual; durante una transición, la saliente y la
   // entrante, esta encima.
   const montados = transicion ? [transicion.desde, transicion.hacia] : [pin.stepIndex];
@@ -531,6 +651,20 @@ export default function IntroSection() {
           // Bienvenida, con sus piezas ocultas, sobre el mismo beige de la página (D6).
           className={`inset-0 overflow-hidden ${pin.engaged ? `fixed z-40 ${llegada ? '' : 'bg-beige'}` : 'absolute'}`}
         >
+          {/* Primero en el DOM: lo primero que encuentra Tab dentro de la intro (D10). */}
+          <IntroNavegacion
+            visible={quieta}
+            puedeRetroceder={pin.stepIndex > 0}
+            // Desde la parte 3, avanzar lleva a Bienvenida, como un gesto (D6).
+            puedeAvanzar
+            onSaltar={pin.saltar}
+            onRetroceder={() => pin.irA(-1)}
+            onAvanzar={() => pin.irA(1)}
+            saltarRef={pin.saltarRef}
+          />
+          <p className="sr-only" aria-live="polite">
+            {t('intro.paso', { n: String(pin.stepIndex + 1), total: String(INTRO_STEPS.length) })}
+          </p>
           {montados.map(i => {
             const paso = INTRO_STEPS[i];
             return (
@@ -542,21 +676,11 @@ export default function IntroSection() {
                 aria-hidden={i !== pin.stepIndex || undefined}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <Paso groups={paso.groups} eager agrupar {...resolverPaso(paso, breakpoint)} />
+                <Paso groups={paso.groups} eager agrupar pin {...resolverPaso(paso, breakpoint)} />
               </div>
             );
           })}
           <PrecargaImagenes breakpoint={breakpoint} />
-          {pin.engaged && pin.saltarVisible && (
-            <button
-              ref={pin.saltarRef}
-              type="button"
-              onClick={pin.saltar}
-              className="absolute bottom-6 right-page-margin z-10 rounded-full border border-black/10 bg-white/80 px-5 py-2 text-sm font-bold text-black shadow-lg backdrop-blur-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue"
-            >
-              {t('intro.saltar')}
-            </button>
-          )}
         </div>
       </div>
     </section>

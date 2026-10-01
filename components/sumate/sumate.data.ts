@@ -6,7 +6,6 @@
 
 /** Llaves públicas / enlaces desde variables de entorno (inlined por Next). */
 export const BOLD_API_KEY = process.env.NEXT_PUBLIC_BOLD_API_KEY ?? '';
-export const MP_SUBSCRIPTION_URL = process.env.NEXT_PUBLIC_MP_SUBSCRIPTION_URL ?? '';
 export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
 export const INSTAGRAM_HANDLE = process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE ?? '';
 
@@ -14,6 +13,10 @@ export const INSTAGRAM_HANDLE = process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE ?? '';
  *  aliado Caring for Colombia (501c3) en Give Lively. Soporta única y mensual. */
 export const GIVE_LIVELY_URL =
   'https://secure.givelively.org/donate/foundation-caring-for-colombia-ltd/fundacion-las-fuertes';
+
+/** Plan mensual (suscripción de Mercado Pago). Enlace público, va en código como el de Give
+ *  Lively: así no depende de una variable de entorno de Vercel con el enlace viejo (ronda 3). */
+export const MP_SUBSCRIPTION_URL = 'https://mpago.la/1bHZ1uA';
 
 /** Montos sugeridos para donación única (COP). */
 export const SUGGESTED_AMOUNTS_COP = [20000, 50000, 100000];
@@ -38,6 +41,11 @@ export const DIRECT_TRANSFER = {
 
 /** Ubicación de la sede (Llegue-Llegue). */
 export const SEDE_LOCATION = 'Isla Fuerte, Bolívar, Colombia';
+
+/** "¿Te gustaría saber en dónde nos ubicamos?" del cierre del formulario (D3). Hoy busca la isla
+ *  en Google Maps; si la fundación comparte el pin exacto de la sede, va aquí. */
+export const SEDE_MAPA_URL =
+  'https://www.google.com/maps/search/?api=1&query=Isla+Fuerte%2C+Bol%C3%ADvar%2C+Colombia';
 
 export function formatCop(amount: number): string {
   return new Intl.NumberFormat('es-CO', {

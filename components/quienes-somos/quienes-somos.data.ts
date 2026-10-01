@@ -1,31 +1,70 @@
 /**
- * El equipo, en el orden del diseño de Figma (frame mobile 1219:985).
+ * El equipo, en el orden del diseño de Figma: desktop `1437:1518` y mobile `1219:985`
+ * (docs/quienes-somos/DECISIONES.md, D1 y D2).
  *
- * Las medidas están en px del lienzo mobile de 390. El componente las multiplica por
- * `--k`, que vale 1 en mobile y crece en tablet y desktop (D7: la composición de mobile
- * se escala, no se recompone).
+ * Todas las medidas en px van en px del lienzo de Figma (mobile de 390, desktop de 1280) y el
+ * componente las multiplica por `--k`. Las fotos y los pájaros tienen el mismo tamaño en los dos
+ * frames; lo que cambia es la composición.
  */
+
+/** Un par de pájaros dibujados, colocado respecto a la esquina superior izquierda de la foto. */
+export interface Pajaro {
+  color: 'rosa' | 'azul';
+  /** Figma exporta dos trazos: el grande (60 x 75) y el chico (44 x 55). */
+  forma: 'grande' | 'chico';
+  /** Posición de la imagen (ya sin la caja girada de Figma), en px de lienzo. */
+  x: number;
+  y: number;
+  /** Ancho de la imagen en px de lienzo; el alto sale de su proporción. */
+  ancho: number;
+}
+
+/**
+ * Cómo cae la foto dentro del círculo, en fracciones del diámetro: es el recorte de la máscara de
+ * Figma traducido (posición y tamaño de la imagen respecto al círculo).
+ */
+export interface Encuadre {
+  x: number;
+  y: number;
+  ancho: number;
+  alto: number;
+}
+
+export type Cargo =
+  | 'coordinadora'
+  | 'educadora'
+  | 'estrategaCrecimiento'
+  | 'fundadora'
+  | 'estrategaComunicaciones'
+  | 'cofundadora'
+  | 'estrategaAlianzas'
+  | 'disenadora';
+
 export interface Integrante {
-  /** Nombre del archivo en `public/images/quienes-somos/`. */
+  /** Nombre del archivo en `public/images/quienes-somos/2026-09/`. */
   slug: string;
   /** Los nombres propios no se traducen. */
   name: string;
   /** Clave del cargo dentro de `quienesSomos.roles`. */
-  role: 'coordinadora' | 'fundadora' | 'cofundadora' | 'projectManager' | 'disenadora';
-  /** De qué lado va la foto; `center` la pone sola con el nombre debajo. */
+  role: Cargo;
+  /** Mobile y tablet: de qué lado va la foto; `center` la pone sola con el nombre debajo. */
   side: 'left' | 'right' | 'center';
-  /** Diámetro de la foto. */
+  /** Diámetro de la foto, igual en los dos frames. */
   size: number;
-  /** Cuánto se sale la foto del margen de la página, hacia su lado. */
+  /** Mobile: cuánto se sale la foto del margen de la página (40 px), hacia su lado. */
   bleed?: number;
-  /** Encuadre de la foto dentro del círculo, cuando el centro no sirve. */
-  focus?: string;
-  /**
-   * Solo en desktop: cuánto se corre la ficha de su casilla en la rejilla de 3, en px. Es lo que
-   * rompe la cuadrícula (D27): dentro de una fila no se repite ningún desplazamiento vertical y
-   * dentro de una columna ninguno horizontal, así que no hay dos fichas alineadas entre sí.
-   */
-  dispersion?: { dx: number; dy: number };
+  /** Mobile, fichas centradas: corrimiento horizontal de la foto respecto al centro. */
+  corrimiento?: number;
+  /** Mobile: aire sobre la fila, medido entre filas en Figma. */
+  aire?: number;
+  /** Desktop: cuánto baja la foto dentro de su fila (las fotos chicas van más abajo). */
+  bajaDesktop?: number;
+  /** Ancho máximo del cargo, el de su caja de texto en Figma: decide dónde parte la línea. */
+  anchoCargo: number;
+  encuadre: Encuadre;
+  /** Solo si el encuadre mobile difiere del de desktop. */
+  encuadreMobile?: Encuadre;
+  pajaro: { mobile: Pajaro; desktop: Pajaro };
 }
 
 export const INTEGRANTES: Integrante[] = [
@@ -35,29 +74,44 @@ export const INTEGRANTES: Integrante[] = [
     role: 'coordinadora',
     side: 'left',
     size: 188,
-    bleed: 47,
-    focus: '50% 35%',
-    dispersion: { dx: -34, dy: 0 },
+    bleed: 39,
+    anchoCargo: 169,
+    encuadre: { x: -0.198, y: -0.361, ancho: 1.29, alto: 1.41 },
+    pajaro: {
+      mobile: { color: 'rosa', forma: 'grande', x: 142, y: 2, ancho: 60 },
+      desktop: { color: 'rosa', forma: 'grande', x: 137, y: 129, ancho: 60 },
+    },
   },
   {
     slug: 'paola-segnini',
     name: 'Paola Segnini',
-    role: 'coordinadora',
+    role: 'educadora',
     side: 'right',
     size: 153,
-    bleed: 25,
-    focus: '50% 30%',
-    dispersion: { dx: 18, dy: 64 },
+    bleed: 33,
+    aire: 12,
+    bajaDesktop: 43,
+    anchoCargo: 169,
+    encuadre: { x: 0.01, y: -0.135, ancho: 1.026, alto: 1.366 },
+    pajaro: {
+      mobile: { color: 'azul', forma: 'chico', x: -5, y: 3, ancho: 44 },
+      desktop: { color: 'azul', forma: 'chico', x: 96, y: -20, ancho: 44 },
+    },
   },
   {
     slug: 'lina-lievano',
     name: 'Lina Lievano',
-    role: 'coordinadora',
+    role: 'estrategaCrecimiento',
     side: 'left',
     size: 201.5,
-    bleed: 61,
-    focus: '50% 35%',
-    dispersion: { dx: -12, dy: -28 },
+    bleed: 53,
+    aire: 7,
+    anchoCargo: 169,
+    encuadre: { x: -0.082, y: -0.054, ancho: 1.218, alto: 1.22 },
+    pajaro: {
+      mobile: { color: 'rosa', forma: 'grande', x: 150, y: 7, ancho: 60 },
+      desktop: { color: 'rosa', forma: 'grande', x: 149, y: 143, ancho: 60 },
+    },
   },
   {
     slug: 'karol-lopez',
@@ -65,18 +119,31 @@ export const INTEGRANTES: Integrante[] = [
     role: 'fundadora',
     side: 'center',
     size: 201.5,
-    focus: '58% 50%',
-    dispersion: { dx: 26, dy: 38 },
+    corrimiento: 17,
+    aire: 27,
+    anchoCargo: 232,
+    encuadre: { x: -0.604, y: -0.149, ancho: 1.992, alto: 1.494 },
+    pajaro: {
+      mobile: { color: 'azul', forma: 'chico', x: -2, y: 26, ancho: 44 },
+      desktop: { color: 'azul', forma: 'grande', x: 12, y: 141, ancho: 60 },
+    },
   },
   {
     slug: 'vanessa-cortes',
     name: 'Vanessa Córtes',
-    role: 'coordinadora',
+    role: 'estrategaComunicaciones',
     side: 'left',
     size: 169,
-    bleed: 61,
-    focus: '40% 30%',
-    dispersion: { dx: -40, dy: -18 },
+    bleed: 53,
+    aire: 20,
+    bajaDesktop: 17,
+    anchoCargo: 130,
+    encuadre: { x: -0.157, y: 0.006, ancho: 1.343, alto: 1.343 },
+    encuadreMobile: { x: -0.031, y: -0.052, ancho: 1.18, alto: 1.18 },
+    pajaro: {
+      mobile: { color: 'rosa', forma: 'grande', x: 139, y: 5, ancho: 60 },
+      desktop: { color: 'rosa', forma: 'chico', x: -6, y: 15, ancho: 44 },
+    },
   },
   {
     slug: 'erika-cely',
@@ -84,18 +151,30 @@ export const INTEGRANTES: Integrante[] = [
     role: 'cofundadora',
     side: 'center',
     size: 201.5,
-    focus: '50% 45%',
-    dispersion: { dx: 14, dy: 82 },
+    corrimiento: 18,
+    aire: 8,
+    anchoCargo: 259,
+    encuadre: { x: -0.094, y: -0.44, ancho: 1.183, alto: 1.775 },
+    pajaro: {
+      mobile: { color: 'azul', forma: 'grande', x: 155, y: 6, ancho: 54.7 },
+      desktop: { color: 'azul', forma: 'grande', x: 25, y: 149, ancho: 60 },
+    },
   },
   {
     slug: 'adriana-chavarro',
     name: 'Adriana Chavarro',
-    role: 'projectManager',
+    role: 'estrategaAlianzas',
     side: 'right',
     size: 159.5,
-    bleed: 40,
-    focus: '50% 30%',
-    dispersion: { dx: -22, dy: 16 },
+    bleed: 48,
+    aire: 30,
+    bajaDesktop: 2,
+    anchoCargo: 145,
+    encuadre: { x: -0.169, y: -0.079, ancho: 1.183, alto: 1.578 },
+    pajaro: {
+      mobile: { color: 'rosa', forma: 'grande', x: -2, y: -3, ancho: 52.8 },
+      desktop: { color: 'rosa', forma: 'chico', x: 133, y: 53, ancho: 44 },
+    },
   },
   {
     slug: 'alejandra-villarraga',
@@ -103,18 +182,13 @@ export const INTEGRANTES: Integrante[] = [
     role: 'disenadora',
     side: 'left',
     size: 152,
-    bleed: 53,
-    focus: '50% 40%',
-    dispersion: { dx: 34, dy: -30 },
-  },
-  {
-    slug: 'karina-cely',
-    name: 'Karina Cely',
-    role: 'projectManager',
-    side: 'right',
-    size: 203,
-    bleed: 69,
-    focus: '50% 30%',
-    dispersion: { dx: -6, dy: 58 },
+    bleed: 45,
+    aire: 26,
+    anchoCargo: 169,
+    encuadre: { x: 0.036, y: 0.011, ancho: 1.03, alto: 1.03 },
+    pajaro: {
+      mobile: { color: 'azul', forma: 'chico', x: 114, y: 8, ancho: 44 },
+      desktop: { color: 'azul', forma: 'chico', x: 105, y: 113, ancho: 44 },
+    },
   },
 ];

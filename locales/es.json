@@ -5,13 +5,13 @@
   },
   "intro": {
     "label": "Introducción",
-    "saltar": "Saltar animación"
+    "saltar": "Saltar intro",
+    "anterior": "Retroceder un paso en la introducción",
+    "siguiente": "Avanzar un paso en la introducción",
+    "navegacion": "Navegación de la introducción",
+    "paso": "Parte {n} de {total} de la introducción"
   },
   "hero": {
-    "mainTitle1": "Algo fuerte está",
-    "mainTitle2": "en camino",
-    "subtitle1": "Aunque aún no puedas verlo, lo que viene",
-    "subtitle2": "será una sorpresa increíble.",
     "section1": {
       "text1": "La mitad del mundo menstrua,",
       "text2": "pero ==hablar de menstruación==",
@@ -71,38 +71,6 @@
     "paragraph2": "Una propuesta viva, tejida desde la experiencia en Isla Fuerte y en otros territorios de Colombia, aquí entendimos que la educación menstrual no basta por sí sola: **necesitamos una visión amplia** de la integralidad que permita a cada niña habitar su cuerpo con libertad y orgullo.",
     "comprendimos": "Así lo comprendimos nosotras:"
   },
-  "content": {
-    "intro": "Estamos construyendo un espacio para que la {emi} marque un nuevo hito en Colombia.",
-    "emi": "Educación Menstrual Integral (EMI)",
-    "since": "Desde 2021, Las Fuertes ha creado espacios seguros donde la información rompe barreras de silencio y transforma vidas.",
-    "thanks": "Gracias por estar aquí. Síguenos y sé parte del cambio."
-  },
-  "cta": {
-    "button": "Quiero ser parte del cambio",
-    "subtitle": "Contáctanos y únete a la revolución de EMI"
-  },
-  "modal": {
-    "title": "Contáctanos",
-    "description": "Cuéntanos qué te interesa sobre Las Fuertes o la Educación Menstrual Integral",
-    "form": {
-      "name": "Nombre",
-      "email": "Correo electrónico",
-      "message": "Mensaje",
-      "namePlaceholder": "¿Cómo te llamas?",
-      "emailPlaceholder": "tu@correo.com",
-      "messagePlaceholder": "Cuéntanos qué te interesa sobre Las Fuertes o EMI...",
-      "submit": "Enviar mensaje",
-      "sending": "Enviando..."
-    },
-    "success": {
-      "title": "¡Mensaje enviado!",
-      "message": "Gracias por contactarnos. Te responderemos pronto.",
-      "button": "Enviar otro mensaje"
-    },
-    "error": "Hubo un error al enviar el mensaje. Por favor, inténtalo de nuevo.",
-    "close": "Cerrar"
-  },
-  "timestamp": "Generado el",
   "principles": {
     "title": "Así lo comprendimos nosotras:",
     "prev": "Estampilla anterior",
@@ -111,10 +79,10 @@
     "pista": "desliza",
     "rolCarrusel": "carrusel",
     "estampillas": {
-      "1": "Estampilla: Cada niña es un mar de derechos",
-      "2": "Estampilla: Educación menstrual como mapa de cambio",
-      "3": "Estampilla: Juntas florecemos, juntas somos más fuertes",
-      "4": "Estampilla: Yo soy fuerte, yo decido"
+      "1": "Cada niña es un\nmar de derechos",
+      "2": "Educación menstrual\ncomo mapa de cambio",
+      "3": "Juntas florecemos\njuntas somos más fuertes",
+      "4": "Yo soy fuerte yo decido"
     }
   },
   "donations": {
@@ -172,7 +140,7 @@
   "sumate": {
     "hero": {
       "title": "Súmate a Las Fuertes",
-      "subtitle": "Cada niña de Isla Fuerte merece herramientas para construir su futuro. Tú puedes ser parte de eso hoy, desde donde estés."
+      "subtitle": "Con EMI acompañamos a niñas y adolescentes de Isla Fuerte, Bolívar, y de otros territorios de Colombia a conocer y vivir su ciclo con libertad y confianza. Tu apoyo se convierte en talleres, materiales y espacios seguros."
     },
     "proyecto": {
       "label": "Nuestro proyecto ahora mismo",
@@ -195,7 +163,7 @@
     },
     "unica": {
       "title": "Dona una vez",
-      "text": "Tu aporte se convierte directamente en talleres, materiales y oportunidades para las niñas de la isla. Tú eliges cuánto.",
+      "text": "Tu aporte se convierte en talleres, materiales y oportunidades para las niñas de la isla y de otros territorios de Colombia. Tú eliges cuánto.",
       "amountLabel": "Monto en pesos colombianos",
       "customPlaceholder": "Otro monto",
       "cta": "Donar ahora",
@@ -247,7 +215,7 @@
     },
     "difunde": {
       "title": "Difunde",
-      "text": "¿Todavía no puedes donar? También ayudas así: síguenos en Instagram, donde publicamos todo lo que hacemos; comparte nuestro trabajo; y cuéntale a alguien que tenga un computador o una cámara guardada sin usar.",
+      "text": "¿Todavía no puedes donar? También ayudas así: síguenos en {instagram} y {linkedin}, donde publicamos todo lo que hacemos; comparte nuestro trabajo; y cuéntale a alguien que tenga un computador o una cámara guardada sin usar.",
       "cta": "Síguenos en Instagram"
     },
     "whatsappUnavailable": "Muy pronto podrás contactarnos por aquí.",
@@ -256,8 +224,13 @@
       "text": "Solo si estás en USA: puedes donar en dólares —una vez o cada mes— a través de nuestro aliado Caring for Colombia, y tu donación es deducible de impuestos allá. ¿Donas desde cualquier otro país? Usa el formulario de arriba con tu tarjeta internacional.",
       "cta": "Donar desde USA"
     },
+    "despedida": {
+      "gracias": "Te agradecemos desde Isla Fuerte, Colombia",
+      "ubicacion": "¿Te gustaría saber en dónde nos ubicamos exactamente? Usa este",
+      "ubicacionEnlace": "enlace",
+      "ubicacionAria": "Ver en Google Maps dónde queda Isla Fuerte (se abre en otra pestaña)"
+    },
     "drawer": {
-      "flotante": "Súmate",
       "flotanteAria": "Súmate a Las Fuertes: abre las formas de ayudar",
       "cerrar": "Cerrar Súmate a Las Fuertes"
     }
@@ -269,7 +242,10 @@
       "coordinadora": "Coordinadora Red ASE",
       "fundadora": "Fundadora y Directora general",
       "cofundadora": "Cofundadora y Directora creativa",
-      "projectManager": "Project Manager",
+      "educadora": "Educadora menstrual y\u00a0desarrollo pedagógico",
+      "estrategaCrecimiento": "Estratega de crecimiento",
+      "estrategaComunicaciones": "Estratega de comunicaciones",
+      "estrategaAlianzas": "Estratega de alianzas y ventas",
       "disenadora": "Diseñadora gráfica"
     }
   },
@@ -291,16 +267,63 @@
     "copied": "¡Enlace copiado!"
   },
   "footer": {
-    "tagline": "Educación Menstrual Integral desde Isla Fuerte, Colombia.",
-    "navTitle": "Explora",
-    "navWelcome": "Bienvenida",
-    "navPrinciples": "Nuestros principios",
-    "navSumate": "Súmate",
-    "helpTitle": "¿Quieres ayudar?",
-    "contact": "Contáctanos",
-    "followUs": "Síguenos en Instagram",
-    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia",
-    "madeWith": "Hecho con amor desde la isla."
+    "tagline": "Educación menstrual integral para la vida",
+    "apoyarTitulo": "¿Quieres apoyar?",
+    "dona": "Dona aquí",
+    "instagram": "Síguenos en Instagram",
+    "linkedin": "Síguenos en LinkedIn",
+    "fundacionTitulo": "La fundación",
+    "transparencia": "Transparencia",
+    "terminos": "Términos y condiciones",
+    "transparenciaMenu": "Estados financieros por año",
+    "transparenciaAnio": "Estados financieros {anio}",
+    "nuevaPestana": "(se abre en otra pestaña)",
+    "legal": "Fundación Las Fuertes · Isla Fuerte, Bolívar, Colombia"
+  },
+  "nav": {
+    "etiqueta": "Navegación",
+    "abrir": "Abrir menú",
+    "cerrar": "Cerrar menú",
+    "inicio": "Inicio",
+    "sumate": "Súmate"
+  },
+  "terminos": {
+    "metaTitulo": "Términos y condiciones · Las Fuertes",
+    "metaDescripcion": "Cómo cuidamos las fotos de nuestras niñas, qué guarda el sitio en tu navegador y cómo funcionan las donaciones a la Fundación Las Fuertes.",
+    "titulo": "Términos y condiciones",
+    "actualizado": "Última actualización: 1 de octubre de 2026",
+    "intro": "Al navegar por este sitio aceptas estos términos. Los escribimos en claro y sin letra pequeña: si algo no se entiende, escríbenos.",
+    "logoAria": "Las Fuertes: volver al inicio",
+    "secciones": {
+      "responsable": {
+        "titulo": "Quiénes somos",
+        "p1": "Este sitio es de la **Fundación Las Fuertes**, una organización de Isla Fuerte, Bolívar, Colombia, que acompaña a niñas y adolescentes con Educación Menstrual Integral (EMI).",
+        "p2": "NIT: 901.809.186-3. Representante legal: Karoll Adriana Lopez Lozano, cédula de ciudadanía 52.717.530.",
+        "p3": "Puedes escribirnos al correo fundacionlasfuertes@gmail.com, por Instagram (@las.fuertes) o por LinkedIn (Fundación Las Fuertes)."
+      },
+      "menores": {
+        "titulo": "Protección de menores y uso de las fotos",
+        "p1": "Este sitio contiene fotos de **niñas menores de 18 años** ante la ley colombiana. Las usamos con autorización de sus familias y solo para contar el trabajo de la fundación.",
+        "p2": "**No autorizamos** copiar, descargar, compartir, modificar ni publicar esas fotos en ningún otro lugar, bajo ninguna circunstancia. Tampoco autorizamos su uso con **inteligencia artificial**: ni para entrenar modelos, ni para alimentarlos, ni para generar imágenes a partir de ellas.",
+        "p3": "Por eso, antes de entrar, el sitio te muestra un aviso de protección de menores que tienes que aceptar. Aceptarlo es comprometerte a respetar estas condiciones.",
+        "p4": "También se lo pedimos a las máquinas: nuestro archivo robots.txt les cierra las carpetas de imágenes a los rastreadores de inteligencia artificial conocidos y a Google Imágenes, y todas las imágenes del sitio se sirven con la cabecera X-Robots-Tag «noimageai, noai». El texto de la fundación sigue siendo público."
+      },
+      "cookies": {
+        "titulo": "Cookies y datos en tu navegador",
+        "p1": "**lf_aviso**: guarda que ya aceptaste el aviso de protección de menores, para no mostrártelo en cada visita. Dura 365 días, vale para todo el sitio y no contiene datos personales: solo la versión del aviso que aceptaste. Si cambiamos el aviso, te lo volveremos a pedir. Si la borras o navegas en modo incógnito, el aviso vuelve a salir.",
+        "p2": "**Google Analytics**: medimos de forma agregada cómo se usa el sitio (por ejemplo, cuántas personas abren Súmate o hacen clic en donar). Google Analytics usa sus propias cookies para eso. No lo usamos para identificarte.",
+        "p3": "El sitio no guarda nada más en tu navegador: no hay cuentas, ni formularios, ni almacenamiento local."
+      },
+      "donaciones": {
+        "titulo": "Donaciones",
+        "p1": "Puedes apoyar a la fundación desde **Súmate**, el panel que abren los botones «Súmate», «Quiero aportar» y «Dona aquí».",
+        "p2": "**Donación única (Colombia)**: el pago lo procesa **Bold**, en pesos colombianos y con un mínimo de $5.000. Este sitio no ve ni guarda los datos de tu tarjeta ni de tu cuenta: solo prepara la referencia y el monto de la donación, y Bold hace el cobro. Al terminar, Bold te envía el comprobante a tu correo y te trae de vuelta a una página de agradecimiento con la referencia y el estado del pago.",
+        "p3": "**Donación mensual**: se hace con una suscripción de **Mercado Pago**. Mercado Pago te envía el comprobante de cada cobro y puedes gestionar o cancelar la suscripción desde tu cuenta cuando quieras.",
+        "p4": "**Desde Estados Unidos**: puedes donar a través de nuestro aliado Caring for Colombia, una organización 501(c)(3), en la plataforma Give Lively. Esas donaciones siguen las condiciones de esa plataforma.",
+        "p5": "**Tiempo y cosas**: el voluntariado y las donaciones en especie se coordinan por WhatsApp; ahí compartes solo lo que tú decidas escribirnos.",
+        "p6": "**Reembolsos y temas tributarios** (como certificados de donación): se gestionan escribiendo directamente a la fundación a fundacionlasfuertes@gmail.com."
+      }
+    }
   },
   "lang": {
     "label": "Idioma"

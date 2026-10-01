@@ -53,15 +53,15 @@ export interface CajaTitulo {
 /**
  * Silueta de lo que no es mar, vista desde arriba (D7): para cada franja de `SILUETA_PASO`
  * unidades del lienzo, la y más alta con algo dibujado (tierra rosada, la casa de Talleres con
- * su antena, el "Haz clic aquí"). Medida sobre `mapa-ruta-4000.webp` tomando el mínimo de cada
- * franja, así que es conservadora. Si el arte cambia, se vuelve a medir.
+ * su antena, el "Haz clic aquí"). Medida sobre el export a 4x del mapa 1431:985 (D11) tomando el
+ * mínimo de cada franja, así que es conservadora. Si el arte cambia, se vuelve a medir.
  */
 const SILUETA_PASO = 20;
 const SILUETA = [
-  1520, 526, 501, 471, 437, 409, 385, 364, 345, 327, 311, 214, 214, 213, 216, 213, 220, 194, 190,
-  187, 174, 95, 97, 91, 77, 71, 100, 90, 80, 72, 66, 62, 59, 57, 54, 51, 50, 49, 49, 49, 51, 53, 57,
-  61, 66, 72, 79, 86, 95, 105, 116, 128, 144, 164, 190, 218, 244, 269, 291, 309, 324, 336, 343, 347,
-  350, 354, 359, 368, 380, 395, 413, 437, 482, 588, 637, 682, 1520, 1520, 1520, 1520, 1520, 1520,
+  1039, 1039, 379, 341, 313, 289, 269, 250, 234, 152, 153, 151, 151, 151, 134, 132, 124, 111, 53,
+  66, 53, 51, 51, 41, 33, 28, 25, 22, 19, 17, 15, 15, 15, 16, 19, 22, 27, 33, 39, 47, 56, 66, 78,
+  93, 114, 141, 168, 193, 215, 233, 247, 256, 261, 264, 268, 275, 286, 299, 317, 344, 414, 493, 533,
+  1039,
 ];
 
 /** La y más alta con algo dibujado entre `x0` y `x1` (unidades del lienzo). */
