@@ -1638,3 +1638,28 @@ Capturas: `carga-1280x800.png`, `descenso-1280x800.png`, `amanecer-1280x800.png`
 
 Teléfono real (el aterrizaje y el deslizamiento solo se midieron en Chrome headless, también con
 toques emulados) y el favicon en Safari y Firefox con tema oscuro.
+
+## D17. Sin flecha de avanzar en la última parte de la intro (2026-10-01)
+
+**Feedback** (Johan): "en la intro, en el último paso no necesitamos la flecha hacia abajo pues es
+el último paso".
+
+**Cuál es el último paso.** Los botones de D10 viven dentro de la intro (`IntroNavegacion` en
+`intro-section.tsx`) y solo se ven en sus partes 1 a 3; Bienvenida es un paso más del gesto (D6)
+pero no tiene botones. La última parte con botones es la 3 (`INTRO_STEPS.length - 1`). Ahí la
+flecha de avanzar y "Saltar intro" hacían lo mismo: llevar a Bienvenida con la coreografía de
+llegada (D12).
+
+**Qué se hizo.**
+
+- `puedeAvanzar` pasa de `true` fijo a `pin.stepIndex < INTRO_STEPS.length - 1`. En la parte 3
+  quedan "Saltar intro" y la flecha de retroceder. El gesto, la rueda y las teclas siguen llevando
+  a Bienvenida desde la parte 3 (D6): solo se quita el botón.
+- **Foco.** Quien pulsa la flecha de avanzar en la parte 2 tiene el foco encima cuando la parte 3
+  la quita. Los botones se esconden durante la transición y el foco pasa al grupo (D10); al
+  reaparecer, el botón recordado ya no está y el foco cae en "Saltar intro", que desde ahí es el
+  avance. No se pierde en el body. Medido por CDP (clic real en la flecha de la parte 2, 390x844):
+  en la parte 3 el foco queda en `saltar`, botones visibles `saltar` y `anterior`.
+
+Capturas `intro-paso3-390.png` e `intro-paso3-1280.png` en el scratchpad de la sesión
+(`constructor-a/`).

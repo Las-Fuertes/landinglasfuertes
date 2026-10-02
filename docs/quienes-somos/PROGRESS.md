@@ -1,5 +1,13 @@
 # Progreso: sección Quiénes somos
 
+## Estado (2026-10-01), D3
+
+- Párrafo de mobile a `spacing.l` (25 px) de cada borde de la pantalla, fuera de la caja de 390:
+  340 de ancho a 390 (antes 310) y 380 a 430 (antes 310). Desktop igual. Ver D3.
+- Pendiente: entre 600 y 767 (teléfono en horizontal) el párrafo llega a 717 de ancho, más que en
+  tablet (651); si molesta, topar con un `max-w`. Confirmar con Johan si a 360 quiere aún menos
+  margen (sigue en 11 líneas).
+
 ## Estado (2026-09-30), D1 y D2
 
 Hecho en la rama `30-sep`, sin commitear:

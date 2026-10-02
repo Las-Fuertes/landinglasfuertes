@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { sendGAEvent } from '@next/third-parties/google';
+import { track } from '../../lib/analytics';
+import { SALIENTE } from './sumate-medicion';
 import { Laptop, Camera, Backpack, BookOpen, MapPin } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { Resaltado } from '../layout/resaltado';
@@ -59,7 +60,14 @@ export default function DonarCosas() {
             href={especieHref}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => sendGAEvent('event', 'especie_whatsapp_click', {})}
+            onClick={() =>
+              track(
+                'whatsapp_click',
+                { whatsapp_context: 'in_kind_goods' },
+                { nombre: 'especie_whatsapp_click' },
+                SALIENTE
+              )
+            }
           >
             {t('sumate.especie.cta')}
           </CtaLink>
@@ -109,7 +117,14 @@ export default function DonarCosas() {
               href={ropaHref}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => sendGAEvent('event', 'lleguellegue_click', {})}
+              onClick={() =>
+                track(
+                  'whatsapp_click',
+                  { whatsapp_context: 'clothing_llegue' },
+                  { nombre: 'lleguellegue_click' },
+                  SALIENTE
+                )
+              }
               className="inline-flex min-h-12 w-full items-center justify-center rounded bg-papel px-7 py-s text-center text-sm font-extrabold uppercase leading-tight tracking-tight text-blue transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-papel focus-visible:ring-offset-2 focus-visible:ring-offset-blue md:w-auto"
             >
               {t('sumate.llegue.cta')}

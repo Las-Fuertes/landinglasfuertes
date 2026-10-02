@@ -651,3 +651,61 @@ estado de cada ruta (nombre de la parada y cinco puntos) seguía muy alta en mob
 - Medido por CDP en 360, 390, 428 y 768: alto de 77 a 52; márgenes del contenido 10 arriba y 10
   abajo (antes 25 y 15), izquierda y derecha iguales en los cuatro anchos. Capturas antes y
   después en el scratchpad de la sesión (`r3-N/mapa-<ancho>-antes.png` y `-despues.png`).
+
+## D14. La franja azul vacía bajo la barra en iPhone: el stage medía `100svh` (2026-10-01)
+
+**Feedback** (Johan, pedido varias veces): "en mobile hay un espacio muy grande en el footer
+temporal del mapa, necesito que lo reduzcas y que centres el contenido de este verticalmente, se ve
+terrible, solo pasa en dispositivos reales". En su captura (iPhone, Safari, barra de la URL abajo y
+encogida) bajo el nombre de la parada y los puntos quedaba una franja azul vacía de cerca de un
+sexto de la pantalla. D13 había achicado la barra, pero el problema no estaba en la barra.
+
+**Causa, en el código.** El stage fijo del recorrido era `sticky top-0 h-[100svh]`. `svh` es el
+alto de la pantalla con las barras de Safari desplegadas. Al scrollear, Safari encoge su barra y la
+pantalla visible crece hasta `100lvh`, pero el stage se quedaba en `100svh`: la barra del mapa
+(pegada al borde de abajo del stage) quedaba arriba, y entre ella y el borde real de la pantalla
+asomaba el fondo `bg-blue-700` de la sección, sin mapa. En Chrome de escritorio y en headless
+`svh`, `dvh` y `lvh` valen lo mismo, por eso nunca se vio fuera de un teléfono. No había
+`env(safe-area-inset-bottom)` ni `viewport-fit=cover`: la zona segura no se sumaba en ningún lado.
+
+**Qué se hizo** (`education-map-section.tsx`):
+
+- El stage pasa a `h-dvh`: llega siempre al borde de abajo visible, con la barra de Safari
+  desplegada o encogida, y la barra del mapa va pegada a ese borde.
+- El encuadre de las paradas sigue usando `100svh`, medido con un div invisible
+  (`data-alto-estable`, `h-svh`) dentro del stage. El `ResizeObserver` observa ese div y no el
+  stage: si observara el stage, cada vez que Safari esconde o muestra su barra se recalcularía el
+  encuadre a media parada y el mapa saltaría. Con la barra encogida, lo que gana el stage se ve como
+  más mapa por debajo de la parada.
+- El track suma `100lvh - 100svh` a su alto (`calc(trackH px + 100lvh - 100svh)`), lo que el stage
+  puede crecer, para que el tramo fijo nunca sea más corto que `pin`. Donde no hay barra que se
+  esconda vale 0 y nada cambia.
+- Abajo la barra usa `pb-[max(theme(spacing.s),env(safe-area-inset-bottom))]`: el mayor entre su
+  aire y la zona segura, nunca la suma. Hoy la zona segura vale 0 (no hay `viewport-fit=cover`); si
+  algún día se activa, la barra se separa del indicador de inicio sin duplicar el aire.
+
+**Medido por CDP** (barra de 52 px en todos los casos; la página dentro del tramo fijo). Para imitar
+Safari con la barra encogida: ventana de 390x844 (lo visible) y el alto de `100svh` forzado a 664.
+
+| Caso                                   | Puntos al borde de la barra | Puntos al borde de la pantalla |
+| -------------------------------------- | --------------------------- | ------------------------------ |
+| 390x844                                | 10 antes, 10 después        | 10 antes, 10 después           |
+| 390x664                                | 10 antes, 10 después        | 10 antes, 10 después           |
+| 390x844 con `svh` a 664 (iOS simulado) | 10 antes, 10 después        | **190 antes, 10 después**      |
+
+Del borde de arriba de la barra al nombre: 10 en todos. Capturas `mapa-390x*-antes.png` y
+`-despues.png` (y `-ios-`) en el scratchpad de la sesión (`constructor-a/`).
+
+**Límite.** El simulacro fuerza `svh` a mano; el comportamiento de `dvh` al encoger la barra solo
+se confirma en un iPhone real.
+
+**Ampliación: la posición del track también cambia con la barra de Safari.** Lo encontró el
+verificador. Las secciones de arriba del mapa que miden `dvh` (intro, Bienvenida, Donaciones)
+crecen cuando Safari encoge su barra y corren el track hacia abajo, pero la posición guardada en la
+geometría (`trackTop`) solo se medía al montar, al cambiar el alto estable o el título, al girar y
+en `load`. El mapa podía llegar ya movido al fijarse y las paradas desencuadradas. Ahora un
+`ResizeObserver` sobre `document.body` (`corregirTop`) vuelve a leer la posición cuando cambia el
+alto del documento y, si se movió más de 1 px, corrige solo `trackTop`, sin recalcular el
+encuadre. Sin listeners de scroll, rueda ni toque, y no corre en cada frame: solo cuando cambia un
+tamaño. Medido por CDP a 390x844 haciendo crecer Bienvenida 180 px: desfase entre la posición
+guardada y la real de 180 px antes, 0 después (script `desfase.js` en `constructor-a/`).

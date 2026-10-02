@@ -1,0 +1,350 @@
+{
+  "events": [
+    {
+      "name": "child_protection_notice_accepted",
+      "description": "Visitor accepts the child-protection notice shown before the site on the first visit. Returning visitors with the lf_aviso cookie do not see it.",
+      "properties": [
+        {
+          "name": "notice_version",
+          "description": "Version of the notice accepted (v1).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "intro_skipped",
+      "description": "Visitor uses 'Skip intro' before finishing the story intro.",
+      "properties": [
+        {
+          "name": "step",
+          "description": "Intro step where the visitor skipped (1, 2, 3).",
+          "type": "number"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "section_viewed",
+      "description": "A story section enters the viewport. Fires once per section per page view.",
+      "properties": [
+        {
+          "name": "section_name",
+          "description": "Section viewed (welcome, emi, donations, educational_map, impact, who_we_are).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "map_route_opened",
+      "description": "Visitor opens the detail of a program stop on the educational map.",
+      "properties": [
+        {
+          "name": "route",
+          "description": "Program opened (talleres, clubes, ruta, chiquifuertes, voces).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "sumate_opened",
+      "description": "The Súmate (join us) panel opens.",
+      "properties": [
+        {
+          "name": "entry_source",
+          "description": "Where it was opened from (donations_button, floating_button, footer, shared_link).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "sumate_help_type_selected",
+      "description": "Visitor chooses how to help inside the Súmate panel.",
+      "properties": [
+        {
+          "name": "help_type",
+          "description": "Chosen way to help (money, goods, time).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "donation_frequency_selected",
+      "description": "For money, visitor chooses one-time or monthly.",
+      "properties": [
+        {
+          "name": "frequency",
+          "description": "Donation frequency (one_time, monthly).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "donation_amount_chosen",
+      "description": "Visitor changes the one-time donation amount (COP). Not fired if the preselected amount is kept.",
+      "properties": [
+        { "name": "amount_value", "description": "Amount in COP.", "type": "number" },
+        {
+          "name": "amount_type",
+          "description": "How it was chosen (preset, custom).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "payment_flow_started",
+      "description": "Visitor leaves to the external payment rail: Bold for one-time, Mercado Pago subscription for monthly.",
+      "properties": [
+        {
+          "name": "payment_provider",
+          "description": "Payment rail (bold, mercado_pago).",
+          "type": "string"
+        },
+        { "name": "frequency", "description": "one_time or monthly.", "type": "string" },
+        {
+          "name": "amount_value",
+          "description": "Amount in COP. Only for bold; monthly amount is chosen inside Mercado Pago.",
+          "type": "number"
+        },
+        {
+          "name": "amount_type",
+          "description": "preset or custom. Only for bold.",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "donation_result_viewed",
+      "description": "Visitor lands on the thank-you page after the payment rail. North Star when payment_status is approved.",
+      "properties": [
+        {
+          "name": "payment_status",
+          "description": "Outcome (approved, pending, rejected, subscription_returned). subscription_returned means the visitor came back from Mercado Pago, not a confirmed charge.",
+          "type": "string"
+        },
+        {
+          "name": "provider_status_code",
+          "description": "Raw status sent back by the provider (bold-tx-status).",
+          "type": "string"
+        },
+        { "name": "frequency", "description": "one_time or monthly.", "type": "string" },
+        {
+          "name": "amount_value",
+          "description": "Amount in COP, read from the order reference. Only for bold.",
+          "type": "number"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "transfer_details_viewed",
+      "description": "Visitor reveals the direct transfer details (Nequi, Daviplata, Bancolombia).",
+      "properties": [
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "us_donation_clicked",
+      "description": "Visitor clicks to donate in USD from the U.S. through Caring for Colombia on Give Lively.",
+      "properties": [
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "whatsapp_click",
+      "description": "Visitor opens WhatsApp to coordinate a non-monetary contribution.",
+      "properties": [
+        {
+          "name": "whatsapp_context",
+          "description": "Purpose (volunteering, in_kind_goods, clothing_llegue).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "social_click",
+      "description": "Visitor clicks a link to the foundation's social networks.",
+      "properties": [
+        { "name": "network", "description": "Network (instagram, linkedin).", "type": "string" },
+        {
+          "name": "location",
+          "description": "Where the link was clicked (footer, sumate_spread_word, thank_you).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "thank_you_shared",
+      "description": "Visitor shares the site from the thank-you page (copy or share link).",
+      "properties": [
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "sumate_closed",
+      "description": "Visitor closes the Súmate panel without starting a payment.",
+      "properties": [
+        {
+          "name": "last_help_type",
+          "description": "Last way to help viewed before closing (money, goods, time, none).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "rationale": "Instruments the website's single conversion journey: turning visitors into supporters through the Súmate panel. Funnel: sumate_opened, sumate_help_type_selected (money), donation_frequency_selected, payment_flow_started, donation_result_viewed (approved). North Star: approved donations and their amount in COP. Country, city, session and UTM parameters are captured automatically by Mixpanel and are not sent manually. Payment method and monthly amount are chosen inside Bold and Mercado Pago and are not visible to the site. No personal data is collected; session replays block all images because the site shows photos of minors."
+}

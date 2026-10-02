@@ -27,6 +27,12 @@ lo que sigue abierto sobre la intro (si algo) vive en `docs/CONTINUAR.md` y en l
 El detalle del intento 2 (causas raíz del 1, umbrales, tiempos, qué se verificó y cómo) está en
 `DECISIONES.md`, D2. La ronda 2 (ajustes de la diseñadora y tres bugs de la prueba de Johan), en D3.
 
+### 2026-10-01: sin flecha de avanzar en la parte 3 (D17)
+
+En la última parte de la intro solo quedan "Saltar intro" y la flecha de retroceder; el foco que
+estaba en la flecha de avanzar cae en "Saltar intro". Verificado por CDP a 390 y 1280. Pendiente:
+que Johan lo vea con teclado y en el celular.
+
 ### 2026-10-01: espiral de arriba quieta, aterrizaje suave, relevo del sol sin salto y favicon (D16)
 
 Frente R, quinta ronda. **Corrige D15:** la espiral de arriba a la izquierda ("Vector 1282") no

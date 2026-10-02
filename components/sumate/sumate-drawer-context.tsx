@@ -10,10 +10,13 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { sendGAEvent } from '@next/third-parties/google';
 import { alAceptarAviso } from '../aviso/aviso';
+import { medirAperturaSumate, medirCierreSumate } from './sumate-medicion';
 
-/** Desde dónde se abrió el drawer. Se registra en GA como `sumate_open` (docs/sumate-drawer, D2). */
+/**
+ * Desde dónde se abrió el drawer. Se registra en GA como `sumate_open` (docs/sumate-drawer, D2)
+ * y en Mixpanel como `sumate_opened` con `entry_source` (docs/mixpanel, D4).
+ */
 export type SumateOrigen = 'tripulantes' | 'footer' | 'flotante' | 'hash';
 
 interface SumateDrawerState {
@@ -61,7 +64,7 @@ export function SumateDrawerProvider({ children }: { children: ReactNode }) {
     const activo = document.activeElement;
     disparadorRef.current =
       activo instanceof HTMLElement && activo !== document.body ? activo : null;
-    sendGAEvent('event', 'sumate_open', { origen });
+    medirAperturaSumate(origen);
     if (window.location.hash !== '#sumate') reemplazarHash('#sumate');
     setIsOpen(true);
   }, []);
@@ -69,6 +72,7 @@ export function SumateDrawerProvider({ children }: { children: ReactNode }) {
   const close = useCallback(() => {
     if (!abiertoRef.current) return;
     abiertoRef.current = false;
+    medirCierreSumate();
     if (window.location.hash) reemplazarHash('');
     setIsOpen(false);
   }, []);

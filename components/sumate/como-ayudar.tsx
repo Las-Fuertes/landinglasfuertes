@@ -3,8 +3,9 @@
 import { useState, type ReactElement } from 'react';
 import { motion } from 'framer-motion';
 import { HandCoins, Package, Clock } from 'lucide-react';
-import { sendGAEvent } from '@next/third-parties/google';
 import { useTranslation } from '../../hooks/useTranslation';
+import { track } from '../../lib/analytics';
+import { medirFormaAyuda, SALIENTE } from './sumate-medicion';
 import { GIVE_LIVELY_URL } from './sumate.data';
 import { MarcoRasgado } from './ui';
 import { Garabato } from './garabato';
@@ -66,7 +67,10 @@ export default function ComoAyudar() {
               aria-selected={active}
               aria-controls={`panel-${id}`}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setCategory(id)}
+              onClick={() => {
+                setCategory(id);
+                medirFormaAyuda(id);
+              }}
               data-sumate-categoria={id}
               className="group relative flex min-h-[6.5rem] flex-col items-center justify-center gap-1.5 px-2 py-m text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-4 focus-visible:ring-offset-papel md:min-h-[9.3125rem]"
             >
@@ -150,7 +154,9 @@ export default function ComoAyudar() {
               href={GIVE_LIVELY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => sendGAEvent('event', 'usa_givelively_click', {})}
+              onClick={() =>
+                track('us_donation_clicked', {}, { nombre: 'usa_givelively_click' }, SALIENTE)
+              }
               className="mt-l inline-flex min-h-10 w-full items-center justify-center rounded border border-blue bg-white px-6 py-s text-sm font-extrabold uppercase leading-tight text-blue transition hover:bg-blue hover:text-papel focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-papel md:w-auto"
             >
               {t('sumate.usa.cta')}

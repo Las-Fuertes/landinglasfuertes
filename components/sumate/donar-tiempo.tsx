@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { sendGAEvent } from '@next/third-parties/google';
+import { track } from '../../lib/analytics';
+import { SALIENTE } from './sumate-medicion';
 import { Palette, Scale, HeartHandshake, NotebookPen, Globe } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { buildWhatsAppHref } from './sumate.data';
@@ -66,7 +67,14 @@ export default function DonarTiempo() {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => sendGAEvent('event', 'voluntariado_click', {})}
+            onClick={() =>
+              track(
+                'whatsapp_click',
+                { whatsapp_context: 'volunteering' },
+                { nombre: 'voluntariado_click' },
+                SALIENTE
+              )
+            }
           >
             {t('sumate.voluntariado.cta')}
           </CtaLink>

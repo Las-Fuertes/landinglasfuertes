@@ -76,3 +76,35 @@ Vanessa Córtes, Erika Cely, Adriana Chavarro y Alejandra Villarraga.
   dejó "Cofundadora" (RAE) y minúsculas en los cargos, como ya estaba. "Vanessa Córtes" se deja
   como está en Figma; si el apellido es Cortés, es un cambio de una línea en
   `quienes-somos.data.ts`.
+
+## D3. El párrafo llena más en mobile (2026-10-01)
+
+**Feedback** de Johan (1 de octubre): "la alineación del contenido de quienes somos necesita
+corrección, aunque está alineada al diseño en dispositivos pequeños se ejecutan muy temprano los
+saltos de línea, así que reduce el padding de este texto para que llene más horizontalmente".
+
+**Qué se hizo** (`components/quienes-somos/quienes-somos-section.tsx`): solo el párrafo, solo en
+mobile. Antes vivía dentro de la caja de 390 con `px-page-margin` (40 px), así que medía 280 a
+360 y 310 de 390 en adelante (a 430 la caja centrada le dejaba 60 px por lado). Ahora se sale de
+esa caja con un margen negativo y queda a `spacing.l` (25 px) de cada borde de la pantalla a
+cualquier ancho mobile: `mx-[calc(50%-50vw+theme(spacing.l))]`, que es 25 menos lo que hay de la
+pantalla a la caja de contenido. Desde md vuelve a `md:mx-auto` a 820, como estaba. Título,
+conchas y fichas no se tocan: siguen en la composición de Figma.
+
+- Por qué `spacing.l` y no `spacing.m`: 25 sigue leyéndose como margen (es el gutter de la
+  rejilla) y no pega el texto al borde; 15 lo deja pegado en 360.
+- Por qué contra la pantalla y no solo menos padding: a 430 la caja de 390 es la que limita, y
+  bajar el padding apenas ganaba 30 px ahí.
+
+**Medido** (`getBoundingClientRect` del párrafo, es, por CDP):
+
+| Ancho | Antes: ancho, líneas | Después: ancho, líneas |
+| ----- | -------------------- | ---------------------- |
+| 360   | 280, 11              | 310, 11                |
+| 390   | 310, 11              | 340, 10                |
+| 430   | 310, 11              | 380, 9                 |
+| 1280  | 820, 4               | 820, 4                 |
+
+A 360 las líneas son más largas pero el corte de palabras da las mismas 11. Sin scroll
+horizontal (`scrollWidth` igual al ancho) en todos. Capturas `quienes-somos-390.png` y
+`quienes-somos-1280.png` en el scratchpad de la sesión (`constructor-b/`).

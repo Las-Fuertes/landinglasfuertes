@@ -3,12 +3,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { sendGAEvent } from '@next/third-parties/google';
+import { track, type OpcionesTrack } from '../../lib/analytics';
 import { PageGrid } from './page-grid';
 import { Resaltado } from './resaltado';
 import { MenuTransparencia } from './menu-transparencia';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useSumateDrawer } from '../sumate/sumate-drawer-context';
+
+const SALIENTE: OpcionesTrack = { saliente: true };
+
+/** `social_click` desde el footer; en GA, `<red>_click` con `origen: 'footer'` como siempre. */
+const medirRed = (red: 'instagram' | 'linkedin') =>
+  track(
+    'social_click',
+    { network: red, location: 'footer' },
+    { nombre: `${red}_click`, props: { origen: 'footer' } },
+    SALIENTE
+  );
 
 const INSTAGRAM_URL = 'https://www.instagram.com/las.fuertes/';
 const LINKEDIN_URL = 'https://www.linkedin.com/company/fundaci%C3%B3n-las-fuertes/';
@@ -117,7 +128,7 @@ export default function Footer() {
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => sendGAEvent('event', 'instagram_click', { origen: 'footer' })}
+                onClick={() => medirRed('instagram')}
                 className={enlace}
               >
                 {t('footer.instagram')}
@@ -128,7 +139,7 @@ export default function Footer() {
                 href={LINKEDIN_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => sendGAEvent('event', 'linkedin_click', { origen: 'footer' })}
+                onClick={() => medirRed('linkedin')}
                 className={enlace}
               >
                 {t('footer.linkedin')}

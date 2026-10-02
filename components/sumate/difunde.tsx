@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { sendGAEvent } from '@next/third-parties/google';
+import { track } from '../../lib/analytics';
+import { SALIENTE } from './sumate-medicion';
 import { useTranslation } from '../../hooks/useTranslation';
 import { INSTAGRAM_HANDLE, instagramHref } from './sumate.data';
 import { CtaLink, MarcoRasgado } from './ui';
@@ -31,7 +32,14 @@ function EnlaceRed({ red }: { red: Red }) {
       target="_blank"
       rel="noopener noreferrer"
       data-difunde-red={red}
-      onClick={() => sendGAEvent('event', `${red}_click`, { origen: 'difunde_texto' })}
+      onClick={() =>
+        track(
+          'social_click',
+          { network: red, location: 'sumate_spread_word' },
+          { nombre: `${red}_click`, props: { origen: 'difunde_texto' } },
+          SALIENTE
+        )
+      }
       className="-my-2 inline-block rounded-sm py-2 font-bold text-blue underline underline-offset-4 transition hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue"
     >
       {nombre}
@@ -80,7 +88,14 @@ export default function Difunde() {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => sendGAEvent('event', 'instagram_click', { origen: 'difunde' })}
+            onClick={() =>
+              track(
+                'social_click',
+                { network: 'instagram', location: 'sumate_spread_word' },
+                { nombre: 'instagram_click', props: { origen: 'difunde' } },
+                SALIENTE
+              )
+            }
           >
             {t('sumate.difunde.cta')}{' '}
             {INSTAGRAM_HANDLE.startsWith('@') ? INSTAGRAM_HANDLE : `@${INSTAGRAM_HANDLE}`}
