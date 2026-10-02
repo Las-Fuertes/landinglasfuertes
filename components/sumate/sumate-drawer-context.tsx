@@ -34,6 +34,15 @@ const SumateDrawerContext = createContext<SumateDrawerState | null>(null);
 export const EnDrawerContext = createContext(false);
 export const useEnDrawer = () => useContext(EnDrawerContext);
 
+/**
+ * Garabatos del drawer, que queda montado y oculto entre aperturas
+ * (docs/sumate-drawer/DECISIONES.md, D4). `pausado`: oculto, el vaivén se detiene, que si no
+ * seguiría corriendo en el hilo principal sin que nadie lo vea. `cargar`: sus imágenes (la
+ * estrella sola pesa 389 KB) se piden en la primera apertura, como cuando el drawer se montaba en
+ * el clic, y no en reposo para cada visita. Fuera del drawer, en marcha y cargadas.
+ */
+export const GarabatosContext = createContext({ pausado: false, cargar: true });
+
 /** Hashes que abren el drawer al cargar o al cambiar: `#donar` es el "Reintentar" de /gracias. */
 const HASHES_DRAWER = ['#sumate', '#donar'];
 

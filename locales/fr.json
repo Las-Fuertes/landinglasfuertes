@@ -250,20 +250,26 @@
     }
   },
   "gracias": {
+    "confirmandoTitle": "Confirmation de ton paiement…",
+    "confirmandoText": "Nous vérifions auprès de la plateforme de paiement comment s'est passée ta contribution. Cela prend quelques secondes.",
+    "suscripcionPendingTitle": "Ton abonnement est en cours",
+    "suscripcionPendingText": "Mercado Pago confirme encore ton abonnement mensuel. Tu recevras un e-mail dès qu'il sera actif, et tu peux suivre son état depuis ton compte Mercado Pago.",
     "approvedTitle": "Merci pour ton don !",
     "approvedText": "Ta contribution est bien arrivée et deviendra ateliers, matériels et opportunités pour les filles d'Isla Fuerte. Tu recevras le reçu de Bold par e-mail.",
     "pendingTitle": "Ton paiement est en cours",
-    "pendingText": "Ta transaction est en attente de confirmation (c'est normal avec PSE). Bold t'enverra le reçu dès qu'elle sera approuvée.",
+    "pendingText": "Ta transaction est en attente de confirmation : la banque ou la plateforme de paiement met parfois quelques minutes à l'approuver. Bold t'enverra le reçu par e-mail dès qu'elle sera approuvée.",
     "rejectedTitle": "Le paiement n'a pas abouti",
     "rejectedText": "Ta transaction a été refusée ou annulée et rien n'a été débité. Tu peux réessayer ou nous écrire si tu as besoin d'aide.",
     "orderLabel": "Référence",
     "retry": "Réessayer",
     "back": "Retour à l'accueil",
     "share": "Suis-nous sur Instagram",
+    "suscripcionPausedTitle": "Ton abonnement est en pause",
+    "suscripcionPausedText": "Mercado Pago a mis ton abonnement mensuel en pause, donc aucun prélèvement ne sera effectué pour l'instant. Tu peux le réactiver ou l'annuler depuis ton compte Mercado Pago, dans la section des abonnements.",
     "suscripcionTitle": "Merci de contribuer chaque mois !",
     "suscripcionText": "Ta contribution mensuelle donne de la stabilité aux programmes de Las Fuertes et nous permet de planifier l'avenir. Mercado Pago t'enverra le reçu de chaque prélèvement par e-mail, et tu peux gérer ou annuler ton abonnement depuis ton compte Mercado Pago à tout moment.",
     "shareCta": "Parles-en à tes amis",
-    "shareText": "Je viens de soutenir Las Fuertes, une fondation qui accompagne les filles d'Isla Fuerte avec l'Éducation Menstruelle Intégrale. Rejoins le mouvement :",
+    "shareText": "Je viens de soutenir Las Fuertes, une fondation qui accompagne les filles d'Isla Fuerte avec l'Éducation Menstruelle Intégrale. Rejoins le mouvement :",
     "copied": "Lien copié !"
   },
   "footer": {
@@ -285,20 +291,21 @@
     "abrir": "Ouvrir le menu",
     "cerrar": "Fermer le menu",
     "inicio": "Accueil",
+    "volverArriba": "Retour en haut",
     "sumate": "Rejoins-nous"
   },
   "terminos": {
     "metaTitulo": "Conditions générales · Las Fuertes",
     "metaDescripcion": "Comment nous protégeons les photos de nos filles, ce que le site garde dans ton navigateur et comment fonctionnent les dons à la Fundación Las Fuertes.",
     "titulo": "Conditions générales",
-    "actualizado": "Dernière mise à jour : 1er octobre 2026",
+    "actualizado": "Dernière mise à jour : 1er octobre 2026",
     "intro": "En naviguant sur ce site, tu acceptes ces conditions. Nous les avons écrites clairement, sans petits caractères : si quelque chose n’est pas clair, écris-nous.",
     "logoAria": "Las Fuertes : retour à l’accueil",
     "secciones": {
       "responsable": {
         "titulo": "Qui sommes-nous",
         "p1": "Ce site appartient à la **Fundación Las Fuertes**, une organisation d’Isla Fuerte, Bolívar, Colombie, qui accompagne les filles et les adolescentes avec l’Éducation Menstruelle Intégrale (EMI).",
-        "p2": "NIT : 901.809.186-3. Représentante légale : Karoll Adriana Lopez Lozano, carte d’identité colombienne (cédula) n° 52.717.530.",
+        "p2": "NIT : 901.809.186-3. Représentante légale : Karoll Adriana Lopez Lozano, carte d’identité colombienne (cédula) n° 52.717.530.",
         "p3": "Tu peux nous écrire à fundacionlasfuertes@gmail.com, sur Instagram (@las.fuertes) ou sur LinkedIn (Fundación Las Fuertes)."
       },
       "menores": {
@@ -321,7 +328,7 @@
         "p3": "**Don mensuel** : il se fait avec un abonnement **Mercado Pago**. Mercado Pago t’envoie le reçu de chaque prélèvement et tu peux gérer ou annuler l’abonnement depuis ton compte quand tu veux.",
         "p4": "**Depuis les États-Unis** : tu peux faire un don via notre partenaire Caring for Colombia, une organisation 501(c)(3), sur la plateforme Give Lively. Ces dons suivent les conditions de cette plateforme.",
         "p5": "**Du temps et des objets** : le bénévolat et les dons en nature se coordonnent par WhatsApp ; là, tu partages seulement ce que tu décides de nous écrire.",
-        "p6": "**Remboursements et questions fiscales** (comme les reçus de dons) : ils se gèrent en écrivant directement à la fondation à fundacionlasfuertes@gmail.com."
+        "p6": "**Remboursements et questions fiscales** (comme les reçus de dons) : ils se gèrent en écrivant directement à la fondation à fundacionlasfuertes@gmail.com."
       }
     }
   },

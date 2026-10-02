@@ -250,12 +250,18 @@
     }
   },
   "gracias": {
+    "confirmandoTitle": "Confirmando tu pago…",
+    "confirmandoText": "Estamos preguntando a la pasarela de pago cómo quedó tu aporte. Tarda unos segundos.",
+    "suscripcionPendingTitle": "Tu suscripción está en proceso",
+    "suscripcionPendingText": "Mercado Pago todavía está confirmando tu suscripción mensual. Te enviará un correo cuando quede activa, y desde tu cuenta de Mercado Pago puedes ver su estado.",
+    "suscripcionPausedTitle": "Tu suscripción está pausada",
+    "suscripcionPausedText": "Mercado Pago tiene tu suscripción mensual en pausa, así que por ahora no se hará ningún cobro. Puedes reactivarla o cancelarla desde tu cuenta de Mercado Pago, en la sección de suscripciones.",
     "suscripcionTitle": "¡Gracias por sumarte cada mes!",
     "suscripcionText": "Tu aporte mensual le da estabilidad a los programas de Las Fuertes y nos permite planear a futuro. Mercado Pago te enviará el comprobante de cada cobro a tu correo, y puedes gestionar o cancelar tu suscripción desde tu cuenta de Mercado Pago cuando quieras.",
     "approvedTitle": "¡Gracias por tu donación!",
     "approvedText": "Tu aporte llegó bien y se convertirá en talleres, materiales y oportunidades para las niñas de Isla Fuerte. Recibirás el comprobante de Bold en tu correo.",
     "pendingTitle": "Tu pago está en proceso",
-    "pendingText": "Tu transacción quedó pendiente de confirmación (esto es normal con PSE). Bold te enviará el comprobante cuando se apruebe.",
+    "pendingText": "Tu transacción quedó pendiente de confirmación: a veces el banco o la pasarela tardan unos minutos en aprobarla. Bold te enviará el comprobante a tu correo cuando se apruebe.",
     "rejectedTitle": "El pago no se completó",
     "rejectedText": "Tu transacción fue rechazada o cancelada y no se hizo ningún cobro. Puedes intentarlo de nuevo o escribirnos si necesitas ayuda.",
     "orderLabel": "Referencia",
@@ -285,6 +291,7 @@
     "abrir": "Abrir menú",
     "cerrar": "Cerrar menú",
     "inicio": "Inicio",
+    "volverArriba": "Volver arriba",
     "sumate": "Súmate"
   },
   "terminos": {

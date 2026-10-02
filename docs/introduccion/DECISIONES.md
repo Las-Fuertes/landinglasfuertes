@@ -1663,3 +1663,130 @@ llegada (D12).
 
 Capturas `intro-paso3-390.png` e `intro-paso3-1280.png` en el scratchpad de la sesión
 (`constructor-a/`).
+
+## D18. En Bienvenida se puede bajar en cualquier momento, sin esperar su entrada (2026-10-02)
+
+**Feedback** (Johan, ola 3 del 2-oct): "en la pantalla de bienvenida, a veces la gente no quiere
+esperar a que termine de cargar la animación, deberían poder hacer scroll libremente en cualquier
+momento en la bienvenida". Rama `2-oct`, sin commitear.
+
+### Causa
+
+Durante la llegada a Bienvenida (D6, unos 3,4 s medidos) la intro sigue enganchada con la capa fija
+y la página no se mueve con nada: la llegada cuenta como una transición en curso
+(`corriendoRef` y `llegandoRef` en `components/intro/use-intro-pin.ts`) y todo gesto, viejo o nuevo,
+se traga.
+
+- Rueda: un gesto nuevo con la transición corriendo se frena entero (`use-intro-pin.ts`, rama
+  `if (corriendoRef.current)` de `onWheel`, `frenar()` en la línea 365).
+- Dedo: con la intro enganchada, todo `touchmove` mientras corre se cancela
+  (`if (t.hecho || corriendoRef.current)`, línea 472). Solo un dedo nuevo pasada la etiqueta
+  `asentada` terminaba la llegada (D14, línea 438), y eso es casi al final.
+- Teclado: flecha abajo, AvPág y Espacio se cancelan mientras corre (línea 423).
+- La red de seguridad del scroll no suelta la capa durante la llegada (línea 498), a propósito: la
+  página se desplaza por código.
+
+### Qué se hizo
+
+`soltarLlegada()` en `use-intro-pin.ts`: un gesto **nuevo** hacia abajo durante la llegada la
+termina en el acto (`progress(1)`, el mismo camino que "Saltar intro" a media llegada y que el dedo
+de D14) y ese mismo gesto pasa al scroll nativo. "Nuevo" es lo mismo que en el resto de la intro:
+una rueda que `registrarRueda` abre como gesto nuevo (tras silencio, cambio de sentido o impulso
+nuevo sobre la inercia), un dedo apoyado durante la llegada que sube (el que la disparó ya está
+`hecho`) o una tecla que no es repetición. Al soltar se anula el "tragar" de D6, que es para el
+gesto que la disparó, no para este.
+
+Se mantiene: el gesto que trae Bienvenida desde la parte 3 sigue siendo un paso y su inercia, su
+dedo o su tecla sostenida se siguen tragando hasta el final (una ráfaga no se salta media página).
+Un gesto nuevo hacia ARRIBA durante la llegada se sigue tragando, y subir desde Bienvenida tras la
+llegada no cambia. "Saltar intro", las flechas y Tab durante la llegada, sin cambios. No hay
+listeners nuevos: la decisión vive dentro de los handlers que ya eran no pasivos durante la
+llegada, y al soltar, `terminarLlegada` llama a `sincronizar` como siempre (D14).
+
+**Por qué terminarla y no dejarla correr.** Dejarla correr obliga a soltar la capa fija a media
+coreografía: la parte 3 a medio salir y la copia del sol que viaja (colgada de la capa) se irían con
+la intro hacia arriba, y el sol rosado se quedaría sin disco hasta el relevo. Con el Lenguaje de
+movimiento (docs/PATTERNS.md): "nunca se bloquea más de lo que dura la transición; salir siempre es
+posible" (4) y "el reposo es sagrado" (11): al completarla, Bienvenida queda exactamente en su
+reposo aprobado, y si la persona vuelve a subir la ve entera. El corte dura un fotograma y ocurre
+mientras la página ya se mueve hacia EMI.
+
+### Medido
+
+CDP contra el servidor de desarrollo, desde `?introPaso=3`; el gesto nuevo arranca a D ms del
+inicio de la llegada (`data-intro-llegando`). Sonda: `sonda.js` y `matriz.txt` en el scratchpad
+de la sesión (`ola3/`).
+
+- 390x844 táctil, disparo con un arrastre y arrastre nuevo de 400 px: con D = 100, 300 y 600 la
+  llegada termina a los 90 a 100 ms del dedo nuevo, `scrollY` pasa de 844 a 929 a +300 ms y a 1229
+  al soltar; EMI entra (su borde de arriba en 759 a +300 ms, en 459 al final).
+- 1280x832 y 390x844 con trackpad (disparo con inercia de 1,8 s, corte, 40 ms y gesto nuevo con
+  rampa e inercia): con D = 100, 300 y 600, `scrollY` 832 a 977 a +300 ms, a unos 1500 a +600 ms y
+  2414 al final; EMI entra a +300 ms.
+- Flecha abajo a 1280 con D = 300: la llegada termina a 14 ms y la página baja 40 px (lo de una
+  flecha).
+- Solo la inercia del disparo, sin gesto nuevo (390 y 1280): `scrollY` fijo en el borde de
+  Bienvenida a 0, 500, 1500, 2500 y 4000 ms; la llegada dura entera (3,37 s).
+- `getEventListeners` tras bajar: ningún `touchstart`, `touchmove` ni `wheel` no pasivo en
+  `window` ni `document`, en todos los casos.
+- `npm run type-check` y `npm run lint` limpios.
+
+### Ampliación (2026-10-02): rueda robusta, muescas de ratón y dedo de Safari
+
+El verificador de la ola 3 encontró tres problemas en la primera versión (informe y sondas en el
+scratchpad de la sesión, `verificador-ola3/INFORME.md`).
+
+1. **La inercia que trajo Bienvenida podía cortarla.** La primera versión soltaba la llegada con
+   cualquier gesto nuevo de rueda, también uno abierto por "impulso nuevo" (`registrarRueda`). Una
+   ráfaga irregular de un solo gesto (`10,24,22,44,22,61,24,39,77` y su inercia) se leía como dos
+   gestos: la llegada se cortaba a los 540 ms y la página terminaba 1900 px más abajo.
+   **Ahora**, durante la llegada, un gesto de rueda la suelta en el acto solo si se abrió tras un
+   silencio (180 ms) o con un cambio de sentido. Un impulso solo cuenta si se cumplen tres
+   condiciones: antes de él la inercia había caído a no más del 10 % de su pico y a no más de
+   12 px (unos dedos que se apoyan en el trackpad la cortan casi a cero), el evento siguiente
+   también es fuerte (un pico suelto por ruido o un evento doble por un hilo atrasado no tiene
+   segundo evento) y pasaron 300 ms desde el inicio de la llegada (`LLEGADA_GUARDA_MS`,
+   `LLEGADA_DECAIDO`, `LLEGADA_VALLE_PX` y `candidatoRef` en `use-intro-pin.ts`).
+   Simulación de la lógica con 3000 gestos de trackpad con ruido: 0 % de cortes falsos con ruido
+   de hasta ±80 % en el dedo, ±20 % en la inercia y 15 % de eventos dobles (antes 1,3 a 18 %
+   según el criterio). Solo con ruido extremo (±50 % en la inercia y 30 % de eventos dobles) hay
+   un 4,7 %, siempre en la cola y como mucho 684 px. Un gesto nuevo real a 300, 600 y 1500 ms la
+   suelta en el 99 a 100 % de los casos.
+2. **El ratón por muescas no bajaba.** Con muescas cada 100 o 150 ms nunca hay 180 ms de silencio:
+   era un solo gesto, se tragaba entero durante la llegada y también después (el "tragar" de D6),
+   y 30 muescas seguidas no movían la página. **Ahora** una serie de eventos separados por 60 ms o
+   más y con el mismo `|deltaY|` (de 12 px o más), tres seguidos, o `deltaMode` por líneas, es
+   rueda de ratón: durante la llegada (pasados los mismos 300 ms) y en el tragar de después, cada
+   muesca abre un gesto nuevo (`muescaRef`, `MUESCA_*`). Hace falta el mismo tamaño y no solo el
+   espacio entre eventos: con el hilo principal lento la inercia llega en eventos espaciados pero
+   sumados, y con solo el espacio la propia inercia la atravesaba (medido: 5 de 5 ráfagas). En las
+   partes 1 a 3 no se aplica: girar el ratón seguido sigue siendo un gesto y un paso.
+3. **Dedo de Safari.** Un dedo apoyado durante la llegada cuyo primer movimiento iba hacia abajo o
+   de lado (Safari manda movimientos de pocos px que Chrome no manda) se marcaba como "hecho" y
+   quedaba tragado hasta el final. **Ahora** se frena sin marcarlo y suelta la llegada cuando ha
+   subido 10 px desde donde se apoyó (`TOUCH_SOLTAR_LLEGADA`).
+4. `soltarLlegada` llama a `sincronizar` al dejar de tragar: la rueda vuelve a pasiva en el acto y
+   no en el primer `scroll`.
+
+Los números de línea de la causa son de la primera versión. Hoy: rueda 459, teclado 515,
+`asentada` 533, dedo 572, red de seguridad 599.
+
+**Medido** (CDP, servidor de desarrollo, sondas del verificador y `ola3/rafagas.txt`,
+`ola3/matriz2.txt`, `ola3/p-iphone.js`, `ola3/p-pasos.js` en el scratchpad de la sesión):
+
+- Ráfagas irregulares desde la parte 3 (cinco secuencias, entre ellas la del informe, a 1280 y a
+  390): ninguna atraviesa Bienvenida, `scrollY` fijo en su borde y llegada entera (3,37 s).
+  Inercia con eventos sin esperar respuesta y tareas largas de 250 ms con CPU x4 y x6: igual.
+- Muescas de 100 px desde la parte 3: cada 190 y 250 ms baja la 2.ª muesca; cada 150 ms, la 4.ª
+  (a 454 ms); cada 100 ms, la 5.ª (a unos 400 ms); luego cada muesca baja 100 px. Antes, cada 100
+  y 150 ms, ninguna de 30. Desde la parte 1, 6 y 15 muescas cada 100 ms avanzan una sola parte.
+- Gesto nuevo a 100, 300 y 600 ms: trackpad a 1280, la página baja a los 300 ms del gesto (957 y
+  luego 1565 a +600) y EMI entra (a 100 ms la llegada se suelta a los 422 ms, por la espera de
+  300 ms); dedo a 390, la llegada termina a 201, 402 y 696 ms y la página llega a 1229.
+- Dedo nuevo que primero baja 9 px y luego sube 400: la página llega a 1219.
+- Ningún `touchstart`, `touchmove` ni `wheel` no pasivo en `window` ni `document` tras salir.
+- `npm run type-check` y `npm run lint` limpios.
+
+**Queda.** Un movimiento de trackpad a menos de 300 ms del gesto que trajo Bienvenida, o uno que no
+corta la inercia casi a cero, se toma como parte de ese gesto y se traga, como en las partes 1 a 3.
+Con el ratón, la entrada de Bienvenida dura una o dos muescas: es lo pedido.

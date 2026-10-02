@@ -2,6 +2,7 @@
 
 import { type Ref, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { Flecha } from '../layout/flecha';
 
 type Accion = 'saltar' | 'anterior' | 'siguiente';
 
@@ -70,18 +71,6 @@ export function IntroNavegacion({
 
   const boton =
     'flex h-10 items-center justify-center rounded-full border border-black/15 bg-beige-light/90 text-black shadow-sm backdrop-blur-sm transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-beige';
-  const flecha = (arriba: boolean) => (
-    <svg aria-hidden viewBox="0 0 20 20" className="h-5 w-5" fill="none">
-      <path
-        d={arriba ? 'M5 12.5 10 7.5l5 5' : 'M5 7.5l5 5 5-5'}
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-
   return (
     <div
       ref={contenedor}
@@ -113,7 +102,7 @@ export function IntroNavegacion({
           onClick={onRetroceder}
           className={`${boton} w-10 ${puedeRetroceder ? '' : 'hidden'}`}
         >
-          {flecha(true)}
+          <Flecha sentido="arriba" />
         </button>
         <button
           type="button"
@@ -122,7 +111,7 @@ export function IntroNavegacion({
           onClick={onAvanzar}
           className={`${boton} w-10 ${puedeAvanzar ? '' : 'hidden'}`}
         >
-          {flecha(false)}
+          <Flecha sentido="abajo" />
         </button>
       </div>
     </div>

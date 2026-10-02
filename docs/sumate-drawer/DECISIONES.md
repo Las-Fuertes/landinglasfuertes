@@ -143,3 +143,55 @@ papel daba 4,2:1). Errores en negro sobre `red/20` (el rojo sobre papel no llega
 
 **Copy nuevo** en es, en, fr: `sumate.hero.subtitle` (el texto de EMI de Figma, con "Bolívar"
 corregido), `sumate.unica.text` y `sumate.despedida.*`.
+
+## D4. Montado y oculto entre aperturas, con la entrada en el compositor (2026-10-02)
+
+**Feedback** (Johan, rama `2-oct`, en celulares reales): "se ve un poco lento desde que doy click
+y las interacciones también, ¿qué estamos haciendo mal?". Diagnóstico y decisión en
+`docs/feedback-2-oct/ROADMAP.md` (punto 3, aprobado como arreglo sin cambio visual).
+
+**Causa.** El clic montaba todo `SumateContenido` (127 nodos, 8 imágenes, 16 capas filtradas) en el
+mismo frame, y el panel subía animando `y` con framer-motion en el hilo principal: cualquier tarea
+(el montaje, decodificar, Mixpanel) trababa la subida.
+
+**Qué se hizo** (`sumate-drawer.tsx`, `sumate-drawer-context.tsx`, `garabato.tsx`):
+
+- El drawer se monta cuando el navegador está quieto tras la carga (`requestIdleCallback` con
+  `startTransition`; en Safari, un momento después del `load`). Si algo lo abre antes (el deep
+  link), se monta en ese mismo render.
+- Oculto queda `invisible`, `inert`, `aria-hidden`, sin `role="dialog"` ni `aria-modal` (Principios
+  mira si hay un `aria-modal` para ceder el teclado) y con el panel bajo el borde de la pantalla:
+  fuera del foco, de los lectores de pantalla y de toda intersección (no dispara
+  `transfer_details_viewed`).
+- Entrada y salida con la Web Animations API sobre `transform` y `opacity`, mismas curvas y
+  duraciones que antes (400 ms de entrada, 220 de salida; sheet desde abajo en mobile, fundido y
+  24 px en desktop, solo fundido con movimiento reducido). El estilo final se fija antes de animar,
+  así que no vuelve el parpadeo que obligó a `sinAceleracion`.
+- Al terminar de cerrarse, el contenido se vuelve a montar en reposo (una clave nueva): cada
+  apertura empieza como antes, en "Con dinero", "Una vez" y arriba del todo. Si se reabre antes, se
+  renueva en ese render.
+- Los garabatos detienen su vaivén mientras está oculto, y sus imágenes (la estrella sola pesa
+  389 KB) se piden en la primera apertura, como antes, no en cada visita (`GarabatosContext`).
+- `sumate_opened` y `sumate_closed` siguen en `open` y `close` del contexto: montar oculto no
+  dispara nada. Bold sigue cargándose solo al pulsar donar (el script se crea en ese clic).
+
+**Medido** (dev server, Chrome por CDP a 390 táctil y CPU x4, `drawer.js` del diagnóstico):
+
+| Medida                                 | Antes        | Después      |
+| -------------------------------------- | ------------ | ------------ |
+| Manejador del clic                     | 146 a 188 ms | 62 a 70 ms   |
+| Toque al primer movimiento del panel   | 245 a 295 ms | 171 a 189 ms |
+| Frame más largo de la apertura         | 150 a 200 ms | 67 a 83 ms   |
+| WebKit: toque al primer movimiento     | 59 a 87 ms   | 24 a 27 ms   |
+| WebKit: frame más largo de la apertura | 134 a 137 ms | 78 a 100 ms  |
+
+En producción (sin el modo dev de React) los números son menores; el diagnóstico midió 69 a 107 ms
+de manejador antes. Lo que queda en el clic es el render de los que leen el contexto (mapa,
+flotante, footer, Donaciones). El montaje en reposo cuesta una tarea de unos 56 ms una vez, tras
+la carga. Comprobado: foco al botón de cerrar al abrir y de vuelta al disparador al cerrar, Tab y
+Shift+Tab atrapados (0 de 85 fuera), Escape, clic en el velo, `/#sumate` y `/#donar` al cargar,
+bloqueo del body, eventos y que no hay petición a Bold. Capturas a 390 y 1280 iguales a antes salvo
+el vaivén de los garabatos (8 y 24 píxeles). Scripts en el scratchpad de la sesión (`ola2-a/`).
+
+**Límite.** Los frames perdidos que quedan son el borde de pincel en vivo, que Johan decidió no
+tocar.

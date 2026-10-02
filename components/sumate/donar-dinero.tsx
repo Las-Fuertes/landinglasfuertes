@@ -19,6 +19,8 @@ const BOLD_BUTTON_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js';
 
 type Frequency = 'once' | 'monthly';
 type Status = 'idle' | 'loading' | 'ready' | 'error';
+/** `failure_reason` de `payment_flow_failed` (docs/mixpanel, D5). */
+type MotivoFallo = 'signature_error' | 'network_error' | 'container_error' | 'script_error';
 
 /** Frecuencia con el nombre del plan de eventos de Mixpanel (docs/mixpanel). */
 const FRECUENCIA: Record<Frequency, string> = { once: 'one_time', monthly: 'monthly' };
@@ -92,47 +94,69 @@ export default function DonarDinero() {
       { nombre: 'donacion_unica_click', props: { monto: amountCop } }
     );
     setStatus('loading');
-    try {
-      const orderId = crearOrderId(amountCop);
-      const amount = String(amountCop); // Bold espera el monto en COP, sin centavos
 
+    // `payment_flow_failed` (docs/mixpanel, D5): el pago no se pudo abrir y la persona ve
+    // `sumate.unica.error` sin haber salido del sitio. `motivo` dice en qué paso se cayó.
+    const fallar = (motivo: MotivoFallo, error?: unknown) => {
+      if (process.env.NODE_ENV === 'development' && error) {
+        console.error('Donación única:', error);
+      }
+      track('payment_flow_failed', {
+        payment_provider: 'bold',
+        frequency: FRECUENCIA.once,
+        amount_value: amountCop,
+        failure_reason: motivo,
+      });
+      setStatus('error');
+    };
+
+    const orderId = crearOrderId(amountCop);
+    const amount = String(amountCop); // Bold espera el monto en COP, sin centavos
+
+    let signature: unknown;
+    try {
       const res = await fetch('/api/bold-signature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, amount, currency: 'COP' }),
       });
-      if (!res.ok) throw new Error('Firma no disponible');
-      const { signature } = await res.json();
-
-      const container = boldContainerRef.current;
-      if (!container) throw new Error('Contenedor no disponible');
-
-      // Inyección diferida del botón embebido de Bold: solo al primer intento de donar.
-      const script = document.createElement('script');
-      script.src = BOLD_BUTTON_SRC;
-      script.setAttribute('data-bold-button', '');
-      script.setAttribute('data-api-key', BOLD_API_KEY);
-      script.setAttribute('data-order-id', orderId);
-      script.setAttribute('data-amount', amount);
-      script.setAttribute('data-currency', 'COP');
-      script.setAttribute('data-integrity-signature', signature);
-      script.setAttribute('data-description', 'Donación a Las Fuertes');
-      script.setAttribute('data-render-mode', 'embedded');
-      // Al cerrar el pago, Bold redirige aquí añadiendo bold-order-id y bold-tx-status.
-      // Bold exige https:// en redirection-url; en dev (http) se omite para no romper el botón.
-      if (window.location.protocol === 'https:') {
-        script.setAttribute('data-redirection-url', `${window.location.origin}/gracias`);
-      }
-      container.innerHTML = '';
-      container.appendChild(script);
-
-      setStatus('ready');
+      if (!res.ok) return fallar('signature_error', new Error(`Firma: HTTP ${res.status}`));
+      ({ signature } = await res.json());
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Donación única:', error);
-      }
-      setStatus('error');
+      // Sin red o respuesta que no es JSON: la firma no llegó.
+      return fallar('network_error', error);
     }
+    if (typeof signature !== 'string' || !signature) {
+      return fallar('signature_error', new Error('Firma vacía'));
+    }
+
+    const container = boldContainerRef.current;
+    if (!container) return fallar('container_error', new Error('Contenedor no disponible'));
+
+    // Inyección diferida del botón embebido de Bold: solo al primer intento de donar.
+    const script = document.createElement('script');
+    script.src = BOLD_BUTTON_SRC;
+    script.setAttribute('data-bold-button', '');
+    script.setAttribute('data-api-key', BOLD_API_KEY);
+    script.setAttribute('data-order-id', orderId);
+    script.setAttribute('data-amount', amount);
+    script.setAttribute('data-currency', 'COP');
+    script.setAttribute('data-integrity-signature', signature);
+    script.setAttribute('data-description', 'Donación a Las Fuertes');
+    script.setAttribute('data-render-mode', 'embedded');
+    // Al cerrar el pago, Bold redirige aquí añadiendo bold-order-id y bold-tx-status.
+    // Bold exige https:// en redirection-url; en dev (http) se omite para no romper el botón.
+    if (window.location.protocol === 'https:') {
+      script.setAttribute('data-redirection-url', `${window.location.origin}/gracias`);
+    }
+    // El script de Bold no cargó (bloqueador, red): sin él no hay botón de pago.
+    script.addEventListener('error', () => {
+      if (script.isConnected) fallar('script_error', new Error('No cargó el script de Bold'));
+    });
+    container.innerHTML = '';
+    container.appendChild(script);
+
+    setStatus('ready');
   }
 
   return (

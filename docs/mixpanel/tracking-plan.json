@@ -151,7 +151,11 @@
       "name": "donation_amount_chosen",
       "description": "Visitor changes the one-time donation amount (COP). Not fired if the preselected amount is kept.",
       "properties": [
-        { "name": "amount_value", "description": "Amount in COP.", "type": "number" },
+        {
+          "name": "amount_value",
+          "description": "Amount in COP.",
+          "type": "number"
+        },
         {
           "name": "amount_type",
           "description": "How it was chosen (preset, custom).",
@@ -178,7 +182,11 @@
           "description": "Payment rail (bold, mercado_pago).",
           "type": "string"
         },
-        { "name": "frequency", "description": "one_time or monthly.", "type": "string" },
+        {
+          "name": "frequency",
+          "description": "one_time or monthly.",
+          "type": "string"
+        },
         {
           "name": "amount_value",
           "description": "Amount in COP. Only for bold; monthly amount is chosen inside Mercado Pago.",
@@ -202,23 +210,78 @@
       ]
     },
     {
-      "name": "donation_result_viewed",
-      "description": "Visitor lands on the thank-you page after the payment rail. North Star when payment_status is approved.",
+      "name": "payment_flow_failed",
+      "description": "The payment could not be opened before leaving the site: the visitor sees the 'we couldn't open the payment' error inside Súmate. Today only Bold (one-time) can fail this way; the monthly plan is a plain link to Mercado Pago.",
       "properties": [
         {
-          "name": "payment_status",
-          "description": "Outcome (approved, pending, rejected, subscription_returned). subscription_returned means the visitor came back from Mercado Pago, not a confirmed charge.",
+          "name": "payment_provider",
+          "description": "Payment rail that failed to open (bold).",
           "type": "string"
+        },
+        {
+          "name": "frequency",
+          "description": "one_time.",
+          "type": "string"
+        },
+        {
+          "name": "amount_value",
+          "description": "Amount in COP being donated.",
+          "type": "number"
+        },
+        {
+          "name": "failure_reason",
+          "description": "Where it failed: signature_error (the /api/bold-signature endpoint answered with an error or no signature), network_error (the signature request did not complete), container_error (the payment button container was missing), script_error (Bold's payment button script failed to load).",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "description": "UI language, sent as a super property on every event (es, en, fr).",
+          "type": "string"
+        },
+        {
+          "name": "device_class",
+          "description": "Device class from viewport width, super property (mobile, tablet, desktop).",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "donation_result_viewed",
+      "description": "Visitor lands on the thank-you page coming back from a payment rail. Sent once, with the final result: the site asks the provider for the real status with the id in the return URL (Bold order id, Mercado Pago preapproval_id) and falls back to the URL when the provider cannot answer. North Star when donation_success is true. A /gracias visit without provider parameters redirects home and sends nothing.",
+      "properties": [
+        {
+          "name": "payment_provider",
+          "description": "Payment rail the visitor came back from (bold, mercado_pago).",
+          "type": "string"
+        },
+        {
+          "name": "payment_status",
+          "description": "Final outcome. Bold: approved, pending, rejected, cancelled (voided). Mercado Pago: authorized, pending, paused, cancelled. subscription_returned only when the Mercado Pago status could not be verified (the visitor came back with a subscription id, the charge is not confirmed).",
+          "type": "string"
+        },
+        {
+          "name": "donation_success",
+          "description": "true for Bold approved and Mercado Pago authorized; also true when unverified and the URL says approved (Bold) or subscription_returned (Mercado Pago). false for pending, rejected and cancelled.",
+          "type": "boolean"
+        },
+        {
+          "name": "verified",
+          "description": "true if the status came from the provider API (/api/estado-pago); false if the site fell back to what the return URL says (no key, timeout, provider error or unknown status).",
+          "type": "boolean"
         },
         {
           "name": "provider_status_code",
-          "description": "Raw status sent back by the provider (bold-tx-status).",
+          "description": "Raw status in the return URL (bold-tx-status). Only for bold; may differ from payment_status when the provider says otherwise.",
           "type": "string"
         },
-        { "name": "frequency", "description": "one_time or monthly.", "type": "string" },
+        {
+          "name": "frequency",
+          "description": "one_time (bold) or monthly (mercado_pago).",
+          "type": "string"
+        },
         {
           "name": "amount_value",
-          "description": "Amount in COP, read from the order reference. Only for bold.",
+          "description": "Amount: from the provider when verified (Bold total in COP, Mercado Pago monthly auto_recurring.transaction_amount); otherwise from the Bold order reference. Absent for unverified Mercado Pago.",
           "type": "number"
         },
         {
@@ -290,7 +353,11 @@
       "name": "social_click",
       "description": "Visitor clicks a link to the foundation's social networks.",
       "properties": [
-        { "name": "network", "description": "Network (instagram, linkedin).", "type": "string" },
+        {
+          "name": "network",
+          "description": "Network (instagram, linkedin).",
+          "type": "string"
+        },
         {
           "name": "location",
           "description": "Where the link was clicked (footer, sumate_spread_word, thank_you).",
@@ -346,5 +413,5 @@
       ]
     }
   ],
-  "rationale": "Instruments the website's single conversion journey: turning visitors into supporters through the Súmate panel. Funnel: sumate_opened, sumate_help_type_selected (money), donation_frequency_selected, payment_flow_started, donation_result_viewed (approved). North Star: approved donations and their amount in COP. Country, city, session and UTM parameters are captured automatically by Mixpanel and are not sent manually. Payment method and monthly amount are chosen inside Bold and Mercado Pago and are not visible to the site. No personal data is collected; session replays block all images because the site shows photos of minors."
+  "rationale": "Instruments the website's single conversion journey: turning visitors into supporters through the Súmate panel. Funnel: sumate_opened, sumate_help_type_selected (money), donation_frequency_selected, payment_flow_started, donation_result_viewed (donation_success true). payment_flow_failed measures payments that could not be opened. North Star: donation_result_viewed with donation_success true; amount in COP from Bold approved. Country, city, session and UTM parameters are captured automatically by Mixpanel and are not sent manually. Payment method and monthly amount are chosen inside Bold and Mercado Pago and are not visible to the site. No personal data is collected; session replays block all images because the site shows photos of minors."
 }
