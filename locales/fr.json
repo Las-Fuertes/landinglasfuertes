@@ -311,8 +311,8 @@
       "cookies": {
         "titulo": "Cookies et données dans ton navigateur",
         "p1": "**lf_aviso** : retient que tu as déjà accepté l’avis de protection des mineures, pour ne pas te le montrer à chaque visite. Il dure 365 jours, vaut pour tout le site et ne contient aucune donnée personnelle : seulement la version de l’avis que tu as acceptée. Si nous changeons l’avis, nous te le redemanderons. Si tu le supprimes ou navigues en mode privé, l’avis revient.",
-        "p2": "**Google Analytics** : nous mesurons de façon agrégée comment le site est utilisé (par exemple, combien de personnes ouvrent Rejoins-nous ou cliquent pour faire un don). Google Analytics utilise ses propres cookies pour cela. Nous ne l’utilisons pas pour t’identifier.",
-        "p3": "Le site ne garde rien d’autre dans ton navigateur : pas de compte, pas de formulaire, pas de stockage local."
+        "p2": "**Google Analytics et Mixpanel** : nous mesurons de façon agrégée et anonyme comment le site est utilisé (par exemple, combien de personnes ouvrent Rejoins-nous ou cliquent pour faire un don). Google Analytics utilise ses propres cookies pour cela, et Mixpanel garde dans ton navigateur un identifiant anonyme, pour savoir que deux visites viennent du même appareil sans savoir qui tu es. Nous ne les utilisons pas pour t’identifier et nous ne te demandons aucune donnée personnelle.",
+        "p3": "Avec Mixpanel, nous enregistrons aussi les sessions de navigation, pour voir où le site se comprend mal. Dans ces enregistrements, **toutes les images sont bloquées** : on ne voit jamais les photos des filles. Ce que tu écris dans les champs de texte reste masqué. À part cela, le site ne garde rien d’autre dans ton navigateur : pas de compte, pas de formulaire."
       },
       "donaciones": {
         "titulo": "Dons",

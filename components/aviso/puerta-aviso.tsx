@@ -7,7 +7,14 @@ import { renderTextWithBold } from '../../lib/render-text-with-bold';
 import { EVENTO_CORTINA } from '../education-map/cortina';
 import LanguageSwitcher from '../layout/language-switcher';
 import { CURVA, cssCurva, PASO } from '../education-map/coreografia';
-import { avisoAceptado, ESTRELLA_AVISO, EVENTO_AVISO, guardarAceptacion } from './aviso';
+import { track } from '../../lib/analytics';
+import {
+  avisoAceptado,
+  ESTRELLA_AVISO,
+  EVENTO_AVISO,
+  guardarAceptacion,
+  VERSION_AVISO,
+} from './aviso';
 import styles from './puerta-aviso.module.css';
 import { useSaltoEstrella } from './salto-estrella';
 
@@ -136,6 +143,7 @@ function Puerta({ fase, salir, irse }: { fase: Fase; salir: () => void; irse: ()
     // a medio salto.
     detenerSalto();
     guardarAceptacion();
+    track('child_protection_notice_accepted', { notice_version: VERSION_AVISO });
     salir();
 
     // La landing se suelta: scroll, foco, y todo lo que esperaba a la puerta (la intro, el

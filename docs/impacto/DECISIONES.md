@@ -552,3 +552,39 @@ abajo; a 390x844, 62 arriba y 7 abajo (a 3,6 px del pie del CTA "Súmate").
   Impacto en top 0 (`mapa.js`).
 - `npm run type-check` y `npm run lint` limpios. Capturas `titulo-390x844.png` y
   `titulo-1280x800.png`.
+
+## D7. Sin imán en táctil (2026-10-01)
+
+**Feedback** de Johan (1 de octubre): "en la sección de impacto creo que va a tocar quitar el auto
+ajuste de la pantalla en mobile, cada vez que la toco salta, la experiencia es terrible".
+
+**Qué se hizo** (`components/impacto/use-iman.ts`): el imán de D4 a D6 solo existe si el puntero
+principal NO es el dedo. Con `(pointer: coarse)` el hook no registra ni un listener (ni `wheel`,
+ni `touch*`, ni `scroll`, ni `keydown`): el scroll con el dedo es nativo del todo y nada asienta
+tras soltar. Se sigue el `change` de la consulta y se registran o quitan en vivo (un iPad al que
+se conecta un trackpad, la emulación de DevTools). En desktop con rueda o trackpad todo sigue
+igual.
+
+**Por qué `pointer: coarse`:** describe el puntero principal, así que es verdadero en iPhone,
+Android y tablets táctiles, y falso en un portátil con trackpad o ratón aunque tenga pantalla
+táctil. Descartados: `hover: none`, porque algunos Android (Samsung Internet) declaran `hover:
+hover`; y el ancho (menor a md), porque una tablet de 1024 o más es táctil y una ventana estrecha
+de portátil no lo es. Riesgo aceptado: un iPad con teclado y trackpad sigue declarando `coarse` y
+queda sin imán, que es lo seguro.
+
+**Lo que dependía del imán:** nada más. El título fijo (`TituloImpacto`, D5) es CSS, y la entrada
+de bloques (`use-entrada-bloque.ts`) observa el elemento `[data-iman]` como atributo, no el hook.
+Las pantallas siguen midiendo el alto útil y los `scroll-margin-top` siguen puestos (sirven a
+"Saltar mapa" y "Terminar").
+
+### Verificación (CDP, 2026-10-01; scratchpad de la sesión, `constructor-b/iman-tactil.js`)
+
+- Con `Emulation.setTouchEmulationEnabled` (`pointer: coarse` verdadero) a 360x740, 390x844,
+  430x932 y 1024x1366: `DOMDebugger.getEventListeners(window)` da 0 listeners de `useIman` y 0
+  `touchmove`/`wheel`/`touchstart` no pasivos. Un arrastre táctil de 0,22 pantallas desde un
+  punto de imán (`Input.synthesizeScrollGesture`, sin inercia) deja la página donde se soltó: 0 px
+  de movimiento en los 2 s siguientes (antes el empujón del 15 % la llevaba al punto siguiente).
+- Sin táctil a 1280x800 y 1512x982: 9 listeners de `useIman`, y una rueda de 0,2 pantallas asienta
+  en el punto siguiente (5848 a 6329 y 6449 a 7075, exactos).
+- Captura de Impacto a 390 (`impacto-390.png`): título fijo y bloques como antes.
+- `npm run type-check` y `npm run lint` limpios.

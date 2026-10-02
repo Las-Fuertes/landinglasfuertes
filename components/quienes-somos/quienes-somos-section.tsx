@@ -339,10 +339,14 @@ export default function QuienesSomosSection() {
         >
           {t('quienesSomos.title')}
         </motion.h2>
-        {/* Aire título y texto: el de Figma (unos 45 px en los dos frames). */}
+        {/* Aire título y texto: el de Figma (unos 45 px en los dos frames). En mobile el párrafo
+            se sale del margen de página y de la caja de 390: queda a `spacing.l` (25 px) de cada
+            borde de la pantalla, sea cual sea el ancho, para que las líneas llenen más
+            (docs/quienes-somos/DECISIONES.md, D3). El margen negativo es 25 menos lo que hay de
+            la pantalla a la caja de contenido: `50% - 50vw + l`. Desde md, centrado a 820. */}
         <motion.p
           {...entradaTexto(0.15)}
-          className="mt-xl leading-normal text-black md:mx-auto md:max-w-[51.25rem]"
+          className="mx-[calc(50%-50vw+theme(spacing.l))] mt-xl leading-normal text-black md:mx-auto md:max-w-[51.25rem]"
           style={{ fontSize: 'var(--parrafo)' }}
         >
           {t('quienesSomos.text')}

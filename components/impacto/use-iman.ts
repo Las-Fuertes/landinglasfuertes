@@ -16,6 +16,14 @@ const CERCA = 0.3;
 const EMPUJON = 0.15;
 /** Margen de redondeo, en px, para decir que una posición está en un punto. */
 const TOLERANCIA = 2;
+/**
+ * Dispositivos sin imán (D7): los que tienen el dedo como puntero principal. `pointer: coarse`
+ * describe el puntero PRINCIPAL, así que da verdadero en iPhone, Android y tablets táctiles, y
+ * falso en un portátil con trackpad o ratón aunque su pantalla también sea táctil. No se usa
+ * `hover: none` porque algunos Android (Samsung Internet) declaran `hover: hover`, ni el ancho,
+ * porque una tablet de 1024 o más es táctil y un portátil estrecho no lo es.
+ */
+const TACTIL = '(pointer: coarse)';
 
 /**
  * Scroll libre con imán en Impacto (docs/impacto/DECISIONES.md, D4 y su ampliación). Los puntos
@@ -38,6 +46,8 @@ const TOLERANCIA = 2;
  *   punto y recorrió al menos el 15 % (el empujón que pasa de pantalla).
  * - Nunca si la pantalla actual es más alta que el alto útil y la persona está leyendo dentro.
  * - Con movimiento reducido no asienta: el scroll queda libre del todo.
+ * - En táctil (puntero principal `coarse`, D7) no existe: no registra ni un listener y el scroll
+ *   con el dedo es nativo del todo. Asentar tras soltar el dedo se sentía como un salto.
  *
  * El asentado (D6) es una animación propia con `requestAnimationFrame`, no `scrollTo` suave:
  * empieza lento y termina rápido (cúbica `t³`), dura de 600 a 900 ms según la distancia y se
@@ -49,6 +59,7 @@ export function useIman(ref: RefObject<HTMLElement | null>) {
     const seccion = ref.current;
     if (!seccion) return;
     const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const tactil = window.matchMedia(TACTIL);
 
     let ancla = window.scrollY;
     let huboGesto = false;
@@ -236,18 +247,32 @@ export function useIman(ref: RefObject<HTMLElement | null>) {
     };
 
     const opciones = { passive: true } as const;
-    window.addEventListener('wheel', gesto, opciones);
-    window.addEventListener('touchstart', alEmpezarToque, opciones);
-    window.addEventListener('touchmove', gesto, opciones);
-    window.addEventListener('touchend', alSoltarToque, opciones);
-    window.addEventListener('touchcancel', alSoltarToque, opciones);
-    window.addEventListener('keydown', alTeclear);
-    window.addEventListener('pointerdown', alPulsar, opciones);
-    window.addEventListener('scroll', alDesplazar, opciones);
-    window.addEventListener('scrollend', alTerminarScroll, opciones);
-    return () => {
+    let activo = false;
+    const activar = () => {
+      if (activo) return;
+      activo = true;
+      ancla = window.scrollY;
+      yVisto = window.scrollY;
+      huboGesto = false;
+      window.addEventListener('wheel', gesto, opciones);
+      window.addEventListener('touchstart', alEmpezarToque, opciones);
+      window.addEventListener('touchmove', gesto, opciones);
+      window.addEventListener('touchend', alSoltarToque, opciones);
+      window.addEventListener('touchcancel', alSoltarToque, opciones);
+      window.addEventListener('keydown', alTeclear);
+      window.addEventListener('pointerdown', alPulsar, opciones);
+      window.addEventListener('scroll', alDesplazar, opciones);
+      window.addEventListener('scrollend', alTerminarScroll, opciones);
+    };
+    const desactivar = () => {
+      if (!activo) return;
+      activo = false;
       window.clearTimeout(temporizador);
+      temporizador = undefined;
       if (animacion !== undefined) window.cancelAnimationFrame(animacion);
+      animacion = undefined;
+      yAnimado = null;
+      tocando = false;
       window.removeEventListener('wheel', gesto);
       window.removeEventListener('touchstart', alEmpezarToque);
       window.removeEventListener('touchmove', gesto);
@@ -257,6 +282,16 @@ export function useIman(ref: RefObject<HTMLElement | null>) {
       window.removeEventListener('pointerdown', alPulsar);
       window.removeEventListener('scroll', alDesplazar);
       window.removeEventListener('scrollend', alTerminarScroll);
+    };
+    // Sin imán si el puntero principal es el dedo (D7): ni un listener queda puesto. Se sigue el
+    // `change` porque la consulta puede cambiar en vivo (un iPad al que se le conecta un
+    // trackpad, la emulación de DevTools).
+    const actualizar = () => (tactil.matches ? desactivar() : activar());
+    actualizar();
+    tactil.addEventListener('change', actualizar);
+    return () => {
+      tactil.removeEventListener('change', actualizar);
+      desactivar();
     };
   }, [ref]);
 }

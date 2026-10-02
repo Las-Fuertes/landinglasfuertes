@@ -311,8 +311,8 @@
       "cookies": {
         "titulo": "Cookies y datos en tu navegador",
         "p1": "**lf_aviso**: guarda que ya aceptaste el aviso de protección de menores, para no mostrártelo en cada visita. Dura 365 días, vale para todo el sitio y no contiene datos personales: solo la versión del aviso que aceptaste. Si cambiamos el aviso, te lo volveremos a pedir. Si la borras o navegas en modo incógnito, el aviso vuelve a salir.",
-        "p2": "**Google Analytics**: medimos de forma agregada cómo se usa el sitio (por ejemplo, cuántas personas abren Súmate o hacen clic en donar). Google Analytics usa sus propias cookies para eso. No lo usamos para identificarte.",
-        "p3": "El sitio no guarda nada más en tu navegador: no hay cuentas, ni formularios, ni almacenamiento local."
+        "p2": "**Google Analytics y Mixpanel**: medimos de forma agregada y anónima cómo se usa el sitio (por ejemplo, cuántas personas abren Súmate o hacen clic en donar). Google Analytics usa sus propias cookies para eso, y Mixpanel guarda en tu navegador un identificador anónimo, para saber que dos visitas vienen del mismo dispositivo sin saber quién eres. No los usamos para identificarte y no te pedimos datos personales.",
+        "p3": "Con Mixpanel también grabamos las sesiones de navegación, para ver dónde el sitio se entiende mal. En esas grabaciones **todas las imágenes están bloqueadas**: nunca se ven las fotos de las niñas. Lo que escribes en los campos de texto queda tapado. Fuera de esto, el sitio no guarda nada más en tu navegador: no hay cuentas ni formularios."
       },
       "donaciones": {
         "titulo": "Donaciones",

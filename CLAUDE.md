@@ -76,6 +76,10 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
   somos final, Súmate a pantalla completa, escala de aire. Roadmap, estado y qué sigue en
   `docs/feedback-30-sep/ROADMAP.md`; decisiones en la carpeta de cada sección y en
   `docs/navegacion/` y `docs/quienes-somos/` (nuevas).
+- Feedback del 1-oct y Mixpanel (rama `1-oct`, 2026-10-02): intro sin flecha de avanzar en la
+  última parte, barra del mapa en iPhone (`h-dvh` y posición re-medida), Impacto sin imán en
+  táctil, Quiénes somos más ancho en mobile; Mixpanel con 16 eventos, solo en producción, replay
+  sin imágenes. `docs/feedback-1-oct/ROADMAP.md` y `docs/mixpanel/` (D1 a D4, plan de eventos).
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

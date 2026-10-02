@@ -55,6 +55,8 @@ export default function EducationMapSection() {
 
   const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  /** Mide `100svh`: el alto con el que se encuadran las paradas, estable al scrollear (D14). */
+  const altoRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const geometryRef = useRef<PanGeometry | null>(null);
@@ -92,10 +94,13 @@ export default function EducationMapSection() {
 
     const measure = () => {
       const stage = stageRef.current;
-      if (!stage) return;
+      const alto = altoRef.current;
+      if (!stage || !alto) return;
 
+      // El stage mide `100dvh` (llega al borde de abajo real), pero las paradas se encuadran con
+      // `100svh`, que no cambia cuando Safari esconde o muestra su barra al scrollear (D14).
       const stageW = stage.clientWidth;
-      const stageH = stage.clientHeight;
+      const stageH = alto.clientHeight;
       if (stageW === 0 || stageH === 0) return;
 
       const base = window.matchMedia(TABLET_QUERY).matches ? ENCUADRE_TABLET : ENCUADRE_MOBILE;
@@ -115,13 +120,33 @@ export default function EducationMapSection() {
     measure();
 
     const observer = new ResizeObserver(measure);
-    observer.observe(stageRef.current!);
+    // Se observa la medida estable, no el stage: el stage cambia de alto con la barra de
+    // Safari y recalcular el encuadre a media parada haría saltar el mapa.
+    observer.observe(altoRef.current!);
     if (titleRef.current) observer.observe(titleRef.current);
     window.addEventListener('orientationchange', measure);
     // Las imágenes de arriba pueden asentarse tarde y correr el track.
     window.addEventListener('load', measure);
 
+    // Las secciones de arriba que miden `dvh` (intro, Bienvenida, Donaciones) crecen cuando
+    // Safari encoge su barra y corren el track sin cambiar su alto (D14). Cuando cambia el alto
+    // del documento solo se corrige la posición guardada, sin recalcular el encuadre: si no, el
+    // mapa llegaría movido al fijarse. Un `ResizeObserver` avisa solo cuando cambia un tamaño,
+    // nunca por scroll.
+    const corregirTop = () => {
+      const current = geometryRef.current;
+      if (!current) return;
+      const top = readTrackTop();
+      if (Math.abs(top - current.trackTop) <= 1) return;
+      const updated = { ...current, trackTop: top };
+      geometryRef.current = updated;
+      setGeometry(updated);
+    };
+    const documento = new ResizeObserver(corregirTop);
+    documento.observe(document.body);
+
     return () => {
+      documento.disconnect();
       observer.disconnect();
       window.removeEventListener('orientationchange', measure);
       window.removeEventListener('load', measure);
@@ -272,7 +297,12 @@ export default function EducationMapSection() {
         <div
           ref={trackRef}
           className="relative"
-          style={geometry ? { height: geometry.track.trackH } : undefined}
+          // `100lvh - 100svh` es lo que puede crecer el stage cuando Safari esconde su barra: se
+          // suma para que el tramo fijo nunca sea más corto que `pin` (D14). Donde no hay barra
+          // que se esconda vale 0.
+          style={
+            geometry ? { height: `calc(${geometry.track.trackH}px + 100lvh - 100svh)` } : undefined
+          }
           data-paradas-y={
             geometry
               ? MAP_ROUTES.map((_, i) =>
@@ -284,7 +314,16 @@ export default function EducationMapSection() {
           {/* Con recorrido, el encabezado flota sobre la primera pantalla del mapa y se va con
               el scroll; la parada 1 queda debajo, en grande (D3). */}
           <MapTitle ref={titleRef} title={t('educationMap.title')} overlay />
-          <div ref={stageRef} className="sticky top-0 h-[100svh] overflow-clip">
+          {/* `h-dvh` y no `100svh` (D14): en iOS Safari, con la barra de la URL encogida, la
+              pantalla visible es más alta que `100svh` y el stage se quedaba corto; debajo de
+              la barra de abajo asomaba el fondo azul de la sección, sin nada. */}
+          <div ref={stageRef} className="sticky top-0 h-dvh overflow-clip">
+            <div
+              ref={altoRef}
+              aria-hidden
+              data-alto-estable=""
+              className="pointer-events-none invisible absolute inset-x-0 top-0 h-svh"
+            />
             {/* Salida para quien pasa con prisa (D4). Va antes que las paradas: con Tab es lo
                 primero que se alcanza, como un enlace de "saltar contenido". */}
             <button
@@ -316,10 +355,12 @@ export default function EducationMapSection() {
 
             <div
               ref={barRef}
-              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center justify-center gap-xs bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 py-s"
+              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center justify-center gap-xs bg-gradient-to-t from-blue-700 via-blue-700/80 to-transparent px-6 pb-[max(theme(spacing.s),env(safe-area-inset-bottom))] pt-s"
             >
               {/* Compacto (D7, y más en D13): el alto de esta barra se le resta al área visible de
-                  cada parada. Mismo aire arriba y abajo, para que nombre y puntos queden centrados. */}
+                  cada parada. Mismo aire arriba y abajo, para que nombre y puntos queden centrados.
+                  Abajo, el mayor entre ese aire y la zona segura del iPhone, nunca la suma (D14):
+                  sin `viewport-fit=cover` la zona segura vale 0 y Safari ya deja el borde fuera. */}
               <p className="text-center text-[0.95rem] font-bold leading-tight text-black">
                 {routeName(activeIndex).replace(/\n/g, ' ')}
               </p>

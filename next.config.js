@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Respaldo para lib/analytics.ts (docs/mixpanel/DECISIONES.md, D4): Mixpanel se activa con
+  // NEXT_PUBLIC_VERCEL_ENV === 'production'. Así no depende de que Vercel tenga encendido
+  // "Automatically expose System Environment Variables": VERCEL_ENV existe siempre en su build.
+  env: {
+    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV ?? '',
+  },
   // i18n configuration for Pages Router
   // Note: If migrating to App Router, use next-intl or similar instead
   i18n: {

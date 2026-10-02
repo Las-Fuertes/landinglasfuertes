@@ -11,6 +11,7 @@ import {
 import type { Sentido } from './intro.motion';
 import { FIN_DE_GESTO_MS, type GestoRueda, registrarRueda } from '../../lib/gesto-rueda';
 import { alAceptarAviso } from '../aviso/aviso';
+import { track } from '../../lib/analytics';
 
 const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
 /** Arrastre en touch para que dispare UNA parte. */
@@ -228,6 +229,8 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   );
 
   const saltar = useCallback(() => {
+    // Un segundo clic a media llegada solo la termina: no cuenta como otro salto.
+    if (!llegandoRef.current) track('intro_skipped', { step: stepRef.current + 1 });
     // Lleva a la primera sección tras la intro, Bienvenida (docs/sumate-drawer/DECISIONES.md, D1).
     const siguiente = document.getElementById('bienvenida');
     // Como el gesto desde la parte 3 (D6), desde la parte en que esté (D12): la intro sale con

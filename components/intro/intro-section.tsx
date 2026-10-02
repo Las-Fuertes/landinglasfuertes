@@ -655,8 +655,10 @@ export default function IntroSection() {
           <IntroNavegacion
             visible={quieta}
             puedeRetroceder={pin.stepIndex > 0}
-            // Desde la parte 3, avanzar lleva a Bienvenida, como un gesto (D6).
-            puedeAvanzar
+            // En la última parte no hay flecha de avanzar (D17): "Saltar intro" ya lleva a
+            // Bienvenida desde ahí, con la misma coreografía. El gesto y las teclas siguen
+            // llevando a Bienvenida como un paso más (D6).
+            puedeAvanzar={pin.stepIndex < INTRO_STEPS.length - 1}
             onSaltar={pin.saltar}
             onRetroceder={() => pin.irA(-1)}
             onAvanzar={() => pin.irA(1)}

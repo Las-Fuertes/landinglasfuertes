@@ -7,6 +7,7 @@ import type { MapRoute } from './education-map.data';
 import { MODAL_DESKTOP, PAJAROS, routePhoto, routePhotoDesktop } from './education-map.data';
 import { Resaltado } from '../layout/resaltado';
 import { CURVA, sinAceleracion, TIEMPO } from './coreografia';
+import { track } from '../../lib/analytics';
 
 const DESKTOP_QUERY = '(min-width: 1024px)';
 
@@ -84,6 +85,15 @@ export default function RouteSheet({
   useEffect(() => {
     closeRef.current?.focus({ preventScroll: true });
   }, []);
+
+  // `map_route_opened` (docs/mixpanel): la tarjeta se monta una vez por parada abierta (lleva
+  // `key` con la ruta). El ref aguanta el doble efecto de StrictMode.
+  const medidaRef = useRef(false);
+  useEffect(() => {
+    if (medidaRef.current) return;
+    medidaRef.current = true;
+    track('map_route_opened', { route: route.id });
+  }, [route.id]);
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent) => {

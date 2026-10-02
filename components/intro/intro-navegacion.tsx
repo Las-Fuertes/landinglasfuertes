@@ -58,6 +58,8 @@ export function IntroNavegacion({
     if (activo !== raiz) return;
     const disponible = (a: Accion) =>
       raiz.querySelector<HTMLButtonElement>(`[data-accion="${a}"]:not(.hidden)`);
+    // Si el recordado ya no está (la flecha de avanzar no existe en la última parte, D17), el
+    // foco pasa a "Saltar intro", que desde ahí es el avance.
     const destino =
       (recordado.current && disponible(recordado.current)) ??
       disponible('siguiente') ??

@@ -84,6 +84,10 @@ con scripts CDP propios en la misma carpeta (`cdp.js` arnés; `capturas.js`, `de
 
 ## Pendiente / a decidir con Johan
 
+0. **Ver D14 en el iPhone de Johan** (Safari, barra de la URL abajo): la barra del mapa debe quedar
+   pegada al borde de abajo con la barra de Safari encogida y desplegada, sin franja azul debajo, y
+   el mapa no debe saltar cuando Safari esconde o muestra su barra. Solo se simuló en Chrome
+   headless forzando `svh`.
 1. **Modelo de avance.** El mapa sigue avanzando por posición de scroll: un gesto normal de
    trackpad recorre algo más de una parada. Si se quiere "un gesto, un paso" como en la intro, es
    un cambio de modelo (pin por gestos), no un ajuste.

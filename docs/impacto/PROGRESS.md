@@ -1,5 +1,12 @@
 # Progreso: sección Impacto
 
+## Ronda 5 (2026-10-01), D7: sin imán en táctil
+
+- `use-iman.ts`: con `(pointer: coarse)` no se registra ningún listener del imán; el scroll con
+  el dedo es nativo. Desktop con rueda o trackpad sigue igual. Verificado por CDP (ver D7).
+- Pendiente: probarlo en iPhone y Android reales (Johan) y en un portátil con pantalla táctil
+  (debe conservar el imán con el trackpad).
+
 ## Ronda 4 (2026-10-01), D6: título centrado y imán que no toma el mando
 
 - Título "Así se ve el impacto en acción" centrado en su franja: 32/31 px de aire en desktop,

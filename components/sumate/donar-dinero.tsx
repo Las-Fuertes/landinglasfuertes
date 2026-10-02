@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { sendGAEvent } from '@next/third-parties/google';
 import { useTranslation } from '../../hooks/useTranslation';
+import { track } from '../../lib/analytics';
+import { medirPago, medirTransferencia } from './sumate-medicion';
 import {
   BOLD_API_KEY,
   DIRECT_TRANSFER,
@@ -19,6 +20,17 @@ const BOLD_BUTTON_SRC = 'https://checkout.bold.co/library/boldPaymentButton.js';
 type Frequency = 'once' | 'monthly';
 type Status = 'idle' | 'loading' | 'ready' | 'error';
 
+/** Frecuencia con el nombre del plan de eventos de Mixpanel (docs/mixpanel). */
+const FRECUENCIA: Record<Frequency, string> = { once: 'one_time', monthly: 'monthly' };
+
+/**
+ * Referencia de la orden de Bold. Lleva el monto para que /gracias pueda leerlo de
+ * `bold-order-id` sin guardar nada en el navegador (docs/mixpanel/DECISIONES.md, D4):
+ * `lasfuertes-<monto>-<marca de tiempo>-<azar>`. Ver `montoDeOrden` en lib/orden-bold.ts.
+ */
+const crearOrderId = (montoCop: number) =>
+  `lasfuertes-${montoCop}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
 export default function DonarDinero() {
   const { t } = useTranslation();
   const boldContainerRef = useRef<HTMLDivElement>(null);
@@ -30,6 +42,32 @@ export default function DonarDinero() {
 
   const boldConfigured = Boolean(BOLD_API_KEY);
   const amountCop = customAmount ? Number.parseInt(customAmount, 10) || 0 : (selectedAmount ?? 0);
+  const amountType = customAmount ? 'custom' : 'preset';
+  /** Último "Otro monto" medido: el blur repetido sin cambio no vuelve a contar. */
+  const customMedidoRef = useRef<number | null>(null);
+  const transferRef = useRef<HTMLDivElement>(null);
+
+  // `transfer_details_viewed`: el bloque de transferencia está siempre a la vista con "Una vez";
+  // cuenta cuando entra en pantalla, una vez por apertura del drawer (sumate-medicion.ts).
+  useEffect(() => {
+    const el = transferRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(entradas => {
+      if (!entradas.some(e => e.isIntersecting)) return;
+      observer.disconnect();
+      medirTransferencia();
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [frequency]);
+
+  function medirMontoPropio() {
+    const monto = Number.parseInt(customAmount, 10);
+    if (!customAmount || !Number.isInteger(monto) || monto <= 0) return;
+    if (customMedidoRef.current === monto) return;
+    customMedidoRef.current = monto;
+    track('donation_amount_chosen', { amount_value: monto, amount_type: 'custom' });
+  }
 
   function resetBoldButton() {
     if (boldContainerRef.current) boldContainerRef.current.innerHTML = '';
@@ -44,10 +82,18 @@ export default function DonarDinero() {
       return;
     }
 
-    sendGAEvent('event', 'donacion_unica_click', { monto: amountCop });
+    medirPago(
+      {
+        payment_provider: 'bold',
+        frequency: FRECUENCIA.once,
+        amount_value: amountCop,
+        amount_type: amountType,
+      },
+      { nombre: 'donacion_unica_click', props: { monto: amountCop } }
+    );
     setStatus('loading');
     try {
-      const orderId = `lasfuertes-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      const orderId = crearOrderId(amountCop);
       const amount = String(amountCop); // Bold espera el monto en COP, sin centavos
 
       const res = await fetch('/api/bold-signature', {
@@ -108,6 +154,7 @@ export default function DonarDinero() {
               onClick={() => {
                 setFrequency(freq);
                 resetBoldButton();
+                track('donation_frequency_selected', { frequency: FRECUENCIA[freq] });
               }}
               className={`min-h-10 flex-1 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
                 active ? 'bg-blue text-papel' : 'text-black hover:text-blue'
@@ -156,6 +203,11 @@ export default function DonarDinero() {
                       setSelectedAmount(amount);
                       setCustomAmount('');
                       resetBoldButton();
+                      customMedidoRef.current = null;
+                      track('donation_amount_chosen', {
+                        amount_value: amount,
+                        amount_type: 'preset',
+                      });
                     }}
                     className={`min-h-[3.25rem] whitespace-nowrap rounded border-2 border-blue px-1 py-s text-[clamp(0.75rem,3.6vw,1.05rem)] font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-papel md:text-[1.1rem] ${
                       active
@@ -179,6 +231,11 @@ export default function DonarDinero() {
                 onChange={e => {
                   setCustomAmount(e.target.value);
                   resetBoldButton();
+                }}
+                // El monto propio se mide al confirmar (Enter) o al salir del campo, no por tecla.
+                onBlur={medirMontoPropio}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') medirMontoPropio();
                 }}
                 placeholder={t('sumate.unica.customPlaceholder')}
                 aria-label={t('sumate.unica.customPlaceholder')}
@@ -250,7 +307,12 @@ export default function DonarDinero() {
                 href={MP_SUBSCRIPTION_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => sendGAEvent('event', 'suscripcion_click', {})}
+                onClick={() =>
+                  medirPago(
+                    { payment_provider: 'mercado_pago', frequency: FRECUENCIA.monthly },
+                    { nombre: 'suscripcion_click' }
+                  )
+                }
                 className="md:min-w-[17.75rem]"
               >
                 {t('sumate.mensual.cta')}
@@ -268,7 +330,10 @@ export default function DonarDinero() {
       )}
 
       {(DIRECT_TRANSFER.nequi || DIRECT_TRANSFER.bancolombia) && frequency === 'once' && (
-        <div className="mt-l border-t border-black/15 pt-m text-sm leading-relaxed text-black">
+        <div
+          ref={transferRef}
+          className="mt-l border-t border-black/15 pt-m text-sm leading-relaxed text-black"
+        >
           <p className="font-bold">{t('sumate.unica.transferTitle')}</p>
           {DIRECT_TRANSFER.nequi && (
             <p>{t('sumate.unica.transferNequi', { number: DIRECT_TRANSFER.nequi })}</p>

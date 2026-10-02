@@ -311,8 +311,8 @@
       "cookies": {
         "titulo": "Cookies and data in your browser",
         "p1": "**lf_aviso**: remembers that you already accepted the child protection notice, so we don't show it on every visit. It lasts 365 days, applies to the whole site and holds no personal data: only the version of the notice you accepted. If we change the notice, we'll ask you again. If you delete it or browse in private mode, the notice comes back.",
-        "p2": "**Google Analytics**: we measure, in aggregate, how the site is used (for example, how many people open Join us or click to donate). Google Analytics uses its own cookies for this. We don't use it to identify you.",
-        "p3": "The site stores nothing else in your browser: no accounts, no forms and no local storage."
+        "p2": "**Google Analytics and Mixpanel**: we measure, in aggregate and anonymously, how the site is used (for example, how many people open Join us or click to donate). Google Analytics uses its own cookies for this, and Mixpanel stores an anonymous identifier in your browser, so we know two visits come from the same device without knowing who you are. We don't use them to identify you and we don't ask for personal data.",
+        "p3": "With Mixpanel we also record browsing sessions, to see where the site is hard to follow. In those recordings **every image is blocked**: the girls' photos are never shown. Whatever you type in text fields is hidden. Beyond this, the site stores nothing else in your browser: no accounts and no forms."
       },
       "donaciones": {
         "titulo": "Donations",
