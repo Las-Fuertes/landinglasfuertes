@@ -113,7 +113,11 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   "volver arriba" con la flecha de la intro, lleva a `#bienvenida` (navegacion D6); Bienvenida
   deja bajar en cualquier momento de su entrada (introduccion D18, con reglas de rueda e
   inercia). Detalle en `docs/feedback-2-oct/ROADMAP.md`.
-  QUÉ SIGUE: `MP_ACCESS_TOKEN` en Vercel (Production) y probar la URL de la suscripción real;
+  En producción (2026-10-02): `MP_ACCESS_TOKEN` puesto en Vercel; `/api/estado-pago` devolvió
+  `approved, 5000 COP` para la donación real de Bold y `paused, 5000 COP` para la suscripción de
+  Johan (la pausó él a mano). Johan pegó el Access Token y el Client Secret en el chat: se le
+  recomendó renovarlos (y actualizar Vercel y redeploy); preguntar si lo hizo.
+  QUÉ SIGUE: probar su suscripción nueva (esperado `authorized`);
   Give Lively: Johan configura el callback URL y /gracias debe reconocer su vuelta
   (`payment_provider` givelively); revisar en Mixpanel eventos y un replay sin fotos; tablero
   con North Star `donation_success = true` y `verified = true`.
