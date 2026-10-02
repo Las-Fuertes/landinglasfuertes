@@ -80,6 +80,9 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
   última parte, barra del mapa en iPhone (`h-dvh` y posición re-medida), Impacto sin imán en
   táctil, Quiénes somos más ancho en mobile; Mixpanel con 16 eventos, solo en producción, replay
   sin imágenes. `docs/feedback-1-oct/ROADMAP.md` y `docs/mixpanel/` (D1 a D4, plan de eventos).
+- Pagos verificados y ola del 2-oct (rama `2-oct`): vuelta de Mercado Pago, `/api/estado-pago`,
+  eventos de pago, precarga del mapa, Súmate montado, volver arriba, scroll libre en Bienvenida.
+  `docs/feedback-2-oct/ROADMAP.md`.
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

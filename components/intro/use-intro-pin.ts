@@ -9,7 +9,13 @@ import {
   useState,
 } from 'react';
 import type { Sentido } from './intro.motion';
-import { FIN_DE_GESTO_MS, type GestoRueda, registrarRueda } from '../../lib/gesto-rueda';
+import {
+  FIN_DE_GESTO_MS,
+  type GestoRueda,
+  IMPULSO_FACTOR,
+  IMPULSO_MIN_PX,
+  registrarRueda,
+} from '../../lib/gesto-rueda';
 import { alAceptarAviso } from '../aviso/aviso';
 import { track } from '../../lib/analytics';
 
@@ -18,6 +24,31 @@ const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
 const TOUCH_THRESHOLD = 50;
 /** Tolerancia para considerar que la página está arriba del todo. */
 const ARRIBA_PX = 2;
+/**
+ * Durante la llegada a Bienvenida, un gesto de rueda que no se abrió tras un silencio (un impulso
+ * nuevo sobre la inercia o una muesca de ratón) solo la termina pasado este tiempo desde que
+ * empezó (D18, ampliación). Antes, la ráfaga que la trajo es casi siempre la que sigue.
+ */
+const LLEGADA_GUARDA_MS = 300;
+/**
+ * Y un impulso nuevo, solo si antes de él la inercia había caído a esta fracción de su pico y a
+ * no más de `LLEGADA_VALLE_PX`: unos dedos que se apoyan en el trackpad la cortan casi a cero.
+ */
+const LLEGADA_DECAIDO = 0.1;
+const LLEGADA_VALLE_PX = 12;
+/**
+ * Muesca de rueda de ratón (D18, ampliación): eventos separados por al menos esto y con el MISMO
+ * `|deltaY|` (cada muesca mide lo mismo). La inercia de un trackpad siempre decae, y si el hilo
+ * principal va lento llega en eventos espaciados pero sumados, de tamaños distintos: el espacio
+ * solo no basta para distinguirla.
+ */
+const MUESCA_MIN_MS = 60;
+/** Menos que esto es la cola de una inercia (1, 1, 1...), no una muesca. */
+const MUESCA_MIN_PX = 12;
+/** Eventos seguidos con forma de muesca para tratar la serie como rueda de ratón. */
+const MUESCA_RACHA = 2;
+/** Arrastre hacia arriba de la pantalla con el que un dedo nuevo termina la llegada (D18). */
+const TOUCH_SOLTAR_LLEGADA = 10;
 
 export interface Transicion {
   desde: number;
@@ -116,6 +147,15 @@ export function useIntroPin(totalSteps: number): IntroPinState {
   const transicionIdRef = useRef(0);
   /** Corre la llegada a Bienvenida: la página se desplaza por código y la capa sigue fija. */
   const llegandoRef = useRef(false);
+  /** `performance.now()` al empezar la llegada (D18, ampliación). */
+  const llegadaInicioRef = useRef(0);
+  /**
+   * Valle de la inercia antes de un impulso que abrió un gesto durante la llegada, o null. El
+   * impulso solo la termina si el evento siguiente lo confirma (D18, ampliación).
+   */
+  const candidatoRef = useRef<number | null>(null);
+  /** Último evento de rueda, para reconocer las muescas de un ratón (D18, ampliación). */
+  const muescaRef = useRef({ t: 0, abs: 0, sentido: 1 as Sentido, racha: 0 });
   /**
    * Tras la llegada, el resto del gesto de rueda que la disparó (la inercia) se sigue tragando:
    * si no, al soltar la capa fija la página seguiría bajando más allá de Bienvenida. El dedo no
@@ -185,6 +225,23 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     timelineRef.current = null;
   }, []);
 
+  /**
+   * Un gesto NUEVO hacia abajo durante la llegada a Bienvenida (D18): la llegada se termina en el
+   * acto (`progress(1)`, como "Saltar intro" a media llegada) y el gesto sigue al scroll nativo.
+   * El gesto que disparó la llegada (su inercia, el mismo dedo, la tecla sostenida) se sigue
+   * tragando: eso es "un gesto, un paso". Devuelve false si no había timeline que terminar (la
+   * llegada aún no se armó): entonces el gesto se frena como antes.
+   */
+  const soltarLlegada = useCallback((): boolean => {
+    if (!llegandoRef.current || !timelineRef.current) return false;
+    terminarTimeline();
+    // `terminarLlegada` marca para tragar el resto del gesto que la disparó; este es otro.
+    tragarRef.current = false;
+    // Sin tragar, la rueda ya no necesita ser no pasiva (D14).
+    sincronizarRef.current();
+    return true;
+  }, [terminarTimeline]);
+
   const desenganchar = useCallback(() => {
     if (corriendoRef.current) terminarTimeline();
     enganchar(false);
@@ -203,6 +260,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         terminarTimeline();
         corriendoRef.current = true;
         llegandoRef.current = true;
+        llegadaInicioRef.current = performance.now();
         setLlegada(++transicionIdRef.current);
         return true;
       }
@@ -246,6 +304,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       }
       corriendoRef.current = true;
       llegandoRef.current = true;
+      llegadaInicioRef.current = performance.now();
       setLlegada(++transicionIdRef.current);
       return;
     }
@@ -322,6 +381,26 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       if (sentido === 0) return;
       const abs = Math.abs(e.deltaY);
       const g = gestoRef.current;
+      // Muescas de ratón (D18, ampliación): eventos espaciados e iguales. La inercia del
+      // trackpad siempre decae; un ratón girado seguido manda
+      // muescas iguales cada 100 o 150 ms, y como no dejan 180 ms de silencio eran un solo gesto
+      // que se tragaba entero en Bienvenida, durante la llegada y después.
+      const m = muescaRef.current;
+      const ahora = performance.now();
+      // `deltaMode` 1 (por líneas) es siempre una rueda de ratón (Firefox).
+      const igual = abs === m.abs || e.deltaMode === 1;
+      m.racha =
+        ahora - m.t >= MUESCA_MIN_MS && sentido === m.sentido && abs >= MUESCA_MIN_PX && igual
+          ? m.racha + 1
+          : 0;
+      m.t = ahora;
+      m.abs = abs;
+      m.sentido = sentido;
+      // Solo en la llegada y en el tragar de después: en las partes 1 a 3 un ratón girado seguido
+      // sigue siendo un gesto, un paso.
+      const muesca = m.racha >= MUESCA_RACHA && (llegandoRef.current || tragarRef.current);
+      const previo = { vivo: g.vivo, sentido: g.sentido, pico: g.pico, valle: g.valle };
+      if (muesca) g.vivo = false;
       // Un gesto nuevo empieza tras un silencio, SIEMPRE que cambia el sentido (la inercia de
       // subida que llega arriba no se come la bajada que sigue), o con un impulso nuevo sobre
       // una inercia que ya decaía. Si no, un scroll fuerte encadenado bloqueaba la intro.
@@ -338,12 +417,45 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       g.acumulado += abs;
 
       if (engagedRef.current) {
+        const aTiempo = () => performance.now() - llegadaInicioRef.current >= LLEGADA_GUARDA_MS;
         if (g.consumido) {
+          // El evento que sigue a un impulso candidato durante la llegada: si también es fuerte,
+          // el impulso era un gesto nuevo (D18, ampliación). Un pico suelto (ruido, un evento
+          // doble cuando el hilo se atrasa) no tiene segundo evento fuerte.
+          const valle = candidatoRef.current;
+          candidatoRef.current = null;
+          if (
+            valle !== null &&
+            sentido === 1 &&
+            abs >= Math.max(valle * IMPULSO_FACTOR, IMPULSO_MIN_PX) &&
+            aTiempo() &&
+            soltarLlegada()
+          ) {
+            return;
+          }
           frenar();
           return;
         }
         g.consumido = true;
+        candidatoRef.current = null;
         if (corriendoRef.current) {
+          // Un gesto nuevo hacia abajo durante la llegada la termina y baja la página (D18).
+          // Abierto tras un silencio o un cambio de sentido, en el acto. Una serie de muescas de
+          // ratón, pasados `LLEGADA_GUARDA_MS`. Un impulso sobre la inercia, solo si esta ya se
+          // había apagado, pasados `LLEGADA_GUARDA_MS` y confirmado por el evento siguiente: una
+          // ráfaga irregular puede parecer un impulso, y la propia inercia que trajo Bienvenida
+          // la atravesaba (ampliación de D18).
+          if (sentido === 1 && llegandoRef.current) {
+            const trasSilencio = !previo.vivo || previo.sentido !== sentido;
+            if ((trasSilencio || (muesca && aTiempo())) && soltarLlegada()) return;
+            if (
+              !trasSilencio &&
+              !muesca &&
+              previo.valle <= Math.min(previo.pico * LLEGADA_DECAIDO, LLEGADA_VALLE_PX)
+            ) {
+              candidatoRef.current = previo.valle;
+            }
+          }
           // Un gesto nuevo mientras corre la transición: se traga entero.
           frenar();
           return;
@@ -401,6 +513,8 @@ export function useIntroPin(totalSteps: number): IntroPinState {
 
       if (engagedRef.current) {
         if (e.repeat || corriendoRef.current) {
+          // Una tecla nueva hacia abajo durante la llegada la termina y baja la página (D18).
+          if (!e.repeat && sentido === 1 && soltarLlegada()) return;
           e.preventDefault();
           return;
         }
@@ -443,6 +557,18 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         return;
       }
 
+      // Un dedo puesto durante la llegada que sube la termina y la página lo sigue en el acto
+      // (D18). El que la disparó ya está `hecho` y se sigue tragando hasta el final. Uno nuevo
+      // que aún no subió lo bastante (Safari manda movimientos de pocos px, también hacia abajo
+      // o de lado) se frena sin marcarlo: si no, quedaba tragado hasta el final de la llegada.
+      if (llegandoRef.current && !t.hecho) {
+        if (delta >= TOUCH_SOLTAR_LLEGADA && soltarLlegada()) {
+          t.hecho = true;
+          return;
+        }
+        e.preventDefault();
+        return;
+      }
       if (t.hecho || corriendoRef.current) {
         e.preventDefault();
         if (!t.hecho && corriendoRef.current) t.hecho = true;
@@ -527,7 +653,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       window.removeEventListener('scroll', onScroll);
       window.clearTimeout(finDeGestoRef.current);
     };
-  }, [mode, totalSteps, avanzar, desenganchar, enganchar, terminarTimeline]);
+  }, [mode, totalSteps, avanzar, desenganchar, enganchar, terminarTimeline, soltarLlegada]);
 
   // Reinicio al salir por arriba: la intro vuelve a la parte 1 sin animar, y cuando reaparece
   // (subiendo desde Bienvenida) la parte 1 reproduce su entrada.

@@ -41,6 +41,7 @@ export type EventoAnalytics =
   | 'donation_frequency_selected'
   | 'donation_amount_chosen'
   | 'payment_flow_started'
+  | 'payment_flow_failed'
   | 'donation_result_viewed'
   | 'transfer_details_viewed'
   | 'us_donation_clicked'

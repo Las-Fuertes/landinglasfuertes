@@ -139,3 +139,175 @@ cambia. Las órdenes viejas (`lasfuertes-<marca>-<azar>`) no traen monto y `/gra
   la ventana y vuelve a contar fuera). En producción queda por ver en el panel.
 - **Términos exactos.** Se graba el 100 % de las sesiones: el texto dice ahora "las sesiones de
   navegación" (es), "browsing sessions" (en) y "les sessions de navigation" (fr), no "algunas".
+
+## D5. La vuelta de Mercado Pago se mostraba como pago fallido (2026-10-02)
+
+**El bug (producción, dinero real).** Johan pagó una suscripción mensual con Mercado Pago y volvió
+a `https://www.lasfuertes.org/gracias?preapproval_id=6bcf80760c964da5966bedaf43d18aeb`. `/gracias`
+solo reconocía `origen=suscripcion` y `bold-tx-status`; sin ninguno caía en `rejected` y mostró
+"El pago no se completó" a alguien que acababa de suscribirse. En el panel no se medía (desde D4,
+sin parámetros no hay evento), así que el fallo era invisible. Bold sí funcionó
+(`?bold-order-id=lasfuertes-5000-1790940967450-8900&bold-tx-status=approved`). Además, como la
+página se prerenderiza sin query, el HTML estático pintaba la pantalla de rechazo un instante
+antes de hidratar, también en las vueltas buenas.
+
+**Decisión de Johan (reemplazada el mismo día por D6).** El éxito se confirma SOLO leyendo la URL de vuelta: no se consulta la API
+del proveedor y no hay webhooks.
+
+**Cómo llega la URL.** El botón mensual es un enlace fijo al plan (`MP_SUBSCRIPTION_URL` =
+`https://mpago.la/1bHZ1uA` en `components/sumate/sumate.data.ts`). Al terminar, Mercado Pago manda
+a la persona al `back_url` del plan y le añade `preapproval_id` (el id de la suscripción creada).
+`.env.example` pedía configurar `https://<dominio>/gracias?origen=suscripcion`, pero la vuelta real
+llegó sin `origen`: o el plan tiene `/gracias` a secas, o Mercado Pago reemplaza la query propia.
+No se puede ver el panel desde aquí; da igual, porque ahora `/gracias` reconoce `preapproval_id` y
+no hace falta tocar el plan. La documentación oficial de suscripciones (con y sin plan asociado,
+`back_url` en la creación del plan) solo define `back_url` como "URL de retorno exitoso" y **no
+documenta ningún parámetro** añadido, ni `status` ni `external_reference`. Por eso no se lee
+ningún estado de Mercado Pago: la vuelta con `preapproval_id` se toma como suscripción creada.
+
+**Cambios.**
+
+- `lib/resultado-pago.ts` (nuevo): `leerVueltaPasarela(query)` decide pasarela, resultado y clave
+  de deduplicación. Orden: `bold-tx-status` (approved, pending; cualquier otro valor es
+  rejected), luego `preapproval_id`, luego el viejo `origen=suscripcion`. Sin ninguno, `null`.
+- `pages/gracias.tsx`: con `preapproval_id` u `origen=suscripcion` muestra la pantalla mensual
+  (`gracias.suscripcionTitle` y `gracias.suscripcionText`, que ya decían lo correcto en es, en y
+  fr: gracias por sumarte cada mes, Mercado Pago envía el comprobante de cada cobro y desde
+  Mercado Pago se gestiona o cancela; no se tocó el copy). Hasta que el router tiene la query no
+  pinta ningún resultado. **`/gracias` sin parámetros de pasarela redirige al inicio** (con
+  `router.replace('/')`, en el mismo idioma) y no mide nada: un "gracias" le mentiría a quien no
+  pagó y un "pago fallido" a quien sí; no hay nada cierto que decir.
+- `donation_result_viewed` suma `payment_provider` (bold, mercado_pago) y `donation_success`
+  (true para Bold `approved` y para la vuelta de Mercado Pago; false para pending y rejected).
+  Mercado Pago: `payment_status` = `subscription_returned`, `frequency` = `monthly`, sin monto y
+  sin mandar el `preapproval_id`. Se deduplica con `trackSinRepetir` por `mp:<preapproval_id>`
+  (sin ventana: la misma suscripción cuenta una vez); el viejo `origen=suscripcion` sigue con la
+  ventana de 30 minutos.
+- `payment_flow_failed` (nuevo) en `components/sumate/donar-dinero.tsx`: el pago de Bold no se
+  pudo abrir y la persona ve `sumate.unica.error`. Props: `payment_provider`, `frequency`,
+  `amount_value`, `failure_reason`: `signature_error` (`/api/bold-signature` respondió error o sin
+  firma; el caso de hoy si falta `BOLD_SECRET_KEY`), `network_error` (la petición de firma no
+  terminó), `container_error` (no estaba el contenedor del botón) y `script_error` (no cargó el
+  script de Bold; antes ese fallo dejaba la pantalla sin botón y sin error, ahora muestra el
+  error). El monto mensual no tiene este evento: es un enlace, no puede fallar antes de salir.
+- `docs/mixpanel/tracking-plan.json` y `PLAN-DE-EVENTOS.md` al día (17 eventos).
+
+**Verificado (2026-10-02, por CDP contra el dev server, a 390 y 1280).** Pantalla y evento de:
+`?preapproval_id=...` (mensual, `subscription_returned`, `donation_success` true),
+`?origen=suscripcion` (igual), Bold approved (con `amount_value` 5000), pending y rejected
+(`donation_success` false), `/gracias` sin nada (redirige a `/`, sin evento) y la mensual en `/en`
+y `/fr`. El fallo de firma, con una `NEXT_PUBLIC_BOLD_API_KEY` falsa puesta un momento en
+`.env.local` (borrado después) y sin `BOLD_SECRET_KEY`: muestra el error y manda
+`payment_flow_failed` con `signature_error`. En producción queda por ver en el panel, con la
+próxima suscripción real, que llega una sola vez.
+
+**Pendiente.** Give Lively: Johan configura hoy su callback URL. Cuando exista, `/gracias`
+reconocerá esa vuelta con `payment_provider` = `givelively` (en `leerVueltaPasarela`).
+
+## D6. /gracias confirma el estado con la pasarela (2026-10-02)
+
+**Cambio de decisión de Johan.** Reemplaza la decisión de D5 ("solo la URL"): ahora `/gracias`
+consulta el estado real del pago a la pasarela con el id que trae la URL de vuelta. La URL queda
+como respaldo: si la consulta falla, tarda o no sabe, se muestra y se mide lo que dice la URL,
+exactamente como en D5.
+
+**Endpoints confirmados en la documentación oficial.**
+
+- **Bold** (fuente: https://www.developers.bold.co/pagos-en-linea/consulta-de-transacciones):
+  `GET https://payments.api.bold.co/v2/payment-voucher/<identificador único de la venta>` (el
+  `orderId` del botón, `lasfuertes-...`) con `Authorization: x-api-key <llave de identidad>`. Usa
+  la **llave de identidad** (`NEXT_PUBLIC_BOLD_API_KEY`), no la secreta; sin ella o mal puesta, 401. Responde `{ link_id, transaction_id, total, payment_status }`; **no trae moneda** (el botón
+  del sitio solo cobra COP). `payment_status`: en proceso `PROCESSING` y `PENDING` (solo PSE);
+  finales `APPROVED`, `REJECTED`, `FAILED`, `VOIDED`; y `NO_TRANSACTION_FOUND` si aún no existe.
+  La transacción aparece "en hasta 10 minutos" y se puede consultar durante 24 horas, así que
+  justo al volver puede salir `NO_TRANSACTION_FOUND`: eso se trata como `unknown` y manda la URL.
+  Solo aplica al botón de pagos, no a los links de pago.
+- **Mercado Pago** (fuente:
+  https://www.mercadopago.com.co/developers/es/reference/online-payments/subscriptions/get-preapproval/get):
+  `GET https://api.mercadopago.com/preapproval/{id}` con `Authorization: Bearer <access token>`.
+  Monto mensual en `auto_recurring.transaction_amount` y moneda en `auto_recurring.currency_id`
+  (`COP` en el ejemplo). La referencia solo muestra `status: "pending"` en su ejemplo y no
+  enumera los estados; los demás salen del SDK oficial de Go
+  (https://pkg.go.dev/github.com/mercadopago/sdk-go/pkg/preapproval: `authorized`, `paused`,
+  `cancelled`, más `pending` al crear) y de la guía de gestión de suscripciones, que cancela con
+  `canceled` (una ele). Se aceptan las dos grafías.
+
+**Ruta `pages/api/estado-pago.ts` (servidor).** `GET ?provider=bold|mercado_pago&id=...`.
+Valida el id antes de salir (Bold: `lasfuertes-<monto>-<marca>-<azar>` o el formato viejo; MP:
+alfanumérico de 8 a 64) para no ser un proxy abierto; otro método, 405; id o proveedor inválido, 400. Devuelve SOLO `{ status, amount_value, currency }` con `status` normalizado: Bold
+`APPROVED` -> approved, `PENDING`/`PROCESSING` -> pending, `REJECTED`/`FAILED` -> rejected,
+`VOIDED` -> cancelled; MP `authorized` -> approved, `pending` y `paused` -> pending,
+`cancelled`/`canceled` -> cancelled; lo demás, `unknown`. Nunca reenvía datos de quien paga (la
+respuesta de MP trae `payer_id` y correo: se descartan). Tope propio de 6 s con
+`AbortController`, `Cache-Control: no-store`. Sin llave (`NEXT_PUBLIC_BOLD_API_KEY` o
+`MP_ACCESS_TOKEN`), con error HTTP, JSON roto o tope: `unknown`, nunca un 500.
+Para probar en local, `ESTADO_PAGO_BOLD_BASE` y `ESTADO_PAGO_MP_BASE` apuntan las bases a un
+servidor de prueba; con `NODE_ENV=production` se ignoran.
+
+**`/gracias`.** Tras leer la URL (D5) muestra "Confirmando tu pago…" (claves
+`gracias.confirmandoTitle` y `confirmandoText`) y llama a `confirmarConPasarela`
+(`lib/resultado-pago.ts`, con su propio tope de 8 s). Si Bold dice pendiente, reintenta tres veces
+con esperas de 2,5, 4 y 6 s antes de mostrar "en proceso" (unos 14 s en el peor caso). Pantallas:
+Bold approved, pending y rejected/cancelled como siempre; MP `authorized` -> gracias mensual,
+`pending`/`paused` -> pantalla nueva "Tu suscripción está en proceso" (`suscripcionPendingTitle`
+y `Text`, porque el pendiente de Bold habla de PSE), `cancelled` -> "El pago no se completó". Si
+la pasarela da `unknown`, la pantalla de D5. Copy nuevo en es, en y fr.
+
+**`donation_result_viewed`.** Sale UNA vez, con el resultado final, y suma `verified`.
+`payment_status` = estado de la pasarela (Bold: approved, pending, rejected, cancelled; MP:
+authorized, pending, cancelled); sin verificar, lo de D5 (`subscription_returned` para MP).
+`donation_success` = true para Bold approved y MP authorized, y también sin verificar cuando la
+URL dice approved o vuelve de MP (como en D5): para el North Star estricto se filtra
+`verified = true`. `amount_value` viene de la pasarela cuando responde (también el mensual de MP);
+si no, del `orderId` de Bold. `provider_status_code` sigue siendo el `bold-tx-status` de la URL.
+
+**Verificado (2026-10-02).** Con un servidor de prueba de Node en el puerto 4599 (scratchpad) y un
+`.env.local` temporal con llaves falsas (`prueba-local`) y las bases apuntadas al mock, **borrado
+al terminar**. Por curl: approved, rejected, `NO_TRANSACTION_FOUND` -> unknown, MP authorized con
+25000 COP, MP cancelled, 404 de MP -> unknown, ids con `/` o `..` -> 400, POST -> 405, el tope
+de 6 s -> unknown, y sin llaves -> unknown; el correo del pagador del mock nunca sale. Por CDP a
+390 y 1280, pantalla y evento: Bold approved (verified, 5000); pending que pasa a approved en el
+segundo reintento (7000 del proveedor); pending siempre (unos 14 s, "en proceso"); URL approved
+que el proveedor dice rejected (gana el proveedor); tope de la pasarela (pasa por "Confirmando",
+cae a la URL con `verified` false); MP authorized (`authorized`, 25000), pending (pantalla nueva
+en es, en y fr) y cancelled; sin llaves, Bold y MP caen a la URL con `verified` false; `/gracias`
+sin nada sigue yendo al inicio.
+
+**Lo que tiene que hacer Johan en Vercel (Production).** Añadir `MP_ACCESS_TOKEN` con el Access
+Token de producción de la cuenta dueña del plan (solo servidor, sin `NEXT_PUBLIC`).
+`NEXT_PUBLIC_BOLD_API_KEY` ya existe y sirve para Bold. No poner `ESTADO_PAGO_*` en Vercel.
+Sin `MP_ACCESS_TOKEN`, la mensual sigue funcionando como en D5 (`verified` false).
+
+**Ampliación (2026-10-02, ola 2, constructor B): cuatro detalles que dejó el verificador.**
+
+- **`NO_TRANSACTION_FOUND` de Bold se reintenta.** Bold puede tardar hasta 10 minutos en registrar
+  la venta, así que justo al volver es normal que no la encuentre. Antes se trataba como `unknown`
+  y se caía a la URL en el acto. Ahora `/api/estado-pago` lo responde como `not_found` (también si
+  llega con HTTP 404 y ese `payment_status` en el cuerpo) y `confirmarConPasarela`
+  (`lib/resultado-pago.ts`) lo reintenta con las mismas esperas que el pendiente (2,5, 4 y 6 s).
+  Si tras los reintentos sigue sin aparecer, se devuelve `unknown` y manda la URL, como antes
+  (`verified` false). Un `not_found` en un reintento no borra un `pending` ya visto.
+- **Texto de pendiente neutro.** `gracias.pendingText` decía "esto es normal con PSE" aunque se
+  pagara con tarjeta; ahora dice que a veces el banco o la pasarela tardan unos minutos (es, en y
+  fr).
+- **Suscripción pausada con pantalla propia.** Mercado Pago `paused` antes se trataba como
+  pendiente ("todavía está confirmando"), pero una pausa no se confirma sola. La ruta ahora
+  responde `paused` y `/gracias` muestra "Tu suscripción está pausada": no se cobra nada por ahora
+  y se reactiva o cancela desde la cuenta de Mercado Pago (`gracias.suscripcionPausedTitle` y
+  `Text`, en es, en y fr; ícono de pausa en naranja). `donation_result_viewed` sale con
+  `payment_status` = `paused`, `donation_success` false y `verified` true (tracking-plan y
+  PLAN-DE-EVENTOS al día).
+- **Francés.** `gracias.shareText` lleva espacio de no separación antes de ":", como el resto del
+  archivo. De paso se corrigieron otros cuatro ":" de `terminos.*` en `fr.json` que tenían
+  espacio normal.
+
+**Verificado (2026-10-02)** con un servidor de prueba de Node en el puerto 4599 (scratchpad) y un
+`.env.local` temporal con llaves falsas, **borrado al terminar**; luego se reinició el dev server en
+:3000 desde este worktree y se borró `.next` (guardaba la llave falsa compilada). Por CDP a 390:
+Bold con URL approved y dos `NO_TRANSACTION_FOUND` antes del APPROVED: "Confirmando" y a los 7,2 s
+el gracias con `verified` true; URL pending con un 404 `NO_TRANSACTION_FOUND` y luego APPROVED: a
+los 3,1 s, approved verificado; `NO_TRANSACTION_FOUND` siempre: a los 13,1 s cae a la URL
+(approved, `verified` false); PENDING, NO_TRANSACTION_FOUND, PENDING: "en proceso" con el texto
+nuevo, `verified` true; MP `paused`: pantalla de pausa en es, en y fr (y 1280 en es), evento
+`paused`. Tras borrar el `.env.local`, la ruta responde `unknown` y ningún chunk servido contiene
+la llave falsa.

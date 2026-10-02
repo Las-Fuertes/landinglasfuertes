@@ -246,3 +246,90 @@ quedaba tras D5), `timestamp` y `hero.mainTitle1`, `hero.mainTitle2`, `hero.subt
 lo usa `pages/index.tsx`. Queda huérfano `components/app-image/` (su único consumidor era
 coming-soon); no se borró porque no era de este frente: es lo siguiente a limpiar. Tras el
 borrado, es, en y fr tienen las mismas 227 claves.
+
+---
+
+## D6. Botón "Volver arriba" abajo a la derecha (2026-10-02)
+
+**Pedido de Johan** (feedback del 2-oct, `docs/feedback-2-oct/ROADMAP.md`, punto 5): "cuando
+hagamos scroll back, pongamos un back to top en la parte de abajo derecha traducido claramente en
+varios idiomas". Su decisión: aparece al hacer scroll hacia arriba, una vez pasada Bienvenida, y
+se esconde al bajar. Rama `2-oct`, ola 2, constructor B.
+
+**A dónde lleva: a Bienvenida (`#bienvenida`), no a `scrollY 0`.** La intro es una historia por
+pasos con capa fija (docs/introduccion/DECISIONES.md, D2, D3 y D14): al volver a `scrollY 0` se
+reinicia en la parte 1, reproduce su entrada y deja el scroll en modo "un gesto, un paso", así que
+para volver al contenido hacen falta tres gestos o "Saltar intro". Quien pulsa "Volver arriba"
+desde Impacto quiere el comienzo del contenido, no repetir la historia. Bienvenida es el mismo
+destino que "Saltar intro" (su borde de arriba contra el techo) y desde ahí, subiendo, la intro
+sigue a un gesto de distancia. Si Johan prefiere el tope absoluto, basta con cambiar `ID_DESTINO`
+por un `scrollTo(0)` directo como el viejo "Inicio" del menú.
+
+**Cuándo se ve.** Visible solo si se cumplen las cuatro: (1) el sentido es hacia arriba, (2)
+Bienvenida ya quedó entera por encima de la pantalla, (3) ninguna sección con
+`data-oculta-flotante` está en pantalla (el mapa, misma regla y margen del 10 % que el CTA Súmate)
+y (4) el drawer de Súmate está cerrado. Oculto entonces en la intro, en Bienvenida, sobre el mapa
+y con el drawer abierto. Solo se monta en la home (`pages/index.tsx`), no en `/gracias` ni en
+`/terminos`.
+
+**Detección del sentido.** Un único listener `scroll` pasivo (más `resize`, pasivo) que mide en
+`requestAnimationFrame`. Subir 48 px acumulados lo muestra; bajar 16 lo esconde; un cambio de
+sentido empieza la cuenta de cero, así la inercia que se apaga no lo hace parpadear. El cuadro en
+que cambia `innerHeight` (la barra de Safari que entra o sale, con los bloques en `dvh` que
+cambian de alto) no cuenta como movimiento, y `scrollY` se acota al rango real para que el rebote
+elástico de iOS al final no se lea como "subir". "Pasada Bienvenida" y el mapa van con
+`IntersectionObserver`, sin medir en el scroll. Ningún `touchmove` ni `wheel` (regla 0b de
+`docs/CONTINUAR.md`).
+
+**Forma.** La del selector de idioma y el CTA Súmate (D1): píldora `rounded-full` blanca
+translúcida (`bg-white/80`, `backdrop-blur-sm`), borde `black/10`, `shadow-lg`, relleno de 4; dentro,
+una flecha blanca en un círculo `bg-blue` y el texto en la letra del chip del idioma
+(`text-[0.85rem] font-bold`, negro, azul al pasar el ratón). Texto + flecha, no solo flecha: el
+texto dice qué hace en el idioma de la página. Copy `nav.volverArriba`: "Volver arriba", "Back to
+top", "Retour en haut"; el `aria-label` es el mismo texto. Sitio: `right-page-margin` y
+`bottom-[calc(1rem+env(safe-area-inset-bottom))]`. Ojo: la página no declara `viewport-fit=cover`,
+así que en Safari el inset vale 0 y el botón queda a 16 del borde visible; si algún día se declara,
+el botón ya respeta la zona segura. `z-[80]` como el CTA, debajo del drawer (`z-[90]`).
+
+**Movimiento.** Entra y sale con `opacity` y `translate-y-3`, 300 ms con la curva de entrada del
+sitio (`cubic-bezier(0.22,1,0.36,1)`); con movimiento reducido, sin transición (`motion-reduce:transition-none`).
+Oculto queda `inert` y `aria-hidden`, sin desmontarse.
+
+**Al pulsar.** `scrollIntoView` suave hasta Bienvenida (directo con `prefers-reduced-motion`) y foco
+en `#bienvenida` (con `tabindex=-1`), como "Saltar intro". Durante el viaje el botón se retira y
+no reaparece aunque el viaje sea hacia arriba (hasta llegar o 4 s de tope). El imán de Impacto no
+interfiere: solo actúa tras un gesto de la persona. Sin evento de Mixpanel (Johan cuida la cuota).
+
+**Archivo.** `components/layout/volver-arriba.tsx`. La regla de `data-oculta-flotante` está
+duplicada de `components/sumate/sumate-flotante.tsx` (ese archivo era de otro constructor en esta
+ola); se puede extraer a un hook común en otra pasada.
+
+**Verificado (2026-10-02, CDP contra el dev server, 390x844 táctil en es, en y fr; 1280x800 en
+es; 390 con movimiento reducido).** Al cargar (intro): oculto. En Impacto bajando: oculto; subir 30:
+oculto; subir 110: visible; bajar 40: oculto. Sobre el mapa subiendo: oculto. En Bienvenida
+subiendo: oculto. En EMI subiendo: visible. Drawer abierto: oculto; al cerrarlo, visible de nuevo.
+Pulsar (toque en 390, clic en 1280): a los 2,6 s Bienvenida en `top 0`, `scrollY` 844 (390) y 800
+(1280), foco en `#bienvenida`, botón oculto, intro en la parte 1 sin enganchar. Con movimiento
+reducido, a los 150 ms ya está en Bienvenida. Caja: 140 x 42 en es (130 en, 153 fr), a 40 del borde
+derecho y 16 del de abajo en 390 y 1280. Listeners en `window` y `document`: ningún `touch*` ni
+`wheel` no pasivo; todos los `scroll` pasivos. Capturas en el scratchpad de la sesión
+(`ola2-b/impacto-visible-*.png`, `impacto-oculto-*.png`, `tras-pulsar-*.png`).
+
+**Ampliación (2026-10-02, tras el verificador): no tapa botones.** En 360 y 390, al subir, el botón
+tapaba en parte "QUIERO APORTAR" de Donaciones; un barrido mostró además que a 360 rozaba
+"Términos y condiciones" del footer.
+
+- El botón se retira mientras algo de esta lista pasa por su caja: los elementos con
+  `data-evita-volver-arriba` (hoy solo el CTA de Donaciones, `components/donations/donations-section.tsx`,
+  atributo sin cambio visual) y los `a` y `button` del footer (por selector, sin tocar el footer).
+  Para proteger otro botón basta con ponerle el atributo.
+- Cómo: un `IntersectionObserver` cuya raíz se recorta con `rootMargin` en px a la caja del botón,
+  más 8 px de aire y los 12 px que baja al ocultarse. No mide nada en el scroll; se rearma con
+  `resize` (pasivo) y al cambiar el texto (el ancho cambia con el idioma). Se eligió la caja exacta
+  y no una franja de abajo: así sigue visible sobre el footer cuando no tapa nada (a 390 y 430).
+- **Barrido medido** (CDP, táctil, de abajo a Bienvenida a 20 px por cuadro, solape contra todo
+  `a`, `button`, `input` visible): 360 es y fr, 390 es y en, 430 es: **0 cuadros con solape**
+  (antes: 4 con "Términos y condiciones" a 360 y el CTA de Donaciones). Se oculta unos 220 a 240 px
+  de recorrido al pasar el CTA de Donaciones, y a 360 en tres tramos cortos del footer. El resto de
+  la verificación de D6 se repitió a 390 sin cambios (listeners: ningún `touch*` ni `wheel` no
+  pasivo).

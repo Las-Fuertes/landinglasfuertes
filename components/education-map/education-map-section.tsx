@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
-import { MAP_ROUTES, ROUTE_COUNT, routePhoto } from './education-map.data';
+import { MAP_ROUTES, ROUTE_COUNT } from './education-map.data';
+import { precargarFoto, precargarTodas } from './precarga-fotos';
 import {
   type CajaTitulo,
   computeLayout,
@@ -179,10 +180,28 @@ export default function EducationMapSection() {
     []
   );
   // La foto del modal siguiente se decodifica durante el viaje, no mientras sube la tarjeta (D9).
-  const precargar = useCallback((i: number) => {
-    const foto = new Image();
-    foto.src = routePhoto(MAP_ROUTES[i].id, 'avif');
-    return foto.decode();
+  // Casi siempre ya está lista: las cinco se precargan cuando el mapa se acerca (D15).
+  const precargar = useCallback((i: number) => precargarFoto(i), []);
+
+  // Precarga de las fotos de los modales con el mapa a dos pantallas o menos (D15): así el toque
+  // en una parada no espera la red. Una sola vez por visita.
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === 'undefined') {
+      precargarTodas();
+      return;
+    }
+    const io = new IntersectionObserver(
+      entradas => {
+        if (!entradas.some(e => e.isIntersecting)) return;
+        io.disconnect();
+        precargarTodas();
+      },
+      { rootMargin: '200% 0px 200% 0px' }
+    );
+    io.observe(section);
+    return () => io.disconnect();
   }, []);
   const sequencer = useRouteSequencer({
     count: ROUTE_COUNT,
@@ -283,6 +302,7 @@ export default function EducationMapSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="mapa"
       className="relative w-full scroll-mt-16 bg-blue-700"
       style={{ overflowAnchor: 'none' }}

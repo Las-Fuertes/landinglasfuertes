@@ -62,32 +62,50 @@ dos cuando el evento ya existía en GA. Pendiente de aprobación de Johan.
 
 ## Plan final
 
-| Evento                             | Propiedades                                                                                                        | Nombre en GA                                                           |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `child_protection_notice_accepted` | notice_version                                                                                                     | (nuevo)                                                                |
-| `intro_skipped`                    | step                                                                                                               | (nuevo)                                                                |
-| `section_viewed`                   | section_name (welcome, emi, donations, educational_map, impact, who_we_are)                                        | (nuevo)                                                                |
-| `map_route_opened`                 | route                                                                                                              | (nuevo)                                                                |
-| `sumate_opened`                    | entry_source                                                                                                       | `sumate_open`                                                          |
-| `sumate_help_type_selected`        | help_type (money, goods, time)                                                                                     | (nuevo)                                                                |
-| `donation_frequency_selected`      | frequency (one_time, monthly)                                                                                      | (nuevo)                                                                |
-| `donation_amount_chosen`           | amount_value, amount_type (preset, custom)                                                                         | (nuevo)                                                                |
-| `payment_flow_started`             | payment_provider (bold, mercado_pago), frequency, amount_value (solo bold), amount_type                            | `donacion_unica_click` / `suscripcion_click`                           |
-| `donation_result_viewed`           | payment_status (approved, pending, rejected, subscription_returned), provider_status_code, frequency, amount_value | (nuevo)                                                                |
-| `transfer_details_viewed`          |                                                                                                                    | (nuevo)                                                                |
-| `us_donation_clicked`              |                                                                                                                    | `usa_givelively_click`                                                 |
-| `whatsapp_click`                   | whatsapp_context (volunteering, in_kind_goods, clothing_llegue)                                                    | `voluntariado_click` / `especie_whatsapp_click` / `lleguellegue_click` |
-| `social_click`                     | network, location                                                                                                  | `instagram_click` / `linkedin_click`                                   |
-| `thank_you_shared`                 |                                                                                                                    | (nuevo)                                                                |
-| `sumate_closed`                    | last_help_type                                                                                                     | (nuevo)                                                                |
+| Evento                             | Propiedades                                                                                                                                                                                                                                                                                      | Nombre en GA                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `child_protection_notice_accepted` | notice_version                                                                                                                                                                                                                                                                                   | (nuevo)                                                                |
+| `intro_skipped`                    | step                                                                                                                                                                                                                                                                                             | (nuevo)                                                                |
+| `section_viewed`                   | section_name (welcome, emi, donations, educational_map, impact, who_we_are)                                                                                                                                                                                                                      | (nuevo)                                                                |
+| `map_route_opened`                 | route                                                                                                                                                                                                                                                                                            | (nuevo)                                                                |
+| `sumate_opened`                    | entry_source                                                                                                                                                                                                                                                                                     | `sumate_open`                                                          |
+| `sumate_help_type_selected`        | help_type (money, goods, time)                                                                                                                                                                                                                                                                   | (nuevo)                                                                |
+| `donation_frequency_selected`      | frequency (one_time, monthly)                                                                                                                                                                                                                                                                    | (nuevo)                                                                |
+| `donation_amount_chosen`           | amount_value, amount_type (preset, custom)                                                                                                                                                                                                                                                       | (nuevo)                                                                |
+| `payment_flow_started`             | payment_provider (bold, mercado_pago), frequency, amount_value (solo bold), amount_type                                                                                                                                                                                                          | `donacion_unica_click` / `suscripcion_click`                           |
+| `payment_flow_failed`              | payment_provider (bold), frequency, amount_value, failure_reason (signature_error, network_error, container_error, script_error)                                                                                                                                                                 | (nuevo)                                                                |
+| `donation_result_viewed`           | payment_provider (bold, mercado_pago), payment_status (bold: approved, pending, rejected, cancelled; mercado_pago: authorized, pending, paused, cancelled; subscription_returned si no se pudo verificar), donation_success, verified, provider_status_code (solo bold), frequency, amount_value | (nuevo)                                                                |
+| `transfer_details_viewed`          |                                                                                                                                                                                                                                                                                                  | (nuevo)                                                                |
+| `us_donation_clicked`              |                                                                                                                                                                                                                                                                                                  | `usa_givelively_click`                                                 |
+| `whatsapp_click`                   | whatsapp_context (volunteering, in_kind_goods, clothing_llegue)                                                                                                                                                                                                                                  | `voluntariado_click` / `especie_whatsapp_click` / `lleguellegue_click` |
+| `social_click`                     | network, location                                                                                                                                                                                                                                                                                | `instagram_click` / `linkedin_click`                                   |
+| `thank_you_shared`                 |                                                                                                                                                                                                                                                                                                  | (nuevo)                                                                |
+| `sumate_closed`                    | last_help_type                                                                                                                                                                                                                                                                                   | (nuevo)                                                                |
 
 Súper propiedades (van solas en todo evento): `language`, `device_class` (mobile, tablet, desktop).
 Automáticas de Mixpanel: país, ciudad, sesión, UTM, navegador, pageviews.
 
-North Star de la web: `donation_result_viewed` con `payment_status = approved`, suma de
-`amount_value`. Embudo principal: `sumate_opened` → `sumate_help_type_selected` (money) →
-`donation_frequency_selected` → `payment_flow_started` → `donation_result_viewed` (approved).
+North Star de la web: `donation_result_viewed` con `donation_success = true` (Bold aprobado y
+suscripción `authorized` de Mercado Pago), mejor aún filtrado por `verified = true`; el monto,
+suma de `amount_value`, viene de la pasarela en los dos casos. Embudo principal: `sumate_opened` → `sumate_help_type_selected` (money) →
+`donation_frequency_selected` → `payment_flow_started` → `donation_result_viewed`
+(`donation_success = true`).
 
 **Ampliación (2026-10-01, Johan):** se quita `language_changed`: no le interesa el dato y gasta
 cuota de eventos. El idioma sigue llegando como súper propiedad. Quedan 16 eventos. El schema para
 pegar en Mixpanel está en `tracking-plan.json`.
+
+**Ampliación (2026-10-02, D5):** la vuelta de Mercado Pago llega con `preapproval_id`, no con
+`origen=suscripcion`, y `/gracias` la mostraba como pago fallido. `donation_result_viewed` suma
+`payment_provider` y `donation_success` (booleano: `true` para Bold `approved` y para la vuelta de
+Mercado Pago con `preapproval_id`; `false` para `pending` y `rejected`). Para Mercado Pago,
+`payment_status` = `subscription_returned`, `frequency` = `monthly`, sin monto y sin mandar el
+`preapproval_id`. Evento nuevo `payment_flow_failed`: el pago de Bold no se pudo abrir y la
+persona vio el error de Súmate; antes no se medía. Quedan 17 eventos.
+
+**Ampliación (2026-10-02, D6):** Johan cambió la decisión de D5: ahora `/gracias` consulta el
+estado real a la pasarela con el id de la URL (`/api/estado-pago`). `donation_result_viewed` sale
+una vez con el resultado final y suma `verified` (true si el estado vino de la pasarela).
+`payment_status` toma el estado de la pasarela (Mercado Pago: `authorized`, `pending`,
+`paused`, `cancelled`; `subscription_returned` solo sin verificar) y el monto viene de la pasarela cuando
+responde, también el mensual.

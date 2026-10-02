@@ -30,6 +30,11 @@ que Johan lo pida. Decisiones en `DECISIONES.md` de esta carpeta (D1 a D5).
   selector de idioma (ampliación de D1): 42,4 de alto los dos, mismo radio, borde, sombra, relleno
   y letra.
 
+- 2026-10-02 (rama `2-oct`, ola 2): botón "Volver arriba" abajo a la derecha (D6) en
+  `components/layout/volver-arriba.tsx`, montado solo en la home. Lleva a Bienvenida; aparece al
+  subir pasada Bienvenida y se esconde al bajar; oculto en intro, Bienvenida, mapa y con el drawer.
+  Copy `nav.volverArriba` en es, en y fr. Verificado por CDP (detalle en D6).
+
 ## Cómo se verificó (dev server en :3000, Chrome por CDP)
 
 - Sondeo propio por CDP en la home a 1280x800 y 390x844: nav oculta e `inert` en la intro y sobre
@@ -51,6 +56,8 @@ que Johan lo pida. Decisiones en `DECISIONES.md` de esta carpeta (D1 a D5).
 
 ## Qué sigue, en orden
 
+0. **Que Johan pruebe "Volver arriba" en su celular** (D6): que no parpadee con la barra de
+   Safari y que el destino (Bienvenida, no la intro) le parezca bien.
 1. **Que Johan lo mire** en `localhost:3000`: la nav tras la intro, el footer en mobile, tablet y
    desktop, Transparencia y `/terminos`.
 2. ~~Completar los datos legales de `/terminos`~~: hecho el 2026-10-01 (ampliación de D4). Falta

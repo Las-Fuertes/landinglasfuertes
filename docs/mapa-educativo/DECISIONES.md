@@ -709,3 +709,39 @@ alto del documento y, si se movió más de 1 px, corrige solo `trackTop`, sin re
 encuadre. Sin listeners de scroll, rueda ni toque, y no corre en cada frame: solo cuando cambia un
 tamaño. Medido por CDP a 390x844 haciendo crecer Bienvenida 180 px: desfase entre la posición
 guardada y la real de 180 px antes, 0 después (script `desfase.js` en `constructor-a/`).
+
+## D15. Las fotos de los modales se precargan al acercarse el mapa (2026-10-02)
+
+**Feedback** (Johan, rama `2-oct`, en celulares reales): "se ve un poco lento desde que doy click
+y las interacciones también, ¿qué estamos haciendo mal?". Diagnóstico y decisión en
+`docs/feedback-2-oct/ROADMAP.md` (punto 3, aprobado como arreglo sin cambio visual).
+
+**Causa.** El modal espera a tener su foto decodificada antes de subir (D9), con un tope de 250 ms
+(`use-route-sequencer.ts`). La foto se pedía recién en el toque, así que en un celular esa espera
+era casi todo el retraso entre el toque y el primer frame del modal; con red móvil se esperaba el
+tope entero y la foto llegaba tarde igual.
+
+**Qué se hizo** (`precarga-fotos.ts`, `education-map-section.tsx`):
+
+- Un `IntersectionObserver` con `rootMargin` de dos pantallas sobre `#mapa` pide y decodifica las
+  cinco fotos (`new Image()` y `decode()`), una tras otra, una sola vez por visita.
+- Se pide la variante que muestra el `<picture>` a ese ancho: `<id>.avif` en mobile y tablet,
+  `<id>-desktop.avif` desde `lg`. Los `Image` quedan guardados (por URL) para que el navegador no
+  suelte la foto decodificada; `precargar` del secuenciador reutiliza la misma promesa.
+- El tope de 250 ms se queda como respaldo para cuando la red no llegó a tiempo. Unos 370 KB más,
+  solo para quien llega cerca del mapa.
+
+**Medido** (Chrome por CDP, 390 táctil, CPU x4, dev server; del fin del toque al primer frame con
+la tarjeta visible; el toque dura 60 ms y no se cuenta):
+
+| Caso                                 | Antes        | Después    |
+| ------------------------------------ | ------------ | ---------- |
+| Red local                            | 57 a 59 ms   | 40 a 57 ms |
+| Red 4G emulada (150 ms de RTT)       | 292 a 306 ms | 40 a 72 ms |
+| WebKit (Playwright), toque a tarjeta | 131 a 153 ms | 59 a 65 ms |
+
+Capturas del modal a 390 y 1280 idénticas píxel a píxel antes y después. Scripts y capturas en
+el scratchpad de la sesión (`ola2-a/`: `sonda-modal.js`, `modal.js`).
+
+**Límite.** Los frames perdidos al abrir siguen igual (en WebKit, 167 a 204 ms): son el borde de
+pincel en vivo, que Johan decidió no tocar.

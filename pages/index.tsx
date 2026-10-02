@@ -10,6 +10,7 @@ import { SumateDrawer, SumateDrawerProvider, SumateFlotante } from '../component
 import { QuienesSomosSection } from '../components/quienes-somos';
 import Footer from '../components/layout/footer';
 import LanguageSwitcher from '../components/layout/language-switcher';
+import VolverArriba from '../components/layout/volver-arriba';
 import { useSeccionesVistas } from '../lib/use-secciones-vistas';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? '';
@@ -62,6 +63,8 @@ export default function Home() {
         <Footer />
 
         <SumateFlotante />
+        {/* Volver arriba: solo en la home (docs/navegacion/DECISIONES.md, D6). */}
+        <VolverArriba />
         <SumateDrawer />
       </SumateDrawerProvider>
     </>

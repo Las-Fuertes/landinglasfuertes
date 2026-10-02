@@ -250,16 +250,22 @@
     }
   },
   "gracias": {
+    "confirmandoTitle": "Confirming your payment…",
+    "confirmandoText": "We're checking with the payment provider how your contribution went. It takes a few seconds.",
+    "suscripcionPendingTitle": "Your subscription is being processed",
+    "suscripcionPendingText": "Mercado Pago is still confirming your monthly subscription. It will email you once it's active, and you can check its status in your Mercado Pago account.",
     "approvedTitle": "Thank you for your donation!",
     "approvedText": "Your contribution went through and will become workshops, materials and opportunities for the girls of Isla Fuerte. You'll receive Bold's receipt by email.",
     "pendingTitle": "Your payment is being processed",
-    "pendingText": "Your transaction is pending confirmation (this is normal with PSE). Bold will send you the receipt once it's approved.",
+    "pendingText": "Your transaction is pending confirmation: sometimes the bank or the payment gateway takes a few minutes to approve it. Bold will email you the receipt once it's approved.",
     "rejectedTitle": "The payment didn't go through",
     "rejectedText": "Your transaction was declined or cancelled and nothing was charged. You can try again or write to us if you need help.",
     "orderLabel": "Reference",
     "retry": "Try again",
     "back": "Back to home",
     "share": "Follow us on Instagram",
+    "suscripcionPausedTitle": "Your subscription is paused",
+    "suscripcionPausedText": "Mercado Pago has your monthly subscription on hold, so no charges will be made for now. You can reactivate or cancel it from your Mercado Pago account, in the subscriptions section.",
     "suscripcionTitle": "Thank you for joining monthly!",
     "suscripcionText": "Your monthly contribution gives stability to Las Fuertes' programs and lets us plan ahead. Mercado Pago will email you the receipt for each charge, and you can manage or cancel your subscription from your Mercado Pago account at any time.",
     "shareCta": "Tell your friends",
@@ -285,6 +291,7 @@
     "abrir": "Open menu",
     "cerrar": "Close menu",
     "inicio": "Home",
+    "volverArriba": "Back to top",
     "sumate": "Join us"
   },
   "terminos": {

@@ -1,6 +1,6 @@
 # Mixpanel: roadmap por olas
 
-Decisiones en `DECISIONES.md` (D1 a D4). Contexto corregido para pegar en Mixpanel en
+Decisiones en `DECISIONES.md` (D1 a D6). Contexto corregido para pegar en Mixpanel en
 `CONTEXTO-CORREGIDO.md`. Rama `1-oct`, desde `origin/main` en `9cf867d` (PR #29).
 
 ## Estado (2026-10-01, rama `1-oct`, sin commit)
@@ -26,6 +26,27 @@ Pendiente, en orden:
 No verificable en local: replay, envío real, Bold, WhatsApp e Instagram de Súmate (sin
 `NEXT_PUBLIC_WHATSAPP_NUMBER` ni `NEXT_PUBLIC_INSTAGRAM_HANDLE` en local) y la transferencia
 (`DIRECT_TRANSFER` vacío, el bloque no se pinta).
+
+## Pagos: vuelta de Mercado Pago y fallos (2026-10-02, rama `2-oct`, D5)
+
+Hecho en local: `/gracias` reconoce `preapproval_id` (pantalla mensual), `/gracias` sin
+parámetros vuelve al inicio, `donation_result_viewed` con `payment_provider` y
+`donation_success`, y `payment_flow_failed` nuevo. Verificado por CDP.
+
+Ampliación D6: `/gracias` confirma el estado con la pasarela (`/api/estado-pago`), con
+"Confirmando tu pago…", reintentos de Bold y `verified` en el evento. Verificado con un mock.
+
+Pendiente, en orden:
+
+1. Johan pone `MP_ACCESS_TOKEN` (producción, solo servidor) en Vercel antes del merge.
+2. Tras el merge, la próxima suscripción y la próxima donación con Bold reales: ver en el panel
+   un solo `donation_result_viewed` con `verified` true (`authorized` y `approved`), y en los
+   logs de Vercel que `/api/estado-pago` no responde `unknown` siempre (llave mal puesta).
+3. **Give Lively**: Johan configura hoy el callback URL. Cuando exista, `/gracias` reconocerá su
+   vuelta con `payment_provider` = `givelively` (una rama más en `lib/resultado-pago.ts`, más su
+   texto en es, en y fr).
+4. Embudo y North Star con `donation_success = true` y `verified = true` en vez de
+   `payment_status = approved`.
 
 ## Bloqueante antes de la ola 1 (resuelto)
 

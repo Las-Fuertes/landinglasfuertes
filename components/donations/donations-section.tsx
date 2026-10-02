@@ -134,6 +134,8 @@ export default function DonationsSection() {
                 type="button"
                 aria-haspopup="dialog"
                 onClick={() => sumate.open('tripulantes')}
+                // Que "Volver arriba" no lo tape (docs/navegacion/DECISIONES.md, D6).
+                data-evita-volver-arriba=""
                 className={`${styles.boton} inline-flex items-center justify-center rounded bg-papel text-p-lg font-extrabold uppercase leading-normal text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-papel focus-visible:ring-offset-2 focus-visible:ring-offset-blue`}
               >
                 {t('donations.cta')}

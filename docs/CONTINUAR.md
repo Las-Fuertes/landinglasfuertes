@@ -1,7 +1,7 @@
 # Arranque de sesión nueva (feedback de secciones)
 
 Pega el bloque de abajo como primer mensaje en un chat nuevo y completa la parte marcada. Está
-escrito para alguien sin ningún contexto previo. Actualizado: 2026-10-01.
+escrito para alguien sin ningún contexto previo. Actualizado: 2026-10-02.
 
 ---
 
@@ -98,6 +98,26 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   borrar en Vercel `NEXT_PUBLIC_MP_SUBSCRIPTION_URL`; pendientes abiertos en
   `docs/feedback-30-sep/ROADMAP.md`; y el feedback nuevo que traiga Johan.
 
+- PR #30 (2026-10-02, rama `1-oct`): intro sin flecha de avanzar en la parte 3 (D17); barra del
+  mapa en iPhone: el stage medía `100svh` y asomaba el fondo al encoger Safari su barra, ahora
+  `h-dvh` y la posición del mapa se re-mide con ResizeObserver (mapa D14); Impacto sin imán en
+  táctil `(pointer: coarse)` (D7); Quiénes somos más ancho en mobile (D3); **Mixpanel** con 16
+  eventos, solo en producción (`VERCEL_ENV`), replay al 100 % con imágenes bloqueadas, GA intacto
+  (`docs/mixpanel/` D1 a D4, `tracking-plan.json`).
+- PR #31 (2026-10-02, rama `2-oct`): vuelta de Mercado Pago `/gracias?preapproval_id=<id>`
+  (antes mostraba "pago fallido"); `/api/estado-pago` consulta el estado real a Bold
+  (`payment-voucher`, llave de identidad) y a Mercado Pago (`/preapproval/{id}`,
+  `MP_ACCESS_TOKEN` solo servidor) y cae a la URL si no responde; eventos con
+  `payment_provider`, `donation_success`, `verified` y `payment_flow_failed` (`docs/mixpanel/`
+  D5 y D6). Precarga de fotos del mapa (D15) y Súmate montado oculto (sumate-drawer D4); botón
+  "volver arriba" con la flecha de la intro, lleva a `#bienvenida` (navegacion D6); Bienvenida
+  deja bajar en cualquier momento de su entrada (introduccion D18, con reglas de rueda e
+  inercia). Detalle en `docs/feedback-2-oct/ROADMAP.md`.
+  QUÉ SIGUE: `MP_ACCESS_TOKEN` en Vercel (Production) y probar la URL de la suscripción real;
+  Give Lively: Johan configura el callback URL y /gracias debe reconocer su vuelta
+  (`payment_provider` givelively); revisar en Mixpanel eventos y un replay sin fotos; tablero
+  con North Star `donation_success = true` y `verified = true`.
+
 EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
 
 ============================================================
@@ -158,6 +178,10 @@ DECISIONES DE JOHAN QUE NO DEBEN VOLVER A PROPONERSE
   - El sol de la parte 2 aparece cerca del centro; en mobile cae bajo las bubbles.
   - Las cintas del título del modal Voces se pisan (solape aprobado solo ahí).
   - Términos: el correo es fundacionlasfuertes@gmail.com; no hay dirección ni ley aplicable.
+  - Saltos al volver hacia arriba en mobile (las pantallas en `100dvh` cambian 81 px con la barra
+    de Safari): Johan decidió dejarlo así (2026-10-02). No proponer `svh` salvo que lo pida.
+  - El borde de pincel (filtro SVG en vivo) se queda aunque cueste ~200 ms al abrir modales.
+  - Session Replay de Mixpanel al 100 %.
 
 PENDIENTES CONOCIDOS (anotados, no pedidos; solo se tocan si Johan los pide)
   - Elegir el nivel de reposo de la intro (`?reposo=medio` o `?reposo=alto`) y borrar el que no

@@ -135,7 +135,8 @@ export function useRouteSequencer({
         }
 
         // La foto nueva ya decodificada: si no, aparece a trozos mientras sube la tarjeta. No se
-        // espera más de un momento por ella.
+        // espera más de un momento por ella. Con la precarga de D15 ya suele estar lista y la
+        // espera no se nota; el tope queda de respaldo para cuando la red no llegó a tiempo.
         if (foto) await Promise.race([foto, delay(250)]);
         asentada = target;
         if (!alive() || cancelada()) return;
