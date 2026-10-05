@@ -136,7 +136,16 @@ export function SumateDrawerProvider({ children }: { children: ReactNode }) {
     if (isOpen) return;
     const disparador = disparadorRef.current;
     disparadorRef.current = null;
-    if (!disparador?.isConnected) return;
+    if (!disparador?.isConnected) {
+      // Sin disparador (el deep link `/#sumate`): el foco no se queda en `<body>`, va al
+      // contenido principal (WCAG 2.4.3).
+      const main = document.querySelector<HTMLElement>('main');
+      if (!main) return;
+      if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+      main.classList.add('focus:outline-none');
+      const rafMain = requestAnimationFrame(() => main.focus({ preventScroll: true }));
+      return () => cancelAnimationFrame(rafMain);
+    }
     const raf = requestAnimationFrame(() => disparador.focus({ preventScroll: true }));
     return () => cancelAnimationFrame(raf);
   }, [isOpen]);

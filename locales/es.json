@@ -1,7 +1,18 @@
 {
   "meta": {
-    "title": "Las Fuertes - Algo fuerte está en camino",
-    "description": "Estamos construyendo un espacio para que la Educación Menstrual Integral (EMI) marque un nuevo hito en Colombia."
+    "title": "Fundación Las Fuertes | Educación Menstrual Integral en Colombia",
+    "description": "Conoce la Fundación Las Fuertes. Llevamos Educación Menstrual Integral y herramientas de cambio a niñas y adolescentes en Colombia. ¡Súmate!",
+    "h1": "Fundación Las Fuertes: educación menstrual integral",
+    "ogImageAlt": "Las Fuertes: educación menstrual integral en Isla Fuerte, Colombia"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "heading": "No encontramos esta página",
+    "text": "Puede que el enlace esté roto o que la página ya no exista.",
+    "home": "Volver al inicio"
+  },
+  "a11y": {
+    "saltarContenido": "Ir al contenido"
   },
   "intro": {
     "label": "Introducción",
@@ -166,6 +177,7 @@
       "text": "Tu aporte se convierte en talleres, materiales y oportunidades para las niñas de la isla y de otros territorios de Colombia. Tú eliges cuánto.",
       "amountLabel": "Monto en pesos colombianos",
       "customPlaceholder": "Otro monto",
+      "customLabel": "O escribe otro monto",
       "cta": "Donar ahora",
       "loading": "Preparando pago...",
       "readyHint": "Tu pago está listo: complétalo con el botón de Bold. Puedes pagar con tarjeta de crédito o débito (incluidas tarjetas internacionales), PSE o Botón Bancolombia.",
@@ -270,7 +282,10 @@
     "share": "Síguenos en Instagram",
     "shareCta": "Cuéntale a tus amigos",
     "shareText": "Acabo de apoyar a Las Fuertes, una fundación que acompaña a niñas de Isla Fuerte con Educación Menstrual Integral. Súmate tú también:",
-    "copied": "¡Enlace copiado!"
+    "copied": "¡Enlace copiado!",
+    "acentoExito": "Gracias desde Isla Fuerte",
+    "acentoEspera": "Un momento, ya casi",
+    "acentoFalla": "Esto no se queda así"
   },
   "footer": {
     "tagline": "Educación menstrual integral para la vida",

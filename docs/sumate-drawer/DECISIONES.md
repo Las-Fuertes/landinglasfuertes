@@ -195,3 +195,23 @@ el vaivén de los garabatos (8 y 24 píxeles). Scripts en el scratchpad de la se
 
 **Límite.** Los frames perdidos que quedan son el borde de pincel en vivo, que Johan decidió no
 tocar.
+
+---
+
+## D5. Trampa de foco sin disparador y etiqueta visible de "Otro monto" (2026-10-05)
+
+**Trampa de foco (A10 de `docs/auditoria/`).** El drawer ya atrapaba Tab y cerraba con Escape. El hueco
+estaba al abrirlo con el deep link `/#sumate`: sin botón que lo abriera no había a dónde devolver el
+foco al cerrar y se perdía. Ahora, sin disparador, el foco vuelve a `main` (que lleva
+`tabindex="-1"`); con disparador sigue volviendo a ese botón. Comprobado por CDP: con el drawer
+abierto 80 Tab y 60 en ambos sentidos, 0 fuera del panel; Escape en `/#sumate` deja el foco en MAIN;
+cerrado, 0 controles tabulables dentro.
+
+**Etiqueta de "Otro monto" (A11, decisión de Johan).** El campo solo tenía `aria-label` y su
+placeholder, que desaparece al escribir. Ahora lleva una etiqueta visible encima
+(`<label htmlFor="otro-monto">`, texto pequeño `text-sm font-bold text-black/70`, centrado como el
+campo), en la caja de montos de `components/sumate/donar-dinero.tsx`. Clave nueva
+`sumate.unica.customLabel`: "O escribe otro monto", "Or enter another amount", "Ou écris un autre
+montant". Se quitó el `aria-label` porque la etiqueta visible ya da el nombre accesible (así el
+nombre coincide con lo que se ve, WCAG 2.5.3); el placeholder "Otro monto" se queda. Verificado con
+captura a 390 con el drawer abierto en `/#sumate`.

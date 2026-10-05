@@ -301,6 +301,11 @@
       "description": "Visitor clicks to donate in USD from the U.S. through Caring for Colombia on Give Lively.",
       "properties": [
         {
+          "name": "payment_provider",
+          "description": "Always givelively. Give Lively has no callback URL, so there is no return to /gracias and no donation_result_viewed for it: this click is the only signal.",
+          "type": "string"
+        },
+        {
           "name": "language",
           "description": "UI language, sent as a super property on every event (es, en, fr).",
           "type": "string"

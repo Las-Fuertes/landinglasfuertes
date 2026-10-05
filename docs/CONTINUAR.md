@@ -1,7 +1,7 @@
 # Arranque de sesión nueva (feedback de secciones)
 
 Pega el bloque de abajo como primer mensaje en un chat nuevo y completa la parte marcada. Está
-escrito para alguien sin ningún contexto previo. Actualizado: 2026-10-02.
+escrito para alguien sin ningún contexto previo. Actualizado: 2026-10-05.
 
 ---
 
@@ -117,12 +117,28 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   `approved, 5000 COP` para la donación real de Bold y `paused, 5000 COP` para la suscripción de
   Johan (la pausó él a mano). Johan pegó el Access Token y el Client Secret en el chat: se le
   recomendó renovarlos (y actualizar Vercel y redeploy); preguntar si lo hizo.
-  QUÉ SIGUE: probar su suscripción nueva (esperado `authorized`);
-  Give Lively: Johan configura el callback URL y /gracias debe reconocer su vuelta
-  (`payment_provider` givelively); revisar en Mixpanel eventos y un replay sin fotos; tablero
-  con North Star `donation_success = true` y `verified = true`.
+  QUÉ SIGUE: probar su suscripción nueva (esperado `authorized`); revisar en Mixpanel eventos y
+  un replay sin fotos; tablero con North Star `donation_success = true` y `verified = true`.
 
-EL TRABAJO DE ESTA SESIÓN: FEEDBACK DE JOHAN SOBRE OTRAS SECCIONES
+- PR #33 (2026-10-05, rama `5-oct`): Impacto en mobile con alturas `svh` en vez de `dvh` para el
+  temblor del título (`docs/impacto/` D8; NO confirmado en iPhone real, el emulador no lo
+  distingue); Give Lively solo intención (`us_donation_clicked` con `payment_provider:
+  'givelively'`, sin vuelta ni callback, `docs/mixpanel/` D7); inglés revisado con la revisora
+  (`docs/traducciones/REVISION-5-OCT.md`; es y fr intactos); `/gracias` rehecha con el look del
+  sitio (`docs/gracias/`, `noindex` y `Disallow` se mantienen); SEO técnico: canonical, hreflang,
+  OG, JSON-LD, sitemap, 404 y title y description nuevos de Johan (`docs/auditoria/`, D1);
+  accesibilidad de foco, anillo de las flechas del slider y "Otro monto" con etiqueta visible
+  (`docs/auditoria/` D2, `docs/sumate-drawer/` D5). Verificado por un verificador independiente
+  (0 fallas) y con type-check, lint y build limpios. Roadmap completo en
+  `docs/feedback-5-oct/ROADMAP.md`.
+  QUÉ SIGUE: Johan prueba el temblor de Impacto en iPhone; ronda de performance; contraste A1 y A2
+  y imagen OG (S10) esperan a Johan.
+
+EL TRABAJO DE ESTA SESIÓN: RONDA DE PERFORMANCE Y DETALLES PENDIENTES
+
+Primero la ronda de performance (LCP, peso de imágenes, JS de GSAP, Swiper y framer-motion, filtro
+SVG de pincel, Lighthouse mobile en producción; medir S15) y luego los detalles pendientes de
+`docs/feedback-5-oct/ROADMAP.md` ("QUÉ SIGUE") y `docs/auditoria/PROGRESS.md`.
 
 ============================================================
 FEEDBACK DE JOHAN (lo completa él, no lo inventes):
@@ -186,6 +202,10 @@ DECISIONES DE JOHAN QUE NO DEBEN VOLVER A PROPONERSE
     de Safari): Johan decidió dejarlo así (2026-10-02). No proponer `svh` salvo que lo pida.
   - El borde de pincel (filtro SVG en vivo) se queda aunque cueste ~200 ms al abrir modales.
   - Session Replay de Mixpanel al 100 %.
+  - Botón de pausar animaciones (A5 de la auditoría): no. Johan aceptó el incumplimiento (2026-10-05).
+  - Cambiar el español de Bienvenida y de los títulos para seguir a la revisora de inglés: no
+    (2026-10-05).
+  - Indexar `/gracias`: no; se queda `noindex` y `Disallow: /gracias` (2026-10-05).
 
 PENDIENTES CONOCIDOS (anotados, no pedidos; solo se tocan si Johan los pide)
   - Elegir el nivel de reposo de la intro (`?reposo=medio` o `?reposo=alto`) y borrar el que no

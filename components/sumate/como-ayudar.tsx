@@ -155,7 +155,12 @@ export default function ComoAyudar() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() =>
-                track('us_donation_clicked', {}, { nombre: 'usa_givelively_click' }, SALIENTE)
+                track(
+                  'us_donation_clicked',
+                  { payment_provider: 'givelively' },
+                  { nombre: 'usa_givelively_click' },
+                  SALIENTE
+                )
               }
               className="mt-l inline-flex min-h-10 w-full items-center justify-center rounded border border-blue bg-white px-6 py-s text-sm font-extrabold uppercase leading-tight text-blue transition hover:bg-blue hover:text-papel focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-papel md:w-auto"
             >

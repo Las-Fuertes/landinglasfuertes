@@ -42,9 +42,8 @@ Pendiente, en orden:
 2. Tras el merge, la próxima suscripción y la próxima donación con Bold reales: ver en el panel
    un solo `donation_result_viewed` con `verified` true (`authorized` y `approved`), y en los
    logs de Vercel que `/api/estado-pago` no responde `unknown` siempre (llave mal puesta).
-3. **Give Lively**: Johan configura hoy el callback URL. Cuando exista, `/gracias` reconocerá su
-   vuelta con `payment_provider` = `givelively` (una rama más en `lib/resultado-pago.ts`, más su
-   texto en es, en y fr).
+3. **Give Lively**: sin vuelta a `/gracias` (no admite callback URL, D7). Solo existe el clic
+   `us_donation_clicked` con `payment_provider` = `givelively`; no hay nada que construir.
 4. Embudo y North Star con `donation_success = true` y `verified = true` en vez de
    `payment_status = approved`.
 

@@ -246,7 +246,14 @@ export default function DonarDinero() {
               })}
             </div>
             <div className="relative mt-m">
+              <label
+                htmlFor="otro-monto"
+                className="mb-xs block text-center text-sm font-bold text-black/70"
+              >
+                {t('sumate.unica.customLabel')}
+              </label>
               <input
+                id="otro-monto"
                 type="number"
                 inputMode="numeric"
                 min={MIN_AMOUNT_COP}
@@ -262,7 +269,6 @@ export default function DonarDinero() {
                   if (e.key === 'Enter') medirMontoPropio();
                 }}
                 placeholder={t('sumate.unica.customPlaceholder')}
-                aria-label={t('sumate.unica.customPlaceholder')}
                 // Con `!`: la regla base de inputs de styles/global.css (borde gris de 1 px, texto de 14)
                 // gana por especificidad a las utilidades.
                 className={`h-12 w-full rounded !border-2 !border-blue !px-4 text-center !text-[1.05rem] font-bold transition placeholder:font-normal placeholder:!text-black/70 focus:ring-2 focus:ring-blue/30 ${

@@ -5,7 +5,7 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'reac
  * apenas redondeada, 48 px de alto, extrabold 14 en mayúsculas, texto `papel`. Todos los CTA van
  * en azul: el blanco sobre naranja o rosa no llega al contraste AA.
  */
-const CTA_BASE =
+export const CTA_BASE =
   'inline-flex min-h-12 w-full items-center justify-center rounded px-7 py-s text-center text-sm font-extrabold uppercase leading-tight tracking-tight transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-papel md:w-auto';
 
 /** Tonos del marco rasgado. El fondo de dentro es un papel apenas más claro que el del modal. */

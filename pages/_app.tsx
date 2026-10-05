@@ -7,6 +7,7 @@ import '../styles/global.css';
 import { RoughEdgeFilter } from '../components/layout/rough-edge-filter';
 import { PuertaAviso } from '../components/aviso';
 import { Bricolage_Grotesque, Pangolin } from 'next/font/google';
+import { useTranslation } from '../hooks/useTranslation';
 import { claseDispositivo, initAnalytics, registrarSuperPropiedades } from '../lib/analytics';
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -57,6 +58,24 @@ function useAnalytics() {
   }, [locale]);
 }
 
+/** Rutas cuyo `<main>` lleva `id="contenido"` (docs/auditoria, A6). */
+const RUTAS_CON_CONTENIDO = ['/', '/terminos', '/404'];
+
+/** Enlace "Ir al contenido" (WCAG 2.4.1): invisible hasta recibir el foco con el teclado. */
+function SaltarContenido() {
+  const { t } = useTranslation();
+  const { pathname } = useRouter();
+  if (!RUTAS_CON_CONTENIDO.includes(pathname)) return null;
+  return (
+    <a
+      href="#contenido"
+      className="sr-only focus:not-sr-only focus:fixed focus:left-s focus:top-s focus:z-50 focus:rounded-md focus:bg-papel focus:px-m focus:py-xs focus:font-bold focus:text-black focus:outline-none focus:ring-2 focus:ring-black"
+    >
+      {t('a11y.saltarContenido')}
+    </a>
+  );
+}
+
 export default function App({ Component, pageProps }: AppProps) {
   useAnalytics();
   return (
@@ -67,6 +86,7 @@ export default function App({ Component, pageProps }: AppProps) {
         {/* Aviso de protección de menores: una capa sobre todo en la primera visita; el resto
             de hermanos de este div queda inerte mientras está puesta (docs/aviso/DECISIONES.md). */}
         <PuertaAviso />
+        <SaltarContenido />
         <RoughEdgeFilter />
         <Component {...pageProps} />
         <GoogleAnalytics gaId={GA_ID} />

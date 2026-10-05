@@ -49,7 +49,7 @@ export default function ImpactoSection() {
       <div className="lg:mx-auto lg:max-w-[75rem] lg:px-page-margin">
         <div
           data-iman
-          className="flex min-h-[calc(100dvh-var(--alto-titulo))] scroll-mt-[var(--alto-titulo)] flex-col justify-center py-m"
+          className="flex min-h-[calc(100svh-var(--alto-titulo))] scroll-mt-[var(--alto-titulo)] flex-col justify-center py-m"
         >
           <MapaImpacto inicioTitulo={inicioTitulo} />
         </div>
@@ -61,7 +61,7 @@ export default function ImpactoSection() {
             key={bloque.id}
             data-impacto-pantalla={bloque.id}
             data-iman
-            className="flex min-h-[calc(100dvh-var(--alto-titulo))] scroll-mt-[var(--alto-titulo)] flex-col justify-center py-m [--fuera-del-arte:calc(var(--alto-titulo)+theme(spacing.m)*2+(theme(spacing.xl)+13rem)*var(--k))]"
+            className="flex min-h-[calc(100svh-var(--alto-titulo))] scroll-mt-[var(--alto-titulo)] flex-col justify-center py-m [--fuera-del-arte:calc(var(--alto-titulo)+theme(spacing.m)*2+(theme(spacing.xl)+13rem)*var(--k))]"
           >
             <BloqueImpacto bloque={bloque} />
           </div>
