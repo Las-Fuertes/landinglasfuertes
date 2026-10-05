@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const LOCALES = [
-  { code: 'es', label: 'ES' },
-  { code: 'en', label: 'EN' },
-  { code: 'fr', label: 'FR' },
+  { code: 'es', label: 'ES', nombre: 'Español' },
+  { code: 'en', label: 'EN', nombre: 'English' },
+  { code: 'fr', label: 'FR', nombre: 'Français' },
 ] as const;
 
 type Props = {
@@ -55,21 +56,36 @@ export default function LanguageSwitcher({ enPuerta = false }: Props) {
       animate={{ opacity: atTop ? 1 : 0, y: atTop ? 0 : -12 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
       style={{ pointerEvents: atTop ? 'auto' : 'none' }}
+      // Oculto no debe recibir foco (WCAG 2.4.7 y 2.4.11): `inert` lo saca del orden de Tab.
+      inert={!atTop}
+      aria-hidden={atTop ? undefined : true}
     >
-      {LOCALES.map(({ code, label }) => {
+      {LOCALES.map(({ code, label, nombre }) => {
         const active = locale === code;
         return (
-          <button
+          // Enlace real (con `hreflang`) para que buscadores y teclado encuentren /en y /fr; el
+          // clic normal lo atiende `switchTo`, que conserva el hash de la URL.
+          <Link
             key={code}
-            type="button"
-            aria-pressed={active}
-            onClick={() => switchTo(code)}
+            href={router.asPath.split('#')[0]}
+            locale={code}
+            hrefLang={code}
+            lang={code}
+            scroll={false}
+            title={nombre}
+            aria-label={`${label}, ${nombre}`}
+            aria-current={active ? 'true' : undefined}
+            onClick={e => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+              e.preventDefault();
+              switchTo(code);
+            }}
             className={`rounded-full px-3 py-1.5 text-[0.85rem] font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
               active ? 'bg-blue text-white' : 'text-black hover:text-blue'
             }`}
           >
             {label}
-          </button>
+          </Link>
         );
       })}
     </motion.div>

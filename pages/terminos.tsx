@@ -1,7 +1,7 @@
-import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { SeoHead } from '../components/seo';
 import { useTranslation } from '../hooks/useTranslation';
 import { PageGrid } from '../components/layout/page-grid';
 import { Resaltado } from '../components/layout/resaltado';
@@ -47,16 +47,20 @@ export default function Terminos() {
 
   return (
     <>
-      <Head>
-        <title>{t('terminos.metaTitulo')}</title>
-        <meta name="description" content={t('terminos.metaDescripcion')} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
+      <SeoHead
+        title={t('terminos.metaTitulo')}
+        description={t('terminos.metaDescripcion')}
+        ruta="/terminos"
+      />
 
       <LanguageSwitcher />
 
       <SumateDrawerProvider>
-        <main className="min-h-screen bg-beige text-black">
+        <main
+          id="contenido"
+          tabIndex={-1}
+          className="min-h-screen bg-beige text-black outline-none"
+        >
           {/* Cabecera azul con el mismo borde rasgado del footer. */}
           <header className="relative overflow-x-clip pb-xxl pt-[6.5rem] text-papel">
             <div

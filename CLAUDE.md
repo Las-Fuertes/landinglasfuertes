@@ -83,6 +83,11 @@ Frentes cerrados y en producción (2026-09-23), con su historial:
 - Pagos verificados y ola del 2-oct (rama `2-oct`): vuelta de Mercado Pago, `/api/estado-pago`,
   eventos de pago, precarga del mapa, Súmate montado, volver arriba, scroll libre en Bienvenida.
   `docs/feedback-2-oct/ROADMAP.md`.
+- Ola del 5-oct (rama `5-oct`, PR #33): Impacto con `svh` (temblor sin confirmar en iPhone), Give
+  Lively solo intención, inglés revisado, `/gracias` rehecha, SEO técnico (title y description de
+  Johan), accesibilidad de foco y "Otro monto" con etiqueta. Roadmap y qué sigue (primero
+  performance) en `docs/feedback-5-oct/ROADMAP.md`; además `docs/gracias/`, `docs/auditoria/` y
+  `docs/traducciones/`.
 - `docs/secciones-impacto/`: historial cerrado del primer tramo (Impacto, Quiénes somos, la
   Introducción estática). Se consulta, no se reescribe.
 

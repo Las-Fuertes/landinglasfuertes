@@ -199,7 +199,7 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
       <button
         ref={prevRef}
         type="button"
-        className="sr-only z-30 flex items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md focus-visible:not-sr-only focus-visible:absolute focus-visible:left-0 focus-visible:top-1/2 focus-visible:h-11 focus-visible:w-11 focus-visible:-translate-y-1/2"
+        className="sr-only z-30 flex items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:not-sr-only focus-visible:absolute focus-visible:left-0 focus-visible:top-1/2 focus-visible:h-11 focus-visible:w-11 focus-visible:-translate-y-1/2"
         aria-label={t('principles.prev')}
       >
         <ChevronLeft className="h-6 w-6" strokeWidth={2} aria-hidden />
@@ -267,12 +267,12 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
         aria-describedby="estampillas-instrucciones"
         className={`principles-swiper ${estilos.mazo}`}
       >
-        {ESTAMPILLAS.map((estampilla, index) => (
+        {ESTAMPILLAS.map(estampilla => (
           <SwiperSlide key={estampilla.nodoFigma}>
             {/* El cuerpo: lo que mueve el amago de la pista (pista-deslizar.tsx) sin tocar la pose que
                 el efecto mazo pone al slide. */}
             <div data-estampilla-cuerpo="">
-              <Estampilla estampilla={estampilla} prioridad={index === 0} />
+              <Estampilla estampilla={estampilla} />
             </div>
           </SwiperSlide>
         ))}
@@ -281,7 +281,7 @@ export default function PrinciplesSection({ etiquetadoPor }: Props) {
       <button
         ref={nextRef}
         type="button"
-        className="sr-only z-30 flex items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md focus-visible:not-sr-only focus-visible:absolute focus-visible:right-0 focus-visible:top-1/2 focus-visible:h-11 focus-visible:w-11 focus-visible:-translate-y-1/2"
+        className="sr-only z-30 flex items-center justify-center rounded-full border border-black/10 bg-white/90 text-black shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:not-sr-only focus-visible:absolute focus-visible:right-0 focus-visible:top-1/2 focus-visible:h-11 focus-visible:w-11 focus-visible:-translate-y-1/2"
         aria-label={t('principles.next')}
       >
         <ChevronRight className="h-6 w-6" strokeWidth={2} aria-hidden />

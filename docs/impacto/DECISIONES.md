@@ -588,3 +588,30 @@ Las pantallas siguen midiendo el alto útil y los `scroll-margin-top` siguen pue
   en el punto siguiente (5848 a 6329 y 6449 a 7075, exactos).
 - Captura de Impacto a 390 (`impacto-390.png`): título fijo y bloques como antes.
 - `npm run type-check` y `npm run lint` limpios.
+
+## D8. El tembleque del título en mobile: alturas en `svh`, no `dvh` (2026-10-05)
+
+**Síntoma.** En el móvil, el título fijo de Impacto (D5) "tiembla" al hacer scroll.
+
+**Qué se midió.** El título es `sticky top-0` de CSS puro, sin JS por frame. Por CDP a 390x844,
+con táctil, gestos reales de scroll, con CPU 6x más lenta y con scroll programático, su
+`getBoundingClientRect().top` vale 0,00 en todos los cuadros (oscilación 0 px): la caja del
+título no se mueve en Chrome. Lo que sí depende del alto de la ventana es todo lo que hay debajo:
+la fila del mapa y los cuatro pares median `min-h-[calc(100dvh-var(--alto-titulo))]` y el arte
+`100dvh`. En un iPhone, la barra de Safari entra y sale mientras se hace scroll y `dvh` cambia
+en cada cuadro de esa animación: los cinco bloques se reflowan debajo del título fijo, la
+posición del contenido en el documento se corre y Safari, que resuelve el `sticky` aparte, lo
+muestra como temblor. Simulando la barra (alto de 844 a 934 en vaivén mientras se avanza), la
+posición de un bloque en el documento se corre 360 px con `dvh`.
+
+**Arreglo.** Esas tres alturas pasan de `100dvh` a `100svh` (`impacto-section.tsx` y
+`bloque-impacto.tsx`). `svh` es el alto con la barra desplegada y no cambia mientras se hace
+scroll: el diseño deja de reflowarse. Con la barra recogida cada par queda una barra más bajo
+que la pantalla (unos 80 px del par siguiente asoman); es el precio de la estabilidad, y el
+mapa ya medía en `svh` (D3). En escritorio `svh` y `dvh` son iguales. No se tocan ni el imán de
+JS ni la decisión de no usar `scroll-snap`.
+
+**Límite de la verificación.** El emulador de Chrome no tiene barra dinámica: ahí `svh`, `dvh` y
+`lvh` valen todos el alto emulado, así que el corrimiento de 360 px se ve igual antes y después.
+Lo que sí se confirma es que el título sigue en 0,00 px y que el cambio no mueve nada a 390.
+Falta confirmar en un iPhone real. Detalle en `docs/feedback-5-oct/PROGRESS.md`.

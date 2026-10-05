@@ -109,7 +109,7 @@ function Puerta({ fase, salir, irse }: { fase: Fase; salir: () => void; irse: ()
       if (e.key === 'Tab') {
         e.preventDefault();
         const controles = Array.from(
-          raizRef.current?.querySelectorAll<HTMLElement>('button:not([disabled])') ?? []
+          raizRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]') ?? []
         );
         if (!controles.length) return;
         const actual = controles.indexOf(document.activeElement as HTMLElement);
@@ -196,6 +196,7 @@ function Puerta({ fase, salir, irse }: { fase: Fase; salir: () => void; irse: ()
       data-aviso-puerta={fase}
       role="dialog"
       aria-modal="true"
+      data-nosnippet
       aria-labelledby="aviso-titulo"
       aria-describedby="aviso-texto"
       className="fixed inset-0 z-[200] overflow-y-auto bg-arena text-black"

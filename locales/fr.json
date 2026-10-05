@@ -1,7 +1,18 @@
 {
   "meta": {
-    "title": "Las Fuertes - Quelque chose de puissant arrive",
-    "description": "Nous construisons un espace pour que l'Éducation Menstruelle Intégrale (EMI) marque un nouveau jalon en Colombie."
+    "title": "Fundación Las Fuertes | Éducation menstruelle intégrale en Colombie",
+    "description": "Découvre la Fundación Las Fuertes. Nous apportons l'Éducation menstruelle intégrale (EMI) et des outils de changement aux filles et aux adolescentes en Colombie. Rejoins-nous !",
+    "h1": "Fundación Las Fuertes : éducation menstruelle intégrale",
+    "ogImageAlt": "Las Fuertes : éducation menstruelle intégrale à Isla Fuerte, Colombie"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "heading": "Nous n'avons pas trouvé cette page",
+    "text": "Le lien est peut-être rompu ou la page n'existe plus.",
+    "home": "Retour à l'accueil"
+  },
+  "a11y": {
+    "saltarContenido": "Aller au contenu"
   },
   "intro": {
     "label": "Introduction",
@@ -155,6 +166,7 @@
       "text": "Ta contribution se transforme en ateliers, en matériel et en opportunités pour les filles de l'île et d'autres territoires de Colombie. Tu choisis le montant.",
       "amountLabel": "Montant en pesos colombiens",
       "customPlaceholder": "Autre montant",
+      "customLabel": "Ou écris un autre montant",
       "cta": "Faire un don",
       "loading": "Préparation du paiement...",
       "minError": "Le montant minimum est de {min}.",
@@ -270,7 +282,10 @@
     "suscripcionText": "Ta contribution mensuelle donne de la stabilité aux programmes de Las Fuertes et nous permet de planifier l'avenir. Mercado Pago t'enverra le reçu de chaque prélèvement par e-mail, et tu peux gérer ou annuler ton abonnement depuis ton compte Mercado Pago à tout moment.",
     "shareCta": "Parles-en à tes amis",
     "shareText": "Je viens de soutenir Las Fuertes, une fondation qui accompagne les filles d'Isla Fuerte avec l'Éducation Menstruelle Intégrale. Rejoins le mouvement :",
-    "copied": "Lien copié !"
+    "copied": "Lien copié !",
+    "acentoExito": "Merci depuis Isla Fuerte",
+    "acentoEspera": "Un instant, presque là",
+    "acentoFalla": "Ce n'est pas fini"
   },
   "footer": {
     "tagline": "Éducation menstruelle intégrale pour la vie",

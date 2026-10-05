@@ -14,6 +14,8 @@ const nextConfig = {
     locales: ['es', 'en', 'fr'],
     // Idioma por defecto
     defaultLocale: 'es',
+    // El selector de idioma manda: sin redirección 307 según Accept-Language (docs/auditoria, S6).
+    localeDetection: false,
   },
   // Optimize images
   images: {
@@ -33,6 +35,8 @@ const nextConfig = {
       { source: '/_next/image', headers: noIA },
     ];
   },
+  // Nota S6: `/es` queda sin redirección: `redirects` con `/es/:path*` y `locale: false` atrapa también
+  // `/` y `/sitemap.xml` en bucle. El canonical de cada página ya resuelve el duplicado.
   // Compiler options
   compiler: {
     // Remove console.log in production

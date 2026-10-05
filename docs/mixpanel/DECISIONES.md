@@ -201,8 +201,8 @@ y `/fr`. El fallo de firma, con una `NEXT_PUBLIC_BOLD_API_KEY` falsa puesta un m
 `payment_flow_failed` con `signature_error`. En producción queda por ver en el panel, con la
 próxima suscripción real, que llega una sola vez.
 
-**Pendiente.** Give Lively: Johan configura hoy su callback URL. Cuando exista, `/gracias`
-reconocerá esa vuelta con `payment_provider` = `givelively` (en `leerVueltaPasarela`).
+**Give Lively: ya no está pendiente.** Se pensó en reconocer su vuelta en `/gracias`, pero Give
+Lively no permite configurar callback URL (ver D7): no habrá esa vuelta.
 
 ## D6. /gracias confirma el estado con la pasarela (2026-10-02)
 
@@ -311,3 +311,18 @@ los 3,1 s, approved verificado; `NO_TRANSACTION_FOUND` siempre: a los 13,1 s cae
 nuevo, `verified` true; MP `paused`: pantalla de pausa en es, en y fr (y 1280 en es), evento
 `paused`. Tras borrar el `.env.local`, la ruta responde `unknown` y ningún chunk servido contiene
 la llave falsa.
+
+## D7. Give Lively no tiene vuelta: solo se mide el clic (2026-10-05)
+
+**Ampliación de D5 (que dejaba pendiente la vuelta de Give Lively) y de D1 (qué se mide).** Give
+Lively no permite configurar un callback URL, así que la persona que dona desde Estados Unidos
+nunca vuelve a `/gracias` ni a ningún otro sitio nuestro. Por eso no se construye una rama de
+`payment_provider` = `givelively` en `lib/resultado-pago.ts`, ni su texto en es, en y fr, ni nada
+en `/api/estado-pago`: no hay quién las llame. (Se revisó el código: ninguna de esas ramas llegó
+a existir; Bold y Mercado Pago no se tocan.)
+
+Lo único que se mide es la intención: el clic que lleva a Give Lively, `us_donation_clicked`,
+ahora con `payment_provider` = `givelively` (antes iba sin propiedades), en
+`components/sumate/como-ayudar.tsx`. Consecuencia para los tableros: las donaciones de EE. UU. no
+cuentan en `donation_success`; se leen aparte, como clics, y la conversión real se ve en el panel
+de Give Lively. `docs/mixpanel/tracking-plan.json` y `PLAN-DE-EVENTOS.md` al día.

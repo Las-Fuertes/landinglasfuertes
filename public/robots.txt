@@ -48,3 +48,5 @@ Allow: /
 Disallow: /images/
 Disallow: /_next/image
 Disallow: /gracias
+
+Sitemap: https://www.lasfuertes.org/sitemap.xml

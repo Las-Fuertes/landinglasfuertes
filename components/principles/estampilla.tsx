@@ -41,13 +41,7 @@ function Icono({ pieza }: { pieza: Pieza }) {
  * texto de verdad: se traduce y lo leen los lectores de pantalla; la foto y el icono son
  * decorativos (alt vacío).
  */
-export default function Estampilla({
-  estampilla,
-  prioridad,
-}: {
-  estampilla: DatosEstampilla;
-  prioridad: boolean;
-}) {
+export default function Estampilla({ estampilla }: { estampilla: DatosEstampilla }) {
   const { t } = useTranslation();
   const { texto } = estampilla;
 
@@ -66,7 +60,6 @@ export default function Estampilla({
           draggable={false}
           className="select-none object-cover"
           sizes="(min-width: 1024px) 360px, (min-width: 768px) 320px, 90vw"
-          priority={prioridad}
         />
         <span className={`absolute inset-0 ${estilos.degradado}`} />
       </span>
@@ -84,7 +77,7 @@ export default function Estampilla({
           letterSpacing: texto.tracking ? `${texto.tracking}em` : undefined,
         }}
       >
-        {t(estampilla.textoKey)}
+        {t(estampilla.textoKey)}{' '}
       </p>
     </div>
   );

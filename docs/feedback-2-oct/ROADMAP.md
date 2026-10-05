@@ -12,7 +12,7 @@ Rama `2-oct`, desde `origin/main` en `15ad467` (PR #30), en el worktree `1-oct`.
 - Mercado Pago (suscripción mensual) volvió a `/gracias?preapproval_id=<id>` y el sitio mostró
   **pago fallido**: faltaba reconocer esa URL. Hay que mostrar el gracias mensual y ajustar los
   eventos de Mixpanel. "No creo que estemos trackeando de forma acertada el success o el error."
-- Give Lively (EE. UU.): Johan trabaja hoy el callback URL. **Pendiente**, no se construye aún.
+- Give Lively (EE. UU.): no admite callback URL, no habrá vuelta a `/gracias`. Solo se mide el clic (docs/mixpanel/DECISIONES.md, D7).
 - Decisión de Johan: primero "solo leer la URL"; **cambiada el mismo día**: el éxito se confirma
   consultando a Bold y a Mercado Pago con el id de la vuelta (`pages/api/estado-pago.ts`, D6 de
   `docs/mixpanel/`). Sin webhooks por ahora. Requiere `MP_ACCESS_TOKEN` en Vercel.
