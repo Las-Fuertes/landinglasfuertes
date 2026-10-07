@@ -269,7 +269,7 @@ export default function VolverArriba() {
       inert={!visible}
       data-volver-arriba=""
       data-visible={visible ? '' : undefined}
-      className={`group fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-page-margin z-[80] flex rounded-full border border-black/10 bg-white/80 p-1 shadow-lg backdrop-blur-sm transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 motion-reduce:transition-none ${
+      className={`group fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-page-margin z-[80] flex rounded-full border border-black/10 bg-white/95 p-1 shadow-lg transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 motion-reduce:transition-none ${
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
       }`}
     >

@@ -710,6 +710,13 @@ encuadre. Sin listeners de scroll, rueda ni toque, y no corre en cada frame: sol
 tamaño. Medido por CDP a 390x844 haciendo crecer Bienvenida 180 px: desfase entre la posición
 guardada y la real de 180 px antes, 0 después (script `desfase.js` en `constructor-a/`).
 
+**Ampliación (2026-10-07, muelle del mapa).** El mapa sigue avanzando por posición de scroll;
+solo cambia el muelle de `use-map-pan.ts`, de rigidez 120 y amortiguación 30 a 800 y 57 (crítico,
+sin rebote). Tras soltar el dedo el mapa seguía moviéndose 0,8 a 1,4 s (48 a 86 frames escribiendo
+el transform en el hilo principal); ahora se asienta en menos de 50 ms tras el último cambio de
+scroll (0 a 12 frames). Los latidos de las paradas se pausan con el mapa fuera de pantalla
+(`#mapa[data-en-pantalla]`).
+
 ## D15. Las fotos de los modales se precargan al acercarse el mapa (2026-10-02)
 
 **Feedback** (Johan, rama `2-oct`, en celulares reales): "se ve un poco lento desde que doy click

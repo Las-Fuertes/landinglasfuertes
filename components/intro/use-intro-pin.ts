@@ -537,6 +537,12 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       touchRef.current = y === undefined ? null : { y, inicioY: window.scrollY, hecho: false };
     };
 
+    // Si el listener está en modo no pasivo; en el pasivo `preventDefault` no se llama.
+    let bloqueaToque = false;
+    const frenar = (e: TouchEvent) => {
+      if (bloqueaToque && e.cancelable) e.preventDefault();
+    };
+
     const onTouchMove = (e: TouchEvent) => {
       const t = touchRef.current;
       if (!t) return;
@@ -550,7 +556,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         // Sin enganchar solo interesa un dedo que sube con la página arriba del todo. Se
         // retiene el scroll nativo desde el primer movimiento para que no se escape.
         if (t.hecho || sentido !== 1 || t.inicioY > ARRIBA_PX || !arriba()) return;
-        e.preventDefault();
+        frenar(e);
         if (delta < TOUCH_THRESHOLD) return;
         t.hecho = true;
         avanzar(1);
@@ -566,11 +572,11 @@ export function useIntroPin(totalSteps: number): IntroPinState {
           t.hecho = true;
           return;
         }
-        e.preventDefault();
+        frenar(e);
         return;
       }
       if (t.hecho || corriendoRef.current) {
-        e.preventDefault();
+        frenar(e);
         if (!t.hecho && corriendoRef.current) t.hecho = true;
         return;
       }
@@ -581,7 +587,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
         desenganchar();
         return;
       }
-      e.preventDefault();
+      frenar(e);
       if (Math.abs(delta) < TOUCH_THRESHOLD) return;
       t.hecho = true;
       avanzar(sentido);
@@ -619,15 +625,24 @@ export function useIntroPin(totalSteps: number): IntroPinState {
     // principal lo atiende, y si está ocupado (fin de la llegada, entradas de Impacto) la página
     // se queda pegada lo que dure esa tarea. Se revisa en cada `scroll`, al enganchar o soltar,
     // al terminar la llegada y al abrir o cerrar un gesto de rueda.
-    let conToque = false;
+    // Arriba del todo y sin enganchar (docs/scroll/DECISIONES.md, D2) el toque NO es bloqueante:
+    // el `touchmove` es pasivo y el scroll nativo se retiene con `touch-action: pinch-zoom` en
+    // `html`, que el navegador lee al empezar el dedo y no espera al hilo principal. Solo
+    // enganchada o durante la llegada hace falta `preventDefault`, y solo entonces es no pasivo.
+    let conToque: 'bloquea' | 'pasivo' | null = null;
+    const raiz = document.documentElement;
     const sincronizar = () => {
-      const hace = llegandoRef.current || engagedRef.current || arriba();
-      if (hace !== conToque) {
-        conToque = hace;
-        if (hace) window.addEventListener('touchmove', onTouchMove, { passive: false });
-        else window.removeEventListener('touchmove', onTouchMove);
+      const hace = llegandoRef.current || engagedRef.current;
+      const modo = hace ? 'bloquea' : arriba() ? 'pasivo' : null;
+      if (modo !== conToque) {
+        if (conToque) window.removeEventListener('touchmove', onTouchMove);
+        conToque = modo;
+        bloqueaToque = modo === 'bloquea';
+        if (modo) window.addEventListener('touchmove', onTouchMove, { passive: modo === 'pasivo' });
+        raiz.style.touchAction = modo === 'pasivo' ? 'pinch-zoom' : '';
       }
-      const rueda = hace || (tragarRef.current && gestoRef.current.vivo);
+      // La rueda sí es bloqueante arriba del todo: su primer gesto debe poder frenarse para enganchar.
+      const rueda = hace || arriba() || (tragarRef.current && gestoRef.current.vivo);
       if (rueda !== ruedaBloquea) {
         // El mismo listener cambia de `passive`: hay que quitarlo y volver a ponerlo.
         if (ruedaBloquea !== null) window.removeEventListener('wheel', onWheel);
@@ -649,6 +664,7 @@ export function useIntroPin(totalSteps: number): IntroPinState {
       window.removeEventListener('keydown', onKeydown);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
+      document.documentElement.style.touchAction = '';
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('scroll', onScroll);
       window.clearTimeout(finDeGestoRef.current);

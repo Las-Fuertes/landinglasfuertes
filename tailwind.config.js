@@ -88,6 +88,11 @@ module.exports = {
       /* ================================
          SPACING SCALE
          ================================ */
+      /** Alto de pantalla medido una vez (docs/scroll/DECISIONES.md, D1): no cambia con la barra de Safari. */
+      /** Lo que crece la pantalla al esconderse la barra de Safari (D1, a sangre): 0 si no hay barra. */
+      margin: { barra: 'max(0rem, calc(var(--alto-grande, 100lvh) - var(--alto-fijo, 100svh)))' },
+      height: { pantalla: 'var(--alto-fijo, 100svh)' },
+      minHeight: { pantalla: 'var(--alto-fijo, 100svh)' },
       spacing: {
         xs: '5px',
         s: '10px',

@@ -312,7 +312,7 @@ const ANCHO_MOBILE: CSSProperties = {
  * ese ancho, centrado, sigue entero dentro; lo que sobra es aire del lienzo que recorta la página.
  */
 const ANCHO_DESKTOP: CSSProperties = {
-  width: 'min(118%, max(min(100%, 80rem), 100dvh))',
+  width: 'min(118%, max(min(100%, 80rem), var(--alto-fijo, 100svh)))',
 };
 
 export function IlustracionPlaya() {
@@ -320,7 +320,7 @@ export function IlustracionPlaya() {
     // Desktop: 43 de aire bajo el texto (Figma 1280:9) hasta 832 de alto; desde ahí suma el 40 %
     // de lo que la pantalla tenga de más, con tope en 160 (docs/introduccion/DECISIONES.md, D13).
     // `flex justify-center` centra el lienzo aunque sea más ancho que la pantalla.
-    <div className="relative w-full lg:mt-[clamp(2.6875rem,calc(2.6875rem_+_(100dvh_-_52rem)_*_0.4),10rem)] lg:flex lg:justify-center">
+    <div className="relative w-full lg:mt-[clamp(2.6875rem,calc(2.6875rem_+_(var(--alto-fijo,100svh)_-_52rem)_*_0.4),10rem)] lg:flex lg:justify-center">
       <Composicion lienzo={MOBILE} className="lg:hidden" style={ANCHO_MOBILE} contener />
       <Composicion
         lienzo={DESKTOP}

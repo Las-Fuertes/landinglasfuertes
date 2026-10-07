@@ -645,7 +645,7 @@ export default function IntroSection() {
       {/* Ocupa una pantalla en el flujo, sin importar la parte: el avance es por gestos, no
           por distancia de scroll. Enganchada, la misma caja pasa a `fixed` sin remontarse, y
           como solo engancha con la página arriba del todo, no se mueve ni un píxel. */}
-      <div ref={pin.placeholderRef} className="relative h-dvh w-full">
+      <div ref={pin.placeholderRef} className="relative mb-barra h-pantalla w-full">
         <div
           // Durante la llegada a Bienvenida la capa sigue fija pero sin fondo: debajo ya está
           // Bienvenida, con sus piezas ocultas, sobre el mismo beige de la página (D6).

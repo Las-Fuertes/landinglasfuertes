@@ -656,3 +656,11 @@ toda la sección, 287 y 275 elementos: oscilación de `top + scrollY` 0 px a 390
 (redondeo de un path SVG), una vez terminadas las entradas. Sin `addEventListener` de
 wheel, touch, scroll ni keydown en `components/impacto/`. Capturas a 390, 768, 1280 y 1920 sin
 solapes. Pendiente: que Johan lo confirme en iPhone real.
+
+**Ampliación (2026-10-07, revelados en el compositor).** Los revelados de `subir` (piscina),
+`llenar` (copa) y `florecer` (persona) ya no animan `clip-path`, que repintaba imágenes grandes en
+el hilo principal: ahora el padre recorta con `overflow: clip` y la capa se desliza (o crece) con
+`transform`, con el movimiento inverso dentro (`.impacto-ventana` y `.impacto-contenido`,
+`Despues` en `bloque-impacto.tsx`). Mismo aspecto (capturas a 390 y 1280 iguales, también a mitad
+del círculo de la persona). Frames de más de 20 ms a CPU x4 en la sección: de 3,8 a 4,1 % a 0 a
+0,5 %. Detalle en `docs/auditoria/SCROLL-MOBILE-6-OCT.md`.
