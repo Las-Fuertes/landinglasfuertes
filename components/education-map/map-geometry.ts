@@ -33,7 +33,9 @@ export interface Encuadre {
   insetBottom: number;
   /**
    * Px de arriba que ocupa el encabezado en la primera parada: el título va
-   * encima del mapa y Talleres aparece debajo, en grande (D3). Si no cabe, se ignora.
+   * encima del mapa y Talleres aparece debajo, en grande (D3). Ya no mueve el encuadre de la
+   * parada 1 (D16): el encabezado se va con el scroll antes de llegar a ella, y la primera
+   * pantalla la resuelve `entrada` con la caja real del texto (D7).
    */
   reservaPrimera: number;
   /**
@@ -135,6 +137,12 @@ export const MAX_CINTA_VISIBLE = 0.05;
 
 /** Pasos de la búsqueda por eje. 32 × 32 posiciones por parada: sobra y es instantáneo. */
 const PASOS = 32;
+/**
+ * Lo máximo que el centro de la caja activa se aparta del centro del área útil (fracción de su
+ * alto) al elegir el encuadre (D16). La tolerancia pedida es 5 %; el 1 % de resto cubre el
+ * redondeo del alto de la barra y de los px del mapa.
+ */
+const MAX_DESVIO_CENTRO = 0.04;
 /** Una cinta ajena que asoma distrae más que un trozo de dibujo: pesa esto más. */
 const PESO_CINTA = 4;
 
@@ -166,8 +174,17 @@ function encuadrar(
   const tope = visibleH - pad - bh;
   const [t0, t1] = rango(Math.min(pad + reservaTop, Math.max(pad, tope)), tope, visibleH - bh);
 
+  // Verticalmente la caja se queda a `MAX_DESVIO_CENTRO` del alto útil del centro (D16): el
+  // criterio de las otras paradas elige dentro de esa franja, no la desplaza. Con el zoom de
+  // mobile el grupo llena media pantalla y, si la vecina mandaba, la búsqueda lo arrinconaba
+  // contra la barra para esconderla.
+  const centro = (visibleH - bh) / 2;
+  const franja = MAX_DESVIO_CENTRO * visibleH;
+  const [c0, c1] = [Math.max(t0, centro - franja), Math.min(t1, centro + franja)];
+  const [v0, v1] = c1 >= c0 ? [c0, c1] : [t0, t1];
+
   const lc = clamp(l0, (stageW - bw) / 2, l1);
-  const tc = clamp(t0, (visibleH - bh) / 2, t1);
+  const tc = clamp(v0, centro, v1);
   const diagonal = Math.hypot(stageW, visibleH);
 
   let best: MapTarget = { tx: lc - b.x * scale, ty: tc - b.y * scale };
@@ -175,7 +192,7 @@ function encuadrar(
   for (let a = 0; a <= PASOS; a++) {
     const left = l0 + ((l1 - l0) * a) / PASOS;
     for (let c = 0; c <= PASOS; c++) {
-      const top = t0 + ((t1 - t0) * c) / PASOS;
+      const top = v0 + ((v1 - v0) * c) / PASOS;
       const t = { tx: left - b.x * scale, ty: top - b.y * scale };
       let otras = 0;
       let excede = 0;
@@ -220,7 +237,7 @@ function layoutCon(
   encuadre: Encuadre,
   factor: number
 ): MapLayout {
-  const { pad, insetBottom, reservaPrimera } = encuadre;
+  const { pad, insetBottom } = encuadre;
   const visibleH = Math.max(1, stageH - insetBottom);
 
   // El zoom que deja al grupo más grande justo dentro del área visible.
@@ -233,9 +250,7 @@ function layoutCon(
   const scale = mapW / VIEWBOX.w;
   const mapH = Math.ceil(VIEWBOX.h * scale);
 
-  const targets = stops.map((_, i) =>
-    encuadrar(i, stops, scale, stageW, visibleH, stageH, pad, i === 0 ? reservaPrimera : 0)
-  );
+  const targets = stops.map((_, i) => encuadrar(i, stops, scale, stageW, visibleH, stageH, pad, 0));
   const entrada = encuadreDeEntrada(targets[0], scale, encuadre.titulo);
 
   return { stageW, stageH, visibleH, scale, mapW, mapH, targets, entrada };

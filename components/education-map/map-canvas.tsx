@@ -93,7 +93,14 @@ export default function MapCanvas({
   // La capa solo existe con recorrido: en reposo no tiene transform y no crea capa propia; el
   // navegador la promueve mientras dura el viaje.
   return pinned ? (
-    <div ref={capaRef} className="absolute inset-0">
+    <div
+      ref={capaRef}
+      className="absolute inset-0"
+      // El encuadre se calcula con `--alto-fijo` (D1 de scroll), pero el stage mide `dvh` y crece
+      // cuando Safari esconde su barra; la barra del mapa baja con él. La mitad de lo que crece
+      // se suma arriba para que la parada siga centrada en el área útil (D16).
+      style={{ top: 'max(0rem, calc((100dvh - var(--alto-fijo, 100svh)) / 2))' }}
+    >
       {mapa}
     </div>
   ) : (
