@@ -122,15 +122,11 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
         } as CSSProperties
       }
     >
-      {/* En mobile y tablet la ilustración se topa al alto que deja libre la pantalla
-          (`--fuera-del-arte`: título fijo, aire de la pantalla, separación y texto) y se encoge centrada; así
-          las lámparas y la copa caben en pantallas bajas (ampliación de D4). En `lg` no se topa. */}
       <div
-        className={`impacto-arte relative mx-auto w-full max-w-[calc((100svh-var(--fuera-del-arte,0rem))*var(--proporcion))] lg:row-start-1 lg:mx-0 lg:w-auto lg:max-w-none lg:justify-self-stretch ${desktop.arte}`}
+        className={`impacto-arte relative mx-auto w-full lg:row-start-1 lg:mx-0 lg:w-auto lg:justify-self-stretch ${desktop.arte}`}
         style={
           {
             aspectRatio: `${ANCHO} / ${lienzo.height}`,
-            ['--proporcion' as string]: ANCHO / lienzo.height,
           } as CSSProperties
         }
         aria-hidden="true"

@@ -363,20 +363,16 @@ html[data-intro-anima] [data-intro-estatica] {
   transform: none;
 }
 
-/* Encaje (D3 de docs/impacto): el mapa mide lo que quepa para que el título, el mapa y su texto
-   se vean enteros al llegar. `--resto` es lo que ocupa la fila fuera del mapa (en línea en
-   mobile y tablet, aquí en desktop); 390.124 / 531.224 es la proporción del mapa. */
+/* En desktop el mapa mide lo que su columna (`cqw`); su unidad `--u` (1 px del lienzo de 390) sale
+   del ancho de esa columna, sin bajar del tamaño de mobile (D9: ya no depende del alto de la
+   pantalla). */
 .impacto-mapa {
-  width: min(100%, calc((100svh - var(--resto)) * 390.124 / 531.224));
   margin-inline: auto;
 }
 
 @media (min-width: 1024px) {
-  /* El título fijo (D5) y 40 de aire arriba y abajo del mapa, que se centra en el alto útil.
-     Las etiquetas escalan con el mapa, sin bajar del tamaño de mobile. */
   .impacto-mapa {
-    --resto: calc(var(--alto-titulo, 0px) + theme('spacing.xl') * 2);
-    --u: max(1px, calc(min(100cqw, (100svh - var(--resto)) * 390.124 / 531.224) / 390));
+    --u: max(1px, calc(100cqw / 390));
   }
 }
 

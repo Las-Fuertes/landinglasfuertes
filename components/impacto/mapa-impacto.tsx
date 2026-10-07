@@ -48,8 +48,8 @@ function Territorio({ d, transform, i }: { d: string; transform?: string; i: num
  * la caja del SVG, y aparecen justo después de su territorio.
  *
  * En desktop (docs/impacto/DECISIONES.md, D1) la fila es el mapa a la izquierda y el cierre a
- * la derecha, centrados entre sí; el título de la sección va aparte, fijo arriba (D5,
- * `TituloImpacto`), y la fila se centra en el alto que él deja libre.
+ * la derecha, centrados entre sí; el título de la sección va aparte, arriba (D9,
+ * `TituloImpacto`).
  * Ahí el mapa mide lo que su columna, así que su unidad `--u` (1 px del lienzo de 390) sale del
  * ancho de esa columna (`cqw`) y no de `--k`, para que las etiquetas guarden su tamaño relativo
  * al dibujo. En mobile y tablet `--u` es `1px * --k`, lo mismo que `k()`.
@@ -86,9 +86,6 @@ export function MapaImpacto({ inicioTitulo }: { inicioTitulo: InicioTitulo }) {
         {
           ['--ancho-mapa' as string]: k(390),
           ['--u' as string]: k(1),
-          // Lo que ocupa la pantalla fuera del mapa, para que quepa entera (D3): el título fijo
-          // (D5), el aire de arriba y abajo de la pantalla y el cierre con su separación.
-          ['--resto' as string]: `calc(var(--alto-titulo, 0px) + 30px + 200px * var(--k))`,
         } as CSSProperties
       }
     >

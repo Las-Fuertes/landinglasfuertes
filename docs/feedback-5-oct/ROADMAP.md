@@ -30,8 +30,8 @@ del panel; `curl` de title, canonical e hreflang en 6 rutas; `type-check`, `lint
 
 ## QUÉ SIGUE, en orden
 
-1. Johan prueba en iPhone real el temblor de Impacto (`svh`, D8). Si sigue: `transform-gpu` en el
-   título sticky para promoverlo a su capa.
+1. Temblor de Impacto: RESUELTO por `docs/impacto/` D9 (scroll nativo, sin título sticky ni imán,
+   2026-10-06). Pendiente de que Johan lo confirme en iPhone real.
 2. **Ronda de PERFORMANCE** (próxima sesión): LCP, peso de imágenes, JS de GSAP, Swiper y
    framer-motion, filtro SVG de pincel, Lighthouse mobile en producción. Medir S15 ahí.
 3. A1 y A2, contraste de estampillas y sello EMI: pendiente de Johan (recomendación: texto negro).
