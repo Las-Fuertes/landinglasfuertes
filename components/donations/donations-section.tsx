@@ -112,7 +112,7 @@ export default function DonationsSection() {
       ref={ref}
       id="tripulantes"
       // Una pantalla como mínimo (D3): el contenido se centra en el alto que sobra sobre las olas.
-      className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-blue"
+      className="relative isolate flex min-h-pantalla flex-col overflow-hidden bg-blue"
       aria-labelledby="donations-title"
     >
       <PageGrid className={styles.contenido}>

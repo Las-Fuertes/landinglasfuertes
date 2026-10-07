@@ -44,12 +44,15 @@ function CapaImg({
   height,
   className = '',
   delay,
+  ventana = false,
 }: {
   capa: Capa;
   top: number;
   height: number;
   className?: string;
   delay?: number;
+  /** La capa es una ventana que recorta y se desliza: lleva un `contenido` con el movimiento inverso. */
+  ventana?: boolean;
 }) {
   const { box, inset, rotate, inner } = capa;
   const style = {
@@ -60,8 +63,8 @@ function CapaImg({
     width: `${(box.width / ANCHO) * 100}%`,
     height: `${(box.height / height) * 100}%`,
   };
-  // Carga inmediata: las capas "después" nacen recortadas por clip-path y Chrome no pide una
-  // imagen lazy que no se ve, así que la animación arrancaba sin nada que descubrir.
+  // Carga inmediata: las capas "después" nacen recortadas (fuera de su ventana) y Chrome no pide
+  // una imagen lazy que no se ve, así que la animación arrancaba sin nada que descubrir.
   const img = <Image src={capa.src} alt="" fill sizes="100vw" loading="eager" />;
   const conInset = inset ? (
     <div className="absolute" style={{ inset }}>
@@ -70,27 +73,88 @@ function CapaImg({
   ) : (
     img
   );
-  if (rotate && inner) {
+  const girada =
+    rotate && inner ? (
+      <div
+        className="relative flex-none"
+        style={{
+          width: `${(inner.width / box.width) * 100}%`,
+          height: `${(inner.height / box.height) * 100}%`,
+          transform: `rotate(${rotate}deg)`,
+        }}
+      >
+        {conInset}
+      </div>
+    ) : (
+      conInset
+    );
+  const centrado = rotate && inner ? ' flex items-center justify-center' : '';
+  return (
+    <div className={`absolute${ventana ? '' : centrado} ${className}`} style={style}>
+      {ventana ? (
+        <div className={`impacto-contenido absolute inset-0${centrado}`}>{girada}</div>
+      ) : (
+        girada
+      )}
+    </div>
+  );
+}
+
+/**
+ * Las capas "después" de un bloque. En `subir` y `florecer` el bloque entero es la ventana; en
+ * `llenar` lo es cada capa; el resto no recorta. Ver el comentario de los revelados en
+ * styles/global.css.
+ */
+function Despues({ bloque }: { bloque: Bloque }) {
+  const { lienzo, entrada } = bloque;
+  const capas = bloque.despues.map(capa => (
+    <CapaImg
+      key={capa.src}
+      capa={capa}
+      top={lienzo.top}
+      height={lienzo.height}
+      className={`impacto-capa${capa.anim ? ` impacto-capa--${capa.anim}` : ''}`}
+      delay={capa.delay}
+      ventana={entrada === 'llenar'}
+    />
+  ));
+  const clase = `impacto-despues impacto-despues--${entrada} absolute inset-0`;
+
+  if (entrada === 'subir') {
     return (
-      <div className={`absolute flex items-center justify-center ${className}`} style={style}>
+      <div className={clase}>
+        <div className="impacto-contenido absolute inset-0">{capas}</div>
+      </div>
+    );
+  }
+  if (entrada === 'florecer') {
+    // El círculo termina cubriendo el lienzo: radio de 75 % de la referencia de `circle()`, que
+    // es raiz((ancho^2 + alto^2) / 2). Todo en anchos del lienzo; el centro cae en (50 %, 60 %).
+    const alto = lienzo.height / ANCHO;
+    const diametro = 2 * 0.75 * Math.sqrt((1 + alto * alto) / 2);
+    return (
+      <div className={clase}>
         <div
-          className="relative flex-none"
-          style={{
-            width: `${(inner.width / box.width) * 100}%`,
-            height: `${(inner.height / box.height) * 100}%`,
-            transform: `rotate(${rotate}deg)`,
-          }}
+          className="impacto-ventana absolute"
+          style={{ left: '50%', top: '60%', width: `${diametro * 100}%`, aspectRatio: '1' }}
         >
-          {conInset}
+          <div
+            className="impacto-contenido absolute"
+            style={{
+              width: `${100 / diametro}%`,
+              height: `${(alto / diametro) * 100}%`,
+              left: `${(0.5 - 0.5 / diametro) * 100}%`,
+              top: `${(0.5 - (0.6 * alto) / diametro) * 100}%`,
+              transformOrigin: '50% 60%',
+            }}
+          >
+            {capas}
+          </div>
         </div>
       </div>
     );
   }
-  return (
-    <div className={`absolute ${className}`} style={style}>
-      {conInset}
-    </div>
-  );
+  return <div className={clase}>{capas}</div>;
 }
 
 /**
@@ -141,18 +205,7 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
             ))}
           </div>
         )}
-        <div className={`impacto-despues impacto-despues--${bloque.entrada} absolute inset-0`}>
-          {bloque.despues.map(capa => (
-            <CapaImg
-              key={capa.src}
-              capa={capa}
-              top={lienzo.top}
-              height={lienzo.height}
-              className={`impacto-capa${capa.anim ? ` impacto-capa--${capa.anim}` : ''}`}
-              delay={capa.delay}
-            />
-          ))}
-        </div>
+        <Despues bloque={bloque} />
         {bloque.frente?.map(capa => (
           <CapaImg key={capa.src} capa={capa} top={lienzo.top} height={lienzo.height} />
         ))}

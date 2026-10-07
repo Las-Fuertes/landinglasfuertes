@@ -41,6 +41,15 @@ export default function Document(props: DocumentProps) {
               '<style>html{overflow:auto!important}[data-aviso-puerta]{display:none!important}</style>',
           }}
         />
+        {/* Alto de pantalla fijo (docs/scroll/DECISIONES.md, D1): se mide una vez antes del primer
+            pintado, junto con `--alto-grande` (100lvh, el alto con la barra escondida), y se re-mide si cambia el ANCHO (rotación) o, con ratón (sin barra que se esconda), también el alto.
+            Los cambios solo de alto en táctil (barra de Safari, teclado) se ignoran. Sin JS, el CSS cae a 100svh. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var d=document.documentElement,w=innerWidth;function s(){var p=d.appendChild(document.createElement('div'));p.style.cssText='position:absolute;visibility:hidden;height:100lvh';var g=p.offsetHeight;d.removeChild(p);d.style.setProperty('--alto-fijo',innerHeight+'px');d.style.setProperty('--alto-grande',Math.max(g,innerHeight)+'px')}s();addEventListener('resize',function(){if(innerWidth!==w||matchMedia('(hover:hover) and (pointer:fine)').matches){w=innerWidth;s()}})})()",
+          }}
+        />
         {/* La Introducción se sirve estática y, al hidratar, pasa al pin con su entrada animada.
             Si va a animarse (mismas condiciones que useIntroPin), la versión estática no se
             pinta, para que no aparezca y desaparezca antes de la entrada. Sin JS no corre y

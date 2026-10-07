@@ -229,7 +229,7 @@ export default function SumateFlotante() {
           aria-label={t('sumate.drawer.flotanteAria')}
           onClick={() => abrirDrawer('flotante')}
           data-sumate-flotante=""
-          className="group flex rounded-full border border-black/10 bg-white/80 p-1 shadow-lg backdrop-blur-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2"
+          className="group flex rounded-full border border-black/10 bg-white/95 p-1 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2"
         >
           <span className="whitespace-nowrap rounded-full bg-blue px-m py-1.5 text-[0.85rem] font-extrabold uppercase text-white transition-colors group-hover:bg-blue-300">
             {t('nav.sumate')}

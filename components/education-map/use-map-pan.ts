@@ -14,11 +14,14 @@ export interface PanGeometry {
 }
 
 /**
- * Suave pero sin rebote: con damping 30 sobre stiffness 120 el amortiguamiento
- * es ζ ≈ 1.37, o sea sobreamortiguado. Importa porque un spring con rebote se
- * saldría del rectángulo de traslaciones válidas y dejaría ver el fondo.
+ * Corto y sin rebote (docs/mapa-educativo/DECISIONES.md, D14): con damping 57 sobre stiffness
+ * 800 el amortiguamiento es ζ ≈ 1.0, o sea crítico, y el mapa se asienta en unos 300 ms tras
+ * el último cambio de scroll. Antes (120 y 30) seguía moviéndose más de 2 s después de soltar el
+ * dedo, escribiendo el transform desde el hilo principal en cada frame. Sin rebote importa
+ * porque un spring que se pasa se saldría del rectángulo de traslaciones válidas y dejaría ver
+ * el fondo.
  */
-const SPRING = { stiffness: 120, damping: 30, mass: 1, restDelta: 0.25 } as const;
+const SPRING = { stiffness: 800, damping: 57, mass: 1, restDelta: 0.5 } as const;
 
 /** Suavizado por tramo. Deja el mapa llegando y saliendo despacio de cada parada. */
 const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
@@ -175,7 +178,7 @@ export function useMapPan(geometry: PanGeometry | null, enabled: boolean, stopCo
         y.jump(ty);
         // framer-motion escribe el transform en su propio frame; aquí se escribe ya, para que el
         // mapa y la capa que lo compensa cambien en el mismo frame y no haya un salto.
-        mapa.style.transform = `translateX(${tx}px) translateY(${ty}px) translateZ(0)`;
+        mapa.style.transform = `translateX(${tx}px) translateY(${ty}px)`;
         window.scrollTo(0, destino);
 
         const fin = () => {

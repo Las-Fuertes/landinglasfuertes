@@ -203,6 +203,18 @@ export default function EducationMapSection() {
     io.observe(section);
     return () => io.disconnect();
   }, []);
+  // Los latidos de las paradas solo corren con el mapa en pantalla: fuera, `#mapa` pierde
+  // `data-en-pantalla` y el CSS los pausa. Se escribe el atributo directo, sin renderizar.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(entradas => {
+      const ultima = entradas[entradas.length - 1];
+      section.toggleAttribute('data-en-pantalla', ultima.isIntersecting);
+    });
+    io.observe(section);
+    return () => io.disconnect();
+  }, []);
   const sequencer = useRouteSequencer({
     count: ROUTE_COUNT,
     isPinned: pinned,
@@ -321,7 +333,11 @@ export default function EducationMapSection() {
           // suma para que el tramo fijo nunca sea más corto que `pin` (D14). Donde no hay barra
           // que se esconda vale 0.
           style={
-            geometry ? { height: `calc(${geometry.track.trackH}px + 100lvh - 100svh)` } : undefined
+            geometry
+              ? {
+                  height: `calc(${geometry.track.trackH}px + max(0rem, var(--alto-grande, 100lvh) - var(--alto-fijo, 100svh)))`,
+                }
+              : undefined
           }
           data-paradas-y={
             geometry
@@ -342,7 +358,7 @@ export default function EducationMapSection() {
               ref={altoRef}
               aria-hidden
               data-alto-estable=""
-              className="pointer-events-none invisible absolute inset-x-0 top-0 h-svh"
+              className="pointer-events-none invisible absolute inset-x-0 top-0 h-pantalla"
             />
             {/* Salida para quien pasa con prisa (D4). Va antes que las paradas: con Tab es lo
                 primero que se alcanza, como un enlace de "saltar contenido". */}
@@ -353,7 +369,7 @@ export default function EducationMapSection() {
               onFocus={skip.mostrar}
               data-saltar-mapa=""
               data-visible={skip.visible ? '' : undefined}
-              className={`absolute right-page-margin top-m z-30 min-h-10 rounded-full border border-black/10 bg-white/80 px-5 py-2 text-sm font-bold text-black shadow-lg backdrop-blur-sm transition duration-300 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
+              className={`absolute right-page-margin top-m z-30 min-h-10 rounded-full border border-black/10 bg-white/95 px-5 py-2 text-sm font-bold text-black shadow-lg transition duration-300 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue ${
                 skip.visible ? 'opacity-100' : 'pointer-events-none opacity-0'
               }`}
             >

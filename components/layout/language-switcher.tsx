@@ -51,7 +51,7 @@ export default function LanguageSwitcher({ enPuerta = false }: Props) {
     <motion.div
       role="group"
       aria-label={t('lang.label')}
-      className="fixed left-page-margin top-4 z-50 flex rounded-full border border-black/10 bg-white/80 p-1 shadow-lg backdrop-blur-sm"
+      className="fixed left-page-margin top-4 z-50 flex rounded-full border border-black/10 bg-white/95 p-1 shadow-lg"
       initial={false}
       animate={{ opacity: atTop ? 1 : 0, y: atTop ? 0 : -12 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}

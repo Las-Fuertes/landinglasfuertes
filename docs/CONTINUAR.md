@@ -120,6 +120,10 @@ ESTADO AL EMPEZAR (todo en `main` y en producción; `main` despliega solo a prod
   QUÉ SIGUE: probar su suscripción nueva (esperado `authorized`); revisar en Mixpanel eventos y
   un replay sin fotos; tablero con North Star `donation_success = true` y `verified = true`.
 
+- Rama `7-oct-scroll` (2026-10-07): auditoría de scroll mobile (`docs/auditoria/SCROLL-MOBILE-6-OCT.md`,
+  M1 a M9) y arreglos: alto fijo, intro sin touchmove bloqueante fuera del pin, Impacto sin
+  clip-path animado, mapa sin muelle largo, flotantes sin backdrop-filter. Verificado
+  (`docs/scroll/VERIFICACION.md`); falta confirmar en iPhone real.
 - PR #33 (2026-10-05, rama `5-oct`): Impacto en mobile con alturas `svh` en vez de `dvh` para el
   temblor del título (`docs/impacto/` D8; NO confirmado en iPhone real, el emulador no lo
   distingue); Give Lively solo intención (`us_donation_clicked` con `payment_provider:
@@ -198,8 +202,11 @@ DECISIONES DE JOHAN QUE NO DEBEN VOLVER A PROPONERSE
   - El sol de la parte 2 aparece cerca del centro; en mobile cae bajo las bubbles.
   - Las cintas del título del modal Voces se pisan (solape aprobado solo ahí).
   - Términos: el correo es fundacionlasfuertes@gmail.com; no hay dirección ni ley aplicable.
-  - Saltos al volver hacia arriba en mobile (las pantallas en `100dvh` cambian 81 px con la barra
-    de Safari): Johan decidió dejarlo así (2026-10-02). No proponer `svh` salvo que lo pida.
+  - Alto de pantalla: se mide UNA vez al cargar (`--alto-fijo`, utilidades `h-pantalla`,
+    `min-h-pantalla`, `mb-barra`); en táctil no se recalcula con la barra de Safari, solo al
+    cambiar el ancho. Intro y Bienvenida a sangre con `--alto-grande`. Reemplaza la decisión del
+    2026-10-02 de aceptar los saltos (medían 168 px). Ver `docs/scroll/` D1 (2026-10-07).
+    No volver a `dvh` en pantallas que cambian el alto del documento.
   - El borde de pincel (filtro SVG en vivo) se queda aunque cueste ~200 ms al abrir modales.
   - Session Replay de Mixpanel al 100 %.
   - Botón de pausar animaciones (A5 de la auditoría): no. Johan aceptó el incumplimiento (2026-10-05).

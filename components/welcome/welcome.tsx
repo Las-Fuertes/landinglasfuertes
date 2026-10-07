@@ -63,7 +63,7 @@ function useReposoBienvenida(ref: RefObject<HTMLElement | null>) {
  * de esto aplica: cada clase tiene su `lg:` con la medida de antes.
  */
 const ESCALA_ALTO = {
-  '--hero-k': 'clamp(0.5rem, calc(0.5rem + (100dvh - 35.5rem) * 0.027), 1rem)',
+  '--hero-k': 'clamp(0.5rem, calc(0.5rem + (var(--alto-fijo,100svh) - 35.5rem) * 0.027), 1rem)',
 } as CSSProperties;
 
 /**
@@ -86,7 +86,7 @@ export default function WelcomeSection() {
       // ventana, el texto arriba y la ilustración abajo. Si no cabe, crece en vez de solapar.
       // Pantallas altas (docs/introduccion/DECISIONES.md, D13): la composición va en un grupo que
       // se centra en el alto; el hueco entre el texto y la ilustración crece solo hasta un tope.
-      className="relative flex min-h-dvh w-full flex-col pb-[calc(var(--hero-k)*3.3125)] pt-[calc(var(--hero-k)*2.5)] outline-none lg:justify-center lg:pb-[3.625rem] lg:pt-[3.25rem]"
+      className="relative mb-barra flex min-h-pantalla w-full flex-col pb-[calc(var(--hero-k)*3.3125)] pt-[calc(var(--hero-k)*2.5)] outline-none lg:justify-center lg:pb-[3.625rem] lg:pt-[3.25rem]"
       style={ESCALA_ALTO}
       aria-labelledby="welcome-title"
     >

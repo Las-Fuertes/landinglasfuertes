@@ -143,6 +143,7 @@ function PajaroDibujo({
       <img
         src={`${RUTA}/pajaros-${color}-${forma}.svg`}
         alt=""
+        decoding="async"
         className="block size-full rotate-[-14.98deg]"
       />
     </motion.div>
@@ -286,12 +287,14 @@ function Conchas({ animar }: { animar: boolean }) {
       <img
         src={`${RUTA}/concha-a.svg`}
         alt=""
+        decoding="async"
         className="absolute block max-w-none rotate-[-18.06deg]"
         style={{ left: k(3.54), top: k(6.61), width: k(64.86), height: k(48.17) }}
       />
       <img
         src={`${RUTA}/concha-b.svg`}
         alt=""
+        decoding="async"
         className="absolute block max-w-none"
         style={{
           left: k(40.59),
