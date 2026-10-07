@@ -13,19 +13,9 @@ import { useSinCortina } from './use-sin-cortina';
 export type InicioTitulo = number | null;
 
 /**
- * "Así se ve el impacto en acción", fijo arriba mientras se recorre la sección
- * (docs/impacto/DECISIONES.md, D5). Es hijo directo de la sección y va `sticky` al tope: se queda
- * en su sitio sobre el mapa y cada bloque, y se suelta solo cuando el pie de la sección (el tope
- * de Quiénes somos) lo empuja hacia arriba.
- *
- * Mide exactamente `--alto-titulo`: `--aire-arriba`, dos líneas del título y `--aire-abajo`, que
- * la sección define por tamaño y que las pantallas restan a su alto. El fondo es beige opaco: lo
- * que pasa por debajo no se ve a través.
- *
- * El título va centrado en vertical en su franja (docs/impacto/DECISIONES.md, D6): en tablet y
- * desktop con el mismo aire arriba y abajo; en mobile, donde el CTA "Súmate" flotante le cae
- * encima en horizontal, la franja reserva el alto del CTA y el título queda centrado entre el pie
- * del CTA y el pie de la franja.
+ * "Así se ve el impacto en acción", una sola vez arriba de la sección, en flujo normal
+ * (docs/impacto/DECISIONES.md, D9; antes iba fijo, D5 y D6). `--aire-arriba` lo define la sección
+ * y reserva, en mobile, el alto del CTA "Súmate" flotante.
  *
  * La entrada es la de D2: aparece y sube cuando está en pantalla y no hay cortina del Mapa
  * educativo encima.
@@ -47,7 +37,7 @@ export function TituloImpacto({ onInicio }: { onInicio: (inicio: number) => void
     <div
       ref={ref}
       data-impacto-titulo
-      className="impacto-cabecera sticky top-0 z-10 h-[var(--alto-titulo)] bg-beige pt-[var(--aire-arriba)]"
+      className="impacto-cabecera pt-[var(--aire-arriba)]"
       data-entrada={entrada || undefined}
     >
       <h2

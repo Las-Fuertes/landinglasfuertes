@@ -269,6 +269,8 @@ capturas a 360). Es un pendiente conocido del botón, no de este encaje.
 
 ## D4. Pantalla completa con imán, aire del título y entradas pausadas (2026-09-30)
 
+> REEMPLAZADA por D9 (2026-10-06): Impacto pasó a scroll nativo; esta decisión ya no rige.
+
 **Feedback del 30 de septiembre** (`docs/feedback-30-sep/FEEDBACK.md`, punto 6, y decisión 2 de
 `ROADMAP.md`): cada par texto más imagen del alto de la pantalla, navegado con scroll libre con
 imán; el título de la sección muy pegado al mapa; las entradas muy rápidas, salvo la luz, que se
@@ -394,6 +396,8 @@ en los cuatro tamaños; 0,05: se queda donde quedó. PageDown y Espacio avanzan 
 
 ## D5. Título fijo, mapa centrado y texto primero en las transiciones (2026-10-01)
 
+> REEMPLAZADA por D9 (2026-10-06): Impacto pasó a scroll nativo; esta decisión ya no rige.
+
 **Feedback** (`docs/feedback-30-sep/FEEDBACK-2.md`, sección Impacto): en desktop el mapa se veía
 muy arriba; con el imán quedaba un espacio en blanco durante la transición entre bloques que daba
 la percepción de que no pasaba nada; el título de la sección debía acompañar cada impacto, tipo
@@ -482,6 +486,8 @@ empujar a media inercia cuando el hilo estuvo ocupado.
 
 ## D6. Título centrado en su franja e imán que no toma el mando (2026-10-01)
 
+> REEMPLAZADA por D9 (2026-10-06): Impacto pasó a scroll nativo; esta decisión ya no rige.
+
 **Feedback** (`docs/feedback-30-sep/FEEDBACK-3.md`, sección Impacto): el título se veía muy abajo
 y mal acomodado; el imán acomodaba muy rápido y, con alguien haciendo scroll, parecía tomar el
 mando. Pedido: esperar al menos medio segundo y acomodar empezando lento y terminando rápido.
@@ -555,6 +561,8 @@ abajo; a 390x844, 62 arriba y 7 abajo (a 3,6 px del pie del CTA "Súmate").
 
 ## D7. Sin imán en táctil (2026-10-01)
 
+> REEMPLAZADA por D9 (2026-10-06): Impacto pasó a scroll nativo; esta decisión ya no rige.
+
 **Feedback** de Johan (1 de octubre): "en la sección de impacto creo que va a tocar quitar el auto
 ajuste de la pantalla en mobile, cada vez que la toco salta, la experiencia es terrible".
 
@@ -591,6 +599,8 @@ Las pantallas siguen midiendo el alto útil y los `scroll-margin-top` siguen pue
 
 ## D8. El tembleque del título en mobile: alturas en `svh`, no `dvh` (2026-10-05)
 
+> REEMPLAZADA por D9 (2026-10-06): Impacto pasó a scroll nativo; esta decisión ya no rige.
+
 **Síntoma.** En el móvil, el título fijo de Impacto (D5) "tiembla" al hacer scroll.
 
 **Qué se midió.** El título es `sticky top-0` de CSS puro, sin JS por frame. Por CDP a 390x844,
@@ -615,3 +625,34 @@ JS ni la decisión de no usar `scroll-snap`.
 `lvh` valen todos el alto emulado, así que el corrimiento de 360 px se ve igual antes y después.
 Lo que sí se confirma es que el título sigue en 0,00 px y que el cambio no mueve nada a 390.
 Falta confirmar en un iPhone real. Detalle en `docs/feedback-5-oct/PROGRESS.md`.
+
+## D9. Impacto con scroll nativo (2026-10-06)
+
+**Por qué.** Johan: la navegación de Impacto "sigue muy pero muy mal" y el título sigue temblando en
+mobile aun con `svh` (D8). Pidió algo simple y nativo. Tras cuatro rondas (imán, título fijo,
+alturas de pantalla) la causa común era la mecánica: altura atada al viewport, un título `sticky` y
+JS que reposiciona el scroll. Se quita la mecánica.
+
+**Qué se quitó.**
+
+- El imán de JS entero (`use-iman.ts`, borrado) y con él los listeners de `wheel`, `touch*`,
+  `keydown`, `pointerdown` y `scroll`. Tampoco hay CSS scroll-snap (decisión vieja de Johan).
+- El título `sticky` y `--alto-titulo`: el título va una vez arriba, en flujo normal.
+- Las filas del alto de un viewport (`min-h-[calc(100svh-...)]`), el tope de alto de las
+  ilustraciones (`--fuera-del-arte`) y el encaje del mapa al alto (`--resto`). Todo mide su
+  contenido.
+- El `scroll` y `scrollend` de `useEntradaBloque`: ahora usa `useInView` de framer-motion
+  (`once`, 30 % visible) y respeta `prefers-reduced-motion`.
+
+**Cómo queda.** Título arriba (`mt-xl`, `lg:mt-xxl` hasta el mapa), y entre el mapa y cada bloque
+el aire `xxl` de `docs/feedback-30-sep/AIRE.md`, más `pb-xxl` al cierre. Desktop conserva las dos
+columnas alternadas (D1); mobile, imagen arriba y texto abajo a la distancia única (D2). Las
+entradas siguen siendo las de CSS (`data-entrada`, `data-encendido`), disparadas una vez al
+entrar en vista; el cambio de la ilustración llega 1,2 s después. La entrada tipo telón (D3) no
+dependía del imán y se conserva (`useSinCortina`).
+
+**Verificación (CDP, 2026-10-06).** A 390x844 con táctil y a 1280x800, scroll programático por
+toda la sección, 287 y 275 elementos: oscilación de `top + scrollY` 0 px a 390 y 0,01 px a 1280
+(redondeo de un path SVG), una vez terminadas las entradas. Sin `addEventListener` de
+wheel, touch, scroll ni keydown en `components/impacto/`. Capturas a 390, 768, 1280 y 1920 sin
+solapes. Pendiente: que Johan lo confirme en iPhone real.

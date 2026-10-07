@@ -194,7 +194,7 @@ DECISIONES DE JOHAN QUE NO DEBEN VOLVER A PROPONERSE
   - La fuente de acento es Pangolin (`font-acento`), tras el review de la diseñadora del
     2026-10-01. Ya no se habla de Bradley Hand ni de Indie Flower.
   - El menú flotante está apagado a propósito: Súmate es el CTA más importante y va solo.
-  - Impacto: imán de JS, nunca CSS scroll-snap (atrapa la rueda muesca a muesca en Chrome).
+  - Impacto: scroll nativo sin imán ni título sticky (D9, 2026-10-06); nunca CSS scroll-snap.
   - El sol de la parte 2 aparece cerca del centro; en mobile cae bajo las bubbles.
   - Las cintas del título del modal Voces se pisan (solape aprobado solo ahí).
   - Términos: el correo es fundacionlasfuertes@gmail.com; no hay dirección ni ley aplicable.
