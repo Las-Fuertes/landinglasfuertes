@@ -752,3 +752,80 @@ el scratchpad de la sesión (`ola2-a/`: `sonda-modal.js`, `modal.js`).
 
 **Límite.** Los frames perdidos al abrir siguen igual (en WebKit, 167 a 204 ms): son el borde de
 pincel en vivo, que Johan decidió no tocar.
+
+## D16. Cada parada centrada en el área útil en mobile y tablet (2026-10-08)
+
+**Feedback** (Johan, iPhone real, Safari, ~390 de ancho): en la parada 2 "Clubes de lectura y
+diversión" arriba se veía casi media pantalla de mar vacío y la ilustración (rótulo, niña sobre el
+libro y "Haz clic aquí") quedaba entre el 65 y el 90 % del alto, pegada a la barra inferior. Se
+pide centrarla. Criterio: el conjunto de la parada (la caja del grupo de Figma: rótulo, dibujo y
+punto) a menos del 5 % del alto útil del centro del área útil (del borde de arriba del stage al de
+arriba de la barra), en las cinco paradas, en mobile y tablet (< 1024).
+
+**Causa (medida, no supuesta).** Había dos, de distinto tamaño:
+
+1. **La búsqueda de encuadre (`encuadrar`, `map-geometry.ts`) no centraba: escondía a la vecina.**
+   Elegía la posición que menos mostraba de las otras paradas (criterio duro de D2: 15 % de caja y
+   5 % de cinta) y solo a igualdad la más centrada. Con el zoom de mobile (Talleres llena el ancho,
+   el mapa mide ~1280 px) las paradas están tan juntas que, centrada, casi siempre asoma la cinta de
+   una vecina; para esconderla la búsqueda arrastraba el grupo hasta 34 % del alto útil hacia
+   abajo (Clubes) o 18 % hacia arriba (Voces). Era el caso de la captura de Johan: la cinta de
+   Chiquifuertes, debajo de Clubes, quedaba fuera de la pantalla, a cambio de dejar todo el mar de
+   arriba. Además la parada 1 reservaba el alto del título (`reservaPrimera`), aunque el título ya
+   se fue con el scroll cuando se llega a ella.
+2. **El encuadre se calcula con `--alto-fijo` y la barra va pegada al stage de `dvh`.** Con la
+   página cargada con la barra de Safari visible (`--alto-fijo` 760) y luego la barra escondida
+   (`dvh` 844), la barra del mapa baja 84 px y el área útil real crece, pero las paradas seguían
+   encuadradas para 760: todo quedaba 42 px (media diferencia) más arriba del centro.
+
+**Qué se hizo.**
+
+- `map-geometry.ts`: la caja activa se busca solo dentro de una franja vertical de
+  `MAX_DESVIO_CENTRO` (4 %, margen de 1 punto bajo el 5 % pedido por el redondeo) alrededor del
+  centro del área útil; dentro de ella manda el mismo criterio de antes (que se vea menos de las
+  otras). El criterio de D2 pasa de duro a "el mejor posible dentro de la franja". La parada 1 ya no
+  reserva el alto del título (`reservaPrimera` sigue existiendo y no se usa ahí): la primera
+  pantalla la resuelve `entrada` con la caja real del texto (D7), y el tramo de entrada lleva el
+  mapa de ahí a la parada 1.
+- `map-canvas.tsx`: la capa del mapa lleva `top: max(0rem, (100dvh - --alto-fijo) / 2)`. Cuando
+  Safari esconde su barra, la mitad de lo que crece el stage se suma arriba y la parada sigue
+  centrada. Sin barra que se esconda vale 0. Sin scroll, sin listeners: `dvh` en CSS.
+- Sin cambios: avance por posición de scroll, zoom mobile (mismo `fit`), muelle de D14, viaje de
+  "Siguiente ruta" (D9) y desktop (captura 1280x800 idéntica byte a byte antes y después).
+
+**Costo asumido.** Centrada, a veces asoma una vecina que antes quedaba escondida: en 390x844 la
+parada 1 deja ver, bajo la barra degradada, la cinta de Voces; la parada 2 la de Chiquifuertes
+abajo y la parada 5 la de Talleres cortada arriba. Antes ese asomo era 0 a 12 %; ahora hay cintas
+completas en el borde. Se eligió así por pedido de Johan. Si molesta, se puede bajar la franja a
+2 % (menos centrado, menos vecinas) cambiando `MAX_DESVIO_CENTRO`. Con la franja se quitó la
+validación de "no pasa de 15 %": `incumpleEncuadre` sigue subiendo el zoom en tablet si no se
+cumple, medido igual en 768x1024.
+
+**Medido por CDP** (Chrome emulado, táctil; `getBoundingClientRect` del botón de la parada contra
+el centro del área útil = stage menos la barra de 52 px; desfase en % del alto útil, positivo =
+más abajo):
+
+| Ventana                          | Parada 1 | 2    | 3    | 4    | 5     |
+| -------------------------------- | -------- | ---- | ---- | ---- | ----- |
+| 390x844 antes                    | 18,4     | 34,0 | 0,0  | -7,6 | -18,0 |
+| 390x844 después                  | 4,0      | 4,0  | 0,0  | -3,9 | -4,0  |
+| 390x760 antes                    | 17,9     | 32,1 | 0,0  | -3,5 | -15,0 |
+| 390x760 después                  | 4,0      | 4,0  | 0,0  | -2,2 | -3,9  |
+| 768x1024 antes                   | 13,9     | 25,4 | 0,0  | 0,1  | -1,4  |
+| 768x1024 después                 | 0,0      | -4,0 | 0,0  | 0,1  | -0,2  |
+| 390x844, `--alto-fijo` 760 antes | 14,1     | 23,4 | -5,3 | -8,4 | -18,7 |
+| 390x844, `--alto-fijo` 760 desp. | 3,6      | 3,6  | 0,0  | -2,0 | -3,5  |
+
+La última fila imita iOS con la barra de Safari escondida (la página cargó con 760 y el viewport
+pasa a 844). Capturas a 390x844 de las paradas 1, 2 y 5 miradas: la ilustración de Clubes queda
+con rótulo, niña y punto entre el 38 y el 64 % del alto de pantalla. En la parada 5 (Voces) el
+mar de abajo es el que sobra, no el de arriba.
+
+**Idioma de la barra.** En `/` (es) la barra sale en español ("Clubes de lectura y diversión"; la
+detección de idioma del navegador está apagada, `localeDetection: false`). La captura de Johan,
+con "Reading and Play Clubs", era `/en` (selector de idioma). No es un bug; los rótulos dibujados
+siguen en español por decisión suya.
+
+**Límite.** Chrome emulado no reproduce del todo Safari: `dvh` no cambia al scrollear, así que el
+caso de la barra escondida se simuló fijando `--alto-fijo` a mano con el viewport en 844. Lo
+real (cuánto crece el stage, el momento en que Safari lo hace) solo se confirma en un iPhone.
