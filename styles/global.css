@@ -339,11 +339,12 @@ html[data-intro-anima] [data-intro-estatica] {
 /* Entrada de la primera fila de Impacto (docs/impacto/DECISIONES.md, D2). Una sola línea de
    tiempo, medida desde que el título empieza a entrar:
 
-     título      0 a 800 ms     aparece y sube 8 px (la curva de `FadeIn`)
-     flor      150 a 850        aparece y sube 6 px: el detalle llega después del texto
-     mapa gris 250 a 1050       fondo suave: aparece y sube 6 px
-     territorio i   750 + i x 160, 450 ms   el rosa aparece encima del gris (Isla Fuerte primero)
-     etiqueta i     la de su territorio + 200, 400 ms, sube 4 px
+     (tiempos de D10, más cortos que los de D2)
+     título      0 a 500 ms     aparece y sube 8 px (la curva de `FadeIn`)
+     flor       80 a 480        aparece y sube 6 px: el detalle llega después del texto
+     mapa gris 100 a 600        fondo suave: aparece y sube 6 px
+     territorio i   100 + i x 40, 300 ms   el rosa aparece encima del gris (Isla Fuerte primero)
+     etiqueta i     100 + i x 40, 300 ms, sube 4 px
 
    Todo en opacidad y `transform`. La cabecera recibe `data-entrada` y el mapa `data-encendido`
    (con `--retraso`: lo que le falta para ir 250 ms detrás del título) cuando están en pantalla
@@ -352,16 +353,16 @@ html[data-intro-anima] [data-intro-estatica] {
   opacity: 0;
   transform: translate3d(0, 8px, 0);
   transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .impacto-cabecera .impacto-flor {
   opacity: 0;
   transform: translate3d(0, 6px, 0);
   transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s,
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.08s,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
 }
 
 .impacto-cabecera[data-entrada] .impacto-flor {
@@ -373,12 +374,18 @@ html[data-intro-anima] [data-intro-estatica] {
    del ancho de esa columna, sin bajar del tamaño de mobile (D9: ya no depende del alto de la
    pantalla). */
 .impacto-mapa {
+  width: min(100%, calc((var(--alto-fijo, 100svh) - var(--resto)) * 390.124 / 531.224));
   margin-inline: auto;
 }
 
 @media (min-width: 1024px) {
+  /* El título fijo (D10) y 40 de aire arriba y abajo del mapa, que se centra en lo que deja libre. */
   .impacto-mapa {
-    --u: max(1px, calc(100cqw / 390));
+    --resto: calc(var(--alto-titulo, 0px) + theme('spacing.xl') * 2);
+    --u: max(
+      1px,
+      calc(min(100cqw, (var(--alto-fijo, 100svh) - var(--resto)) * 390.124 / 531.224) / 390)
+    );
   }
 }
 
@@ -391,8 +398,8 @@ html[data-intro-anima] [data-intro-estatica] {
   opacity: 0;
   transform: translate3d(0, 6px, 0);
   transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--retraso, 0ms),
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--retraso, 0ms);
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--retraso, 0ms),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--retraso, 0ms);
 }
 
 .impacto-mapa[data-encendido] .impacto-mapa-base {
@@ -403,8 +410,8 @@ html[data-intro-anima] [data-intro-estatica] {
 .impacto-territorio {
   fill: theme('colors.pink.DEFAULT');
   opacity: 0;
-  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--retraso, 0ms) + 500ms + var(--i, 0) * 160ms);
+  transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--retraso, 0ms) + 100ms + var(--i, 0) * 40ms);
 }
 
 .impacto-mapa[data-encendido] .impacto-territorio {
@@ -414,7 +421,7 @@ html[data-intro-anima] [data-intro-estatica] {
 /* El gris de debajo se retira de golpe cuando el rosa ya está entero: en reposo no se pinta. */
 .impacto-territorio-gris {
   transition: opacity 0s linear;
-  transition-delay: calc(var(--retraso, 0ms) + 950ms + var(--i, 0) * 160ms);
+  transition-delay: calc(var(--retraso, 0ms) + 400ms + var(--i, 0) * 40ms);
 }
 
 .impacto-mapa[data-encendido] .impacto-territorio-gris {
@@ -425,9 +432,9 @@ html[data-intro-anima] [data-intro-estatica] {
   opacity: 0;
   transform: translate3d(0, 4px, 0);
   transition:
-    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--retraso, 0ms) + 700ms + var(--i, 0) * 160ms);
+    opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--retraso, 0ms) + 100ms + var(--i, 0) * 40ms);
 }
 
 .impacto-mapa[data-encendido] .impacto-etiqueta {
@@ -458,21 +465,19 @@ html[data-intro-anima] [data-intro-estatica] {
 
    `data-entrada`, en cuanto el bloque asoma en pantalla, aún en movimiento (D5): el texto llega
    primero y la ilustración detrás, así la pantalla que llega nunca está vacía.
-     título            0 a 800 ms     aparece y sube 8 px (la curva de `FadeIn`)
-     párrafo         150 a 950        igual, detrás del título
-     ilustración     200 a 1200       el estado "antes" aparece y sube 6 px, suave; en mobile va
-                                      arriba del texto y es lo que más hueco deja si tarda
+     título            0 a 450 ms     aparece y sube 8 px (la curva de `FadeIn`)
+     párrafo          60 a 510        igual, detrás del título
+     ilustración     100 a 600        el estado "antes" aparece y sube 6 px (D10)
 
-   `data-encendido`, cuando el bloque se asienta, con `--inicio` (los segundos que faltan para
-   llegar a 1,5 s desde la entrada, y nunca menos de 0,4 s tras asentarse):
-     cambio          --inicio en adelante   agua 2,2 s, líquido 2 s, color 2,4 s (sine.inOut);
+   `data-encendido`, junto con `data-entrada`, con `--inicio` (0,6 s: lo que dura la entrada):
+     cambio          --inicio en adelante   agua 1,4 s, líquido 1,3 s, color 1,6 s (sine.inOut);
                                             las lámparas chispean con su animación de siempre
-     extras          --inicio + 1,9 s + i x 200 ms, rebote de 600 ms, uno tras otro
+     extras          --inicio + 1,2 s + i x 200 ms, rebote de 600 ms, uno tras otro
 
    `--subir` descubre el "después" y recorta el "antes" con el mismo reloj, así nunca se ven los
    dos a la vez. */
 .impacto-bloque {
-  --inicio: 1.5s;
+  --inicio: 0.6s;
 }
 
 .impacto-texto > *,
@@ -480,18 +485,18 @@ html[data-intro-anima] [data-intro-estatica] {
   opacity: 0;
   transform: translate3d(0, 8px, 0);
   transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--paso, 0s),
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--paso, 0s);
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1) var(--paso, 0s),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) var(--paso, 0s);
 }
 
 .impacto-texto > :nth-child(2) {
-  --paso: 0.15s;
+  --paso: 0.06s;
 }
 
 .impacto-arte {
-  --paso: 0.2s;
+  --paso: 0.1s;
   transform: translate3d(0, 6px, 0);
-  transition-duration: 1s;
+  transition-duration: 0.5s;
 }
 
 .impacto-bloque[data-entrada] .impacto-texto > *,
@@ -516,11 +521,11 @@ html[data-intro-anima] [data-intro-estatica] {
 .impacto-despues--llenar .impacto-capa {
   overflow: clip;
   transform: translate3d(0, 100%, 0);
-  transition: transform 2.2s cubic-bezier(0.37, 0, 0.63, 1) var(--inicio);
+  transition: transform 1.4s cubic-bezier(0.37, 0, 0.63, 1) var(--inicio);
 }
 
 .impacto-despues--llenar .impacto-capa {
-  transition-duration: 2s;
+  transition-duration: 1.3s;
 }
 
 .impacto-despues--subir > .impacto-contenido,
@@ -561,12 +566,12 @@ html[data-intro-anima] [data-intro-estatica] {
 }
 
 .impacto-bloque[data-encendido] .impacto-despues--florecer > .impacto-ventana {
-  animation: impacto-florecer-ventana 2.4s linear var(--inicio) both;
+  animation: impacto-florecer-ventana 1.6s linear var(--inicio) both;
   will-change: transform;
 }
 
 .impacto-bloque[data-encendido] .impacto-despues--florecer .impacto-contenido {
-  animation: impacto-florecer-contenido 2.4s linear var(--inicio) both;
+  animation: impacto-florecer-contenido 1.6s linear var(--inicio) both;
   will-change: transform;
 }
 
@@ -731,7 +736,7 @@ html[data-intro-anima] [data-intro-estatica] {
 
 .impacto-antes--fundido,
 .impacto-despues--fundido .impacto-capa {
-  transition: opacity 1.2s cubic-bezier(0.37, 0, 0.63, 1);
+  transition: opacity 0.9s cubic-bezier(0.37, 0, 0.63, 1);
   transition-delay: calc(var(--inicio) + var(--delay, 0s));
 }
 
@@ -819,7 +824,7 @@ html[data-intro-anima] [data-intro-estatica] {
   transition:
     opacity 0.45s ease,
     transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-delay: calc(var(--inicio) + 1.9s + var(--i, 0) * 0.2s);
+  transition-delay: calc(var(--inicio) + 1.2s + var(--i, 0) * 0.2s);
 }
 
 .impacto-bloque[data-encendido] .impacto-extra {

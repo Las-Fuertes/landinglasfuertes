@@ -159,7 +159,7 @@ function Foto({
   index: number;
   v: ReturnType<typeof variantes>;
 }) {
-  const { slug, name, size, encuadre, encuadreMobile, pajaro } = integrante;
+  const { slug, foto, name, size, encuadre, encuadreMobile, pajaro } = integrante;
   return (
     <div className="relative flex-none" style={{ width: k(size), height: k(size) }}>
       <motion.div variants={v.foto} onUpdate={sinAceleracion} className="absolute inset-0">
@@ -170,7 +170,7 @@ function Foto({
             style={varsEncuadre(encuadre, encuadreMobile)}
           >
             <Image
-              src={`${RUTA}/2026-09/${slug}.jpg`}
+              src={`${RUTA}/2026-09/${foto ?? `${slug}.jpg`}`}
               alt={name}
               fill
               sizes="(min-width: 1536px) 480px, (min-width: 1024px) 420px, (min-width: 768px) 500px, 400px"

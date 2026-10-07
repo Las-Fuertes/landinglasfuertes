@@ -61,6 +61,8 @@ export interface Integrante {
   bajaDesktop?: number;
   /** Ancho máximo del cargo, el de su caja de texto en Figma: decide dónde parte la línea. */
   anchoCargo: number;
+  /** Nombre del archivo en `2026-09/` si no es `<slug>.jpg`. */
+  foto?: string;
   encuadre: Encuadre;
   /** Solo si el encuadre mobile difiere del de desktop. */
   encuadreMobile?: Encuadre;
@@ -122,7 +124,8 @@ export const INTEGRANTES: Integrante[] = [
     corrimiento: 17,
     aire: 27,
     anchoCargo: 232,
-    encuadre: { x: -0.604, y: -0.149, ancho: 1.992, alto: 1.494 },
+    foto: 'karol-lopez-figma-1064-13452.jpg',
+    encuadre: { x: -0.079, y: -0.044, ancho: 1.3, alto: 1.576 },
     pajaro: {
       mobile: { color: 'azul', forma: 'chico', x: -2, y: 26, ancho: 44 },
       desktop: { color: 'azul', forma: 'grande', x: 12, y: 141, ancho: 60 },

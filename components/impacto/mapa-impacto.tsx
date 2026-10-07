@@ -48,7 +48,7 @@ function Territorio({ d, transform, i }: { d: string; transform?: string; i: num
  * la caja del SVG, y aparecen justo después de su territorio.
  *
  * En desktop (docs/impacto/DECISIONES.md, D1) la fila es el mapa a la izquierda y el cierre a
- * la derecha, centrados entre sí; el título de la sección va aparte, arriba (D9,
+ * la derecha, centrados entre sí; el título de la sección va aparte, fijo arriba (D10,
  * `TituloImpacto`).
  * Ahí el mapa mide lo que su columna, así que su unidad `--u` (1 px del lienzo de 390) sale del
  * ancho de esa columna (`cqw`) y no de `--k`, para que las etiquetas guarden su tamaño relativo
@@ -58,17 +58,17 @@ export function MapaImpacto({ inicioTitulo }: { inicioTitulo: InicioTitulo }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const libre = useSinCortina();
-  const mapaEnPantalla = useInView(ref, { once: true, amount: 0.45 });
+  const mapaEnPantalla = useInView(ref, { once: true, amount: 0.02 });
 
   /**
-   * Entrada del mapa (D2 de docs/impacto): al estar en pantalla, pero nunca antes de 250 ms
+   * Entrada del mapa (D2 de docs/impacto): al estar en pantalla, pero nunca antes de 100 ms
    * después de que empezó el título ni debajo de la cortina del Mapa educativo. `retraso` es lo
    * que le falta al mapa para cumplirlo, en ms.
    */
   const [retraso, setRetraso] = useState<number | null>(null);
   useEffect(() => {
     if (!libre || inicioTitulo === null || !mapaEnPantalla || retraso !== null) return;
-    setRetraso(Math.max(0, Math.round(inicioTitulo + 250 - performance.now())));
+    setRetraso(Math.max(0, Math.round(inicioTitulo + 100 - performance.now())));
   }, [libre, inicioTitulo, mapaEnPantalla, retraso]);
   const encendido = retraso !== null;
 
@@ -86,6 +86,9 @@ export function MapaImpacto({ inicioTitulo }: { inicioTitulo: InicioTitulo }) {
         {
           ['--ancho-mapa' as string]: k(390),
           ['--u' as string]: k(1),
+          // Lo que ocupa la pantalla fuera del mapa, para que quepa entero (D3): el título fijo,
+          // el aire de la pantalla y el cierre con su separación (D10).
+          ['--resto' as string]: `calc(var(--alto-titulo, 0px) + 30px + 200px * var(--k))`,
         } as CSSProperties
       }
     >
