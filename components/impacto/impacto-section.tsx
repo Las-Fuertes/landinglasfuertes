@@ -23,6 +23,11 @@ import { TituloImpacto, type InicioTitulo } from './titulo-impacto';
  * Safari) y reservan arriba `--alto-titulo` de relleno, que es donde el título se queda
  * superpuesto; su contenido se centra en lo que queda libre debajo. Sin imán de JS ni
  * `scroll-snap`: scroll nativo libre.
+ *
+ * D11: el contenedor del sticky es esta sección y termina con el último bloque (sin aire debajo),
+ * así el título sube con la niña. Desde `lg` los bloques miden su alto natural con `xxl` entre
+ * uno y otro (`scroll-mt` deja libre el título al anclar). Sin `overflow` propio: el recorte
+ * horizontal lo hace el wrapper de `pages/index.tsx`.
  */
 export default function ImpactoSection() {
   const [inicioTitulo, setInicioTitulo] = useState<InicioTitulo>(null);
@@ -36,12 +41,12 @@ export default function ImpactoSection() {
       // por `--k` cada una). En mobile el CTA "Súmate" flotante (16 + 42 = 58 px) cae encima de la
       // primera línea: la franja reserva su alto (arriba 64 + 10, abajo 16). Desde tablet, 25 por
       // `--k` arriba y abajo. `--alto-titulo` es la franja entera.
-      className="relative w-full overflow-x-clip bg-beige [--aire-abajo:theme(spacing.4)] [--aire-arriba:calc(theme(spacing.16)+theme(spacing.s))] [--alto-titulo:calc(var(--aire-arriba)+4rem*var(--k)+var(--aire-abajo))] [--k:1] md:[--aire-abajo:calc(theme(spacing.l)*var(--k))] md:[--aire-arriba:calc(theme(spacing.l)*var(--k))] md:[--k:1.25] lg:[--k:1.4]"
+      className="relative w-full bg-beige [--aire-abajo:theme(spacing.4)] [--aire-arriba:calc(theme(spacing.16)+theme(spacing.s))] [--alto-titulo:calc(var(--aire-arriba)+4rem*var(--k)+var(--aire-abajo))] [--k:1] md:[--aire-abajo:calc(theme(spacing.l)*var(--k))] md:[--aire-arriba:calc(theme(spacing.l)*var(--k))] md:[--k:1.25] lg:[--k:1.4]"
     >
       <TituloImpacto onInicio={alEmpezarTitulo} />
       {/* En desktop, la misma caja que el PageGrid: 1200 de ancho con 40 de margen. */}
       <div className="lg:mx-auto lg:max-w-[75rem] lg:px-page-margin">
-        <div className="flex min-h-[calc(var(--alto-fijo,100svh)-var(--alto-titulo))] flex-col justify-center pb-m">
+        <div className="flex min-h-[calc(var(--alto-fijo,100svh)-var(--alto-titulo))] flex-col justify-center pb-m lg:min-h-0 lg:pb-xxl lg:pt-xl">
           <MapaImpacto inicioTitulo={inicioTitulo} />
         </div>
         {/* La ilustración se topa con lo que deja libre la pantalla (`--fuera-del-arte`, que lee
@@ -50,7 +55,7 @@ export default function ImpactoSection() {
           <div
             key={bloque.id}
             data-impacto-pantalla={bloque.id}
-            className="flex min-h-pantalla flex-col justify-center pb-m pt-[var(--alto-titulo)] [--fuera-del-arte:calc(var(--alto-titulo)+theme(spacing.m)+(theme(spacing.xl)+13rem)*var(--k))]"
+            className="flex min-h-pantalla scroll-mt-[var(--alto-titulo)] flex-col justify-center pb-m pt-[var(--alto-titulo)] lg:min-h-0 lg:pb-xxl lg:pt-0 lg:last:pb-0 [--fuera-del-arte:calc(var(--alto-titulo)+theme(spacing.m)+(theme(spacing.xl)+13rem)*var(--k))]"
           >
             <BloqueImpacto bloque={bloque} />
           </div>

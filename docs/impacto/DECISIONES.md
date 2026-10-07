@@ -727,3 +727,46 @@ táctil, 768x1024, 1280x800 y 1920x1080; "Saltar mapa" deja `#impacto` en top -0
 bloque encajado; barra de Safari simulada (760, 844, 760): `scrollHeight` 14914 y posiciones
 idénticas, 76 muestras de scroll arriba y abajo con desvío 0 px; bajadas y subidas rápidas no
 dejan bloques invisibles ni a medio animar.
+
+## D11. Título sticky con capa propia, contenedor hasta la niña y desktop con alto natural (2026-10-08)
+
+> Ampliada por D10: el título sticky y las pantallas por bloque se quedan; cambian su mecánica de
+> pintado y el alto en desktop.
+
+**Pedido de Johan** (quinta iteración): en iPhone real el título "se queda colgado y luego se
+actualiza"; que el título se suelte con la niña (último bloque); y que en desktop los bloques estén
+más juntos.
+
+**Mecanismo de WebKit.** En iOS, un `position: sticky` solo lo mueve el hilo de scroll (el
+scrolling tree, sin esperar al hilo principal) si el elemento tiene su propia capa compuesta. Sin
+capa, su posición se recalcula en el hilo principal y, durante el scroll con inercia, se ve
+atrasado y luego salta. El título no tenía capa propia (solo sus hijos, por la entrada) y la
+auditoría del 6-oct (M6) había quitado los `will-change` permanentes.
+
+**Por qué Chrome emulado no lo reproduce.** Chrome en escritorio, aun con emulación táctil, mueve
+el sticky en el compositor siempre y no reproduce el pintado de WebKit: 0 px de oscilación medidos
+en cuatro rondas no probaban nada. **Lección: el temblor de iOS NO se puede dar por arreglado con
+mediciones de Chrome; se prueba en un preview de Vercel en un iPhone real antes de mergear.**
+
+**Qué se hizo.**
+
+- `.impacto-cabecera` (el sticky) lleva `transform-gpu` (`translate3d` a cero) y
+  `will-change-transform`, permanentes (`titulo-impacto.tsx`). Es una sola capa de 154 px de alto,
+  no los will-change anchos que quitó M6. Señal en Chrome: el `transform` calculado pasa de
+  `none` a `matrix(1, 0, 0, 1, 0, 0)` y `LayerTree` le da capa propia (390x154, dibuja contenido).
+- Ancestros revisados hasta `<html>`: ninguno tenía `overflow` que no fuera `visible` salvo dos
+  `overflow-x: clip` (la sección de Impacto y el wrapper de `pages/index.tsx`); `clip` no crea
+  contenedor de scroll, pero cae a `visible` antes de iOS 16. Se quitó el de la sección; el del
+  wrapper se queda. Ninguno tiene `transform`, `filter` ni `contain`. Sin scroll horizontal a 320,
+  390 y 1280 sin el de la sección.
+- El contenedor del sticky es la sección y termina con el último bloque: sin aire debajo
+  (distancia fin del último bloque a fin de la sección: 0). El título sube con la niña: queda en
+  `top: 0` hasta que a la sección le quedan 154 px, y sale con ella.
+- Desktop (`lg`): los bloques y la fila del mapa miden su alto natural (`lg:min-h-0`), con
+  `lg:pb-xxl` (65) entre uno y otro y `lg:last:pb-0`. `scroll-mt-[var(--alto-titulo)]` deja libre
+  el título al anclar un bloque. Mobile y tablet siguen con una pantalla por bloque.
+
+**Medido (CDP).** Aire entre contenidos de bloques consecutivos a 1280: 488, 430 y 429 antes, 65,
+65 y 65 después; a 1920: 768, 710, 709 antes, 65 los tres después. A 390 sin cambios (328, 191,
+301). Título en `top: 0` en todo el recorrido a 390x844 y 1280x800; scrollHeight con barra de
+Safari simulada (760 a 844): 14914 y 14914. Pendiente: confirmarlo en iPhone real (preview).
