@@ -11,4 +11,5 @@ export type EstadoFinanciero = {
 
 export const ESTADOS_FINANCIEROS: EstadoFinanciero[] = [
   { anio: 2025, ruta: '/transparencia/estados-financieros-2025.pdf' },
+  { anio: 2024, ruta: '/transparencia/estados-financieros-2024.pdf' },
 ];

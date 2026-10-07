@@ -108,3 +108,12 @@ conchas y fichas no se tocan: siguen en la composición de Figma.
 A 360 las líneas son más largas pero el corte de palabras da las mismas 11. Sin scroll
 horizontal (`scrollWidth` igual al ancho) en todos. Capturas `quienes-somos-390.png` y
 `quienes-somos-1280.png` en el scratchpad de la sesión (`constructor-b/`).
+
+- 2026-10-07, foto nueva de Karol López (fundadora): nodo de Figma 1064:13452 (archivo
+  ng8HnnYyaDJ2nTWauh7Otb). Imagen original de 811 por 983 px en
+  `public/images/quienes-somos/2026-09/karol-lopez-figma-1064-13452.jpg` (127 KB). La anterior
+  (`karol-lopez.jpg`) se conserva. Se añadió el campo opcional `foto` en `quienes-somos.data.ts`
+  y el encuadre pasó a `{ x: -0.079, y: -0.044, ancho: 1.3, alto: 1.576 }`, calculado del Figma
+  (caja 262 por 268 con la imagen en cover, máscara de 201.5 desplazada 16 y -16). Marco, anillo y
+  pájaros no cambian. El alt sigue siendo el nombre, igual en es, en y fr. Capturas a 390 y 1280
+  comparadas con el screenshot de Figma: mismo recorte.

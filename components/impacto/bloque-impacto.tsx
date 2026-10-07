@@ -187,10 +187,11 @@ export function BloqueImpacto({ bloque }: { bloque: Bloque }) {
       }
     >
       <div
-        className={`impacto-arte relative mx-auto w-full lg:row-start-1 lg:mx-0 lg:w-auto lg:justify-self-stretch ${desktop.arte}`}
+        className={`impacto-arte relative mx-auto w-full max-w-[calc((var(--alto-fijo,100svh)-var(--fuera-del-arte,0rem))*var(--proporcion))] lg:row-start-1 lg:mx-0 lg:w-auto lg:max-w-none lg:justify-self-stretch ${desktop.arte}`}
         style={
           {
             aspectRatio: `${ANCHO} / ${lienzo.height}`,
+            ['--proporcion' as string]: ANCHO / lienzo.height,
           } as CSSProperties
         }
         aria-hidden="true"

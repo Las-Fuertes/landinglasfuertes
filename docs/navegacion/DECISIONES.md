@@ -333,3 +333,8 @@ tapaba en parte "QUIERO APORTAR" de Donaciones; un barrido mostró además que a
   de recorrido al pasar el CTA de Donaciones, y a 360 en tres tramos cortos del footer. El resto de
   la verificación de D6 se repitió a 390 sin cambios (listeners: ningún `touch*` ni `wheel` no
   pasivo).
+
+- 2026-10-07, PDF 2024: `public/transparencia/estados-financieros-2024.pdf` se enlaza en
+  `components/layout/transparencia.data.ts` tras el de 2025 (el menú lo lista segundo). Responde 200
+  en localhost y el menú de Transparencia muestra 2025 y 2024 a 390 y 1280. Sin copy nuevo: el
+  texto sale de `footer.transparenciaAnio`.

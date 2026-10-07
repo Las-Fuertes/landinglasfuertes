@@ -13,9 +13,11 @@ import { useSinCortina } from './use-sin-cortina';
 export type InicioTitulo = number | null;
 
 /**
- * "Así se ve el impacto en acción", una sola vez arriba de la sección, en flujo normal
- * (docs/impacto/DECISIONES.md, D9; antes iba fijo, D5 y D6). `--aire-arriba` lo define la sección
- * y reserva, en mobile, el alto del CTA "Súmate" flotante.
+ * "Así se ve el impacto en acción", fijo arriba mientras se recorre la sección
+ * (docs/impacto/DECISIONES.md, D10; D5 y D6 lo definieron, D9 lo quitó). Es `sticky top-0` de CSS
+ * puro, hijo directo de la sección, y mide `--alto-titulo` (la sección lo define). Ocupa su
+ * alto en el flujo (la primera fila mide la pantalla menos el título), así al acabar la sección
+ * sube con ella y no queda flotando sobre Quiénes somos. `--aire-arriba` reserva, en mobile, el alto del CTA "Súmate" flotante.
  *
  * La entrada es la de D2: aparece y sube cuando está en pantalla y no hay cortina del Mapa
  * educativo encima.
@@ -37,7 +39,7 @@ export function TituloImpacto({ onInicio }: { onInicio: (inicio: number) => void
     <div
       ref={ref}
       data-impacto-titulo
-      className="impacto-cabecera pt-[var(--aire-arriba)]"
+      className="impacto-cabecera sticky top-0 z-10 h-[var(--alto-titulo)] bg-beige pt-[var(--aire-arriba)]"
       data-entrada={entrada || undefined}
     >
       <h2

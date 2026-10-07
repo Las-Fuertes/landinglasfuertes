@@ -628,6 +628,8 @@ Falta confirmar en un iPhone real. Detalle en `docs/feedback-5-oct/PROGRESS.md`.
 
 ## D9. Impacto con scroll nativo (2026-10-06)
 
+> Ampliada por D10 (2026-10-07): vuelven el título fijo y las filas a pantalla completa, sin imán.
+
 **Por qué.** Johan: la navegación de Impacto "sigue muy pero muy mal" y el título sigue temblando en
 mobile aun con `svh` (D8). Pidió algo simple y nativo. Tras cuatro rondas (imán, título fijo,
 alturas de pantalla) la causa común era la mecánica: altura atada al viewport, un título `sticky` y
@@ -664,3 +666,64 @@ el hilo principal: ahora el padre recorta con `overflow: clip` y la capa se desl
 `Despues` en `bloque-impacto.tsx`). Mismo aspecto (capturas a 390 y 1280 iguales, también a mitad
 del círculo de la persona). Frames de más de 20 ms a CPU x4 en la sección: de 3,8 a 4,1 % a 0 a
 0,5 %. Detalle en `docs/auditoria/SCROLL-MOBILE-6-OCT.md`.
+
+## D10. Vuelven el título sticky y las filas a pantalla completa, ahora sobre el alto fijo (2026-10-07)
+
+**Pedido de Johan:** "Impacto perdió su header estático y que cada impacto tenía su full height en
+mobile y en desktop; la idea era mantener todo esto." Y: las animaciones de cada impacto tardan en
+empezar y en interactuar. D9 había quitado el título fijo y las filas de pantalla para curar el
+temblor; era quitar de más.
+
+**Causa del temblor de antes.** Las filas medían `dvh` (D5) y luego `svh` (D8), y el alto de
+viewport cambia con la barra de Safari: cada cambio reflowaba los cinco bloques bajo un título
+`sticky` que Safari resuelve aparte, y encima el imán de JS reposicionaba el scroll peleando con
+el del navegador. El título en sí nunca se movía (0,00 px en Chrome).
+
+**Por qué ahora no vuelve.** (1) Las filas miden `min-h-pantalla`, el alto medido una vez
+(`--alto-fijo`, docs/scroll/DECISIONES.md, D1): no cambia con la barra. (2) Sin imán de JS ni
+`scroll-snap`: scroll nativo libre, 0 listeners de wheel, touch, scroll o keydown en
+`components/impacto/`. (3) El título es CSS `position: sticky`, sin JS por frame.
+
+**Qué se hizo.**
+
+- `TituloImpacto` vuelve a `sticky top-0 z-10`, fondo beige, alto `--alto-titulo` (franja de D6:
+  154 px en mobile, 142 en tablet, 160 en desktop). Con margen inferior negativo no ocupa alto en
+  el flujo: queda superpuesto al relleno superior de la primera pantalla.
+- La fila del mapa y cada bloque son `min-h-pantalla` con `pt-[--alto-titulo]` y el contenido
+  centrado en lo que deja libre el título, así cada bloque mide exactamente el alto de pantalla
+  (la sección mide 5 pantallas) y el contenido ve `pantalla - título`. La ilustración vuelve a
+  toparse con `--fuera-del-arte` y el mapa a encajar con `--resto` (D3 y D4), ahora con
+  `var(--alto-fijo, 100svh)` (el `svh` es solo el respaldo sin JS, igual que la utilidad).
+- Entradas más cortas: el bloque se enciende al asomar el 2 % (antes 30 %); título 0 a 450 ms,
+  párrafo 60 a 510, ilustración 100 a 600 (antes 0 a 800, 150 a 950, 200 a 1200). El cambio de la
+  ilustración arranca a 0,6 s de la entrada (antes 1,2 s) y dura 1,4 s el agua, 1,3 el líquido y
+  1,6 el color (antes 2,2, 2 y 2,4); los extras a +1,2 s (antes +1,9). Mapa: título 0 a 500 ms,
+  territorios cada 40 ms de 300 ms (antes 160 de 450), etiquetas igual, `--retraso` de 100 ms detrás
+  del título (antes 250). Solo `transform` y `opacity`; con movimiento reducido todo en su estado
+  final desde el principio.
+
+**Verificación (CDP, 2026-10-07; scripts en `/tmp/d10`).**
+
+- Título sticky: `top` constante, oscilación 0 px durante todo el recorrido a 390x844 táctil (92
+  muestras) y 1280x800 (87).
+- Barra de Safari (carga en 760, a 844, de vuelta): `scrollHeight` 14914 en los tres estados y
+  `top + scrollY` de cada bloque idénticos (cambio 0 px).
+- Alto de cada bloque: 844, 1024, 800 y 1080 a 390, 768, 1280 y 1920, igual al de pantalla.
+- Entrada, scroll de 800 px/s desde que el bloque asoma: primera pieza se mueve a 33 a 50 ms
+  (mapa 33 a 50) y todo el revelado termina a 617 a 683 ms en los cinco, a 390 y 1280.
+- `type-check` y `lint` limpios. Falta confirmar en un iPhone real.
+
+**Verificación (verificador independiente, 2026-10-07; detalle en `docs/feedback-7-oct/VERIFICACION.md`).**
+Dos fallas encontradas y arregladas. (1) El título sticky con margen inferior negativo no ocupaba
+alto en el flujo, así que su caja podía llegar hasta el borde inferior de la sección: al terminar
+Impacto se quedaba fijo en `top: 0` flotando 160 px sobre Quiénes somos (visto en captura). Ahora
+el título ocupa su alto en el flujo y la primera fila mide pantalla menos título (misma
+geometría); sale con la sección (top -60 y -110 a 100 y 50 px del final, a 390, 768, 1280 y 1920).
+(2) Con movimiento reducido los bloques quedaban invisibles: `useReducedMotion` vale `true` ya en
+el primer render del cliente pero el HTML del servidor salió sin `data-entrada`, y React no
+corrige atributos al hidratar. `useEntradaBloque` lee la preferencia tras montar. Comprobado
+tras los arreglos: ningún contenido queda bajo el título en las posiciones alineadas a 390x844
+táctil, 768x1024, 1280x800 y 1920x1080; "Saltar mapa" deja `#impacto` en top -0,4 con el primer
+bloque encajado; barra de Safari simulada (760, 844, 760): `scrollHeight` 14914 y posiciones
+idénticas, 76 muestras de scroll arriba y abajo con desvío 0 px; bajadas y subidas rápidas no
+dejan bloques invisibles ni a medio animar.
