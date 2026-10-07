@@ -19,6 +19,10 @@ export type InicioTitulo = number | null;
  * alto en el flujo (la primera fila mide la pantalla menos el título), así al acabar la sección
  * sube con ella y no queda flotando sobre Quiénes somos. `--aire-arriba` reserva, en mobile, el alto del CTA "Súmate" flotante.
  *
+ * Capa compuesta propia y permanente (`transform-gpu` y `will-change-transform`): en WebKit un sticky
+ * sin capa lo recalcula el hilo principal y se ve atrasado en el scroll con inercia
+ * (docs/impacto/DECISIONES.md, D11).
+ *
  * La entrada es la de D2: aparece y sube cuando está en pantalla y no hay cortina del Mapa
  * educativo encima.
  */
@@ -39,7 +43,7 @@ export function TituloImpacto({ onInicio }: { onInicio: (inicio: number) => void
     <div
       ref={ref}
       data-impacto-titulo
-      className="impacto-cabecera sticky top-0 z-10 h-[var(--alto-titulo)] bg-beige pt-[var(--aire-arriba)]"
+      className="impacto-cabecera sticky top-0 z-10 h-[var(--alto-titulo)] transform-gpu bg-beige pt-[var(--aire-arriba)] will-change-transform"
       data-entrada={entrada || undefined}
     >
       <h2

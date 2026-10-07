@@ -198,7 +198,7 @@ DECISIONES DE JOHAN QUE NO DEBEN VOLVER A PROPONERSE
   - La fuente de acento es Pangolin (`font-acento`), tras el review de la diseñadora del
     2026-10-01. Ya no se habla de Bradley Hand ni de Indie Flower.
   - El menú flotante está apagado a propósito: Súmate es el CTA más importante y va solo.
-  - Impacto: scroll nativo sin imán ni título sticky (D9, 2026-10-06); nunca CSS scroll-snap.
+  - Impacto: título sticky con capa propia hasta el último bloque; bloques a pantalla completa en mobile y tablet, alto natural en desktop; sin imán ni scroll-snap (D10, D11).
   - El sol de la parte 2 aparece cerca del centro; en mobile cae bajo las bubbles.
   - Las cintas del título del modal Voces se pisan (solape aprobado solo ahí).
   - Términos: el correo es fundacionlasfuertes@gmail.com; no hay dirección ni ley aplicable.
@@ -267,6 +267,9 @@ CÓMO SE VERIFICA (nada se entrega sin mirarlo)
   - `npm run type-check`, `npm run lint`, `npm run build` limpios antes de proponer commit.
 
 REGLAS QUE CUESTAN SI SE SALTAN
+  00. El temblor de iOS NO se da por arreglado con mediciones de Chrome (emulado no reproduce el
+     pintado de WebKit: un sticky sin capa compuesta propia se ve atrasado en iPhone). Se prueba en
+     un preview de Vercel en iPhone antes de mergear (docs/impacto/DECISIONES.md, D11).
   0. macOS NO tiene el comando `timeout`: no lo pidas en prompts; los scripts CDP llevan su propio
      tope interno (setTimeout con process.exit). Si un agente muere dos veces por "Agent stalled",
      no lo reanudes una tercera: mira `git status`, type-check y lint tú, y lanza uno nuevo con el
