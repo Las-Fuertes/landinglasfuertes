@@ -338,3 +338,12 @@ tapaba en parte "QUIERO APORTAR" de Donaciones; un barrido mostró además que a
   `components/layout/transparencia.data.ts` tras el de 2025 (el menú lo lista segundo). Responde 200
   en localhost y el menú de Transparencia muestra 2025 y 2024 a 390 y 1280. Sin copy nuevo: el
   texto sale de `footer.transparenciaAnio`.
+
+### Ampliación de D6 (2026-10-08): volver arriba con un solo toque en iPhone
+
+En iOS hacía falta tocar dos veces. El botón aparece al subir, con la página aún en inercia, y el
+primer toque sobre una página en inercia solo la frena: no genera `click`. Actuar en
+`pointerdown` tampoco sirvió, porque el desplazamiento suave empezaba con el dedo apoyado y iOS lo
+corta en el acto. Con dedo se actúa al levantarlo (`pointerup`, o `touchend` si iOS canceló el
+puntero) y el `click` que llegue detrás se ignora. Johan lo confirmó en un preview de Vercel en su
+iPhone antes del merge.

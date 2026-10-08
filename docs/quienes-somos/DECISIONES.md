@@ -117,3 +117,29 @@ horizontal (`scrollWidth` igual al ancho) en todos. Capturas `quienes-somos-390.
   (caja 262 por 268 con la imagen en cover, máscara de 201.5 desplazada 16 y -16). Marco, anillo y
   pájaros no cambian. El alt sigue siendo el nombre, igual en es, en y fr. Capturas a 390 y 1280
   comparadas con el screenshot de Figma: mismo recorte.
+
+## D4. El layout es por posición, no por persona (2026-10-08)
+
+**Qué pasó**: el 7 de octubre se puso a Karol López y Erika Cely al principio moviendo sus objetos
+dentro de `INTEGRANTES`. Pero cada objeto llevaba también su layout (lado, tamaño del círculo,
+sangrado, corrimiento, aire, baja en desktop, pájaros y ancho del cargo), así que el layout viajó
+con la persona y las filas quedaron descuadradas. Johan: "el orden está bien, es el layout".
+
+**Decisión**: el layout sale del nodo de Figma `1219:985` (mobile, frame de 390; el desktop
+hermano `1437:1518` coincide en tamaños y pájaros) y vive en `DISPOSICIONES`, un arreglo de ocho
+entradas **por posición** (1 a 8) en `components/quienes-somos/quienes-somos.data.ts`. La persona
+(`INTEGRANTES`) solo aporta `slug`, `name`, `role`, `foto` y el encuadre de SU foto (`encuadre`,
+`encuadreMobile`). El componente une las dos listas por índice. Cambiar el orden del equipo
+es mover un objeto en `INTEGRANTES`; el layout se queda en su lugar.
+
+**Posiciones** (las de Figma): 1 izquierda 188; 2 derecha 153 (baja 43 en desktop); 3 izquierda
+201,5; 4 centrada 201,5; 5 izquierda 169 (baja 17); 6 centrada 201,5; 7 derecha 159,5 (baja 2);
+8 izquierda 152. Los pájaros y el ancho del cargo van con la posición.
+
+**Encuadre**: está en fracciones del diámetro, así que sigue valiendo si el círculo cambia de
+tamaño; se verificó foto por foto a 390 y 1280.
+
+**Ojo**: Figma conserva el orden anterior (Mafe, Paola, Lina, Karol, Vanessa, Erika, Adriana,
+Alejandra). Si Johan quiere que el nuevo orden se vea con otro layout, hay que rediseñarlo en
+Figma y editar `DISPOSICIONES`. El cargo largo de Karol (posición 1) parte en dos líneas porque
+la caja de la posición mide 169.

@@ -6,7 +6,14 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { CURVA, sinAceleracion } from '../education-map/coreografia';
 import { Resaltado } from '../layout/resaltado';
-import { INTEGRANTES, type Encuadre, type Integrante, type Pajaro } from './quienes-somos.data';
+import {
+  DISPOSICIONES,
+  INTEGRANTES,
+  type Disposicion,
+  type Encuadre,
+  type Integrante,
+  type Pajaro,
+} from './quienes-somos.data';
 import estilos from './quienes-somos.module.css';
 
 /** Una medida del lienzo de Figma, escalada por `--k` (ver `quienes-somos.module.css`). */
@@ -152,14 +159,17 @@ function PajaroDibujo({
 
 function Foto({
   integrante,
+  disposicion,
   index,
   v,
 }: {
   integrante: Integrante;
+  disposicion: Disposicion;
   index: number;
   v: ReturnType<typeof variantes>;
 }) {
-  const { slug, foto, name, size, encuadre, encuadreMobile, pajaro } = integrante;
+  const { slug, foto, name, encuadre, encuadreMobile } = integrante;
+  const { size, pajaro } = disposicion;
   return (
     <div className="relative flex-none" style={{ width: k(size), height: k(size) }}>
       <motion.div variants={v.foto} onUpdate={sinAceleracion} className="absolute inset-0">
@@ -195,17 +205,20 @@ function Foto({
 
 function Persona({
   integrante,
+  disposicion,
   index,
   base,
   animar,
 }: {
   integrante: Integrante;
+  disposicion: Disposicion;
   index: number;
   base: number;
   animar: boolean;
 }) {
   const { t } = useTranslation();
-  const { name, role, side, bleed = 0, corrimiento = 0, aire = 0, bajaDesktop = 0 } = integrante;
+  const { name, role } = integrante;
+  const { side, bleed = 0, corrimiento = 0, aire = 0, bajaDesktop = 0 } = disposicion;
   const centrado = side === 'center';
   const v = variantes(base, animar);
 
@@ -242,7 +255,7 @@ function Persona({
               : 'relative left-[var(--corre)]'
         } md:static md:mx-0 md:mt-[var(--baja)]`}
       >
-        <Foto integrante={integrante} index={index} v={v} />
+        <Foto integrante={integrante} disposicion={disposicion} index={index} v={v} />
       </div>
       {/* El nombre no se parte nunca. En mobile, con la foto a la izquierda, el bloque se sale un
           poco del margen derecho: en el diseño el chip se acerca al borde más que el texto. */}
@@ -262,7 +275,7 @@ function Persona({
         </Resaltado>
         <p
           className={`mt-s leading-snug text-black [text-wrap:balance] ${centrado ? 'mx-auto' : ''} md:mx-auto`}
-          style={{ fontSize: 'var(--cargo)', maxWidth: k(integrante.anchoCargo + 30) }}
+          style={{ fontSize: 'var(--cargo)', maxWidth: k(disposicion.anchoCargo + 30) }}
         >
           {t(`quienesSomos.roles.${role}`)}
         </p>
@@ -363,6 +376,7 @@ export default function QuienesSomosSection() {
             <Persona
               key={integrante.slug}
               integrante={integrante}
+              disposicion={DISPOSICIONES[i]}
               index={i}
               base={columnaDe(i, columnas) * ENTRADA.columna}
               animar={animar}
