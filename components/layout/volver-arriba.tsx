@@ -228,6 +228,29 @@ function usePisaria(boton: React.RefObject<HTMLButtonElement | null>, texto: str
  * foco ahí, para que el siguiente Tab siga desde el comienzo del contenido. Sin evento de
  * analítica.
  */
+/**
+ * Diagnóstico temporal del doble toque en iOS: con `?debug=volver` en la URL, los eventos que
+ * recibe el botón se pintan en una franja arriba de la pantalla. Sin el parámetro no hace nada.
+ */
+function useRegistro() {
+  const activo = useRef<boolean | null>(null);
+  return (texto: string) => {
+    if (activo.current === null)
+      activo.current = new URLSearchParams(window.location.search).get('debug') === 'volver';
+    if (!activo.current) return;
+    let caja = document.getElementById('debug-volver');
+    if (!caja) {
+      caja = document.createElement('pre');
+      caja.id = 'debug-volver';
+      caja.className =
+        'fixed inset-x-0 top-0 z-[999] whitespace-pre-wrap bg-black/80 p-2 text-xs text-white pointer-events-none';
+      document.body.appendChild(caja);
+    }
+    const linea = `${(performance.now() / 1000).toFixed(2)}s ${texto} y=${Math.round(window.scrollY)}`;
+    caja.textContent = [linea, ...(caja.textContent ?? '').split('\n')].slice(0, 12).join('\n');
+  };
+}
+
 export default function VolverArriba() {
   const { t } = useTranslation();
   const { isOpen: drawerAbierto } = useSumateDrawer();
@@ -246,15 +269,21 @@ export default function VolverArriba() {
   }, [pasada]);
 
   // En iOS el botón aparece mientras la página aún corre por inercia (aparece al subir), y el
-  // primer toque sobre una página en inercia solo la frena: no llega a ser `click`. Por eso con
-  // dedo se actúa en `pointerdown`, que sí llega, y el `click` que pueda venir detrás se ignora.
+  // primer toque sobre una página en inercia solo la frena: no llega a ser `click`. Actuar en
+  // `pointerdown` tampoco sirve: el desplazamiento suave empieza con el dedo aún apoyado y iOS lo
+  // corta en el acto. Con dedo se actúa al levantarlo (`pointerup`, o `touchend` si iOS canceló el
+  // puntero), y el `click` que pueda venir detrás se ignora. `?debug=volver` muestra los eventos.
   const tocadoEn = useRef(0);
-  const alTocar = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (e.pointerType === 'mouse') return;
+  const registro = useRegistro();
+  const alSoltar = (tipo: string) => {
+    registro(tipo);
+    if (performance.now() - tocadoEn.current < 800) return;
     tocadoEn.current = performance.now();
-    volver();
+    // Un cuadro después, con el dedo ya fuera de la pantalla.
+    requestAnimationFrame(() => volver());
   };
   const alClic = () => {
+    registro('click');
     if (performance.now() - tocadoEn.current < 800) return;
     volver();
   };
@@ -277,7 +306,10 @@ export default function VolverArriba() {
     <button
       ref={botonRef}
       type="button"
-      onPointerDown={alTocar}
+      onPointerDown={e => registro(`pointerdown ${e.pointerType}`)}
+      onPointerCancel={e => registro(`pointercancel ${e.pointerType}`)}
+      onPointerUp={e => e.pointerType !== 'mouse' && alSoltar(`pointerup ${e.pointerType}`)}
+      onTouchEnd={() => alSoltar('touchend')}
       onClick={alClic}
       aria-label={t('nav.volverArriba')}
       aria-hidden={!visible || undefined}
