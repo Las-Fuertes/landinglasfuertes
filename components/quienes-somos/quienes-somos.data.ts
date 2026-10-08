@@ -71,12 +71,44 @@ export interface Integrante {
 
 export const INTEGRANTES: Integrante[] = [
   {
+    slug: 'karol-lopez',
+    name: 'Karol López',
+    role: 'fundadora',
+    side: 'center',
+    size: 201.5,
+    corrimiento: 17,
+    aire: 27,
+    anchoCargo: 232,
+    foto: 'karol-lopez-figma-1064-13452.jpg',
+    encuadre: { x: -0.079, y: -0.044, ancho: 1.3, alto: 1.576 },
+    pajaro: {
+      mobile: { color: 'azul', forma: 'chico', x: -2, y: 26, ancho: 44 },
+      desktop: { color: 'azul', forma: 'grande', x: 12, y: 141, ancho: 60 },
+    },
+  },
+  {
+    slug: 'erika-cely',
+    name: 'Erika Cely',
+    role: 'cofundadora',
+    side: 'center',
+    size: 201.5,
+    corrimiento: 18,
+    aire: 27,
+    anchoCargo: 259,
+    encuadre: { x: -0.094, y: -0.44, ancho: 1.183, alto: 1.775 },
+    pajaro: {
+      mobile: { color: 'azul', forma: 'grande', x: 155, y: 6, ancho: 54.7 },
+      desktop: { color: 'azul', forma: 'grande', x: 25, y: 149, ancho: 60 },
+    },
+  },
+  {
     slug: 'mafe-ramirez',
     name: 'Mafe Ramirez',
     role: 'coordinadora',
     side: 'left',
     size: 188,
     bleed: 39,
+    aire: 20,
     anchoCargo: 169,
     encuadre: { x: -0.198, y: -0.361, ancho: 1.29, alto: 1.41 },
     pajaro: {
@@ -116,22 +148,6 @@ export const INTEGRANTES: Integrante[] = [
     },
   },
   {
-    slug: 'karol-lopez',
-    name: 'Karol López',
-    role: 'fundadora',
-    side: 'center',
-    size: 201.5,
-    corrimiento: 17,
-    aire: 27,
-    anchoCargo: 232,
-    foto: 'karol-lopez-figma-1064-13452.jpg',
-    encuadre: { x: -0.079, y: -0.044, ancho: 1.3, alto: 1.576 },
-    pajaro: {
-      mobile: { color: 'azul', forma: 'chico', x: -2, y: 26, ancho: 44 },
-      desktop: { color: 'azul', forma: 'grande', x: 12, y: 141, ancho: 60 },
-    },
-  },
-  {
     slug: 'vanessa-cortes',
     name: 'Vanessa Córtes',
     role: 'estrategaComunicaciones',
@@ -146,21 +162,6 @@ export const INTEGRANTES: Integrante[] = [
     pajaro: {
       mobile: { color: 'rosa', forma: 'grande', x: 139, y: 5, ancho: 60 },
       desktop: { color: 'rosa', forma: 'chico', x: -6, y: 15, ancho: 44 },
-    },
-  },
-  {
-    slug: 'erika-cely',
-    name: 'Erika Cely',
-    role: 'cofundadora',
-    side: 'center',
-    size: 201.5,
-    corrimiento: 18,
-    aire: 8,
-    anchoCargo: 259,
-    encuadre: { x: -0.094, y: -0.44, ancho: 1.183, alto: 1.775 },
-    pajaro: {
-      mobile: { color: 'azul', forma: 'grande', x: 155, y: 6, ancho: 54.7 },
-      desktop: { color: 'azul', forma: 'grande', x: 25, y: 149, ancho: 60 },
     },
   },
   {

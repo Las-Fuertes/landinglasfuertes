@@ -245,6 +245,20 @@ export default function VolverArriba() {
     if (!pasada) viajando.current = false;
   }, [pasada]);
 
+  // En iOS el botón aparece mientras la página aún corre por inercia (aparece al subir), y el
+  // primer toque sobre una página en inercia solo la frena: no llega a ser `click`. Por eso con
+  // dedo se actúa en `pointerdown`, que sí llega, y el `click` que pueda venir detrás se ignora.
+  const tocadoEn = useRef(0);
+  const alTocar = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType === 'mouse') return;
+    tocadoEn.current = performance.now();
+    volver();
+  };
+  const alClic = () => {
+    if (performance.now() - tocadoEn.current < 800) return;
+    volver();
+  };
+
   const volver = () => {
     const destino = document.getElementById(ID_DESTINO);
     if (!destino) return;
@@ -263,7 +277,8 @@ export default function VolverArriba() {
     <button
       ref={botonRef}
       type="button"
-      onClick={volver}
+      onPointerDown={alTocar}
+      onClick={alClic}
       aria-label={t('nav.volverArriba')}
       aria-hidden={!visible || undefined}
       inert={!visible}
