@@ -4,7 +4,7 @@
  * Un path por departamento, tal como vinieron de Figma (grupo `1102:110`, 33 vectores todos
  * llamados "Vector"), pasados por svgo con precisión 2. El mapeo path -> territorio se derivó
  * comparando el color de relleno del frame "después": los 6 en rosa son `Vector_1` (Guajira),
- * `Vector_2` (Atlántico), `Vector_13` (Córdoba), `Vector_25` (Bolívar), `Vector_30` (Ibagué) y
+ * `Vector_2` (Atlántico), `Vector_13` (Córdoba), `Vector_25` (Bolívar), `Vector_30` (Tolima) y
  * `Vector_32` (Bogotá D.C.). `Vector_31` era un duplicado exacto de `Vector_32` en gris y se
  * descartó. Isla Fuerte es un grupo aparte (`1102:144`), puesto aquí en coordenadas del mapa.
  *
@@ -18,7 +18,7 @@ export type TerritorioId =
   | 'guajira'
   | 'bolivar'
   | 'cordoba'
-  | 'ibague'
+  | 'tolima'
   | 'bogota';
 
 export type Departamento = {
@@ -160,7 +160,7 @@ export const DEPARTAMENTOS: Departamento[] = [
   },
   {
     figma: 'Vector_30',
-    territorio: 'ibague',
+    territorio: 'tolima',
     d: 'm145.63 267.02.06-2.73-1.05-1.78-1.42-1.74-1.58-.2-.68 1.3-1.37 1.27h-1l-.52-1.37-2.94-.2-1.47-2 .84-4.52.94-3.77.11-2.1-.73-1.47v-2l1.57-1.04 1.15-2.2.63-2-.63-4.62-.1-3.67-.63-1.26-.23-3.16-2.34.09-5.12.23-1.9.95-.7 2.2-1.73 1.58h-2.45l-2.67.78-.63 1.5.07 2.37-.55 2.67v2.52l-1.33.68.1 3.08.29-.06s-.63 3.23-.7 4.02c-.09.79-2.3 1.73-2.3 1.73l-3.46 1.97s.16 1.73.16 3.14-.94 2.92-1.5 3.24c-.55.31-1.41 2.28-1.57 2.83a71 71 0 0 0-.63 3l-1.96.47-1.52 1.62.34 1.08-2.84 4.73-.73 3.88-3.36 3.35c-.31.32-.94 2.84-.94 2.84l-.95 1.78s-.84 2.41-.84 2.94.42 2.1.42 2.62c0 .53.1 2.2.1 2.2l-1.07.34.45 2.29-.42 1.57.98 2.5 1.8 1.12 3.07.95 3.63-1.42 2.99-1.74 4.41-4.33.16-1.88 1.26-.87 1.34-2.68 1.02-1.1 1.18.38 2.2-.47 1.19 1.34.94.63 1.58-.95.86-1.57c.56-1.02 3 .07 3 .07s1.33-.16 1.65-.16 1.5 1.02 1.5 1.02l-1.19 1.26s-.7 1.26-.7 1.65c0 .4.47.95.47.95l3.39.39 3.38-2.92 2.13-2.12s.23-.7.23-1.02-.07-.56-.07-.56l.16-1.1 1.1-1.5-.39-.79.24-1.26 2.29-.55 2.3-2.83 1.05-2 .6-.3-.6-7 1.19-1.13z',
   },
   {
@@ -198,7 +198,7 @@ export const ETIQUETAS: Etiqueta[] = [
   { id: 'bolivar', x: 185, y: 278 },
   { id: 'atlantico', x: 97, y: 181, chico: true },
   { id: 'guajira', x: 254, y: 164, chico: true },
-  { id: 'ibague', x: 45, y: 421 },
+  { id: 'tolima', x: 45, y: 421 },
   { id: 'bogota', x: 176, y: 394 },
 ];
 

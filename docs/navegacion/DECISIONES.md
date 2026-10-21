@@ -347,3 +347,32 @@ primer toque sobre una página en inercia solo la frena: no genera `click`. Actu
 corta en el acto. Con dedo se actúa al levantarlo (`pointerup`, o `touchend` si iOS canceló el
 puntero) y el `click` que llegue detrás se ignora. Johan lo confirmó en un preview de Vercel en su
 iPhone antes del merge.
+
+## D7. Menú hamburguesa solo con el cambio de idioma (2026-10-20)
+
+**Feedback** (Johan, 2026-10-20): volver a implementar el menú hamburguesa, que ya existió y hoy
+está apagado (`MENU_ACTIVO = false`), pero ofreciendo ÚNICAMENTE el cambio de idioma. El CTA
+"Súmate" sigue en su lugar, a la derecha del botón, para que siempre esté visible.
+
+**Qué se hizo.**
+
+- **Componente nuevo** `components/layout/menu-hamburguesa.tsx`: un botón circular (misma píldora
+  blanca translúcida con borde y sombra que el selector de idioma y el CTA) que despliega debajo
+  una lista con ES, EN y FR (enlaces reales con `hreflang`, para que buscadores y teclado
+  encuentren `/en` y `/fr`). Es un disclosure accesible: `aria-expanded`, `aria-controls`,
+  Escape cierra y devuelve el foco al botón, cierra al elegir idioma, al hacer clic fuera y al
+  salir el foco; foco visible con anillo `blue`. Textos con claves que ya existían
+  (`nav.abrir`, `nav.cerrar`, `lang.label`).
+- **Sin dos selectores.** `LanguageSwitcher` ya no se monta en la home ni en Términos
+  (`pages/index.tsx`, `pages/terminos.tsx`); queda solo en la puerta del aviso y en `/gracias`,
+  donde no hay navegación flotante. Su lista de idiomas y su lógica de cambio (`useCambiarIdioma`,
+  que conserva ruta y hash) se exportan y las comparte el menú.
+- **`sumate-flotante.tsx`** pierde `MENU_ACTIVO` y el menú viejo de "Inicio" y "Súmate" (queda en
+  el historial de git, `3c252e3`). Ahora es una fila fija arriba a la izquierda: hamburguesa y, a
+  su derecha, el CTA, ambos de 48 px de alto. `useVisible` devuelve dos banderas: el menú se ve
+  desde la intro (donde estaba el selector de idioma); el CTA, solo tras la intro (D1). Ambos se
+  retiran con el drawer abierto y sobre el mapa (`data-oculta-flotante`).
+- **Cambio de comportamiento:** antes el selector de idioma desaparecía al hacer scroll; el menú
+  ahora acompaña toda la página, salvo drawer y mapa.
+
+Capturas en el scratchpad de la sesión (`a/menu-390.png`, `a/menu-1280.png`).

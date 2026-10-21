@@ -829,3 +829,26 @@ siguen en español por decisión suya.
 **Límite.** Chrome emulado no reproduce del todo Safari: `dvh` no cambia al scrollear, así que el
 caso de la barra escondida se simuló fijando `--alto-fijo` a mano con el viewport en 844. Lo
 real (cuánto crece el stage, el momento en que Safari lo hace) solo se confirma en un iPhone.
+
+## D17. "Haz clic aquí" sale del arte y pasa a HTML, traducido y más grande (Johan, 2026-10-20)
+
+**Pedido** (feedback del 20-oct, B3): aumentar la fuente de "Haz clic aquí", usar la fuente normal
+del proyecto y poder traducirla (es, en, fr).
+
+**Por qué hubo que rehacer el raster.** El mapa se sirve como imagen (`mapa-isla-*`, D11) y la frase
+estaba dentro del arte, como cinco paths negros del SVG fuente (`Haz clic aquí` a `_5`). Se
+borraron esos cinco paths de `design-assets/education-map/mapa-1431-985.svg` (el SVG de ahora ya no
+trae la frase; el original está en git), se renderizó con `sharp` a 5120 de ancho y SOLO esos
+cinco rectángulos (con 3 unidades de margen) se pegaron sobre el `mapa-1431-985-4x.png` de Figma,
+para no cambiar ni un píxel del resto. De ahí salieron los diez derivados
+`public/images/education-map/mapa-isla-{1200,1600,2400,3200,4000}.{webp,avif}` (webp a calidad 82 y
+avif a 60, el mismo peso que antes).
+
+**Qué.** `MapHotspot` pinta la frase como un `span` de HTML dentro del botón (`aria-hidden`; el
+nombre accesible sigue siendo el `aria-label` de la parada), con `font-medium` en la fuente del
+sitio y cuerpo de 17 unidades del frame (antes unas 12): `font-size` en `cqw`, porque la capa del
+mapa (`map-canvas.tsx`) es ahora `container-type: inline-size` y así crece con el zoom. La posición
+sale de `texto` en `education-map.data.ts` (centro o borde de la frase en el frame, medido sobre
+los paths borrados; Talleres ancla a la izquierda y sube, Mi ruta ancla a la derecha, para no
+tocar el punto). Clave nueva `educationMap.hazClic`: "Haz clic aquí", "Click here", "Clique ici".
+Capturas `b/mapa-1280-b.png`, `b/mapa-390.png` y `b/mapa-fr.png`.

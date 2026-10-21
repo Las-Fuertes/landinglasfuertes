@@ -37,6 +37,11 @@ export interface MapRoute {
   /** Centro del punto "Haz clic aquí" en unidades del viewBox. */
   cx: number;
   cy: number;
+  /**
+   * "Haz clic aquí" (D17): la frase ya no va en el arte sino en HTML, para traducirla. `cx`, `cy`
+   * es el punto del frame donde estaba la frase (su centro; en `izquierda` y `derecha`, ese borde).
+   */
+  texto: { cx: number; cy: number; ancla: 'centro' | 'izquierda' | 'derecha' };
   /** El mismo centro normalizado a 0–1. */
   u: number;
   v: number;
@@ -53,6 +58,7 @@ type Raw = Pick<MapRoute, 'id' | 'figma' | 'image'> & {
   cinta: MapBox;
   /** Esquina del anillo exterior del punto (Ellipse 40 de 27,71). */
   punto: { x: number; y: number };
+  texto: MapRoute['texto'];
 };
 
 const ANILLO = 27.7142;
@@ -65,6 +71,7 @@ const RAW: Raw[] = [
     grupo: { x: 192.06, y: 51, w: 358.29, h: 342.17 },
     cinta: { x: 278.15, y: 285.35, w: 146.37, h: 31.77 },
     punto: { x: 264.08, y: 159.8 },
+    texto: { cx: 193.02, cy: 147.5, ancla: 'izquierda' },
     image: { width: 582, height: 670 },
   },
   {
@@ -73,6 +80,7 @@ const RAW: Raw[] = [
     grupo: { x: 608.46, y: 234.3, w: 235.25, h: 222.02 },
     cinta: { x: 658.96, y: 236.05, w: 184.75, h: 54.36 },
     punto: { x: 638.46, y: 374.64 },
+    texto: { cx: 648.44, cy: 362.2, ancla: 'centro' },
     image: { width: 610, height: 670 },
   },
   {
@@ -81,6 +89,7 @@ const RAW: Raw[] = [
     grupo: { x: 896.55, y: 447.88, w: 310.95, h: 193.83 },
     cinta: { x: 921.57, y: 448.93, w: 111.07, h: 54.11 },
     punto: { x: 993.87, y: 614 },
+    texto: { cx: 989.05, cy: 633.54, ancla: 'derecha' },
     image: { width: 606, height: 670 },
   },
   {
@@ -89,6 +98,7 @@ const RAW: Raw[] = [
     grupo: { x: 502, y: 659, w: 248.63, h: 272.06 },
     cinta: { x: 571, y: 659, w: 156.61, h: 31.87 },
     punto: { x: 576.2, y: 734.81 },
+    texto: { cx: 587.01, cy: 721.55, ancla: 'centro' },
     image: { width: 562, height: 670 },
   },
   {
@@ -97,6 +107,7 @@ const RAW: Raw[] = [
     grupo: { x: 163, y: 527, w: 252.82, h: 250.84 },
     cinta: { x: 211.01, y: 527, w: 189.31, h: 52.71 },
     punto: { x: 314.69, y: 700.45 },
+    texto: { cx: 322.05, cy: 686.27, ancla: 'centro' },
     image: { width: 608, height: 670 },
   },
 ];

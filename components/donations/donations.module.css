@@ -56,7 +56,7 @@
   font-weight: 700;
   line-height: 44px;
   letter-spacing: -0.04em;
-  color: theme('colors.blue.DEFAULT');
+  color: theme('colors.blue.suave');
 }
 
 @media (min-width: 768px) {

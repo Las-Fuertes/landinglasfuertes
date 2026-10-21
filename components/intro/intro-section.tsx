@@ -414,12 +414,6 @@ export default function IntroSection() {
   const nivelReposo = useRef<NivelReposo>(NIVEL_REPOSO_POR_DEFECTO);
   /** La persona de la parte 3 se asoma después de la transición que lleva a ella. */
   const personaPendiente = useRef(false);
-  /**
-   * Corre (o está por correr) la entrada de la parte 1: los botones esperan a que termine (D10).
-   * Arranca en true para que no asomen en el primer pintado del pin, antes de la entrada.
-   */
-  const [entrando, setEntrando] = useState(true);
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     quieto.current = params.get('quieto') === '1';
@@ -430,7 +424,6 @@ export default function IntroSection() {
   useEffect(() => {
     if (pin.mode === 'pin' && pin.entrada === 0) {
       setReposo(r => r + 1);
-      setEntrando(false);
     }
   }, [pin.mode, pin.entrada]);
 
@@ -518,13 +511,11 @@ export default function IntroSection() {
     const raiz = pasosRef.current[0];
     if (!raiz) return;
     let vivo = true;
-    setEntrando(true);
     const ctx = gsap.context(() => {
       const tl = crearEntrada(raiz);
       tl.eventCallback('onComplete', () => {
         limpiar(raiz);
         if (timelineRef.current === tl) timelineRef.current = null;
-        setEntrando(false);
         setReposo(r => r + 1);
       });
       timelineRef.current = tl;
@@ -535,7 +526,6 @@ export default function IntroSection() {
     return () => {
       vivo = false;
       ctx.revert();
-      setEntrando(false);
     };
   }, [entrada, timelineRef]);
 
@@ -629,8 +619,8 @@ export default function IntroSection() {
     );
   }
 
-  // Los botones se ven cuando la intro está quieta: ni entrada, ni transición, ni llegada (D10).
-  const quieta = !transicion && !llegada && !entrando;
+  // Los botones están siempre a la vista mientras dura la intro, también en la entrada y en las
+  // transiciones (D19); solo se retiran en la llegada a Bienvenida, que ya es el siguiente paso.
 
   // Quieta, solo está montada la parte actual; durante una transición, la saliente y la
   // entrante, esta encima.
@@ -653,12 +643,10 @@ export default function IntroSection() {
         >
           {/* Primero en el DOM: lo primero que encuentra Tab dentro de la intro (D10). */}
           <IntroNavegacion
-            visible={quieta}
+            visible={!llegada}
             puedeRetroceder={pin.stepIndex > 0}
-            // En la última parte no hay flecha de avanzar (D17): "Saltar intro" ya lleva a
-            // Bienvenida desde ahí, con la misma coreografía. El gesto y las teclas siguen
-            // llevando a Bienvenida como un paso más (D6).
-            puedeAvanzar={pin.stepIndex < INTRO_STEPS.length - 1}
+            // Siempre hay siguiente: en la última parte lleva a Bienvenida (D19).
+            puedeAvanzar
             onSaltar={pin.saltar}
             onRetroceder={() => pin.irA(-1)}
             onAvanzar={() => pin.irA(1)}

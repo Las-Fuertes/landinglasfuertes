@@ -94,10 +94,10 @@ export const DISPOSICIONES: Disposicion[] = [
   // 2. Figma: paola-segnini
   {
     side: 'right',
-    size: 153,
+    size: 169,
     bleed: 33,
     aire: 12,
-    bajaDesktop: 43,
+    bajaDesktop: 27,
     anchoCargo: 169,
     pajaro: {
       mobile: { color: 'azul', forma: 'chico', x: -5, y: 3, ancho: 44 },
@@ -193,7 +193,9 @@ export const INTEGRANTES: Integrante[] = [
     slug: 'erika-cely',
     name: 'Erika Cely',
     role: 'cofundadora',
-    encuadre: { x: -0.094, y: -0.44, ancho: 1.183, alto: 1.775 },
+    // Foto nueva del 2026-10-20 (960 x 1280): cabeza y hombros en un cuadrado de 0,42 del ancho.
+    foto: 'erika-cely.jpeg',
+    encuadre: { x: -0.298, y: -0.738, ancho: 2.381, alto: 3.175 },
   },
   {
     slug: 'mafe-ramirez',

@@ -6,11 +6,22 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 
-const LOCALES = [
+export const LOCALES = [
   { code: 'es', label: 'ES', nombre: 'Español' },
   { code: 'en', label: 'EN', nombre: 'English' },
   { code: 'fr', label: 'FR', nombre: 'Français' },
 ] as const;
+
+/** Cambia de idioma conservando la ruta y el hash; lo usan el selector y el menú (D20). */
+export function useCambiarIdioma() {
+  const router = useRouter();
+  return (code: string) => {
+    // El hash (p. ej. `#sumate`) se toma de la URL real: `router.asPath` no siempre lo trae
+    // tras la carga, y sin él un deep link se perdería al cambiar de idioma.
+    const destino = router.asPath.split('#')[0] + window.location.hash;
+    router.push(destino, destino, { locale: code, scroll: false });
+  };
+}
 
 type Props = {
   /**
@@ -22,7 +33,9 @@ type Props = {
 };
 
 /**
- * Selector de idioma flotante: visible solo en el tope de la página.
+ * Selector de idioma flotante: visible solo en el tope de la página. Desde 2026-10-20 solo lo
+ * usan la puerta del aviso y `/gracias`; en la home y en Términos el idioma vive en el menú
+ * hamburguesa (`menu-hamburguesa.tsx`, docs/navegacion/DECISIONES.md, D7).
  * Al hacer scroll desaparece; reaparece únicamente al volver arriba del todo.
  * El CTA "Súmate" flotante (`components/sumate/sumate-flotante.tsx`) copia su forma y su esquina
  * (docs/navegacion/DECISIONES.md, D1): si cambia una, cambia la otra.
@@ -40,12 +53,7 @@ export default function LanguageSwitcher({ enPuerta = false }: Props) {
     return () => window.removeEventListener('scroll', onScroll);
   }, [enPuerta]);
 
-  function switchTo(code: string) {
-    // El hash (p. ej. `#sumate`) se toma de la URL real: `router.asPath` no siempre lo trae
-    // tras la carga, y sin él un deep link se perdería al cambiar de idioma.
-    const destino = router.asPath.split('#')[0] + window.location.hash;
-    router.push(destino, destino, { locale: code, scroll: false });
-  }
+  const switchTo = useCambiarIdioma();
 
   return (
     <motion.div

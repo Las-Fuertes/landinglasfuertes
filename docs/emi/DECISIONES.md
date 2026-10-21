@@ -453,3 +453,43 @@ visible (la pista "desliza" en mobile y tablet, el abanico en desktop) al final 
 | 1280 y 1920 | 68     | 29          | 69            |
 
 La sección crece 40 px en mobile, 14 en tablet y 40 en desktop.
+
+## D7. Aire de abajo igual de generoso que el de arriba (Johan, 2026-10-20)
+
+**Pedido** (feedback del 20-oct, B1): abajo el mismo padding que arriba; se ve mucho más corto.
+
+**Qué.** `pb-xxl` (65 px) en todos los anchos, en lugar de `pb-xl md:pb-m lg:pb-xl` (D6). Lo último
+visible queda a 75 px del final de la sección en 390 (antes 50), 73 en 768 y 1000 (antes 48) y 102
+en 1280 y 1512 (antes 77); arriba, el sello sigue a 47 / 47 / 68. Medido igualando lo visible, el
+aire ya era parejo (D6); se subió porque abajo solo hay elementos livianos (la pista "desliza" y
+el abanico) y arriba un sello y un título pesados, y a Johan le sigue pareciendo corto. Si prefiere
+el aire exactamente igual al de arriba, `pb-xl` mobile y tablet y `lg:pb-[4.25rem]` lo devuelven.
+Capturas `b/emi-fin-390.png` y `b/emi-fin-1280.png`.
+
+## D8. Parallax entre Bienvenida, EMI y Donaciones (Johan, 2026-10-20)
+
+Johan pidió un parallax bien hecho en las dos transiciones (feedback C1). Se hace con framer-motion
+(`useScroll` con `target` y `offset`, `useTransform`) y anima SOLO `transform` en vertical, con
+`will-change: transform` únicamente en las capas que se mueven. Sin clip-path, filter ni
+backdrop-filter, sin listeners nuevos de touchmove o wheel y sin sticky nuevo (lección de
+`docs/auditoria/SCROLL-MOBILE-6-OCT.md`). El hook es `components/layout/use-parallax.ts`; con
+`prefers-reduced-motion` no devuelve estilo y las capas quedan quietas. El desfase se expresa como
+fracción del alto de la ventana al final del recorrido (positivo: la capa se queda atrás).
+
+- **Bienvenida a EMI** (recorrido: el hero sube de `start start` a `end start`). Tres planos:
+  el texto va con el scroll (0), el cielo (sol, nubes y gaviotas de desktop) se queda atrás 0,07
+  (0,04 en mobile) y la playa se queda atrás 0,18 (0,10 en mobile). EMI lleva `z-10` y su fondo
+  crema es opaco, así que sube por encima y se come la playa como una capa que se monta. El cielo
+  se limita a 0,07 porque el aire entre el sol y el título es de unos 60 px: más haría que el sol
+  pisara el texto.
+- **EMI a Donaciones** (recorrido: el último alto de pantalla de EMI, de `end end` a `end start`).
+  El contenido de EMI (cabecera y slider) se queda atrás 0,14 (0,08 en mobile) y se mete bajo
+  Donaciones, que lleva `z-20` y sube por encima. El contenido de Donaciones llega rezagado: parte
+  0,08 (0,05 en mobile) más abajo y llega a 0 justo cuando la sección toca el borde superior, así
+  que en reposo el diseño es exacto.
+- **Medido por CDP** (1280 x 800): playa 0 px con la página arriba y 120,43 px a 700 de scroll;
+  contenido de EMI 55,86 px y de Donaciones 32 px a mitad del cruce. Con `--reducido`, `none`
+  siempre.
+- **Mobile**: se mantiene, con valores más bajos; a 390 se ve bien. El slider de principios
+  (Swiper con arrastre) y el ancla `#emi` no se tocan: la transformación solo se aplica durante
+  la última pantalla de EMI y vale 0 en reposo en el ancla.

@@ -31,8 +31,10 @@ const DESKTOP: Record<BloqueId, { arte: string; texto: string }> = {
     arte: 'lg:col-span-4 lg:col-start-9',
     texto: 'lg:col-span-7 lg:col-start-1',
   },
+  // La niña se posa sobre Quiénes somos (D12): baja 56 px con `top` (sin tocar el layout, así no
+  // hay hueco) y se pinta sobre la sección siguiente, pero bajo el título fijo (`z-10`).
   persona: {
-    arte: 'lg:col-span-6 lg:col-start-1 lg:-ml-page-margin',
+    arte: 'lg:top-14 lg:z-[5] lg:col-span-6 lg:col-start-1 lg:-ml-page-margin',
     texto: 'lg:col-span-6 lg:col-start-7',
   },
 };

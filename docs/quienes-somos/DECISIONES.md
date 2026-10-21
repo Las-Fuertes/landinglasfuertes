@@ -143,3 +143,19 @@ tamaño; se verificó foto por foto a 390 y 1280.
 Alejandra). Si Johan quiere que el nuevo orden se vea con otro layout, hay que rediseñarlo en
 Figma y editar `DISPOSICIONES`. El cargo largo de Karol (posición 1) parte en dos líneas porque
 la caja de la posición mide 169.
+
+## D5. Foto nueva de Erika, del tamaño de la de Lina, y descripción nueva (Johan, 2026-10-20)
+
+**Pedido** (feedback del 20-oct, B8, B9 y B11).
+
+- **Foto.** `public/images/quienes-somos/2026-09/erika-cely.jpeg` (960 x 1280, la foto nueva que
+  Johan dejó en `quienes-somos/erika.jpeg`; se movió a la carpeta de las demás). Encuadre nuevo
+  `{ x: -0.298, y: -0.738, ancho: 2.381, alto: 3.175 }`: cabeza y hombros en un cuadrado de 0,42 del
+  ancho de la foto.
+- **Tamaño.** Erika es la posición 2, que en Figma mide 153 (D4); Lina es la 5, de 169. Se subió la
+  posición 2 a 169 y su `bajaDesktop` de 43 a 27 (16 menos, lo que crece el círculo) para que el
+  pie del círculo siga donde estaba. Mobile y desktop verificados con capturas
+  (`b/qs-390.png`, `b/qs-1280.png`). **Ojo:** como el layout es por posición, quien ocupe la
+  posición 2 en el futuro tendrá un círculo de 169, no de 153.
+- **Descripción** bajo "¿Quiénes somos?": la de Johan, literal en es; en y fr traducidas con el
+  mismo contenido.

@@ -770,3 +770,26 @@ mediciones de Chrome; se prueba en un preview de Vercel en un iPhone real antes 
 65 y 65 después; a 1920: 768, 710, 709 antes, 65 los tres después. A 390 sin cambios (328, 191,
 301). Título en `top: 0` en todo el recorrido a 390x844 y 1280x800; scrollHeight con barra de
 Safari simulada (760 a 844): 14914 y 14914. Pendiente: confirmarlo en iPhone real (preview).
+
+## D12. Más aire arriba del título, "Tolima", Isla Fuerte con relieve y la niña sobre Quiénes somos (Johan, 2026-10-20)
+
+**Pedidos** (feedback del 20-oct, B4 a B7 y B11).
+
+- **B4, aire del título.** `--aire-arriba` desde tablet pasa de `l` (25) a `xl` (40) por `--k`:
+  50 px en tablet y 56 en desktop (antes 31 y 35). Mobile no cambia (74, ya reserva el CTA).
+- **B5.** El rótulo "Ibagué" es "Tolima" en los tres idiomas. La clave pasó de `ibague` a `tolima`
+  (`mapa.data.ts` y `impacto.mapa.territorios`).
+- **B6, Isla Fuerte.** Ya no es un `Territorio` que pasa de gris a rosa: el relleno es `neutral-600`
+  fijo y encima va un trazo `pink` de 1,6 unidades que aparece en su turno (el primero,
+  `.impacto-isla-borde` en `styles/global.css`, con la misma cadencia y `reduced-motion` que el
+  rosa de los territorios).
+- **B7, la niña (solo `lg+`).** `DESKTOP.persona.arte` suma `lg:top-14 lg:z-[5]`: baja 56 px con
+  `top` sobre su caja `relative` (sin tocar el layout, así no hay hueco ni cambia la altura de la
+  sección) y se pinta sobre Quiénes somos pero bajo el título sticky (`z-10`, D10 y D11 intactos). No
+  se usó `translate`: `.impacto-arte` ya anima `transform` en la entrada. Mobile y tablet sin cambios.
+  Capturas a 1280 y 1512 en `b/trans-1280.png` y `b/trans-1512.png`.
+- **B11, copies** (`locales/*.json`): título del bloque "8 de cada 10 niñas se conocen más con lo
+  explorado en los talleres" repartido en cuatro marcas (en: "8 out of 10 girls", fr: "8 filles sur
+  10"); texto de las lámparas "Las fuertes reconocen bajo la luz de la dignidad; su naturaleza
+  cíclica." (fr con espacio de no separación antes del punto y coma); texto de la persona "La
+  educación menstrual como guía de niñas y adolescentes resilientes.".

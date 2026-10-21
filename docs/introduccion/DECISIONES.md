@@ -1790,3 +1790,30 @@ Los números de línea de la causa son de la primera versión. Hoy: rueda 459, t
 **Queda.** Un movimiento de trackpad a menos de 300 ms del gesto que trajo Bienvenida, o uno que no
 corta la inercia casi a cero, se toma como parte de ese gesto y se traga, como en las partes 1 a 3.
 Con el ratón, la entrada de Bienvenida dura una o dos muescas: es lo pedido.
+
+## D19. Navegación siempre visible, flechas izquierda y derecha y avance en la última parte (2026-10-20)
+
+**Feedback** (Johan, 2026-10-20): la navegación de la intro ("Saltar intro" y las flechas) debe
+verse siempre; las flechas deben ser izquierda y derecha, no arriba y abajo; y en el último paso
+debe estar habilitado el siguiente, que, igual que "Saltar", entra al hero (Bienvenida,
+`#bienvenida`).
+
+**Qué se hizo.** Esto revierte D17 y suaviza la regla de D10 de esconder los botones.
+
+- **Siempre visible (A1).** `visible` de `IntroNavegacion` ya no espera a que la intro esté quieta
+  (antes: sin entrada, sin transición, sin llegada). Se ven durante la entrada y las transiciones;
+  solo se retiran en la llegada a Bienvenida (`!llegada`), que ya es el paso siguiente. Los clics
+  durante una transición no hacen nada (`irA` sale si `corriendoRef` está activo), así que no hay
+  doble avance. Se borró el estado `entrando`, que solo servía a esa espera.
+- **Izquierda y derecha (A2).** `Flecha` (`components/layout/flecha.tsx`) admite `izquierda` y
+  `derecha` además de `arriba` y `abajo` (los usa `volver-arriba.tsx`). Retroceder usa
+  `izquierda`; avanzar, `derecha`. Las teclas `ArrowLeft` y `ArrowRight` se suman a ArrowUp,
+  ArrowDown, PageUp, PageDown y Espacio (`use-intro-pin.ts`).
+- **Última parte (A3).** `puedeAvanzar` vuelve a ser `true` fijo. `irA(1)` desde la parte 3 pasa
+  por `avanzar`, que ya lanza la llegada a Bienvenida (D6), con la misma coreografía que
+  "Saltar intro". Verificado por CDP: clic en la flecha derecha de la parte 3 y Bienvenida
+  queda en `top = 0`. Con ello, el foco ya no cae en "Saltar intro" al llegar a la parte 3: queda
+  en la flecha derecha, que existe en todas las partes.
+
+Capturas en el scratchpad de la sesión (`a/paso1-390.png`, `paso3-390.png`, `paso1-1280.png`,
+`paso3-1280.png`).
