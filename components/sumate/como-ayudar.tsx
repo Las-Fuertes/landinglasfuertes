@@ -15,16 +15,16 @@ import DonarTiempo from './donar-tiempo';
 
 type Category = 'dinero' | 'cosas' | 'tiempo';
 
-/* Los íconos de siempre, cada uno con su acento de la paleta lúdica (sol, flor, conchas). El texto
-   de la tarjeta elegida va en azul en las tres: el naranja y el rosa no llegan al contraste AA. */
+/* Los íconos de siempre. Desde el 2026-10-20 (docs/sumate-drawer/DECISIONES.md, D6) los de las
+   tarjetas no elegidas van grises, como su borde, y pasan a azul al elegirlos o al pasar el
+   puntero: el hover es el mismo estado que el activo. */
 const CATEGORIES: {
   id: Category;
   icon: typeof HandCoins;
-  acento: string;
 }[] = [
-  { id: 'dinero', icon: HandCoins, acento: 'text-blue' },
-  { id: 'cosas', icon: Package, acento: 'text-orange' },
-  { id: 'tiempo', icon: Clock, acento: 'text-pink' },
+  { id: 'dinero', icon: HandCoins },
+  { id: 'cosas', icon: Package },
+  { id: 'tiempo', icon: Clock },
 ];
 
 const PANELS: Record<Category, () => ReactElement> = {
@@ -56,7 +56,7 @@ export default function ComoAyudar() {
         aria-label={t('sumate.wizard.question')}
         className="mx-auto mt-xl grid max-w-md grid-cols-3 gap-s md:max-w-none md:grid-cols-[repeat(3,8.875rem)] md:justify-center md:gap-xl lg:mt-[4.5rem]"
       >
-        {CATEGORIES.map(({ id, icon: Icon, acento }) => {
+        {CATEGORIES.map(({ id, icon: Icon }) => {
           const active = category === id;
           return (
             <motion.button
@@ -79,8 +79,19 @@ export default function ComoAyudar() {
                 grosor={active ? 'grueso' : 'fino'}
                 sombra={active}
               />
+              {/* Hover = activo: el marco azul con sombra se funde encima del gris. */}
+              {!active && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                >
+                  <MarcoRasgado tono="azul" grosor="grueso" sombra />
+                </span>
+              )}
               <Icon
-                className={`relative h-7 w-7 md:h-8 md:w-8 ${active ? 'text-blue' : acento}`}
+                className={`relative h-7 w-7 transition-colors md:h-8 md:w-8 ${
+                  active ? 'text-blue' : 'text-black/30 group-hover:text-blue'
+                }`}
                 strokeWidth={1.8}
                 aria-hidden
               />

@@ -506,8 +506,8 @@ export function useIntroPin(totalSteps: number): IntroPinState {
           !!placeholderRef.current?.contains(target) &&
           !target.closest('button, a, [role="button"]'));
       let sentido: Sentido | 0 = 0;
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') sentido = 1;
-      else if (e.key === 'ArrowUp' || e.key === 'PageUp') sentido = -1;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') sentido = 1;
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') sentido = -1;
       else if (e.key === ' ' && espacioLibre) sentido = e.shiftKey ? -1 : 1;
       if (sentido === 0) return;
 

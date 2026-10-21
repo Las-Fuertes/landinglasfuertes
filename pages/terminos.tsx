@@ -6,7 +6,6 @@ import { useTranslation } from '../hooks/useTranslation';
 import { PageGrid } from '../components/layout/page-grid';
 import { Resaltado } from '../components/layout/resaltado';
 import Footer from '../components/layout/footer';
-import LanguageSwitcher from '../components/layout/language-switcher';
 import { SumateDrawer, SumateDrawerProvider, SumateFlotante } from '../components/sumate';
 
 /**
@@ -52,8 +51,6 @@ export default function Terminos() {
         description={t('terminos.metaDescripcion')}
         ruta="/terminos"
       />
-
-      <LanguageSwitcher />
 
       <SumateDrawerProvider>
         <main

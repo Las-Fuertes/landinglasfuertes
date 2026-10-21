@@ -45,7 +45,7 @@
         "bolivar": "Bolívar",
         "atlantico": "Atlántico",
         "guajira": "Guajira",
-        "ibague": "Ibagué",
+        "tolima": "Tolima",
         "bogota": "Bogotá D.C."
       },
       "cierre": "==7 territoires== ==désormais plus forts==",
@@ -58,15 +58,15 @@
       },
       "luces": {
         "title": "==La compréhension== ==des règles comme== ==cycle naturel est== ==passée de 45 à 95 %==",
-        "text": "Désormais, elles voient clairement ce qui a toujours été là."
+        "text": "Les Fuertes se reconnaissent sous la lumière de la dignité ; leur nature cyclique."
       },
       "copa": {
         "title": "==Plus de 50== ==écoproduits== ==remis pour la== ==gestion menstruelle==",
         "text": "Soit au moins 6 kg de déchets évités par utilisatrice et par an."
       },
       "persona": {
-        "title": "==8 sur 10 se== ==connaissent mieux== ==grâce aux ateliers==",
-        "text": "Las Fuertes a 5 étoiles"
+        "title": "==8 filles sur 10== ==se connaissent mieux== ==grâce aux ateliers==",
+        "text": "L'éducation menstruelle comme guide pour des filles et adolescentes résilientes."
       }
     }
   },
@@ -105,6 +105,7 @@
   "educationMap": {
     "title": "Comment notre carte éducative devient la route vers un développement intégral conscient",
     "saltar": "Passer la carte",
+    "hazClic": "Clique ici",
     "actions": {
       "back": "Retour",
       "next": "Route suivante",
@@ -249,7 +250,7 @@
   },
   "quienesSomos": {
     "title": "Qui sommes-nous ?",
-    "text": "Nous sommes un récif de femmes, de bénévoles et d'alliées qui grandit depuis Bogotá vers les territoires oubliés de Colombie. Nous construisons des espaces où la connaissance du corps ne se murmure pas, elle se partage, où l'éducation menstruelle intégrale n'est pas un luxe mais un droit. Et où chaque adolescente trouve sa propre voix pour naviguer dans sa vie avec clarté, confiance et liberté.",
+    "text": "Nous sommes un récif de femmes bénévoles et d'alliées qui grandit depuis Bogotá pour travailler avec les filles et les adolescentes des territoires les plus oubliés de Colombie. Nous construisons des espaces où\u00a0: la connaissance du corps se partage sans tabous, l'éducation menstruelle intégrale est à la portée de toutes comme un droit fondamental, et où chaque fille, adolescente et femme construit son identité pour naviguer dans sa vie avec amour de soi, confiance et indépendance.",
     "roles": {
       "coordinadora": "Coordinatrice du réseau ASE",
       "fundadora": "Fondatrice et directrice générale",

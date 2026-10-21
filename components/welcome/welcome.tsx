@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { type CSSProperties, type RefObject, useEffect, useRef } from 'react';
 import { crearReposoBienvenida } from '../intro/bienvenida.motion';
 import { PageGrid } from '../layout/page-grid';
+import { useParallax } from '../layout/use-parallax';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithBold } from '../../lib/render-text-with-bold';
 import { DecorDesktop } from './decor-desktop';
@@ -76,6 +78,19 @@ export default function WelcomeSection() {
   const { t } = useTranslation();
   const ref = useRef<HTMLElement>(null);
   useReposoBienvenida(ref);
+  // Parallax de salida (docs/emi/DECISIONES.md, D8): mientras el hero sube, el cielo (sol, nubes y
+  // gaviotas) y la playa se quedan atrás, cada uno a su ritmo; el texto va con el scroll y EMI
+  // sube por encima. Fracción del alto de la ventana al final del recorrido.
+  const cielo = useParallax(ref, ['start start', 'end start'], {
+    desde: 0,
+    hasta: 0.07,
+    movil: { desde: 0, hasta: 0.04 },
+  });
+  const playa = useParallax(ref, ['start start', 'end start'], {
+    desde: 0,
+    hasta: 0.18,
+    movil: { desde: 0, hasta: 0.1 },
+  });
 
   return (
     <section
@@ -96,10 +111,15 @@ export default function WelcomeSection() {
           desktop va dentro, para moverse con el sol y el texto. */}
       <div className="relative flex w-full flex-1 flex-col justify-center lg:flex-none">
         {/* Desktop: nubes y gaviotas en el sitio del frame 1280:9 de Figma. */}
-        <DecorDesktop />
+        <motion.div className="pointer-events-none absolute inset-0" style={cielo} aria-hidden>
+          <DecorDesktop />
+        </motion.div>
 
         <PageGrid className="mb-[calc(var(--hero-k)*2.5)] lg:mb-[3.75rem]">
-          <div className="relative col-span-4 mx-auto flex min-h-[calc(var(--hero-k)*9)] w-full max-w-lg items-start justify-center md:col-span-12 lg:min-h-[9rem]">
+          <motion.div
+            style={cielo}
+            className="relative col-span-4 mx-auto flex min-h-[calc(var(--hero-k)*9)] w-full max-w-lg items-start justify-center md:col-span-12 lg:min-h-[9rem]"
+          >
             {/* Nube izquierda (mobile y tablet): un 25 % fuera del borde, 24 px bajo el centro. */}
             <div
               className="pointer-events-none absolute left-0 top-1/2 z-0 w-[min(clamp(5.5rem,38vw,9rem),calc(var(--hero-k)*9))] -translate-x-[50%] translate-y-[calc(-50%+var(--hero-k)*1.5)] lg:hidden"
@@ -140,7 +160,7 @@ export default function WelcomeSection() {
                 </NubeDeriva>
               </div>
             </div>
-          </div>
+          </motion.div>
         </PageGrid>
 
         <PageGrid>
@@ -195,11 +215,14 @@ export default function WelcomeSection() {
           con el alto de la pantalla hasta un tope (D13).
           El contenedor de tamaño es una capa absoluta dentro del hueco flexible: Chrome evalúa
           `cqh` de un ítem flex con base 0 antes de repartir el alto (daba 0). */}
-        <div className="relative mt-[calc(var(--hero-k)*2.5)] max-h-[calc(min(100vw,87.5rem)*243/390)] min-h-[7rem] w-full flex-1 lg:mt-0 lg:max-h-none lg:min-h-0 lg:flex-none">
+        <motion.div
+          style={playa}
+          className="relative mt-[calc(var(--hero-k)*2.5)] max-h-[calc(min(100vw,87.5rem)*243/390)] min-h-[7rem] w-full flex-1 lg:mt-0 lg:max-h-none lg:min-h-0 lg:flex-none"
+        >
           <div className="absolute inset-0 flex items-end overflow-x-clip [container-type:size] lg:static lg:block lg:overflow-x-visible lg:[container-type:normal]">
             <IlustracionPlaya />
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

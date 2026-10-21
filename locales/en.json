@@ -45,7 +45,7 @@
         "bolivar": "Bolívar",
         "atlantico": "Atlántico",
         "guajira": "Guajira",
-        "ibague": "Ibagué",
+        "tolima": "Tolima",
         "bogota": "Bogotá D.C."
       },
       "cierre": "==7 territories now== ==growing stronger==",
@@ -58,15 +58,15 @@
       },
       "luces": {
         "title": "==Understanding of== ==menstruation as a== ==natural cycle went== ==from 45% to 95%==",
-        "text": "Now they see clearly what was always there."
+        "text": "The Fuertes recognize, in the light of dignity, their cyclical nature."
       },
       "copa": {
         "title": "==More than 50== ==eco-products== ==delivered for== ==menstrual care==",
         "text": "Cutting at least 6 kg of waste per user every year."
       },
       "persona": {
-        "title": "==8 out of 10 know== ==themselves better== ==after the workshops==",
-        "text": "Las Fuertes has 5 stars"
+        "title": "==8 out of 10 girls== ==know themselves better== ==after the workshops==",
+        "text": "Menstrual education as a guide for resilient girls and teenagers."
       }
     }
   },
@@ -105,6 +105,7 @@
   "educationMap": {
     "title": "How we turn our educational map into a route toward conscious, holistic development",
     "saltar": "Skip map",
+    "hazClic": "Click here",
     "actions": {
       "back": "Back",
       "next": "Next route",
@@ -249,7 +250,7 @@
   },
   "quienesSomos": {
     "title": "Who we are",
-    "text": "We are a reef of women, volunteers and allies growing from Bogotá toward Colombia's forgotten territories. We build spaces where knowledge of the body is not whispered but shared, where comprehensive menstrual education is not a luxury but a right. And where every adolescent finds her own voice to navigate her life with clarity, confidence and freedom.",
+    "text": "We are a reef of women volunteers and allies growing from Bogotá to work with girls and teenagers in the most forgotten territories of Colombia. We build spaces where: knowing the body is shared without taboos, comprehensive menstrual education is within everyone's reach as a fundamental right, and where every girl, teenager and woman builds her identity to navigate her life with self-love, confidence and independence.",
     "roles": {
       "coordinadora": "ASE Network Coordinator",
       "fundadora": "Founder and General Director",

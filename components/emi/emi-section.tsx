@@ -1,9 +1,12 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/router';
+import { useRef } from 'react';
 
 import { PrinciplesSection } from '../principles';
 import { PageGrid } from '../layout/page-grid';
+import { useParallax } from '../layout/use-parallax';
 import { Resaltado } from '../layout/resaltado';
 import { FadeIn } from '../sumate/fade-in';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -38,64 +41,75 @@ export default function EmiSection() {
   // clave de locale solo con la sigla, así que la elige el idioma de la ruta.
   const { locale } = useRouter();
   const sigla = locale === 'en' ? 'CME' : 'EMI';
+  // Parallax de salida (docs/emi/DECISIONES.md, D8): en la última pantalla de EMI, el contenido
+  // se queda atrás y Donaciones sube por encima.
+  const ref = useRef<HTMLElement>(null);
+  const contenido = useParallax(ref, ['end end', 'end start'], {
+    desde: 0,
+    hasta: 0.14,
+    movil: { desde: 0, hasta: 0.08 },
+  });
 
   return (
-    // Aire de abajo (docs/emi/DECISIONES.md, D6): lo último visible (la pista "desliza" en mobile y
+    // Aire de abajo (docs/emi/DECISIONES.md, D6 y D7): lo último visible (la pista "desliza" en mobile y
     // tablet, el abanico en desktop) queda a la misma distancia del final que el sello del
     // principio: 47 / 47 / 68 px de arriba contra 48 / 46 / 69 de abajo a 390 / 768 / 1280.
     <section
+      ref={ref}
       id="emi"
-      className="relative w-full bg-cream pb-xl pt-[3.25rem] md:pb-m lg:pb-xl lg:pt-[4.6875rem]"
+      className="relative z-10 w-full bg-cream pb-xxl pt-[3.25rem] lg:pt-[4.6875rem]"
       aria-labelledby="emi-title"
     >
-      <PageGrid>
-        <div className="col-span-4 flex flex-col items-center md:col-span-12">
-          <FadeIn>
-            {/* El resaltado del sitio como sello: rosa del sol, -4,09 grados y poco aire (Figma
+      <motion.div style={contenido}>
+        <PageGrid>
+          <div className="col-span-4 flex flex-col items-center md:col-span-12">
+            <FadeIn>
+              {/* El resaltado del sitio como sello: rosa del sol, -4,09 grados y poco aire (Figma
                 1288:913, caja de 79 x 44 a 40 px). */}
-            <Resaltado
-              tono="rosa"
-              giro={-4.09}
-              partir={false}
-              className="text-h1 tracking-[-0.04em] lg:text-[3.25rem]"
-              style={SELLO}
-            >
-              {sigla}
-            </Resaltado>
-          </FadeIn>
-
-          <FadeIn delay={0.08} className="mt-6 lg:mt-7">
-            <h2
-              id="emi-title"
-              className="mx-auto max-w-[20rem] text-balance text-center text-h2 font-bold leading-8 tracking-[-0.04em] text-black lg:max-w-[40rem] lg:text-h1 lg:font-bold lg:leading-[1.2]"
-            >
-              {t('emi.title')}
-            </h2>
-          </FadeIn>
-
-          <FadeIn delay={0.16} className="mt-xl w-full lg:max-w-[50.375rem]">
-            <div className="text-left text-base leading-[1.2] text-black lg:text-h4 lg:leading-[1.2]">
-              <p>{renderTextWithBold(t('emi.paragraph1'))}</p>
-              <p className="mt-[1.2em]">{renderTextWithBold(t('emi.paragraph2'))}</p>
-            </div>
-          </FadeIn>
-
-          {/* Título del slider: la cinta negra con texto crema (chip rasgado, docs/PATTERNS.md).
-              Va aquí y no dentro de components/principles; ver docs/emi/PROGRESS.md. */}
-          <FadeIn delay={0.24} className="mb-m mt-[2.9375rem] lg:mt-[2.125rem]">
-            <h3 id="principios" className="scroll-mt-xl text-center">
-              {/* Si no cabe en una línea (francés en mobile) se parte en dos piezas con la misma
-                  letra: nunca se achica (docs/resaltado/DECISIONES.md, D1). */}
-              <Resaltado className="text-h3 tracking-[-0.04em] lg:text-[1.5625rem]">
-                {t('emi.comprendimos')}
+              <Resaltado
+                tono="rosa"
+                giro={-4.09}
+                partir={false}
+                className="text-h1 tracking-[-0.04em] lg:text-[3.25rem]"
+                style={SELLO}
+              >
+                {sigla}
               </Resaltado>
-            </h3>
-          </FadeIn>
-        </div>
-      </PageGrid>
+            </FadeIn>
 
-      {/* Segunda mitad: el slider de principios (lo construye components/principles). */}
-      <PrinciplesSection etiquetadoPor="principios" />
+            <FadeIn delay={0.08} className="mt-6 lg:mt-7">
+              <h2
+                id="emi-title"
+                className="mx-auto max-w-[20rem] text-balance text-center text-h2 font-bold leading-8 tracking-[-0.04em] text-black lg:max-w-[40rem] lg:text-h1 lg:font-bold lg:leading-[1.2]"
+              >
+                {t('emi.title')}
+              </h2>
+            </FadeIn>
+
+            <FadeIn delay={0.16} className="mt-xl w-full lg:max-w-[50.375rem]">
+              <div className="text-left text-base leading-[1.2] text-black lg:text-h4 lg:leading-[1.2]">
+                <p>{renderTextWithBold(t('emi.paragraph1'))}</p>
+                <p className="mt-[1.2em]">{renderTextWithBold(t('emi.paragraph2'))}</p>
+              </div>
+            </FadeIn>
+
+            {/* Título del slider: la cinta negra con texto crema (chip rasgado, docs/PATTERNS.md).
+              Va aquí y no dentro de components/principles; ver docs/emi/PROGRESS.md. */}
+            <FadeIn delay={0.24} className="mb-m mt-[2.9375rem] lg:mt-[2.125rem]">
+              <h3 id="principios" className="scroll-mt-xl text-center">
+                {/* Si no cabe en una línea (francés en mobile) se parte en dos piezas con la misma
+                  letra: nunca se achica (docs/resaltado/DECISIONES.md, D1). */}
+                <Resaltado className="text-h3 tracking-[-0.04em] lg:text-[1.5625rem]">
+                  {t('emi.comprendimos')}
+                </Resaltado>
+              </h3>
+            </FadeIn>
+          </div>
+        </PageGrid>
+
+        {/* Segunda mitad: el slider de principios (lo construye components/principles). */}
+        <PrinciplesSection etiquetadoPor="principios" />
+      </motion.div>
     </section>
   );
 }

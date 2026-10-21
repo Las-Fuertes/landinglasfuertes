@@ -41,7 +41,11 @@ export default function MapCanvas({
   const mapa = (
     <motion.div
       ref={mapaRef}
-      className={pinned ? 'absolute left-0 top-0 origin-top-left' : 'relative mx-auto w-full'}
+      className={
+        pinned
+          ? 'absolute left-0 top-0 origin-top-left [container-type:inline-size]'
+          : 'relative mx-auto w-full [container-type:inline-size]'
+      }
       style={
         pinned
           ? {

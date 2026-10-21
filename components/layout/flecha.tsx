@@ -5,17 +5,24 @@
  * reconozcan como la misma. El tamaño lo pone quien la usa con `className`; el color es el del
  * texto (`currentColor`).
  */
+const TRAZOS = {
+  arriba: 'M5 12.5 10 7.5l5 5',
+  abajo: 'M5 7.5l5 5 5-5',
+  izquierda: 'M12.5 5 7.5 10l5 5',
+  derecha: 'M7.5 5l5 5-5 5',
+} as const;
+
 export function Flecha({
   sentido,
   className = 'h-5 w-5',
 }: {
-  sentido: 'arriba' | 'abajo';
+  sentido: 'arriba' | 'abajo' | 'izquierda' | 'derecha';
   className?: string;
 }) {
   return (
     <svg aria-hidden viewBox="0 0 20 20" className={className} fill="none">
       <path
-        d={sentido === 'arriba' ? 'M5 12.5 10 7.5l5 5' : 'M5 7.5l5 5 5-5'}
+        d={TRAZOS[sentido]}
         stroke="currentColor"
         strokeWidth="1.75"
         strokeLinecap="round"

@@ -215,3 +215,16 @@ campo), en la caja de montos de `components/sumate/donar-dinero.tsx`. Clave nuev
 montant". Se quitó el `aria-label` porque la etiqueta visible ya da el nombre accesible (así el
 nombre coincide con lo que se ve, WCAG 2.5.3); el placeholder "Otro monto" se queda. Verificado con
 captura a 390 con el drawer abierto en `/#sumate`.
+
+## D6. Íconos de "¿Cómo quieres ayudar?" grises y hover igual al activo (Johan, 2026-10-20)
+
+**Pedido** (feedback del 20-oct, B2, que Johan llamó "Donaciones"): los íconos no activos eran
+naranja, rosa y azul; deben ir grises como el borde. Los seleccionados no cambian. El hover era
+distinto al clic.
+
+**Qué** (`components/sumate/como-ayudar.tsx`). Se quitó `acento` de `CATEGORIES`. El ícono inactivo
+es `text-black/30` (el mismo gris del borde `gris` del marco); activo y hover son `text-blue`. El
+hover del marco: en las tarjetas inactivas se monta encima un segundo `MarcoRasgado` (azul, grueso,
+con sombra, igual al activo) con `opacity-0 group-hover:opacity-100`; el texto ya pasaba a azul con
+`group-hover`. Así hover y activo comparten ícono, texto, marco y sombra. El hover es sticky en
+táctil, como antes. Captura `b/donar-1280.png` y `b/donar-390.png`.

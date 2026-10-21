@@ -174,3 +174,17 @@ casco se mece; con `--reducido` sin errores. Sin scroll horizontal en ningún an
 
 **Para Johan.** Los pesos son de ojo, para que el hueco más grande quede entre las olas de la
 izquierda y no al final; si alguna se ve rara se cambian en `OLAS_DESKTOP`.
+
+## D5. Azul de tripulantes con menos saturación (Johan, 2026-10-20)
+
+**Pedido** (feedback del 20-oct, B10): el azul de "Dirigir el cambio con educación menstrual
+integral requiere tripulantes comprometidos" recibió feedback de muy saturado y cansa la vista;
+bajarlo un poco, sin tocar el azul del resto del sitio.
+
+**Qué.** Token nuevo `blue.suave` en `tailwind.config.js` (`bg-blue-suave`, `text-blue-suave`):
+**antes `#0413D8` (el `blue` del sitio), ahora `#1927C8`** (el mismo tono, saturación de 96 % a 78 %
+y un punto más de luz). Se usa solo en `donations-section.tsx` (fondo de la sección, texto del
+botón y su offset de foco) y en el color del título de las cintas (`donations.module.css`). El
+botón flotante Súmate, el drawer y las demás secciones siguen con `blue`. Los SVG del barco y las
+olas no llevan el azul (son crema con opacidad y azul claro), así que no hubo que tocarlos. Si
+Johan lo quiere más o menos suave, se cambia el valor del token. Captura `b/trip-1280.png`.

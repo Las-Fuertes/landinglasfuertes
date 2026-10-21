@@ -18,6 +18,9 @@ module.exports = {
           300: '#030fa5', // dark blue
           /** Azul cielo del marco de las estampillas de EMI (Figma 1297:6 y 1297:2, #2CA0FF). */
           cielo: '#2CA0FF',
+          /** Azul de Donaciones (tripulantes), con menos saturación que `blue` (#0413D8) porque
+              cansaba la vista (feedback del 2026-10-20). Solo se usa en esa sección. */
+          suave: '#1927C8',
         },
         purple: {
           DEFAULT: '#b3b8f0',

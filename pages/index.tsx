@@ -8,7 +8,6 @@ import { EducationMapSection } from '../components/education-map';
 import { SumateDrawer, SumateDrawerProvider, SumateFlotante } from '../components/sumate';
 import { QuienesSomosSection } from '../components/quienes-somos';
 import Footer from '../components/layout/footer';
-import LanguageSwitcher from '../components/layout/language-switcher';
 import VolverArriba from '../components/layout/volver-arriba';
 import { OrganizationJsonLd, SeoHead } from '../components/seo';
 import { useSeccionesVistas } from '../lib/use-secciones-vistas';
@@ -21,8 +20,6 @@ export default function Home() {
     <>
       <SeoHead title={t('meta.title')} description={t('meta.description')} ruta="/" />
       <OrganizationJsonLd />
-
-      <LanguageSwitcher />
 
       {/* El orden de la página vive aquí, no dentro de <Hero />. Súmate ya no es una sección:
           es un drawer que abren Donaciones, el footer y el botón flotante.

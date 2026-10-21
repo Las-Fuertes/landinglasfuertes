@@ -122,12 +122,22 @@ export function MapaImpacto({ inicioTitulo }: { inicioTitulo: InicioTitulo }) {
                   <path key={figma} d={d} className="fill-ash" />
                 )
               )}
-              <Territorio
-                d={ISLA_FUERTE.d}
-                transform={ISLA_FUERTE.transform}
-                i={ORDEN.islaFuerte}
-              />
             </g>
+            {/* Isla Fuerte (D12): relleno gris oscuro fijo y, encima, el borde rosa de los
+                territorios encendidos, que aparece en su turno (el primero). */}
+            <path
+              d={ISLA_FUERTE.d}
+              transform={ISLA_FUERTE.transform}
+              className="fill-neutral-600"
+            />
+            <path
+              d={ISLA_FUERTE.d}
+              transform={ISLA_FUERTE.transform}
+              className="impacto-isla-borde fill-none stroke-pink"
+              strokeWidth={1.6}
+              strokeLinejoin="round"
+              style={{ ['--i' as string]: ORDEN.islaFuerte } as CSSProperties}
+            />
           </svg>
 
           {ETIQUETAS.map(({ id, x, y, chico, hasta }, i) => (

@@ -1,13 +1,17 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { type CSSProperties, type RefObject, useEffect, useRef } from 'react';
 import { PageGrid } from '../layout/page-grid';
+import { useParallax } from '../layout/use-parallax';
 import { useTranslation } from '../../hooks/useTranslation';
 import { renderTextWithBold } from '../../lib/render-text-with-bold';
 import { useSumateDrawer } from '../sumate';
 import { TituloCinta } from './titulo-cinta';
 import styles from './donations.module.css';
+
+const PageGridMovil = motion.create(PageGrid);
 
 /**
  * Vida en reposo de Donaciones (docs/donaciones/DECISIONES.md, D3): el barco se mece, sus ondas
@@ -106,16 +110,23 @@ export default function DonationsSection() {
   const sumate = useSumateDrawer();
   const ref = useRef<HTMLElement>(null);
   useReposoTripulantes(ref);
+  // Parallax de entrada (docs/emi/DECISIONES.md, D8): la sección sube por encima de EMI y su
+  // contenido llega un poco rezagado, de 0,08 del alto de la ventana a 0 al llegar arriba.
+  const contenido = useParallax(ref, ['start end', 'start start'], {
+    desde: 0.08,
+    hasta: 0,
+    movil: { desde: 0.05, hasta: 0 },
+  });
 
   return (
     <section
       ref={ref}
       id="tripulantes"
       // Una pantalla como mínimo (D3): el contenido se centra en el alto que sobra sobre las olas.
-      className="relative isolate flex min-h-pantalla flex-col overflow-hidden bg-blue"
+      className="relative isolate z-20 flex min-h-pantalla flex-col overflow-hidden bg-blue-suave"
       aria-labelledby="donations-title"
     >
-      <PageGrid className={styles.contenido}>
+      <PageGridMovil className={styles.contenido} style={contenido}>
         <div className="relative col-span-4 md:col-span-12">
           <div className={styles.columna}>
             <div className="relative">
@@ -136,7 +147,7 @@ export default function DonationsSection() {
                 onClick={() => sumate.open('tripulantes')}
                 // Que "Volver arriba" no lo tape (docs/navegacion/DECISIONES.md, D6).
                 data-evita-volver-arriba=""
-                className={`${styles.boton} inline-flex items-center justify-center rounded bg-papel text-p-lg font-extrabold uppercase leading-normal text-blue transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-papel focus-visible:ring-offset-2 focus-visible:ring-offset-blue`}
+                className={`${styles.boton} inline-flex items-center justify-center rounded bg-papel text-p-lg font-extrabold uppercase leading-normal text-blue-suave transition hover:bg-beige focus:outline-none focus-visible:ring-2 focus-visible:ring-papel focus-visible:ring-offset-2 focus-visible:ring-offset-blue-suave`}
               >
                 {t('donations.cta')}
               </button>
@@ -145,7 +156,7 @@ export default function DonationsSection() {
 
           <Barco variante="desktop" className={`${styles.barcoDesktop} hidden md:block`} />
         </div>
-      </PageGrid>
+      </PageGridMovil>
 
       {/* Olas azul claro al pie, a sangre, una capa por vector (ver OLAS_*). */}
       <div className={`${styles.olasMobile} pointer-events-none md:hidden`} aria-hidden>

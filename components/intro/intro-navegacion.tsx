@@ -17,6 +17,9 @@ type Accion = 'saltar' | 'anterior' | 'siguiente';
  *   y vuelve al mismo botón cuando reaparecen. Así, quien pulsa Enter sobre la flecha sigue ahí.
  *   Un Tab durante la transición también deja el foco en el contenedor (`data-intro-navegacion`,
  *   use-intro-pin.ts) y al reaparecer pasa a avanzar.
+ * - Desde D19 (2026-10-20) no se esconden: están siempre a la vista mientras dura la intro. Las
+ *   flechas son izquierda (anterior) y derecha (siguiente); en la última parte la derecha lleva a
+ *   Bienvenida.
  * - Cada flecha solo está si se puede ir en ese sentido. Como aparecen al final de cada paso,
  *   con un fundido, que "Saltar intro" se corra un hueco cuando aparece la de retroceder no se
  *   nota; un hueco vacío entre los botones, sí.
@@ -59,8 +62,8 @@ export function IntroNavegacion({
     if (activo !== raiz) return;
     const disponible = (a: Accion) =>
       raiz.querySelector<HTMLButtonElement>(`[data-accion="${a}"]:not(.hidden)`);
-    // Si el recordado ya no está (la flecha de avanzar no existe en la última parte, D17), el
-    // foco pasa a "Saltar intro", que desde ahí es el avance.
+    // Si el recordado no está disponible, el foco pasa a avanzar o, en su defecto, a "Saltar
+    // intro".
     const destino =
       (recordado.current && disponible(recordado.current)) ??
       disponible('siguiente') ??
@@ -102,7 +105,7 @@ export function IntroNavegacion({
           onClick={onRetroceder}
           className={`${boton} w-10 ${puedeRetroceder ? '' : 'hidden'}`}
         >
-          <Flecha sentido="arriba" />
+          <Flecha sentido="izquierda" />
         </button>
         <button
           type="button"
@@ -111,7 +114,7 @@ export function IntroNavegacion({
           onClick={onAvanzar}
           className={`${boton} w-10 ${puedeAvanzar ? '' : 'hidden'}`}
         >
-          <Flecha sentido="abajo" />
+          <Flecha sentido="derecha" />
         </button>
       </div>
     </div>

@@ -41,7 +41,7 @@ export default function ImpactoSection() {
       // por `--k` cada una). En mobile el CTA "Súmate" flotante (16 + 42 = 58 px) cae encima de la
       // primera línea: la franja reserva su alto (arriba 64 + 10, abajo 16). Desde tablet, 25 por
       // `--k` arriba y abajo. `--alto-titulo` es la franja entera.
-      className="relative w-full bg-beige [--aire-abajo:theme(spacing.4)] [--aire-arriba:calc(theme(spacing.16)+theme(spacing.s))] [--alto-titulo:calc(var(--aire-arriba)+4rem*var(--k)+var(--aire-abajo))] [--k:1] md:[--aire-abajo:calc(theme(spacing.l)*var(--k))] md:[--aire-arriba:calc(theme(spacing.l)*var(--k))] md:[--k:1.25] lg:[--k:1.4]"
+      className="relative w-full bg-beige [--aire-abajo:theme(spacing.4)] [--aire-arriba:calc(theme(spacing.16)+theme(spacing.s))] [--alto-titulo:calc(var(--aire-arriba)+4rem*var(--k)+var(--aire-abajo))] [--k:1] md:[--aire-abajo:calc(theme(spacing.l)*var(--k))] md:[--aire-arriba:calc(theme(spacing.xl)*var(--k))] md:[--k:1.25] lg:[--k:1.4]"
     >
       <TituloImpacto onInicio={alEmpezarTitulo} />
       {/* En desktop, la misma caja que el PageGrid: 1200 de ancho con 40 de margen. */}

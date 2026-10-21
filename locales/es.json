@@ -45,7 +45,7 @@
         "bolivar": "Bolívar",
         "atlantico": "Atlántico",
         "guajira": "Guajira",
-        "ibague": "Ibagué",
+        "tolima": "Tolima",
         "bogota": "Bogotá D.C."
       },
       "cierre": "==7 territorios ahora== ==más fuertes==",
@@ -58,15 +58,15 @@
       },
       "luces": {
         "title": "==La comprensión de la== ==menstruación como== ==ciclo natural pasó== ==del 45% al 95%==",
-        "text": "Ahora ellas ven claro lo que siempre estuvo ahí."
+        "text": "Las fuertes reconocen bajo la luz de la dignidad; su naturaleza cíclica."
       },
       "copa": {
         "title": "==Más de 50== ==ecoproductos== ==entregados para== ==gestión menstrual==",
         "text": "Reduciendo al menos 6 kg de residuos por usuaria al año."
       },
       "persona": {
-        "title": "==8 de 10 se conocen== ==más con lo explorado== ==en los talleres==",
-        "text": "Las Fuertes tienen 5 estrellas"
+        "title": "==8 de cada 10 niñas== ==se conocen más con== ==lo explorado en== ==los talleres==",
+        "text": "La educación menstrual como guía de niñas y adolescentes resilientes."
       }
     }
   },
@@ -105,6 +105,7 @@
   "educationMap": {
     "title": "Cómo hacemos de nuestro mapa educativo la ruta hacia el desarrollo integral consciente",
     "saltar": "Saltar mapa",
+    "hazClic": "Haz clic aquí",
     "actions": {
       "back": "Atrás",
       "next": "Siguiente ruta",
@@ -249,7 +250,7 @@
   },
   "quienesSomos": {
     "title": "¿Quiénes somos?",
-    "text": "Somos un arrecife de mujeres, voluntarias y aliadas que crece desde Bogotá para los territorios olvidados de Colombia. Construimos espacios donde el conocimiento del cuerpo no se susurra, se comparte, donde la educación menstrual integral no es un lujo, es un derecho. Y donde cada adolescente encuentra su propia voz para navegar su vida con claridad, confianza y libertad.",
+    "text": "Somos un arrecife de mujeres voluntarias y aliadas que crece desde Bogotá para trabajar con niñas y adolescentes en los territorios más olvidados de Colombia. Construimos espacios donde: el reconocimiento del cuerpo se comparte sin tabúes, la educación menstrual integral está al alcance de todas como derecho fundamental, y donde cada niña, adolescente y mujer construya su identidad para navegar su vida con amor propio, confianza e independencia.",
     "roles": {
       "coordinadora": "Coordinadora Red ASE",
       "fundadora": "Fundadora y Directora general",

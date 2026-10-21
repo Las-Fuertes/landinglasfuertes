@@ -418,6 +418,17 @@ html[data-intro-anima] [data-intro-estatica] {
   opacity: 1;
 }
 
+/* Borde rosa de Isla Fuerte (docs/impacto/DECISIONES.md, D12): sale en su turno, como el rosa. */
+.impacto-isla-borde {
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--retraso, 0ms) + 100ms + var(--i, 0) * 40ms);
+}
+
+.impacto-mapa[data-encendido] .impacto-isla-borde {
+  opacity: 1;
+}
+
 /* El gris de debajo se retira de golpe cuando el rosa ya está entero: en reposo no se pinta. */
 .impacto-territorio-gris {
   transition: opacity 0s linear;
@@ -448,6 +459,7 @@ html[data-intro-anima] [data-intro-estatica] {
   .impacto-cabecera .impacto-flor,
   .impacto-mapa-base,
   .impacto-territorio,
+  .impacto-isla-borde,
   .impacto-etiqueta {
     opacity: 1 !important;
     transform: none !important;
